@@ -29,6 +29,8 @@ import org.miv.graphstream.graph.Graph;
 import org.miv.graphstream.graph.GraphListener;
 import org.miv.graphstream.graph.Node;
 
+import static org.miv.graphstream.algorithm.Toolkit.*;
+
 /**
  * A random walk on a graph.
  * 
@@ -206,7 +208,7 @@ public class RandomWalk implements GraphListener
 	public Entity createEntity()
 	{
 //		 return new TabuEntity( graph.algorithm().getRandomNode( random ) );
-		 return new TabuTimedEntity( graph.algorithm().getRandomNode( random ) );
+		 return new TabuTimedEntity( getRandomNode( graph, random ) );
 	}
 	
 	/**
@@ -406,7 +408,7 @@ protected class TabuEntity implements Entity
 	
 	protected void jump()
 	{
-		current = graph.algorithm().getRandomNode( random );
+		current = getRandomNode( graph, random );
 	}
 
 	protected void cross( Edge e )
@@ -495,7 +497,7 @@ public class TabuTimedEntity extends TabuEntity
 			speed *= Float.parseFloat( s );
 		}
 		
-		crossing = graph.algorithm().getEdgeLength( edge ) / speed;
+		crossing = getEdgeLength( edge ) / speed;
 	}
 }
 

@@ -19,6 +19,7 @@ package org.miv.graphstream.algorithm;
 import java.util.*;
 
 import org.miv.graphstream.graph.*;
+import static org.miv.graphstream.algorithm.Toolkit.*;
 
 /**
  * Computes and update the modularity of a given graph as it evolves.
@@ -107,8 +108,8 @@ public class Modularity implements DynamicAlgorithm, GraphListener
 	{
 		if( graphChanged )
 		{
-			float[][] E = graph.algorithm().modularityMatrix( communities );
-			Q = graph.algorithm().modularity( E );
+			float[][] E = modularityMatrix( graph, communities );
+			Q = modularity( E );
 			graphChanged = false;
 		}
 	}
@@ -139,7 +140,7 @@ public class Modularity implements DynamicAlgorithm, GraphListener
 	
 	protected void initialize()
 	{
-		communities = graph.algorithm().communities( marker );
+		communities = communities( graph, marker );
 	}
 
 	public void beforeGraphClear( Graph graph )

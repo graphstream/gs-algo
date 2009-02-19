@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
+import static org.miv.graphstream.algorithm.Toolkit.*;
+
 import org.miv.graphstream.graph.Edge;
 import org.miv.graphstream.graph.Graph;
 import org.miv.graphstream.graph.Node;
@@ -283,7 +285,7 @@ public class RandomFixedDegreeDynamicGraphGenerator
 	public void displayDistribution()
 	{
 //		int[] distrib = dynagraph.getDegreeDistribution();
-		int[] distrib = dynagraph.algorithm().getDegreeDistribution();
+		int[] distrib = getDegreeDistribution( dynagraph );
 		System.out.print( "Distribution:: " );
 		for( int d = 0; d < distrib.length; d++ )
 		{
