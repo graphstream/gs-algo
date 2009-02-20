@@ -208,7 +208,7 @@ public class RandomWalk implements GraphListener
 	public Entity createEntity()
 	{
 //		 return new TabuEntity( graph.algorithm().getRandomNode( random ) );
-		 return new TabuTimedEntity( getRandomNode( graph, random ) );
+		 return new TabuTimedEntity( randomNode( graph, random ) );
 	}
 	
 	/**
@@ -408,7 +408,7 @@ protected class TabuEntity implements Entity
 	
 	protected void jump()
 	{
-		current = getRandomNode( graph, random );
+		current = randomNode( graph, random );
 	}
 
 	protected void cross( Edge e )
@@ -497,7 +497,7 @@ public class TabuTimedEntity extends TabuEntity
 			speed *= Float.parseFloat( s );
 		}
 		
-		crossing = getEdgeLength( edge ) / speed;
+		crossing = edgeLength( edge ) / speed;
 	}
 }
 

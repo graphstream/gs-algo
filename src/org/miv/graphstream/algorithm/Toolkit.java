@@ -43,7 +43,7 @@ public class Toolkit
 	 * 
 	 * @complexity O(n) where n is the number of nodes.
 	 */
-	public static int[] getDegreeDistribution( Graph graph )
+	public static int[] degreeDistribution( Graph graph )
 	{
 		if(graph.getNodeCount() == 0)
 			return null;
@@ -79,7 +79,7 @@ public class Toolkit
 	 * @return The degree map.
 	 * @complexity O(n log(n)) where n is the number of nodes.
 	 */
-	public static ArrayList<Node> getDegreeMap( Graph graph )
+	public static ArrayList<Node> degreeMap( Graph graph )
 	{
 		ArrayList<Node> map   = new ArrayList<Node>();
 		Iterator<? extends Node>  nodes = graph.getNodeIterator();
@@ -102,7 +102,7 @@ public class Toolkit
 	 * @return The average degree of the graph.
 	 * @complexity O(1).
 	 */
-	public static float  getAverageDegree( Graph graph )
+	public static float  averageDegree( Graph graph )
 	{
 		float m = graph.getEdgeCount() * 2;
 		float n = graph.getNodeCount();
@@ -111,15 +111,6 @@ public class Toolkit
 			return m / n;
 		
 		return 0;
-/*
-		int            degree = 0;
-		Iterator<? extends Node> nodes  = graph.getNodeIterator();
-		
-		while( nodes.hasNext() )
-		    degree += nodes.next().getDegree();
-
-		return degree / (float)graph.getNodeCount();
-*/
 	}
 	
 	/**
@@ -127,7 +118,7 @@ public class Toolkit
 	 * @return The density of the graph.
 	 * @complexity O(1)
 	 */
-	public static float getDensity( Graph graph )
+	public static float density( Graph graph )
 	{
 	    float m = (float) graph.getEdgeCount();
 	    float n = (float) graph.getNodeCount();
@@ -143,9 +134,9 @@ public class Toolkit
 	 * @return The degree average deviation.
 	 * @complexity O(n) where n is the number of nodes.
 	 */
-	public static float getDegreeAverageDeviation( Graph graph )
+	public static float degreeAverageDeviation( Graph graph )
 	{
-		float average = getAverageDegree( graph );
+		float average = averageDegree( graph );
 		float sum     = 0;
 
 		Iterator<? extends Node> nodes = graph.getNodeIterator(); 
@@ -167,7 +158,7 @@ public class Toolkit
 	 * @complexity at worse O(n d^2) where n is the number of nodes and d the
 	 *             average or maximum degree of nodes.
 	 */
-	public static double[] getClusteringCoefficients( Graph graph )
+	public static double[] clusteringCoefficients( Graph graph )
 	{
 		int n = graph.getNodeCount();
 
@@ -179,7 +170,7 @@ public class Toolkit
 
 			while( nodes.hasNext() )
 			{
-			    coefs[j++] = getClusteringCoefficient( nodes.next() );
+			    coefs[j++] = clusteringCoefficient( nodes.next() );
 			}
 
 			assert( j == n );
@@ -196,7 +187,7 @@ public class Toolkit
 	 * @return The clustering coefficient for this node.
 	 * @complexity O(d^2) where d is the degree of the given node.  
 	 */
-	public static double getClusteringCoefficient( Node node )
+	public static double clusteringCoefficient( Node node )
 	{
 		double coef = 0.0;
 		int    n    = node.getDegree();
@@ -248,9 +239,9 @@ public class Toolkit
 	 * @return A node chosen at random.
 	 * @complexity at worse O(n) where n is the number of nodes.
 	 */
-	public static Node getRandomNode( Graph graph )
+	public static Node randomNode( Graph graph )
 	{
-		return getRandomNode( graph, new Random() );
+		return randomNode( graph, new Random() );
 	}
 	
 	/**
@@ -259,7 +250,7 @@ public class Toolkit
 	 * @return A node chosen at random.
 	 * @complexity at worse O(n) where n is the number of nodes.
 	 */
-	public static Node getRandomNode( Graph graph, Random random )
+	public static Node randomNode( Graph graph, Random random )
 	{
 		int n = graph.getNodeCount();
 		int r = random.nextInt( n );
@@ -414,34 +405,6 @@ public class Toolkit
 	 */
 	public static float modularity( Graph graph, String marker )
 	{
-/*
-		HashMap<Object,HashSet<Node>> communities = communities( marker );
-		
-		int    communityCount = communities.size();
-		float  E[][]          = modularityMatrix( communities );
-		
-		for( Object key: communities.keySet() )
-		{
-			HashSet<Node> com = communities.get( key );
-			System.err.printf( "    community '%s': %d%n", key.toString(), com.size() );
-		}
-		
-		for( int y=0; y<communityCount; ++y )
-		{
-			System.err.printf( "    %3d  ", y );
-			
-			for( int x=0; x<communityCount; ++x )
-			{
-				System.err.printf( " %03.3f", E[x][y] );
-			}
-			
-			System.err.printf( "%n" );
-		}
-		
-		// Compute the modularity.
-		
-		return modularity( E );
-*/
 		return modularity( modularityMatrix( graph, communities( graph, marker ) ) );
 	}
 	
@@ -517,54 +480,54 @@ public class Toolkit
 	 * @return A newly allocated array of three floats containing the (x,y,z) position of the node,
 	 * or null if the node is not part of the graph.
 	 */
-	public static float[] getNodePosition( Graph graph, String id )
+	public static float[] nodePosition( Graph graph, String id )
 	{
 		Node node = graph.getNode( id );
 		
 		if( node != null )
-			return getNodePosition( node );
+			return nodePosition( node );
 
 		return null;
 	}
 	
 	/**
-	 * Like {@link #getNodePosition(Graph,String)} but use an existing node as argument.
+	 * Like {@link #nodePosition(Graph,String)} but use an existing node as argument.
 	 * @param node The node to consider.
 	 * @return A newly allocated array of three floats containing the (x,y,z) position of the node.
 	 */
-	public static float[] getNodePosition( Node node )
+	public static float[] nodePosition( Node node )
 	{
 		float xyz[] = new float[3];
 		
-		getNodePosition( node, xyz );
+		nodePosition( node, xyz );
 		
 		return xyz;
 	}
 	
 	/**
-	 * Like {@link #getNodePosition(Graph,String)}, but instead of returning a newly allocated array,
+	 * Like {@link #nodePosition(Graph,String)}, but instead of returning a newly allocated array,
 	 * fill up the array given as parameter. This array must have at least three cells.
 	 * @param id The node identifier.
 	 * @param xyz An array of at least three cells.
 	 * @throws NotFoundException If the node with the given identifier does not exist.
 	 */
-	public static void getNodePosition( Graph graph, String id, float xyz[] )
+	public static void nodePosition( Graph graph, String id, float xyz[] )
 		throws NotFoundException
 	{
 		Node node = graph.getNode( id );
 		
 		if( node != null )
-			getNodePosition( node, xyz );
+			nodePosition( node, xyz );
 		
 		throw new NotFoundException( "node '"+id+"' does not exist" );
 	}
 	
 	/**
-	 * Like {@link #getNodePosition(Graph,String,float[])} but use an existing node as argument.
+	 * Like {@link #nodePosition(Graph,String,float[])} but use an existing node as argument.
 	 * @param node The node to consider.
 	 * @param xyz An array of at least three cells.
 	 */
-	public static void getNodePosition( Node node, float xyz[] )
+	public static void nodePosition( Node node, float xyz[] )
 	{
 		if( xyz.length < 3 )
 			return;
@@ -609,26 +572,26 @@ public class Toolkit
 	 * @return The edge length or -1 if the nodes of the edge have no positions.
 	 * @throws NotFoundException If the edge cannot be found.
 	 */
-	public static float getEdgeLength( Graph graph, String id )
+	public static float edgeLength( Graph graph, String id )
 		throws NotFoundException
 	{
 		Edge edge = graph.getEdge( id );
 		
 		if( edge != null )
-			return getEdgeLength( edge );
+			return edgeLength( edge );
 		
 		throw new RuntimeException( "edge '"+id+"' cannot be found" );
 	}
 	
 	/**
-	 * Like {@link #getEdgeLength(Graph,String)} but use an existing edge as argument.
+	 * Like {@link #edgeLength(Graph,String)} but use an existing edge as argument.
 	 * @param edge
 	 * @return The edge length or -1 if the nodes of the edge have no positions.
 	 */
-	public static float getEdgeLength( Edge edge )
+	public static float edgeLength( Edge edge )
 	{
-		float xyz0[] = getNodePosition( edge.getNode0() );
-		float xyz1[] = getNodePosition( edge.getNode1() );
+		float xyz0[] = nodePosition( edge.getNode0() );
+		float xyz1[] = nodePosition( edge.getNode1() );
 		
 		if( xyz0 == null || xyz1 == null )
 			return -1;

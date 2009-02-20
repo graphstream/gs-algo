@@ -285,7 +285,7 @@ public class RandomFixedDegreeDynamicGraphGenerator
 	public void displayDistribution()
 	{
 //		int[] distrib = dynagraph.getDegreeDistribution();
-		int[] distrib = getDegreeDistribution( dynagraph );
+		int[] distrib = degreeDistribution( dynagraph );
 		System.out.print( "Distribution:: " );
 		for( int d = 0; d < distrib.length; d++ )
 		{
