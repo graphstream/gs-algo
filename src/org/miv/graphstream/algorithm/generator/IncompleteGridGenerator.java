@@ -41,7 +41,9 @@ import org.miv.graphstream.graph.Graph;
  * @version 20080524
  */
 
-public class IncompleteGridGenerator {
+public class IncompleteGridGenerator
+	implements Generator
+{
 
 // Attributes
 	
@@ -66,7 +68,6 @@ public class IncompleteGridGenerator {
     protected int dimension;
     protected int type;
 
-    protected boolean evenementiel;
     protected int startLine;
     protected int startCol;
     /**
@@ -78,201 +79,287 @@ public class IncompleteGridGenerator {
     protected int obstacleSize;
     protected String graphName;
 
-    protected boolean trace = false;
-    public    Random alea;
+    protected Random alea;
+    protected boolean generateDGS = false;
 
     // Constructors
 
-    public IncompleteGridGenerator(String args[]) {
-
-	dimension = DEFAULT_DIM;
-	width = DEFAULT_SIZE;
-	height = DEFAULT_SIZE;
-	nbObstacles = 1;
-	obstacleSize = 5;
-	graphName = "";
-	type = GRID;
-	evenementiel = false;
-	startLine = 0;
-	startCol = 0;
-	alea = new Random();
-
-	if(trace) {
-	    for(int i=0;i<args.length;i++) {
-		System.out.println("argument "+i+":"+args[i]+"__");
-	    }
-	    System.exit(0);
-	}
-
-	if(args.length >= 5) {
-	    width = Integer.parseInt(args[1]);
-	    height = Integer.parseInt(args[2]);
-	    graphName="grid_"+width+"_"+height;
-	    if(args[3].equalsIgnoreCase("tore")) {
-		type = TORUS;
-		graphName = "torus_"+width+"_"+height;
-	    } else {
-		if(args[3].equalsIgnoreCase("croix")) {
-		    type = CROSS_GRID;
-		    graphName = "cross-grid_"+width+"_"+height;
-		} else {
-		    if(args[3].equalsIgnoreCase("tore-croix")) {
-			type = CROSS_TORUS;
-			graphName = "cross-torus_"+width+"_"+height;
-		    } 
-		}
-	    }
-	    nbObstacles = Integer.parseInt(args[4]);
-	    obstacleSize = Integer.parseInt(args[5]);
-	} else usage();
-
-	//String gName = new String(dimension+"_"+width+"_"+height);
-	generateDGS(dimension,
-		    width,
-		    height,
-		    type,
-		    evenementiel,
-		    startLine,
-		    startCol,
-		    graphName);
-    }
-	
-
     /**
-     * main()
+     * Default constructor.
      */
-	
-    public static void main(String args[]) {
-	if(args.length < 2) {
-	    usage();
-	} else {
-	    IncompleteGridGenerator gg = new IncompleteGridGenerator(args);
-	}
+    public IncompleteGridGenerator()
+    {
+    	this( DEFAULT_DIM, DEFAULT_SIZE, DEFAULT_SIZE, false, false, 1, 5 );
     }
-
     /**
-     * Méthode 
+     * Build a new IncompleteGridGenerator.
+     * 
+     * @param dimension
+     * @param width
+     * @param height
+     * @param cross
+     * @param torus
+     * @param nbObstacles
+     * @param obstaclesSize
      */
-    public void generateDGS(int dim, int width, int height, int type, boolean event, int sl, int sc, String gName) {
-	String intro = "DGS002 \n"+gName+ " 0 0\n"+"nodes x:number y:number \n"+"st 0\n";
-	String initNode = "an ";
-	String initEdge = "ae ";
+    public IncompleteGridGenerator( int dimension, int width, int height,
+    		boolean cross, boolean torus, int nbObstacles, int obstaclesSize )
+    {
+    	this.dimension 		= dimension;
+    	this.width			= width;
+    	this.height			= height;
+    	this.nbObstacles 	= nbObstacles;
+    	this.obstacleSize	= obstaclesSize;
+    	this.startLine		= 0;
+    	this.startCol		= 0;
+    	this.graphName		= String.format( "incomplete-grid-%dx%d", width, height );
+    	this.alea			= new Random();
+    	
+    	if( cross && torus )
+    		type = CROSS_TORUS;
+    	else if( cross )
+    		type = CROSS_GRID;
+    	else if( torus )
+    		type = TORUS;
+    	else
+    		type = GRID;
+    }
+    /**
+     * @see org.miv.graphstream.algorithm.generator.Generator
+     */
+    public void begin( Graph graph )
+    {
+    	if( graph == null )
+    		generateDGS = true;
+    	
+    	if( generateDGS )
+    		System.out.printf( "DGS002 \n%s 0 0\n" +
+    				"nodes x:number y:number \n" +
+    				"st 0\n", graphName );
+    	
+    	this.graph = graph;
+    }
+    /**
+     * @see org.miv.graphstream.algorithm.generator.Generator
+     */
+    public boolean nextElement()
+    		//int dim, int width, int height, int type,boolean event, int sl, int sc, String gName)
+    {
+    	for(int l=0;l<height;l++)
+    		for(int c=0;c<width;c++)
+    			addNode( l + "_" + c, l, c );
 
-	System.out.print(intro);
+    	// dans tous les cas, il faut mettre les liens pour la grille
+    	for(int l=0;l<height;l++)
+    	{
+    		int lplus1 = l+1;
 
-	if(!event) {
-	    for(int l=0;l<height;l++) {
-		for(int c=0;c<width;c++) {
-		    System.out.println(initNode+"\""+l+"_"+c+"\""+" "+l+" "+c);
-		}
-	    }
-	    // dans tous les cas, il faut mettre les liens pour la grille
-	    for(int l=0;l<height;l++) {
-		int lplus1 = l+1;
-		for(int c=0;c<width;c++) {
-		    int cplus1 = c+1;
-		    int cmoins1 = c-1;
-		    String src = l+"_"+c;
-		    String est = l+"_"+cplus1;
-		    String sud = lplus1+"_"+c;
-		    String sw = lplus1+"_"+cmoins1;
-		    String se = lplus1+"_"+cplus1;
-		    // dans tous les cas 
-		    if(cplus1 < width) {
-			System.out.println(initEdge+"\""+src+":"+est+"\""+" "+"\""+src+"\""+" "+"\""+est+"\"");
-		    }
-		    if(lplus1 < height) {
-			System.out.println(initEdge+"\""+src+":"+sud+"\""+" "+"\""+src+"\""+" "+"\""+sud+"\"");
-		    }
-		    // cas du tore 
-		    if((cplus1 == width) && ((type == TORUS) || (type == CROSS_TORUS))) {
-			est = l+"_0";
-			System.out.println(initEdge+"\""+src+":"+est+"\""+" "+"\""+src+"\""+" "+"\""+est+"\"");
-		    }
-		    if((lplus1 == height) && ((type == TORUS) || (type == CROSS_TORUS))) {
-			sud = "0_"+c;
-			System.out.println(initEdge+"\""+src+":"+sud+"\""+" "+"\""+src+"\""+" "+"\""+sud+"\"");
-		    }
-		    // dans tous les cas de croix 
-		    if((type == CROSS_GRID) || (type == CROSS_TORUS)) {
-			if((cmoins1 >= 0) && (lplus1 < height)) {
-			    System.out.println(initEdge+"\""+src+":"+sw+"\""+" "+"\""+src+"\""+" "+"\""+sw+"\"");
-			}
-			if((cplus1 < width) && (lplus1 < height)) {
-			    System.out.println(initEdge+"\""+src+":"+se+"\""+" "+"\""+src+"\""+" "+"\""+se+"\"");
-			}
-		    }
-                    // dans le cas du tore-croix 
-		    if(type == CROSS_TORUS) {
-			int ligne = lplus1;
-			int col = cmoins1;
-			if(cmoins1 < 0) {
-			    col = width-1;
-			} 
-			if(lplus1 == height) {
-			    ligne = 0;
-			}
-			if((cmoins1 < 0) || (lplus1 == height)) {
-			    sw = ligne+"_"+col;
-			    System.out.println(initEdge+"\""+src+":"+sw+"\""+" "+"\""+src+"\""+" "+"\""+sw+"\"");
-			}
-			col = cplus1;
-			if(cplus1 == width) {
-			    col = 0;
-			}
-			if(lplus1 == height) {
-			    ligne = 0;
-			}
-			if((cplus1 == width) || (lplus1 == height)) {
-			    se = ligne+"_"+col;
-			    System.out.println(initEdge+"\""+src+":"+se+"\""+" "+"\""+src+"\""+" "+"\""+se+"\"");
-			}
-		    }
-		}
-	    }
-	} else { // to be done
-	}
+    		for(int c=0;c<width;c++)
+    		{
+    			int cplus1 = c+1;
+    			int cmoins1 = c-1;
+    			String src = l+"_"+c;
+    			String est = l+"_"+cplus1;
+    			String sud = lplus1+"_"+c;
+    			String sw = lplus1+"_"+cmoins1;
+    			String se = lplus1+"_"+cplus1;
+    			// dans tous les cas 
+
+    			if(cplus1 < width)
+    				addEdge( src + ":" + est, src, est );
+
+    			if(lplus1 < height)
+    				addEdge( src + ":" + sud, src, sud );
+
+    			// cas du tore 
+    			if((cplus1 == width) && ((type == TORUS) || (type == CROSS_TORUS)))
+    			{
+    				est = l+"_0";
+    				addEdge( src + ":" + est, src, est );
+    			}
+
+    			if((lplus1 == height) && ((type == TORUS) || (type == CROSS_TORUS)))
+    			{
+    				sud = "0_"+c;
+    				addEdge( src + ":" + sud, src, sud );
+    			}
+
+    			// dans tous les cas de croix 
+    			if((type == CROSS_GRID) || (type == CROSS_TORUS))
+    			{
+    				if((cmoins1 >= 0) && (lplus1 < height))
+    					addEdge( src + ":" + sw, src, sw );
+
+    				if((cplus1 < width) && (lplus1 < height))
+    					addEdge( src + ":" + se, src, se );
+    			}
+
+    			// dans le cas du tore-croix 
+    			if(type == CROSS_TORUS)
+    			{
+    				int ligne = lplus1;
+    				int col = cmoins1;
+    				if(cmoins1 < 0)
+    					col = width-1;
+
+    				if(lplus1 == height)
+    					ligne = 0;
+
+    				if((cmoins1 < 0) || (lplus1 == height))
+    				{
+    					sw = ligne+"_"+col;
+    					addEdge( src + ":" + sw, src, sw );
+    				}
+
+    				col = cplus1;
+    				if(cplus1 == width)
+    					col = 0;
+
+    				if(lplus1 == height)
+    					ligne = 0;
+
+    				if((cplus1 == width) || (lplus1 == height))
+    				{
+    					se = ligne+"_"+col;
+    					addEdge( src + ":" + se, src, se );
+    				}
+    			}
+    		}
+    	}
 	
 	// add some obstacles ==> remove some nodes
 	// starting point randomly chosen as well as length and width
-	ArrayList<String> removed = new ArrayList<String>();
-	for(int nbObs = 0; nbObs < nbObstacles; nbObs++) {
-	    int xstart = alea.nextInt(width);
-	    int ystart = alea.nextInt(height);
-	    int larg = alea.nextInt(obstacleSize)+1;
-	    int lon = alea.nextInt(obstacleSize)+1;
-	    for(int i=xstart;i<=xstart+larg;i++) {
-		for(int j=ystart;j<=ystart+lon;j++) {
-		    if((i < width) && (j < height)) {
-			String idfRemNode = new String(i+"_"+j);
-			if(!removed.contains(idfRemNode)) {
-			    System.out.println("dn "+"\""+i+"_"+j+"\"");
-			    removed.add(idfRemNode);
-			}
-		    }
-		}
-	    }
-	}
+    	ArrayList<String> removed = new ArrayList<String>();
+    	
+    	for(int nbObs = 0; nbObs < nbObstacles; nbObs++)
+    	{
+    		int xstart = alea.nextInt(width);
+    		int ystart = alea.nextInt(height);
+    		int larg = alea.nextInt(obstacleSize)+1;
+    		int lon = alea.nextInt(obstacleSize)+1;
+    		for(int i=xstart;i<=xstart+larg;i++)
+    		{
+    			for(int j=ystart;j<=ystart+lon;j++)
+    			{
+    				if((i < width) && (j < height))
+    				{
+    					String idfRemNode = String.format( "%d_%d", i, j);
+    					if(!removed.contains(idfRemNode))
+    					{
+    						delNode( idfRemNode );
+    						removed.add(idfRemNode);
+    					}
+    				}
+    			}
+    		}
+    	}
+    	
+    	return false;
     }
-
     /**
-     * Cette méthode créé un graphe qui est une grille ou un tore, qui est statique ou 
-     * une suite d'événements de création, et retourne le graphe en question.
+     * @see org.miv.graphstream.algorithm.generator.Generator
      */
-
-
-
+    public void end()
+    {
+    	
+    }
+    /**
+     * Method used to create a node.
+     * @param id
+     * @param x
+     * @param y
+     */
+    protected void addNode( String id, int x, int y )
+    {
+    	if( generateDGS )
+    		System.out.printf( "an \"%s\" %d %d\n", id, x, y );
+    	else
+    		graph.addNode(id).addAttribute( "xy", x, y );
+    }
+    /**
+     * Method used to delete a node.
+     * @param id
+     */
+    protected void delNode( String id )
+    {
+    	if( generateDGS )
+    		System.out.printf( "dn \"%s\"\n", id );
+    	else
+    		graph.removeNode(id);
+    }
+    /**
+     * Method used to create an edge.
+     * @param id
+     * @param src
+     * @param trg
+     */
+    protected void addEdge( String id, String src, String trg )
+    {
+    	if( generateDGS )
+    		System.out.printf( "ae \"%s\" \"%s\" \"%s\"\n", id, src, trg );
+    	else
+    		graph.addEdge( id, src, trg );
+    }
     /**
      * This method describes how the class should be used.
      */
-    public static void usage() {
-	System.out.println("java org.miv.graphstream.algorithm.generator.IncompleteGridGenerator [paramètres]");
-	System.out.println("\t\t dimension: dimension de la grille. Cette version n'accepte que la dimension 2.");
-	System.out.println("\t\t largeur: largeur de la grille (entier. Par défaut 20)");
-	System.out.println("\t\t hauteur: hauteur de la grille (entier. Par défaut 20)");
-	System.out.println("\t\t type: type appartient à l'ensemble {grille,tore,croix,tore-croix}");
-	System.out.println("\t\t nbObstacles : Nombre d'obstacles");
-	System.out.println("\t\t sizeObstacles : taille max des obstacles");
+    public static void usage()
+    {
+    	System.out.println("java org.miv.graphstream.algorithm.generator.IncompleteGridGenerator [paramÃ¨tres]");
+    	System.out.println("\t\t dimension: dimension de la grille. Cette version n'accepte que la dimension 2.");
+    	System.out.println("\t\t largeur: largeur de la grille (entier. Par dÃ©faut 20)");
+    	System.out.println("\t\t hauteur: hauteur de la grille (entier. Par dÃ©faut 20)");
+    	System.out.println("\t\t type: type appartient Ã  l'ensemble {grille,tore,croix,tore-croix}");
+    	System.out.println("\t\t nbObstacles : Nombre d'obstacles");
+    	System.out.println("\t\t sizeObstacles : taille max des obstacles");
     }
-
+    /**
+     * Main method used to generate DGS output.
+     */
+    public static void main( String args[] )
+    {
+    	if(args.length >= 5)
+    	{
+    		int width = Integer.parseInt(args[1]);
+    		int height = Integer.parseInt(args[2]);
+    		boolean tore	= false;
+    		boolean cross	= false;
+    		
+    		if(args[3].equalsIgnoreCase("tore"))
+    		{
+    			tore = true;
+    			cross = false;
+    		}
+    		else
+    		{
+    			if(args[3].equalsIgnoreCase("croix"))
+    			{
+    				cross	= true;
+    				tore	= false;
+    			} 
+    			else
+    			{
+    				if(args[3].equalsIgnoreCase("tore-croix"))
+    				{
+    					cross	= true;
+    					tore	= true;
+    				} 
+    			}
+    		}
+    		
+    		int nbObstacles = Integer.parseInt(args[4]);
+    		int obstacleSize = Integer.parseInt(args[5]);
+    		
+    		Generator gen = new IncompleteGridGenerator(2,width,height,tore,cross,
+    				nbObstacles,obstacleSize);
+    		
+    		gen.begin(null);
+    		gen.nextElement();
+    		gen.end();
+    	} 
+    	else
+    	{
+    		usage();
+    	}
+    }
 }
