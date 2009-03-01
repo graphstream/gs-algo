@@ -62,7 +62,7 @@ import org.miv.graphstream.graph.Path;
  *  
  * @complexity The complexity of A* depends on the heuristic.
  * @author Antoine Dutot
- * @author Yoann Pigné
+ * @author Yoann Pignï¿½
  */
 public class AStar implements Algorithm
 {
@@ -126,6 +126,14 @@ public class AStar implements Algorithm
 	public AStar( Graph graph )
 	{
 		setGraph( graph );
+	}
+	
+	public AStar( Graph graph, String src, String trg )
+	{
+		this(graph);
+		
+		setSource(src);
+		setTarget(trg);
 	}
 	
 // Accessors
@@ -469,7 +477,7 @@ public class AStar implements Algorithm
 	 * </ul>
 	 * </p>
 	 * @author Antoine Dutot
-	 * @author Yoann Pigné
+	 * @author Yoann Pignï¿½
 	 */
 	protected class AStarNode
 	{
