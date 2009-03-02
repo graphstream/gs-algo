@@ -91,6 +91,12 @@ public class IncompleteGridGenerator
     {
     	this( DEFAULT_DIM, DEFAULT_SIZE, DEFAULT_SIZE, false, false, 1, 5 );
     }
+    
+    public IncompleteGridGenerator( int width, int height,
+    		boolean cross, boolean torus, int nbObstacles, int obstaclesSize )
+    {
+    	this( DEFAULT_DIM, width, height, cross, torus, nbObstacles, obstaclesSize );
+    }
     /**
      * Build a new IncompleteGridGenerator.
      * 
@@ -350,7 +356,7 @@ public class IncompleteGridGenerator
     		int nbObstacles = Integer.parseInt(args[4]);
     		int obstacleSize = Integer.parseInt(args[5]);
     		
-    		Generator gen = new IncompleteGridGenerator(2,width,height,tore,cross,
+    		Generator gen = new IncompleteGridGenerator(2,width,height,cross,tore,
     				nbObstacles,obstacleSize);
     		
     		gen.begin(null);

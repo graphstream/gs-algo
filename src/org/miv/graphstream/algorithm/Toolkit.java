@@ -28,7 +28,7 @@ import org.miv.util.NotFoundException;
  * </p>
  * 
  * @author Antoine Dutot
- * @author Yoann Pigné
+ * @author Yoann Pignï¿½
  */
 public class Toolkit
 {
@@ -321,7 +321,7 @@ public class Toolkit
 	 * {@link #communities(Graph,String)} method.
 	 * @param communities Set of nodes.
 	 * @return The E matrix as defined by Newman and Girvan.
-	 * @complexity O(m²k) with m the number of communities and k the average
+	 * @complexity O(mï¿½k) with m the number of communities and k the average
 	 * number of nodes per community.
 	 */
 	public static float[][] modularityMatrix( Graph graph, HashMap<Object,HashSet<Node>> communities )
@@ -361,7 +361,7 @@ public class Toolkit
 	 * Compute the modularity of the graph from the E matrix.
 	 * @param E The E matrix given by {@link #modularityMatrix(Graph,HashMap)}.
 	 * @return The modularity of the graph.
-	 * @complexity O(m²) with m the number of communities.
+	 * @complexity O(mï¿½) with m the number of communities.
 	 */
 	public static float modularity( float[][] E )
 	{
@@ -399,9 +399,9 @@ public class Toolkit
 	 *  
 	 * @param marker The community attribute stored on nodes.
 	 * @return The graph modularity.
-	 * @complexity 0(n + m² + m²k) with n the number of nodes, m the number of
+	 * @complexity 0(n + mï¿½ + mï¿½k) with n the number of nodes, m the number of
 	 * communities and k the average number of nodes per communities.
-	 * @see org.miv.graphstream.algorithm.Modularity
+	 * @see org.miv.graphstream.algorithm.measure.Modularity
 	 */
 	public static float modularity( Graph graph, String marker )
 	{

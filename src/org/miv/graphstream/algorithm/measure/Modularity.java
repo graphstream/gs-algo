@@ -14,10 +14,11 @@
  * Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-package org.miv.graphstream.algorithm;
+package org.miv.graphstream.algorithm.measure;
 
 import java.util.*;
 
+import org.miv.graphstream.algorithm.DynamicAlgorithm;
 import org.miv.graphstream.graph.*;
 import static org.miv.graphstream.algorithm.Toolkit.*;
 
@@ -29,7 +30,7 @@ import static org.miv.graphstream.algorithm.Toolkit.*;
  * </p>
  *
  * @author Antoine Dutot
- * @author Yoann Pigné
+ * @author Yoann Pignï¿½
  * @since 2007
  */
 public class Modularity implements DynamicAlgorithm, GraphListener
@@ -83,7 +84,7 @@ public class Modularity implements DynamicAlgorithm, GraphListener
 	
 	/**
 	 * Compute the modularity (if the graph changed since the last computation).
-	 * @complexity O(n+m²+m²k)
+	 * @complexity O(n+mï¿½+mï¿½k)
 	 * @return The current modularity.
 	 */
 	public float getModularity()

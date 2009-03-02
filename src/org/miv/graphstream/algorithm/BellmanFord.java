@@ -13,10 +13,10 @@ import org.miv.graphstream.graph.Path;
 
 /**
  * <p>
- * The Bellman–Ford algorithm computes single-source shortest paths in a
+ * The Bellmanï¿½Ford algorithm computes single-source shortest paths in a
  * weighted digraph (where some of the edge weights may be negative). Dijkstra's
  * algorithm accomplishes the same problem with a lower running time, but
- * requires edge weights to be non-negative. Thus, Bellman–Ford is usually used
+ * requires edge weights to be non-negative. Thus, Bellmanï¿½Ford is usually used
  * only when there are negative edge weights (from the <a href="http://en.wikipedia.org/wiki/Bellman-Ford_algorithm">Wikipedia</a>).
  * </p>
  * 
@@ -25,10 +25,10 @@ import org.miv.graphstream.graph.Path;
  * For the moment only attributes located on the edges are supported.
  * </p> 
  * 
- * @complexity O(V·E) time, where V and E are the number of vertices and edges respectively.
+ * @complexity O(Vï¿½E) time, where V and E are the number of vertices and edges respectively.
  * 
  * @author Antoine Dutot
- * @author Yoann Pigné
+ * @author Yoann Pignï¿½
  * 
  */
 public class BellmanFord

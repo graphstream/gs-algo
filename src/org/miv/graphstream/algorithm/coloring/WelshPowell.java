@@ -62,9 +62,9 @@ import org.miv.graphstream.algorithm.*;
  * </p>
  * 
  * @version 0.1 30/08/2007
- * @author Frédéric Guinand
+ * @author Frï¿½dï¿½ric Guinand
  * @author Antoine Dutot
- * @author Yoann Pigné
+ * @author Yoann Pignï¿½
  */
 public class WelshPowell implements Algorithm
 {
