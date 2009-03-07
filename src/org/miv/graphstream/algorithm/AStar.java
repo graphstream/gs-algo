@@ -526,11 +526,7 @@ public class AStar implements Algorithm
 	 * </ul>
 	 * </p>
 	 * @author Antoine Dutot
-<<<<<<< .mine
 	 * @author Yoann Pigné
-=======
-	 * @author Yoann Pign�
->>>>>>> .r947
 	 */
 	protected class AStarNode
 	{
