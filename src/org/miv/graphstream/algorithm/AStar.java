@@ -16,6 +16,9 @@
 
 package org.miv.graphstream.algorithm;
 
+import static org.miv.graphstream.algorithm.Toolkit.edgeLength;
+import static org.miv.graphstream.algorithm.Toolkit.nodePosition;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,7 +38,7 @@ import org.miv.graphstream.graph.Path;
  *  </p>
  *  
  *  <p>
- *  In this A* implementations, the various costs (often called g, h and f)
+ *  In this A* implementation, the various costs (often called g, h and f)
  *  are given by a {@link org.miv.graphstream.algorithm.AStar.Costs} class.
  *  This class must provide a way to compute :
  *  <ul>
@@ -62,11 +65,15 @@ import org.miv.graphstream.graph.Path;
  *  
  * @complexity The complexity of A* depends on the heuristic.
  * @author Antoine Dutot
+<<<<<<< .mine
+ * @author Yoann Pigné
+=======
  * @author Yoann Pign�
+>>>>>>> .r947
  */
 public class AStar implements Algorithm
 {
-// Attributes
+// Attribute
 	
 	/**
 	 * The graph.
@@ -105,12 +112,12 @@ public class AStar implements Algorithm
 	protected Path result;
 	
 	/**
-	 * Set to true if the algorithm run, but did not found any path from the source
+	 * Set to true if the algorithm ran, but did not found any path from the source
 	 * to the target.
 	 */
 	protected boolean noPathFound;
 	
-// Constructors
+// Construction
 
 	/**
 	 * New A* algorithm.
@@ -121,29 +128,34 @@ public class AStar implements Algorithm
 	
 	/**
 	 * New A* algorithm on a given graph.
-	 * @param graph The graph where the algorithm will compute shortest paths.
+	 * @param graph The graph where the algorithm will compute paths.
 	 */
 	public AStar( Graph graph )
 	{
 		setGraph( graph );
 	}
 	
+	/**
+	 * New A* algorithm on the given graph.
+	 * @param graph The graph where the algorithm will compute paths.
+	 * @param src The start node.
+	 * @param trg The destination node.
+	 */
 	public AStar( Graph graph, String src, String trg )
 	{
-		this(graph);
-		
-		setSource(src);
-		setTarget(trg);
+		this( graph );
+		setSource( src );
+		setTarget( trg );
 	}
 	
-// Accessors
+// Access
 
     public Graph getGraph()
     {
 	    return graph;
     }
 	
-// Commands
+// Command
 	
 	/**
 	 * Change the source node. This clears the already computed path, but
@@ -168,7 +180,7 @@ public class AStar implements Algorithm
 	}
 	
 	/**
-	 * Specify the how various costs are computed. The costs object is in charge
+	 * Specify how various costs are computed. The costs object is in charge
 	 * of computing the cost of displacement from one node to another (and therefore
 	 * allows to compute the cost from the source node to any node). It also allows
 	 * to compute the heuristic to use for evaluating the cost from
@@ -277,7 +289,7 @@ public class AStar implements Algorithm
 		clearAll();
 		this.graph = graph;
     }
-	
+    
 	/**
 	 * Clear the already computed path. This does not clear the source node
 	 * name, the target node name and the weight attribute name.
@@ -298,9 +310,6 @@ public class AStar implements Algorithm
 	 */
 	protected void aStar( Node sourceNode, Node targetNode )
 	{
-		// TODO: use a priority queue.
-		// TODO: make the computation interruptible.
-		
 		clearAll();
 		open.put( sourceNode, new AStarNode( sourceNode, null, 0, costs.heuristic( sourceNode, targetNode ) ) );
 		
@@ -310,8 +319,8 @@ public class AStar implements Algorithm
 
 			assert( current != null );
 			
-			System.err.printf( "OPEN=%d%n", open.size() );
-			System.err.printf( "CUR %s [%f | %f | %f]%n", current.node.getId(), current.g, current.h, current.rank );
+//			System.err.printf( "OPEN=%d%n", open.size() );
+//			System.err.printf( "CUR %s [%f | %f | %f]%n", current.node.getId(), current.g, current.h, current.rank );
 			
 			if( current.node == targetNode )
 			{
@@ -351,7 +360,7 @@ public class AStar implements Algorithm
 
 					closed.remove( next );
 					open.put( next, new AStarNode( next, current, g, h ) );
-					System.err.printf( "   PUT %s [%f | %f | %f]%n", next.getId(), g, h, g+h );
+//					System.err.printf( "   PUT %s [%f | %f | %f]%n", next.getId(), g, h, g+h );
 				}
 			}
 		}
@@ -359,11 +368,14 @@ public class AStar implements Algorithm
 	
 	/**
 	 * Find the node with the lowest rank in the open list.
-	 * TODO replace this by a priority queue.
 	 * @return The node of open that has the lowest rank.
 	 */
 	protected AStarNode getNextBetterNode()
 	{
+		// TODO: consider using a priority queue here ?
+		// The problem is that we use open has a hash to ensure
+		// a node we will add to to open is not yet in it.
+		
 		float min = Float.MAX_VALUE;
 		AStarNode theChosenOne = null;
 		
@@ -406,7 +418,15 @@ public class AStar implements Algorithm
 		float cost( Node parent, Node next );
 	}
 	
-	public class DefaultCosts implements Costs
+	/**
+	 * An implementation of the Costs interface that provide a default heuristic. It computes
+	 * the G part using "weights" on edges. These weights must be stored in an attribute on
+	 * edges. By default this attribute must be named "weight", but this can be changed. The
+	 * weight attribute must be a number an must be translatable to a float value. This
+	 * implementation always return 0 for the H value. This makes the A* algorithm an equivalent
+	 * of the Dijkstra algorithm.  
+	 */
+	public static class DefaultCosts implements Costs
 	{
 		/**
 		 * The attribute used to retrieve the cost of an edge cross.
@@ -462,6 +482,35 @@ public class AStar implements Algorithm
 			return 1;
 		}
 	}
+
+	/**
+	 * An implementation of the Costs interface that assume that the weight of edges is
+	 * an Euclidian distance in 2D or 3D. No weight attribute is used. Instead, for the G
+	 * value, the edge weights are used. For the H value the Euclidian distance in 2D or 3D
+	 * between the current node and the target node is used. For this Costs implementation
+	 * to work, the graph nodes must have a position (either individual "x", "y" and "z" attribute,
+	 * or "xy" attribute or even "xyz" attributes. If there are only "x" and "y" or "xy" attribute
+	 * this works in 2D, else the third coordinate is taken into account. 
+	 */
+	public static class DistanceCosts implements AStar.Costs
+	{
+		public float heuristic( Node node, Node target )
+        {
+			float xy1[] = nodePosition( node );
+			float xy2[] = nodePosition( target );
+			
+			float x = xy2[0] - xy1[0];
+			float y = xy2[1] - xy1[1];
+			float z = ( xy1.length > 2 && xy2.length > 2 ) ? (xy2[2]-xy1[2]) : 0;
+			
+	        return (float) Math.sqrt( (x*x) + (y*y) + (z*z) ); 
+        }
+	
+		public float cost( Node parent, Node next )
+        {
+	        return edgeLength( parent.getEdgeToward( next.getId() ) );
+        }
+	}
 	
 	/**
 	 * Representation of a node in the A* algorithm.
@@ -477,7 +526,11 @@ public class AStar implements Algorithm
 	 * </ul>
 	 * </p>
 	 * @author Antoine Dutot
+<<<<<<< .mine
+	 * @author Yoann Pigné
+=======
 	 * @author Yoann Pign�
+>>>>>>> .r947
 	 */
 	protected class AStarNode
 	{

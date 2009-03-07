@@ -30,10 +30,10 @@ import org.miv.util.NotFoundException;
  * representation.
  * </p>
  * 
- * @see org.miv.graphstream.graph.Graph#algorithm()
  * @author Antoine Dutot
- * @author Yoann Pign�
+ * @author Yoann Pigné
  */
+@Deprecated
 public class Algorithms implements Algorithm
 {
 // Attributes

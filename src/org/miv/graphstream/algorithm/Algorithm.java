@@ -28,7 +28,7 @@ import org.miv.graphstream.graph.*;
 public interface Algorithm
 {
 	/**
-	 * The graph the algorithms operates upon.
+	 * The graph the algorithm operates upon.
 	 * @return A graph.
 	 */
 	Graph getGraph();
@@ -41,7 +41,7 @@ public interface Algorithm
 	
 	/**
 	 * Launch the algorithm on the previously specified graph. Please specify
-	 * the complexity of the algorithm in this javadoc. A dedicated tag can be
+	 * the complexity of the algorithm. A dedicated tag can be
 	 * used "@complexity".
 	 * @see #setGraph(Graph)
 	 */

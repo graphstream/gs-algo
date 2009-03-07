@@ -190,6 +190,7 @@ public class RandomFixedDegreeDynamicGraphGenerator
 		dgwh.end();
 	}
 	
+	@SuppressWarnings("all")
 	public void generate( Graph graph )
 	{
 		dynagraph = graph;
@@ -301,6 +302,7 @@ public class RandomFixedDegreeDynamicGraphGenerator
 	/**
 	 * This method computes the mean degree of the graph.
 	 */
+	@SuppressWarnings("all")
 	public double meanDegree()
 	{
 		int total = 0;
@@ -319,6 +321,7 @@ public class RandomFixedDegreeDynamicGraphGenerator
 	/**
 	 * Dynamic edge generator.
 	 */
+	@SuppressWarnings("all")
 	public void generateDGSvertices()
 	{
 
