@@ -65,11 +65,7 @@ import org.miv.graphstream.graph.Path;
  *  
  * @complexity The complexity of A* depends on the heuristic.
  * @author Antoine Dutot
-<<<<<<< .mine
  * @author Yoann Pigné
-=======
- * @author Yoann Pign�
->>>>>>> .r947
  */
 public class AStar implements Algorithm
 {
@@ -240,6 +236,38 @@ public class AStar implements Algorithm
 	{
 		Path path = new Path();
 		
+		ArrayList<AStarNode> thePath = new ArrayList<AStarNode>();
+		AStarNode            node    = target;
+		
+		while( node != null )
+		{
+			thePath.add( node );
+			node = node.parent;
+		}
+		
+		int n = thePath.size();
+		
+		if( n > 1 )
+		{
+			AStarNode current = thePath.get( n-1 );
+			AStarNode follow  = thePath.get( n-2 );
+		
+			path.add( current.node, follow.edge );
+		
+			current = follow;
+			
+			for( int i=n-3; i>=0; i-- )
+			{
+				follow = thePath.get( i );
+				path.add( follow.edge );
+				current = follow;
+			}
+		}
+		
+		return path;
+	/*
+		Path path = new Path();
+		
 		ArrayList<Node> thePath = new ArrayList<Node>();
 		AStarNode       node    = target;
 		
@@ -269,6 +297,7 @@ public class AStar implements Algorithm
 		}
 		
 		return path;
+	*/
 	}
 	
 	/**
@@ -311,7 +340,7 @@ public class AStar implements Algorithm
 	protected void aStar( Node sourceNode, Node targetNode )
 	{
 		clearAll();
-		open.put( sourceNode, new AStarNode( sourceNode, null, 0, costs.heuristic( sourceNode, targetNode ) ) );
+		open.put( sourceNode, new AStarNode( sourceNode, null, null, 0, costs.heuristic( sourceNode, targetNode ) ) );
 		
 		while( ! open.isEmpty() )
 		{
@@ -325,6 +354,7 @@ public class AStar implements Algorithm
 			if( current.node == targetNode )
 			{
 				// We found it !
+				assert current.edge != null;
 				result = buildPath( current );
 				return;
 			}
@@ -334,7 +364,36 @@ public class AStar implements Algorithm
 				closed.put( current.node, current );
 				
 				// For each successor of the current node :
+
+				Iterator<? extends Edge> nexts = current.node.getLeavingEdgeIterator();
 				
+				while( nexts.hasNext() )
+				{
+					Edge  edge = nexts.next();
+					Node  next = edge.getOpposite( current.node );
+					float h    = costs.heuristic( next, targetNode );
+					float g    = current.g + costs.cost(  current.node, edge, next );
+					float f    = g + h;
+					
+					// If the node is already in open with a better rank, we skip it.
+					
+					AStarNode alreadyInOpen = open.get( next );
+					
+					if( alreadyInOpen != null && alreadyInOpen.rank <= f )
+						continue;
+					
+					// If the node is already in closed with a better rank; we skip it.
+					
+					AStarNode alreadyInClosed = closed.get( next );
+					
+					if( alreadyInClosed != null && alreadyInClosed.rank <= f )
+						continue;
+
+					closed.remove( next );
+					open.put( next, new AStarNode( next, edge, current, g, h ) );
+//					System.err.printf( "   PUT %s [%f | %f | %f]%n", next.getId(), g, h, g+h );
+				}
+				/*
 				Iterator<? extends Node> nexts = current.node.getNeighborNodeIterator();
 				
 				while( nexts.hasNext() )
@@ -362,6 +421,7 @@ public class AStar implements Algorithm
 					open.put( next, new AStarNode( next, current, g, h ) );
 //					System.err.printf( "   PUT %s [%f | %f | %f]%n", next.getId(), g, h, g+h );
 				}
+				*/
 			}
 		}
 	}
@@ -411,11 +471,12 @@ public class AStar implements Algorithm
 		 * Cost of displacement from parent to next. The next node must be
 		 * directly connected to parent, or -1 is returned.
 		 * @param parent The node we come from.
+		 * @param from The edge used between the two nodes (in case this is a multi-graph).
 		 * @param next The node we go to.
 		 * @return The real cost of moving from parent to next, or -1 is next
 		 * is not directly connected to parent by an edge.
 		 */
-		float cost( Node parent, Node next );
+		float cost( Node parent, Edge from, Node next );
 	}
 	
 	/**
@@ -469,15 +530,16 @@ public class AStar implements Algorithm
 		 * The cost of moving from parent to next.  If there
 		 * is no cost attribute, the edge is considered to cost value "1".
 		 * @param parent The node we come from.
+		 * @param edge The edge between parent and next.
 		 * @param next The node we go to.
 		 * @return The movement cost.
 		 */
-		public float cost( Node parent, Node next )
+		public float cost( Node parent, Edge edge, Node next )
 		{
-			Edge choice = parent.getEdgeToward( next.getId() );
+			//Edge choice = parent.getEdgeToward( next.getId() );
 
-			if( choice != null && choice.hasNumber( weightAttribute ) )
-				return ((Number)choice.getNumber( weightAttribute )).floatValue();
+			if( edge != null && edge.hasNumber( weightAttribute ) )
+				return ((Number)edge.getNumber( weightAttribute )).floatValue();
 			
 			return 1;
 		}
@@ -506,9 +568,9 @@ public class AStar implements Algorithm
 	        return (float) Math.sqrt( (x*x) + (y*y) + (z*z) ); 
         }
 	
-		public float cost( Node parent, Node next )
+		public float cost( Node parent, Edge edge, Node next )
         {
-	        return edgeLength( parent.getEdgeToward( next.getId() ) );
+	        return edgeLength( edge );// parent.getEdgeToward( next.getId() ) );
         }
 	}
 	
@@ -541,6 +603,11 @@ public class AStar implements Algorithm
 		public AStarNode parent;
 		
 		/**
+		 * The edge used to go from parent to node.
+		 */
+		public Edge edge;
+		
+		/**
 		 * Cost from the source node to this one.
 		 */
 		public float g;
@@ -558,13 +625,15 @@ public class AStar implements Algorithm
 		/**
 		 * New A* node.
 		 * @param node The node.
+		 * @param edge The edge used to go from parent to node (useful for multi-graphs).
 		 * @param parent It's parent node.
 		 * @param g The cost from the source to this node.
 		 * @param h The estimated cost from this node to the target.
 		 */
-		public AStarNode( Node node, AStarNode parent, float g, float h )
+		public AStarNode( Node node, Edge edge, AStarNode parent, float g, float h )
 		{
 			this.node   = node;
+			this.edge   = edge;
 			this.parent = parent;
 			this.g      = g;
 			this.h      = h;
