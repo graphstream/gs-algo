@@ -46,7 +46,7 @@ import org.miv.graphstream.graph.Path;
  * @complexity O(n^2 + m) with n the number of nodes and m the number of edges.
  * 
  * @author Antoine Dutot
- * @author Yoann Pigné
+ * @author Yoann Pignï¿½
  */
 public class Dijkstra
 {
@@ -81,7 +81,7 @@ public class Dijkstra
 		length = new Hashtable<Node, Double>();
 		ArrayList<Node> computed = new ArrayList<Node>();
 		Collection<? extends Edge> edges;
-		Edge runningEdge;
+		//Edge runningEdge;
 		double dist;
 		double len;
 		Node runningNode;
@@ -93,7 +93,8 @@ public class Dijkstra
 		source = start;
 
 		// initialization
-		for( Node v: ( (Graph) graph ).getNodeSet() )
+
+		for( Node v: graph )
 		{
 			v.removeAttribute( "Dijkstra.parentEdges" );
 		}
@@ -101,12 +102,13 @@ public class Dijkstra
 		while( !priorityList.isEmpty() )
 		{
 			runningNode = priorityList.lire( 0 );
-			edges = runningNode.getLeavingEdgeSet();
-			Iterator<Edge> aretesIterator = (Iterator<Edge>) edges.iterator();
+			//edges = runningNode.getLeavingEdgeSet();
+			//Iterator<Edge> aretesIterator = (Iterator<Edge>) edges.iterator();
 
-			while( aretesIterator.hasNext() )
+			//while( aretesIterator.hasNext() )
+			for( Edge runningEdge: runningNode.getLeavingEdgeSet() )
 			{
-				runningEdge = ( (Edge) aretesIterator.next() );
+			//	runningEdge = ( (Edge) aretesIterator.next() );
 				neighborNode = runningEdge.getOpposite( runningNode );
 
 				if( !computed.contains( neighborNode ) )
@@ -358,7 +360,7 @@ public class Dijkstra
 	 *            in the constructor.
 	 * @return The set of edges that belong the the solution. Returns an empty
 	 *         list if the target node is not in the same connected component as
-	 *         the source node. Returns null if target is the same à the source node.
+	 *         the source node. Returns null if target is the same ï¿½ the source node.
 	 */
 	public List<Edge> getEdgeSetShortestPaths( Node target )
 	{

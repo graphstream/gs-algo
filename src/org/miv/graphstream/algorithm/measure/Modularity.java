@@ -28,10 +28,6 @@ import static org.miv.graphstream.algorithm.Toolkit.*;
  * <p>
  * TODO document this.
  * </p>
- *
- * @author Antoine Dutot
- * @author Yoann Pign�
- * @since 2007
  */
 public class Modularity implements DynamicAlgorithm, GraphListener
 {
@@ -144,67 +140,6 @@ public class Modularity implements DynamicAlgorithm, GraphListener
 		communities = communities( graph, marker );
 	}
 
-	public void beforeGraphClear( Graph graph )
-	{
-		graphChanged = true;
-	}
-
-	public void afterEdgeAdd( Graph graph, Edge edge )
-	{
-		graphChanged = true;
-	}
-
-	public void beforeEdgeRemove( Graph graph, Edge edge )
-	{
-		graphChanged = true;
-	}
-
-	public void afterNodeAdd( Graph graph, Node node )
-	{
-		// A node added, put it in the communities.
-		
-		Object communityKey = node.getAttribute( marker );
-		
-		if( communityKey == null )
-			communityKey = "NULL_COMMUNITY";
-		
-		HashSet<Node> community = communities.get( communityKey );
-			
-		if( community == null )
-		{
-			community = new HashSet<Node>();
-			communities.put( communityKey, community );
-		}
-			
-		community.add( node );
-
-		graphChanged = true;		
-	}
-
-	public void beforeNodeRemove( Graph graph, Node node )
-	{
-		Object communityKey = node.getAttribute( marker );
-		
-		if( communityKey == null )
-			communityKey = "NULL_COMMUNITY";
-		
-		HashSet<Node> community = communities.get( communityKey );
-		
-		assert community != null : "Removing a node that was not placed in any community !!";
-		
-		if( community != null )
-		{
-			community.remove( node );
-			
-			if( community.size() == 0 )
-			{
-				communities.remove( communityKey );
-			}
-		}
-		
-		graphChanged = true;
-	}
-
 	public void attributeChanged( Element element, String attribute,
 			Object oldValue, Object newValue )
 	{
@@ -240,7 +175,140 @@ public class Modularity implements DynamicAlgorithm, GraphListener
 		}
 	}
 
-	public void stepBegins(Graph graph, double time)
-	{
-	}
+	public void nodeAdded( String graphId, String nodeId )
+    {
+		// A node added, put it in the communities.
+
+		Node node = graph.getNode( nodeId );
+		
+		if( node != null )
+		{
+			Object communityKey = node.getAttribute( marker );
+			
+			if( communityKey == null )
+				communityKey = "NULL_COMMUNITY";
+			
+			HashSet<Node> community = communities.get( communityKey );
+				
+			if( community == null )
+			{
+				community = new HashSet<Node>();
+				communities.put( communityKey, community );
+			}
+				
+			community.add( node );
+	
+			graphChanged = true;
+		}
+    }
+
+	public void nodeRemoved( String graphId, String nodeId )
+    {
+		Node node = graph.getNode( nodeId );
+		
+		if( node != null )
+		{
+			Object communityKey = node.getAttribute( marker );
+			
+			if( communityKey == null )
+				communityKey = "NULL_COMMUNITY";
+			
+			HashSet<Node> community = communities.get( communityKey );
+			
+			assert community != null : "Removing a node that was not placed in any community !!";
+			
+			if( community != null )
+			{
+				community.remove( node );
+				
+				if( community.size() == 0 )
+				{
+					communities.remove( communityKey );
+				}
+			}
+			
+			graphChanged = true;
+		}
+    }
+
+	public void edgeAdded( String graphId, String edgeId, String fromNodeId, String toNodeId,
+            boolean directed )
+    {
+		graphChanged = true;
+    }
+
+	public void edgeRemoved( String graphId, String edgeId )
+    {
+		graphChanged = true;
+    }
+
+	public void stepBegins( String graphId, double time )
+    {
+    }
+
+	public void graphAttributeAdded( String graphId, String attribute, Object value )
+    {
+    }
+
+	public void graphAttributeChanged( String graphId, String attribute, Object oldValue, Object newValue )
+    {
+    }
+
+	public void graphAttributeRemoved( String graphId, String attribute )
+    {
+    }
+
+	public void nodeAttributeAdded( String graphId, String nodeId, String attribute, Object value )
+    {
+		nodeAttributeChanged( graphId, nodeId, attribute, null, value );
+    }
+
+	public void nodeAttributeChanged( String graphId, String nodeId, String attribute, Object oldValue, Object newValue )
+    {
+		if( attribute.equals( marker ) )
+		{
+			Node node = graph.getNode( nodeId );
+			graphChanged = true;
+			
+			// The node changed community.
+			
+			if( oldValue != newValue )
+			{
+				HashSet<Node> communityFrom = communities.get( oldValue );
+				HashSet<Node> communityTo   = communities.get( newValue );
+				
+				if( communityFrom != null )
+				{
+					communityFrom.remove( node );
+					
+					if( communityFrom.size() == 0 )
+						communities.remove( oldValue );
+				}
+				
+				if( communityTo == null )
+				{
+					communityTo = new HashSet<Node>();
+					communities.put( newValue, communityTo );
+				}
+				
+				communityTo.add( node );
+			}
+		}
+    }
+
+	public void nodeAttributeRemoved( String graphId, String nodeId, String attribute )
+    {
+    }
+
+	public void edgeAttributeAdded( String graphId, String edgeId, String attribute, Object value )
+    {
+    }
+
+	public void edgeAttributeChanged( String graphId, String edgeId, String attribute, Object oldValue, Object newValue )
+    {
+    }
+
+	public void edgeAttributeRemoved( String graphId, String edgeId, String attribute )
+    {
+    }
 }

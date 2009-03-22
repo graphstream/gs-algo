@@ -201,7 +201,7 @@ public class RandomFixedDegreeDynamicGraphGenerator
 		Edge newEdge;
 		int nbCreations, nbSuppressions, nbCreationsEdges, age;
 
-		// pour l'ensemble des étapes, on créé des sommets et des liens
+		// pour l'ensemble des ï¿½tapes, on crï¿½ï¿½ des sommets et des liens
 		for( int s = 1; s < nbSteps; s++ )
 		{
 
@@ -212,12 +212,11 @@ public class RandomFixedDegreeDynamicGraphGenerator
 			nbSuppressions = (int) ( Math.random() * ( dynagraph.getNodeCount() * nervousness ) );
 			for( int r = 1; r <= nbSuppressions; r++ )
 			{
-				dead = (Node) ( dynagraph.getNodeSet().toArray()[(int) ( Math.random() * dynagraph
-				        .getNodeCount() )] );
+				dead = randomNode( dynagraph );//(Node) ( dynagraph.getNodeSet().toArray()[(int) ( Math.random() * dynagraph.getNodeCount() )] );
 				age = s - (Integer) dead.getAttribute( "birth" );
 				System.out.println( "node age = " + age );
-				// avant de flinguer le noeud, il faut lister ses arêtes de façon
-				// à récupérer leur âge.
+				// avant de flinguer le noeud, il faut lister ses arï¿½tes de faï¿½on
+				// ï¿½ rï¿½cupï¿½rer leur ï¿½ge.
 				for( Edge e : dead.getEdgeSet() )
 				{
 					age = s - (Integer) e.getAttribute( "birth" );
@@ -226,7 +225,7 @@ public class RandomFixedDegreeDynamicGraphGenerator
 				dynagraph.removeNode( dead.getId() );
 			}
 
-			// la vitesse de création des sommets initiaux dépend de la pente ici 10000
+			// la vitesse de crï¿½ation des sommets initiaux dï¿½pend de la pente ici 10000
 			nbCreations = (int) ( Math.random() * ( ( nbVertices - dynagraph.getNodeCount() )
 			        * Math.log( s ) / Math.log( s + 10000 ) ) );
 			for( int c = 1; c <= nbCreations; c++ )
@@ -239,7 +238,7 @@ public class RandomFixedDegreeDynamicGraphGenerator
 			}
 
 			// on s'occupe maintenant des liens, toujours avec la nervosity
-			// la limite maximale du degré moyen est donnée par l'utilisateur, c'est
+			// la limite maximale du degrï¿½ moyen est donnï¿½e par l'utilisateur, c'est
 			// un parametre.
 			double degreMoyen = meanDegree();
 
@@ -249,17 +248,14 @@ public class RandomFixedDegreeDynamicGraphGenerator
 			for( int c = 1; c <= nbCreationsEdges; c++ )
 			{
 				numeroLien = numeroLien + 1;
-				source = (Node) ( dynagraph.getNodeSet().toArray()[(int) ( Math.random() * dynagraph
-				        .getNodeCount() )] );
-				dest = (Node) ( dynagraph.getNodeSet().toArray()[(int) ( Math.random() * dynagraph
-				        .getNodeCount() )] );
+				source = randomNode( dynagraph );//(Node) ( dynagraph.getNodeSet().toArray()[(int) ( Math.random() * dynagraph.getNodeCount() )] );
+				dest = randomNode( dynagraph );// (Node) ( dynagraph.getNodeSet().toArray()[(int) ( Math.random() * dynagraph.getNodeCount() )] );
 				String idEdge = source.getId() + "__" + dest.getId();
 				boolean found = ( ( dynagraph.getEdge( idEdge ) == null ) && ( source.getId() != dest
 				        .getId() ) );
 				while( !found )
 				{
-					dest = (Node) ( dynagraph.getNodeSet().toArray()[(int) ( Math.random() * dynagraph
-					        .getNodeCount() )] );
+					dest = randomNode( dynagraph );// (Node) ( dynagraph.getNodeSet().toArray()[(int) ( Math.random() * dynagraph.getNodeCount() )] );
 					idEdge = source.getId() + "__" + dest.getId();
 					if( ( dynagraph.getEdge( idEdge ) == null )
 					        && ( source.getId() != dest.getId() ) )
@@ -352,7 +348,7 @@ public class RandomFixedDegreeDynamicGraphGenerator
 				System.out.println( "age de v_" + leSommet + " = " + age );
 				System.out.println( "dgs dn v_" + leSommet );
 			}
-			// la vitesse de création des sommets initiaux dépend de la pente ici 10000
+			// la vitesse de crï¿½ation des sommets initiaux dï¿½pend de la pente ici 10000
 			nbCreations = (int) ( Math.random() * ( ( nbVertices - nbSommets ) * Math.log( s ) / Math
 			        .log( s + 10000 ) ) );
 			for( int c = 1; c <= nbCreations; c++ )
@@ -393,6 +389,6 @@ public class RandomFixedDegreeDynamicGraphGenerator
 	 */
 	public static String usage = "\nRandomFixedDegreeDynamicGraphGenerator \n"
 	        + "\t\t-nbVertices=<nombre de sommets (entier)>\n"
-	        + "\t\t-meanDegreeLimit=<degré moyen max (réel)>\n"
-	        + "\t\t-nervousness=<nervosité (réel)>\n" + "\t\t-nbSteps=<nombre d'étapes (entier)>\n";
+	        + "\t\t-meanDegreeLimit=<degrï¿½ moyen max (rï¿½el)>\n"
+	        + "\t\t-nervousness=<nervositï¿½ (rï¿½el)>\n" + "\t\t-nbSteps=<nombre d'ï¿½tapes (entier)>\n";
 }

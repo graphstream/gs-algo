@@ -265,39 +265,6 @@ public class AStar implements Algorithm
 		}
 		
 		return path;
-	/*
-		Path path = new Path();
-		
-		ArrayList<Node> thePath = new ArrayList<Node>();
-		AStarNode       node    = target;
-		
-		while( node != null )
-		{
-			thePath.add( node.node );
-			node = node.parent;
-		}
-		
-		int n = thePath.size();
-		
-		if( n > 1 )
-		{
-			Node current = thePath.get( n-1 );
-			Node follow  = thePath.get( n-2 );
-		
-			path.add( current, current.getEdgeToward( follow.getId() ) );
-		
-			current = follow;
-			
-			for( int i=n-3; i>=0; i-- )
-			{
-				follow = thePath.get( i );
-				path.add( current.getEdgeToward( follow.getId() ) );
-				current = follow;
-			}
-		}
-		
-		return path;
-	*/
 	}
 	
 	/**
@@ -393,35 +360,6 @@ public class AStar implements Algorithm
 					open.put( next, new AStarNode( next, edge, current, g, h ) );
 //					System.err.printf( "   PUT %s [%f | %f | %f]%n", next.getId(), g, h, g+h );
 				}
-				/*
-				Iterator<? extends Node> nexts = current.node.getNeighborNodeIterator();
-				
-				while( nexts.hasNext() )
-				{
-					Node  next = nexts.next();
-					float h    = costs.heuristic( next, targetNode );
-					float g    = current.g + costs.cost(  current.node, next );
-					float f    = g + h;
-					
-					// If the node is already in open with a better rank, we skip it.
-					
-					AStarNode alreadyInOpen = open.get( next );
-					
-					if( alreadyInOpen != null && alreadyInOpen.rank <= f )
-						continue;
-					
-					// If the node is already in closed with a better rank; we skip it.
-					
-					AStarNode alreadyInClosed = closed.get( next );
-					
-					if( alreadyInClosed != null && alreadyInClosed.rank <= f )
-						continue;
-
-					closed.remove( next );
-					open.put( next, new AStarNode( next, current, g, h ) );
-//					System.err.printf( "   PUT %s [%f | %f | %f]%n", next.getId(), g, h, g+h );
-				}
-				*/
 			}
 		}
 	}

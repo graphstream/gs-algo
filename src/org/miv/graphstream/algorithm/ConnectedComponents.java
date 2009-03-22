@@ -97,7 +97,7 @@ import org.miv.util.set.FixedArrayList;
  * </p>
  * 
  * 
- * @author Yoann Pigné
+ * @author Yoann Pignï¿½
  * @author Antoine Dutot
  * 
  * @since June 26 2007
@@ -324,7 +324,7 @@ public class ConnectedComponents implements DynamicAlgorithm, GraphListener
 	 * @param v The considered node.
 	 * @param id The id to assign to the given node.
 	 * @param exception An optional edge that may not be considered (useful when
-	 *        receiving a {@link #beforeEdgeRemove(Graph, Edge)} event.
+	 *        receiving a {@link #edgeRemoved(String,String)} event.
 	 */
 	private void computeConnectedComponent( Node v, int id, Edge exception )
 	{
@@ -396,7 +396,7 @@ public class ConnectedComponents implements DynamicAlgorithm, GraphListener
 		this.graph.addGraphListener( this );
 	}
 
-	public void afterEdgeAdd( Graph graph, Edge edge )
+	public void edgeAdded( String graphId, String edgeId, String fromNodeId, String toNodeId, boolean directed )
 	{
 		if( ! started && graph != null )
 		{
@@ -404,6 +404,169 @@ public class ConnectedComponents implements DynamicAlgorithm, GraphListener
 		}
 		else if( started )
 		{
+			Edge edge = graph.getEdge( edgeId );
+			
+			if( edge != null )
+			{
+				if( ! ( connectedComponentsMap.get( edge.getNode0() ).equals( connectedComponentsMap.get( edge.getNode1() ) ) ) )
+				{
+					connectedComponents--;
+					
+					int id0 = connectedComponentsMap.get( edge.getNode0() );
+					int id1 = connectedComponentsMap.get( edge.getNode1() );
+	
+					computeConnectedComponent( edge.getNode1(), id0, edge );
+					removeIdentifier( id1 );
+				}
+			}
+		}
+	}
+
+	public void nodeAdded( String graphId, String nodeId )
+	{
+		if( ! started && graph != null )
+		{
+			begin();
+		}
+		else if( started )
+		{
+			Node node = graph.getNode( nodeId );
+			
+			if( node != null )
+			{
+				connectedComponents++;
+	
+				int id = addIdentifier();
+	
+				connectedComponentsMap.put( node, id );
+				markNode( node, id );
+			}
+		}
+	}
+
+	public void edgeRemoved( String graphId, String edgeId )
+	{
+		if( ! started && graph != null )
+		{
+			begin();
+		}
+
+		if( started )
+		{
+			Edge edge = graph.getEdge( edgeId );
+			
+			if( edge != null )
+			{
+				int id    = addIdentifier();
+				int oldId = connectedComponentsMap.get( edge.getNode0() );
+	
+				computeConnectedComponent( edge.getNode0(), id, edge );
+				
+				if( !( connectedComponentsMap.get( edge.getNode0() ).equals( connectedComponentsMap.get( edge.getNode1() ) ) ) )
+				{
+					connectedComponents++;
+				}
+				else
+				{
+					removeIdentifier( oldId );
+				}
+			}
+		}
+	}
+
+	public void nodeRemoved( String graphId, String nodeId )
+	{
+		if( !started && graph != null )
+		{
+			begin();
+		}
+
+		if( started )
+		{
+			Node node = graph.getNode( nodeId );
+			
+			if( node != null )
+			{
+				connectedComponents--;
+				removeIdentifier( connectedComponentsMap.get( node ) );
+			}
+		}
+	}
+
+	public void stepBegins( String graphId, double time )
+	{
+	}
+
+	public void attributeChanged( Element element, String attribute, Object oldValue, Object newValue )
+	{
+	}
+
+	public void graphAttributeAdded( String graphId, String attribute, Object value )
+    {
+    }
+
+	public void graphAttributeChanged( String graphId, String attribute, Object oldValue, Object value )
+    {
+    }
+
+	public void graphAttributeRemoved( String graphId, String attribute )
+    {
+    }
+
+	public void nodeAttributeAdded( String graphId, String nodeId, String attribute, Object value )
+    {
+    }
+
+	public void nodeAttributeChanged( String graphId, String nodeId, String attribute, Object oldValue, Object value )
+    {
+    }
+
+	public void nodeAttributeRemoved( String graphId, String nodeId, String attribute )
+    {
+    }
+
+	public void edgeAttributeAdded( String graphId, String edgeId, String attribute, Object value )
+    {
+		if( cutAttribute != null && attribute.equals( cutAttribute ) )
+		{
+			if( ! started && graph != null )
+				begin();
+
+			Edge edge = graph.getEdge( edgeId );
+
+			// The attribute is added. Do as if the edge was added.
+			
+			int id    = addIdentifier();
+			int oldId = connectedComponentsMap.get( edge.getNode0() );
+			
+			computeConnectedComponent( edge.getNode0(), id, edge );
+			
+			if( ! connectedComponentsMap.get( edge.getNode0() ).equals( connectedComponentsMap.get( edge.getNode1() ) ) )
+			{
+				connectedComponents++;
+			}
+			else
+			{
+				removeIdentifier( oldId );
+			}
+		}
+    }
+
+	public void edgeAttributeChanged( String graphId, String edgeId, String attribute, Object oldValue, Object value )
+    {
+    }
+
+	public void edgeAttributeRemoved( String graphId, String edgeId, String attribute )
+    {
+		if( cutAttribute != null && attribute.equals( cutAttribute ) )
+		{
+			if( ! started && graph != null )
+				begin();
+
+			Edge edge = graph.getEdge( edgeId );
+
+			// The attribute is removed. Do as if the edge was removed.
+			
 			if( ! ( connectedComponentsMap.get( edge.getNode0() ).equals( connectedComponentsMap.get( edge.getNode1() ) ) ) )
 			{
 				connectedComponents--;
@@ -415,121 +578,5 @@ public class ConnectedComponents implements DynamicAlgorithm, GraphListener
 				removeIdentifier( id1 );
 			}
 		}
-	}
-
-	public void afterNodeAdd( Graph graph, Node node )
-	{
-		if( ! started && graph != null )
-		{
-			begin();
-		}
-		else if( started )
-		{
-			connectedComponents++;
-
-			int id = addIdentifier();
-
-			connectedComponentsMap.put( node, id );
-			markNode( node, id );
-		}
-	}
-
-	public void attributeChanged( Element element, String attribute, Object oldValue, Object newValue )
-	{
-		if( cutAttribute != null && element instanceof Edge && attribute.equals( cutAttribute ) )
-		{
-			if( ( oldValue != null && newValue != null ) || ( oldValue == null && newValue == null ) )
-				return;
-
-			if( ! started && graph != null )
-			{
-				begin();
-			}
-
-			Edge edge = (Edge) element;
-
-			if( newValue == null )
-			{
-				// The attribute is removed. Do as if the edge was removed.
-				
-				if( ! ( connectedComponentsMap.get( edge.getNode0() ).equals( connectedComponentsMap.get( edge.getNode1() ) ) ) )
-				{
-					connectedComponents--;
-					
-					int id0 = connectedComponentsMap.get( edge.getNode0() );
-					int id1 = connectedComponentsMap.get( edge.getNode1() );
-
-					computeConnectedComponent( edge.getNode1(), id0, edge );
-					removeIdentifier( id1 );
-				}
-			}
-			else
-			{
-				// The attribute is added. Do as if the edge was added.
-				
-				int id    = addIdentifier();
-				int oldId = connectedComponentsMap.get( edge.getNode0() );
-				
-				computeConnectedComponent( edge.getNode0(), id, edge );
-				
-				if( ! connectedComponentsMap.get( edge.getNode0() ).equals( connectedComponentsMap.get( edge.getNode1() ) ) )
-				{
-					connectedComponents++;
-				}
-				else
-				{
-					removeIdentifier( oldId );
-				}
-			}
-//			System.err.printf( "IDS COUNT = %d / %d  (NODES = %d)%n", ids.size(), ids.realSize(), graph.getNodeCount() );
-		}
-	}
-
-	public void beforeEdgeRemove( Graph graph, Edge edge )
-	{
-		if( ! started && graph != null )
-		{
-			begin();
-		}
-
-		if( started )
-		{
-			int id    = addIdentifier();
-			int oldId = connectedComponentsMap.get( edge.getNode0() );
-
-			computeConnectedComponent( edge.getNode0(), id, edge );
-			
-			if( !( connectedComponentsMap.get( edge.getNode0() ).equals( connectedComponentsMap.get( edge.getNode1() ) ) ) )
-			{
-				connectedComponents++;
-			}
-			else
-			{
-				removeIdentifier( oldId );
-			}
-		}
-	}
-
-	public void beforeGraphClear( Graph graph )
-	{
-		connectedComponents = 0;
-	}
-
-	public void beforeNodeRemove( Graph graph, Node node )
-	{
-		if( !started && graph != null )
-		{
-			begin();
-		}
-
-		if( started )
-		{
-			connectedComponents--;
-			removeIdentifier( connectedComponentsMap.get( node ) );
-		}
-	}
-
-	public void stepBegins(Graph graph, double time)
-	{
-	}
+    }
 }

@@ -24,9 +24,8 @@ import java.util.Comparator;
 import java.util.Random;
 
 import org.miv.graphstream.graph.Edge;
-import org.miv.graphstream.graph.Element;
 import org.miv.graphstream.graph.Graph;
-import org.miv.graphstream.graph.GraphListener;
+import org.miv.graphstream.graph.GraphElementsListener;
 import org.miv.graphstream.graph.Node;
 
 import static org.miv.graphstream.algorithm.Toolkit.*;
@@ -45,7 +44,7 @@ import static org.miv.graphstream.algorithm.Toolkit.*;
  * 
  * @author Antoine Dutot
  */
-public class RandomWalk implements GraphListener
+public class RandomWalk implements GraphElementsListener
 {
 // Attribute
 	
@@ -197,7 +196,7 @@ public class RandomWalk implements GraphListener
 			entities.add( createEntity() );
 		
 		equipGraph();
-		graph.addGraphListener( this );
+		graph.addGraphElementsListener( this );
 	}
 	
 	/**
@@ -229,7 +228,7 @@ public class RandomWalk implements GraphListener
 	public void end()
 	{
 		entities.clear();
-		graph.removeGraphListener( this );
+		graph.removeGraphElementsListener( this );
 		this.graph = null;
 	}
 	
@@ -503,19 +502,22 @@ public class TabuTimedEntity extends TabuEntity
 
 // Graph listener
 
-	public void afterEdgeAdd( Graph graph, Edge edge )
+	public void edgeAdded( String graphId, String edgeId, String fromNodeId, String toNodeId, boolean directed )
 	{
-		edge.addAttribute( passesAttribute, 0.0 );
+		Edge edge = graph.getEdge( edgeId );
+		
+		if( edge != null )
+			edge.addAttribute( passesAttribute, 0.0 );
 	}
 	
-	public void afterNodeAdd( Graph graph, Node node )
+	public void nodeAdded( String graphId, String nodeId )
 	{
+		Node node = graph.getNode( nodeId );
+		
 		node.addAttribute( passesAttribute, 0.0 );
 	}
-	
-	public void attributeChanged( Element element, String attribute, Object oldValue, Object newValue ) {}
-	public void beforeEdgeRemove( Graph graph, Edge edge ) {}
-	public void beforeGraphClear( Graph graph ) {}
-	public void beforeNodeRemove( Graph graph, Node node ) {}
-	public void stepBegins( Graph graph, double time ) {}
+
+	public void edgeRemoved( String graphId, String edgeId ) {}
+	public void nodeRemoved( String graphId, String nodeId ) {}
+	public void stepBegins( String graphId, double time ) {}
 }

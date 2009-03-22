@@ -13,11 +13,8 @@
  */
 package org.miv.graphstream.algorithm.measure;
 
-import org.miv.graphstream.graph.Edge;
-import org.miv.graphstream.graph.Element;
 import org.miv.graphstream.graph.Graph;
-import org.miv.graphstream.graph.GraphListener;
-import org.miv.graphstream.graph.Node;
+import org.miv.graphstream.graph.GraphElementsListener;
 
 /**
  * The <b>graph nervousness</b> is a measure that give for each step of a dynamic graph a ratio
@@ -26,14 +23,9 @@ import org.miv.graphstream.graph.Node;
  * 
  * This measure is different from the Element Nervousness even different from the average element
  * nervousness.
- * 
- * @author Yoann Pigné
- * @since 2008/07/31
- * 
  */
-public class GraphNervousness implements GraphListener
+public class GraphNervousness implements GraphElementsListener
 {
-
 	Graph graph = null;
 	int nbStructuralevents = 0;
 	double graphNervousness = 0;
@@ -64,7 +56,7 @@ public class GraphNervousness implements GraphListener
 		if (this.graph == null)
 		{
 			this.graph = graph;
-			graph.addGraphListener(this);
+			graph.addGraphElementsListener(this);
 
 		} else if (this.graph != graph)
 			try
@@ -84,42 +76,33 @@ public class GraphNervousness implements GraphListener
 		return graphNervousness;
 	}
 
-	public void afterEdgeAdd(Graph graph, Edge edge)
-	{
+	public void edgeAdded( String graphId, String edgeId, String fromNodeId, String toNodeId,
+            boolean directed )
+    {
 		initialCondition(graph);
 		nbStructuralevents++;
-	}
+    }
 
-	public void afterNodeAdd(Graph graph, Node node)
-	{
+	public void edgeRemoved( String graphId, String edgeId )
+    {
 		initialCondition(graph);
 		nbStructuralevents++;
-	}
+    }
 
-	public void attributeChanged(Element element, String attribute, Object oldValue, Object newValue)
-	{
-
-	}
-
-	public void beforeEdgeRemove(Graph graph, Edge edge)
-	{
+	public void nodeAdded( String graphId, String nodeId )
+    {
 		initialCondition(graph);
 		nbStructuralevents++;
-	}
+    }
 
-	public void beforeGraphClear(Graph graph)
-	{
-
-	}
-
-	public void beforeNodeRemove(Graph graph, Node node)
-	{
+	public void nodeRemoved( String graphId, String nodeId )
+    {
 		initialCondition(graph);
 		nbStructuralevents++;
-	}
+    }
 
-	public void stepBegins(Graph graph, double time)
-	{
+	public void stepBegins( String graphId, double time )
+    {
 		initialCondition(graph);
 		if (nbStructuralevents > 0)
 		{
@@ -127,6 +110,5 @@ public class GraphNervousness implements GraphListener
 					/ (double) (graph.getNodeCount() + graph.getEdgeCount());
 			nbStructuralevents = 0;
 		}
-	}
-
+    }
 }

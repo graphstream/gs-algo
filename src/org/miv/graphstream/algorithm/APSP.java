@@ -68,14 +68,10 @@ import org.miv.graphstream.graph.*;
  * easy to reconstruct a shortest path between two arbitrary nodes knowing only
  * a pass-by node.
  * </p>
- * 
- * @author Antoine Dutot
- * @author Yoann Pigné
- * @since 2007
  */
 public class APSP implements Algorithm, GraphListener
 {
-// Attributes
+// Attribute
 	
 	/**
 	 * The graph to use.
@@ -98,7 +94,7 @@ public class APSP implements Algorithm, GraphListener
 	 */
 	protected String weightAttributeName;
 	
-// Constructors
+// Construction
 
 	/**
 	 * New APSP algorithm working on the given graph. The edge weight attribute
@@ -127,7 +123,7 @@ public class APSP implements Algorithm, GraphListener
 		setGraph( graph );
 	}
 	
-// Accessors
+// Access
 	
 	/**
 	 * True if the algorithm must take edge orientation into account.
@@ -201,17 +197,13 @@ public class APSP implements Algorithm, GraphListener
 		{
 			// Make a list of all nodes, and equip them with APSP informations.
 			// The APSPInfo constructor add in each info item all the paths from
-			// the node to all its neighbor. It set the distance to 1 if there
+			// the node to all its neighbour. It set the distance to 1 if there
 			// are no weights on edges.
 			
 			ArrayList<Node> nodeList = new ArrayList<Node>();
-			Iterator<? extends Node>  nodes    = graph.getNodeIterator();
 
-			while( nodes.hasNext() )
-//			for( Node node: graph.getNodeSet() )
+			for( Node node: graph.getNodeSet() )
 			{
-			    Node node = nodes.next();
-			    
 			    node.addAttribute( APSPInfo.ATTRIBUTE_NAME, new APSPInfo( node, weightAttributeName, directed ) );
 			    nodeList.add( node );
 			}
@@ -219,7 +211,6 @@ public class APSP implements Algorithm, GraphListener
 			// The Floyd-Warshal algorithm. You can easily see it is in O(n^3)..
 			
 			int z = 0;
-			int n = graph.getNodeCount();
 			
 			for( Node k: nodeList )
 			{
@@ -256,7 +247,7 @@ public class APSP implements Algorithm, GraphListener
 				}
 			
 				z++;
-				System.err.printf( "%3.2f%%%n", (z/((float)n))*100 );
+//				System.err.printf( "%3.2f%%%n", (z/((float)n))*100 );
 			}
 		}
 
@@ -266,10 +257,6 @@ public class APSP implements Algorithm, GraphListener
 	/**
 	 * Information stored on each node of the graph giving the length of the
 	 * shortest paths toward each other node.
-	 *
-	 * @author Antoine Dutot
-	 * @author Yoann Pigné
-	 * @since 2007
 	 */
 	public static class APSPInfo
 	{
@@ -299,7 +286,7 @@ public class APSP implements Algorithm, GraphListener
 		
 		/**
 		 * Create the new information and put in it all the paths between this
-		 * node and all its direct neighbors.
+		 * node and all its direct neighbours.
 		 * @param node The node to start from.
 		 * @param weightAttributeName The key used to retrieve the weight
 		 * 		  attributes of edges. This attribute but store a value that
@@ -310,19 +297,15 @@ public class APSP implements Algorithm, GraphListener
 		public APSPInfo( Node node, String weightAttributeName, boolean directed )
 		{
 			float weight = 1;
-		//	Collection< Edge> edgeSet = node.getLeavingEdgeSet();
-			Iterator<? extends Edge> edges = node.getLeavingEdgeIterator();;
+			Iterable<? extends Edge> edges = node.getLeavingEdgeSet();
 			
 			source = node;
 			
 			if( ! directed )
-		//		edgeSet = node.getEdgeSet();
-			    	edges = node.getEdgeIterator();
+				edges = node.getEdgeSet();
 				
-		//	for( Edge edge: edgeSet )
-			while( edges.hasNext() )
+			for( Edge edge: edges )
 			{
-			    	Edge edge  = edges.next();
 				Node other = edge.getOpposite( node );
 				
 				if( edge.hasAttribute( weightAttributeName ) )
@@ -395,6 +378,8 @@ public class APSP implements Algorithm, GraphListener
 		{
 			TargetPath tpath = targets.get( other );
 			
+			// XXX Probably a bug here in the Path class usage.
+			
 			if( tpath != null )
 			{
 				Path path = new Path();	// XXX use the Path object directly.
@@ -412,7 +397,7 @@ public class APSP implements Algorithm, GraphListener
 				
 				for( int i=0; i<nodePath.size()-1; ++i )
 				{
-					// XXX XXX compliqué ?
+					// XXX XXX complicated ?
 					
 					path.add( nodePath.get( i ), nodePath.get( i ).getEdgeToward( nodePath.get(i+1).getId() ) );
 				}
@@ -437,7 +422,7 @@ public class APSP implements Algorithm, GraphListener
 				
 				nodePath.add( pos, path.passBy.source );
 
-				// We build paths between A and X and betwee X and B.
+				// We build paths between A and X and between X and B.
 				
 				TargetPath path1 = source.targets.get( path.passBy.source.getId() );	// path from A -> X 
 				TargetPath path2 = path.passBy.targets.get( path.target.getId() );		// path from X -> B
@@ -511,40 +496,72 @@ public class APSP implements Algorithm, GraphListener
 
 // Graph Listener
 	
-	public void afterEdgeAdd( Graph graph, Edge edge )
-	{
+	public void nodeAdded( String graphId, String nodeId )
+    {
 		graphChanged = true;
-	}
+    }
 
-	public void afterNodeAdd( Graph graph, Node node )
-	{
+	public void nodeRemoved( String graphId, String nodeId )
+    {
 		graphChanged = true;
-	}
+    }
 
-	public void attributeChanged( Element element, String attribute, Object oldValue, Object newValue )
-	{
+	public void edgeAdded( String graphId, String edgeId, String fromNodeId, String toNodeId,
+            boolean directed )
+    {
+		graphChanged = true;
+    }
+
+	public void edgeRemoved( String graphId, String edgeId )
+    {
+		graphChanged = true;
+    }
+
+	public void stepBegins( String graphId, double time )
+    {
+    }
+
+	public void graphAttributeAdded( String graphId, String attribute, Object value )
+    {
+    }
+
+	public void graphAttributeChanged( String graphId, String attribute, Object oldValue, Object value )
+    {
+    }
+
+	public void graphAttributeRemoved( String graphId, String attribute )
+    {
+    }
+
+	public void nodeAttributeAdded( String graphId, String nodeId, String attribute, Object value )
+    {
+    }
+
+	public void nodeAttributeChanged( String graphId, String nodeId, String attribute, Object oldValue, Object value )
+    {
+    }
+
+	public void nodeAttributeRemoved( String graphId, String nodeId, String attribute )
+    {
+    }
+
+	public void edgeAttributeAdded( String graphId, String edgeId, String attribute, Object value )
+    {
 		if( attribute.equals( weightAttributeName ) )
 		{
 			graphChanged = true;
 		}
-	}
+    }
 
-	public void beforeEdgeRemove( Graph graph, Edge edge )
-	{
-		graphChanged = true;
-	}
+	public void edgeAttributeChanged( String graphId, String edgeId, String attribute, Object oldValue, Object value )
+    {
+		if( attribute.equals( weightAttributeName ) )
+		{
+			graphChanged = true;
+		}
+    }
 
-	public void beforeGraphClear( Graph graph )
-	{
-		graphChanged = true;
-	}
-
-	public void beforeNodeRemove( Graph graph, Node node )
-	{
-		graphChanged = true;
-	}
-
-	public void stepBegins(Graph graph, double time)
-	{	
-	}
+	public void edgeAttributeRemoved( String graphId, String edgeId, String attribute )
+    {
+    }
 }

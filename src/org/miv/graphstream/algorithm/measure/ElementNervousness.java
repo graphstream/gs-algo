@@ -20,9 +20,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import org.miv.graphstream.graph.Edge;
-import org.miv.graphstream.graph.Element;
 import org.miv.graphstream.graph.Graph;
-import org.miv.graphstream.graph.GraphListener;
+import org.miv.graphstream.graph.GraphElementsListener;
 import org.miv.graphstream.graph.Node;
 
 /**
@@ -50,15 +49,16 @@ import org.miv.graphstream.graph.Node;
  * the <i>average element nervousness</i> may also be defined for a set of elements in the graph or for the all
  * graph. It is the average nervousness of the elements that compose the set or the whole graph.
  * </p>
- * 
- * @author Yoann Pigné
- * @since 2008/07/29
  */
-public class ElementNervousness implements  GraphListener
+public class ElementNervousness implements GraphElementsListener
 {
+	/**
+	 * The graph we listen at.
+	 */
+	Graph graph;
 	
 	/*
-	 * Decides if nondes are listened to for the construction of the nervousness.
+	 * Decides if nodes are listened to for the construction of the nervousness.
 	 */
 	boolean watchNodes = true;
 
@@ -98,7 +98,8 @@ public class ElementNervousness implements  GraphListener
 	public ElementNervousness(Graph graph)
 	{
 		reinit();
-		graph.addGraphListener(this);
+		this.graph = graph;
+		graph.addGraphElementsListener(this);
 	}
 
 	private void reinit()
@@ -231,72 +232,69 @@ public class ElementNervousness implements  GraphListener
 	
 	public Graph getGraph()
 	{
-		return null;
+		return graph;
 	}
 
 	public void setGraph(Graph graph)
 	{
+		throw new RuntimeException( "!!" );
 	}
 
-	public void afterEdgeAdd(Graph graph, Edge edge)
-	{
+	public void edgeAdded( String graphId, String edgeId, String fromNodeId, String toNodeId,
+            boolean directed )
+    {
+		Edge edge = graph.getEdge( edgeId );
 		
-		if (structure != null)
+		if( edge != null )
 		{
-			if (structure.contains(edge.getId()))
+			if (structure != null)
 			{
+				if (structure.contains(edge.getId()))
+				{
+						pending.add(edge.getId());
+				}
+			} else
+			{
+				if (watchEdges)
+				{
 					pending.add(edge.getId());
-			}
-		} else
-		{
-			if (watchEdges)
-			{
-				pending.add(edge.getId());
+				}
 			}
 		}
+    }
 
-	}
+	public void edgeRemoved( String graphId, String edgeId )
+    {
+    }
 
-	public void afterNodeAdd(Graph graph, Node node)
-	{
-		if (structure != null)
+	public void nodeAdded( String graphId, String nodeId )
+    {
+		Node node = graph.getNode( nodeId );
+		
+		if( node != null )
 		{
-			if (structure.contains(node.getId()))
+			if (structure != null)
 			{
-				pending.add(node.getId());
-			}
-		} else
-		{
-			if (watchEdges)
+				if (structure.contains(node.getId()))
+				{
+					pending.add(node.getId());
+				}
+			} else
 			{
-				pending.add(node.getId());
+				if (watchEdges)
+				{
+					pending.add(node.getId());
+				}
 			}
 		}
+    }
 
-	}
+	public void nodeRemoved( String graphId, String nodeId )
+    {
+    }
 
-	public void attributeChanged(Element element, String attribute, Object oldValue, Object newValue)
-	{
-	
-	}
-
-	public void beforeEdgeRemove(Graph graph, Edge edge)
-	{
-
-	}
-
-	public void beforeGraphClear(Graph graph)
-	{
-
-	}
-
-	public void beforeNodeRemove(Graph graph, Node node)
-	{
-
-	}
-
-	public void stepBegins(Graph graph, double time)
-	{
+	public void stepBegins( String graphId, double time )
+    {
 		if (structure != null)
 		{
 			for (String id : structure)
@@ -363,5 +361,5 @@ public class ElementNervousness implements  GraphListener
 			}
 		}
 		pending.clear();
-	}
+    }
 }
