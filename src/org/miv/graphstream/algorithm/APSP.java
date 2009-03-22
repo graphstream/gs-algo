@@ -385,6 +385,7 @@ public class APSP
 			TargetPath tpath = targets.get( other );
 			
 			// XXX Probably a bug here in the Path class usage.
+			// TODO update this to create an edge path to be compatible with multi-graphs.
 			
 			if( tpath != null )
 			{
@@ -522,6 +523,11 @@ public class APSP
     {
 		graphChanged = true;
     }
+	
+	public void graphCleared( String graphId )
+	{
+		graphChanged = true;
+	}
 
 	public void stepBegins( String graphId, double time )
     {

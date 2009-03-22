@@ -516,7 +516,8 @@ public class TabuTimedEntity extends TabuEntity
 		
 		node.addAttribute( passesAttribute, 0.0 );
 	}
-
+	
+	public void graphCleared( String graphId ) {}
 	public void edgeRemoved( String graphId, String edgeId ) {}
 	public void nodeRemoved( String graphId, String nodeId ) {}
 	public void stepBegins( String graphId, double time ) {}

@@ -247,6 +247,11 @@ public class Modularity
     {
 		graphChanged = true;
     }
+	
+	public void graphCleared( String graphId )
+	{
+		graphChanged = true;
+	}
 
 	public void stepBegins( String graphId, double time )
     {

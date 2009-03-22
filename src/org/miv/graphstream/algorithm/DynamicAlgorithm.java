@@ -23,20 +23,16 @@ package org.miv.graphstream.algorithm;
  * <p>
  * This is the same as the {@link org.miv.graphstream.algorithm.Algorithm}
  * interface, with the addition of methods to make the algorithm dynamic. The
- * algorithm begins with a call to the {@link #begin()} method and ends with
- * a call to the {@link #end()} method. In between, the usr must call
- * {@link #compute()} in a loop, as long as the graph evolves.
+ * algorithm begins with a call to the {@link #init(org.miv.graphstream.graph.Graph)}
+ * method and ends with a call to the {@link #terminate()} method. In between, the
+ * user must call {@link #compute()} in a loop, as long as the graph evolves.
  * </p>
- *
- * @author Antoine Dutot
- * @author Yoann Pign�
- * @since 2007
  */
 public interface DynamicAlgorithm extends Algorithm
 {
 	/**
 	 * End an algorithm.
-	 * @see #begin()
+	 * @see #init(org.miv.graphstream.graph.Graph)
 	 */
 	void terminate();
 }

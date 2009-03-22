@@ -30,15 +30,16 @@ import org.miv.graphstream.graph.*;
 public interface Algorithm
 {
 	/**
-	 * Init this algorithm.
-	 * @param graph
+	 * Initialise this algorithm.
+	 * @param graph The graph this algorithm is using.
 	 */
 	void init( Graph graph );
+
 	/**
 	 * Launch the algorithm on the previously specified graph. Please specify
 	 * the complexity of the algorithm. A dedicated tag can be
 	 * used "@complexity".
-	 * @see #setGraph(Graph)
+	 * @see #init(Graph)
 	 */
 	void compute();
 }

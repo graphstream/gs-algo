@@ -100,6 +100,12 @@ public class GraphNervousness implements GraphElementsListener
 		initialCondition(graph);
 		nbStructuralevents++;
     }
+	
+	public void graphCleared( String graphId )
+	{
+		initialCondition(graph);
+		nbStructuralevents++;
+	}
 
 	public void stepBegins( String graphId, double time )
     {

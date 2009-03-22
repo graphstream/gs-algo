@@ -292,6 +292,10 @@ public class ElementNervousness implements GraphElementsListener
 	public void nodeRemoved( String graphId, String nodeId )
     {
     }
+	
+	public void graphCleared( String graphId )
+	{
+	}
 
 	public void stepBegins( String graphId, double time )
     {

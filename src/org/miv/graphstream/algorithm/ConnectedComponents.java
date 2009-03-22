@@ -58,13 +58,13 @@ import org.miv.util.set.FixedArrayList;
  * To start using the algorithm, you first need an instance of
  * {@link org.miv.graphstream.graph.Graph}, then you only have to
  * instantiate the algorithm class. Whether you specify a reference to the graph
- * in the constructor or you set it with the {@link #setGraph(Graph)}
+ * in the constructor or you set it with the {@link #init(Graph)}
  * method.
  * </p>
  * 
  * <p>
  * The computation of the algorithm starts only when the graph is specified with
- * the {@link #setGraph(Graph)} method or with the appropriated
+ * the {@link #init(Graph)} method or with the appropriated
  * constructor. In case of a static graph, you may call the {@link #compute()}
  * method. In case of a dynamic graph, the algorithm will compute itself
  * automatically when an event (node or edge added or removed) occurs.
@@ -158,7 +158,7 @@ public class ConnectedComponents
 
 	/**
 	 * Constructor with the given graph. The computation of the algorithm start
-	 * only when the {@link #begin} method is invoked.
+	 * only when the {@link #init(Graph)} method is invoked.
 	 * @param graph The graph who's connected components will be computed.
 	 */
 	public ConnectedComponents( Graph graph )
@@ -495,6 +495,11 @@ public class ConnectedComponents
 				removeIdentifier( connectedComponentsMap.get( node ) );
 			}
 		}
+	}
+	
+	public void graphCleared( String graphId )
+	{
+		terminate();
 	}
 
 	public void stepBegins( String graphId, double time )
