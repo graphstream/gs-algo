@@ -107,7 +107,8 @@ import org.miv.util.set.FixedArrayList;
  *             the number of nodes concerned by the changes (k <= n), the
  *             complexity is O(k).
  */
-public class ConnectedComponents implements DynamicAlgorithm, GraphListener
+public class ConnectedComponents
+	implements DynamicAlgorithm, GraphListener
 {
 //	private static final String CONNECTED_COMPONENT = "connectedComponent";
 
@@ -150,7 +151,10 @@ public class ConnectedComponents implements DynamicAlgorithm, GraphListener
 	 */
 	protected String countAttribute = null;
 	
-	
+	public ConnectedComponents()
+	{
+		this(null);
+	}
 
 	/**
 	 * Constructor with the given graph. The computation of the algorithm start
@@ -161,7 +165,7 @@ public class ConnectedComponents implements DynamicAlgorithm, GraphListener
 	{
 		ids.add( "" );	// The dummy first identifier (since zero is a special value).
 		
-		setGraph( graph );
+		init( graph );
 
 		connectedComponentsMap = new HashMap<Node, Integer>();
 	}
@@ -173,7 +177,7 @@ public class ConnectedComponents implements DynamicAlgorithm, GraphListener
 	{
 		if( !started )
 		{
-			begin();
+			compute();
 		}
 
 		return connectedComponents;
@@ -267,13 +271,13 @@ public class ConnectedComponents implements DynamicAlgorithm, GraphListener
 			}
 		}
 	}
-
+/*
 	public void begin()
 	{
 		compute();
 	}
-
-	public void end()
+*/
+	public void terminate()
 	{
 		if( graph != null )
 		{
@@ -380,13 +384,13 @@ public class ConnectedComponents implements DynamicAlgorithm, GraphListener
 			node.addAttribute( countAttribute, id-1 );		
 		}
 	}
-
+	/*
 	public Graph getGraph()
 	{
 		return graph;
 	}
-
-	public void setGraph( Graph graph )
+*/
+	public void init( Graph graph )
 	{
 		if( this.graph != null )
 			this.graph.removeGraphListener( this );
@@ -400,7 +404,7 @@ public class ConnectedComponents implements DynamicAlgorithm, GraphListener
 	{
 		if( ! started && graph != null )
 		{
-			begin();
+			compute();
 		}
 		else if( started )
 		{
@@ -426,7 +430,7 @@ public class ConnectedComponents implements DynamicAlgorithm, GraphListener
 	{
 		if( ! started && graph != null )
 		{
-			begin();
+			compute();
 		}
 		else if( started )
 		{
@@ -448,7 +452,7 @@ public class ConnectedComponents implements DynamicAlgorithm, GraphListener
 	{
 		if( ! started && graph != null )
 		{
-			begin();
+			compute();
 		}
 
 		if( started )
@@ -478,7 +482,7 @@ public class ConnectedComponents implements DynamicAlgorithm, GraphListener
 	{
 		if( !started && graph != null )
 		{
-			begin();
+			compute();
 		}
 
 		if( started )
@@ -530,7 +534,7 @@ public class ConnectedComponents implements DynamicAlgorithm, GraphListener
 		if( cutAttribute != null && attribute.equals( cutAttribute ) )
 		{
 			if( ! started && graph != null )
-				begin();
+				compute();
 
 			Edge edge = graph.getEdge( edgeId );
 
@@ -561,7 +565,7 @@ public class ConnectedComponents implements DynamicAlgorithm, GraphListener
 		if( cutAttribute != null && attribute.equals( cutAttribute ) )
 		{
 			if( ! started && graph != null )
-				begin();
+				compute();
 
 			Edge edge = graph.getEdge( edgeId );
 

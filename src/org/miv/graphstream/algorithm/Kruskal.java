@@ -32,6 +32,10 @@ import java.util.Iterator;
  * spanning tree in a weighted connected graph. More informations on 
  * <a href="http://en.wikipedia.org/wiki/Kruskal%27s_algorithm">Wikipedia</a>.
  * 
+ * <p>
+ * This algorithm uses the <i>std-algo-1.0</i> algorithm's standard.
+ * </p>
+ * 
  * @complexity m*(log(m)+3)+n+n<sup>2</sup>, m = |E|, n = |V|
  * 
  * @author Guilhelm Savin

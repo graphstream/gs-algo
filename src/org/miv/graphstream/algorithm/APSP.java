@@ -69,7 +69,8 @@ import org.miv.graphstream.graph.*;
  * a pass-by node.
  * </p>
  */
-public class APSP implements Algorithm, GraphListener
+public class APSP
+	implements Algorithm, GraphListener
 {
 // Attribute
 	
@@ -96,6 +97,11 @@ public class APSP implements Algorithm, GraphListener
 	
 // Construction
 
+	public APSP()
+	{
+		this(null);
+	}
+	
 	/**
 	 * New APSP algorithm working on the given graph. The edge weight attribute
 	 * name by default is "weight" and edge orientation is taken into account.
@@ -120,7 +126,7 @@ public class APSP implements Algorithm, GraphListener
 		this.weightAttributeName = weightAttributeName;
 		this.directed            = directed;
 		
-		setGraph( graph );
+		init( graph );
 	}
 	
 // Access
@@ -169,7 +175,7 @@ public class APSP implements Algorithm, GraphListener
 		weightAttributeName = name;
 	}
 
-	public void setGraph( Graph graph )
+	public void init( Graph graph )
 	{
 		if( this.graph != null )
 			this.graph.removeGraphListener( this );

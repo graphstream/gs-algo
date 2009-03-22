@@ -28,10 +28,15 @@ import org.miv.graphstream.graph.Graph;
  * this feature to colorize the spanning by specifying the color attribute
  * as <i>flagAttribute</i> and color of tree as <i>flagOn</i>.
  * 
+ * <p>
+ * This algorithm uses the <i>std-algo-1.0</i> algorithm's standard.
+ * </p>
+ * 
  * @author Guilhelm Savin
  *
  */
-public abstract class AbstractSpanningTree implements Algorithm
+public abstract class AbstractSpanningTree
+	implements Algorithm
 {
 	/**
 	 * Graph on which we are working.
@@ -195,6 +200,11 @@ public abstract class AbstractSpanningTree implements Algorithm
 	
 // Algorithm interface
 
+	public void init( Graph graph )
+	{
+		this.graph = graph;
+	}
+	
 	/**
 	 * Compute the spanning tree using Kruskal's algorithm.
 	 */
@@ -208,23 +218,4 @@ public abstract class AbstractSpanningTree implements Algorithm
 		resetFlags();
 		makeTree();
 	}
-	/**
-	 * Get the graph we are working on.
-	 * 
-	 * @return the graph
-	 */
-	public Graph getGraph()
-	{
-		return this.graph;
-	}
-	/**
-	 * Set a new graph to work on.
-	 * 
-	 * @param graph the new graph
-	 */
-	public void setGraph(Graph graph)
-	{
-		this.graph = graph;
-	}
-
 }

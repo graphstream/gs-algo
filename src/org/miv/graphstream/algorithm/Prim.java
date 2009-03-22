@@ -32,12 +32,17 @@ import java.util.Collections;
  * spanning tree in a weighted connected graph. More informations on 
  * <a href="http://en.wikipedia.org/wiki/Prim%27s_algorithm">Wikipedia</a>.
  * 
+ * <p>
+ * This algorithm uses the <i>std-algo-1.0</i> algorithm's standard.
+ * </p>
+ * 
  * @complexity 0(m+m<sup>2</sup>log(m)), where m = |E|
  * 
  * @author Guilhelm Savin
  *
  */
-public class Prim extends AbstractSpanningTree
+public class Prim
+	extends AbstractSpanningTree
 {
 	/**
 	 * Attribute key which will be used to compare edges.

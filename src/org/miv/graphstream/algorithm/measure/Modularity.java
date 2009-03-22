@@ -29,7 +29,8 @@ import static org.miv.graphstream.algorithm.Toolkit.*;
  * TODO document this.
  * </p>
  */
-public class Modularity implements DynamicAlgorithm, GraphListener
+public class Modularity
+	implements DynamicAlgorithm, GraphListener
 {
 // Attributes
 	
@@ -60,10 +61,15 @@ public class Modularity implements DynamicAlgorithm, GraphListener
 	
 // Construction
 	
+	public Modularity()
+	{
+		
+	}
+	
 	public Modularity( Graph graph, String marker )
 	{
 		this.marker = marker;
-		setGraph( graph );
+		init( graph );
 	}
 
 // Access
@@ -96,7 +102,7 @@ public class Modularity implements DynamicAlgorithm, GraphListener
 		// NOP.
 	}
 
-	public void end()
+	public void terminate()
 	{
 		// NOP.
 	}
@@ -110,13 +116,13 @@ public class Modularity implements DynamicAlgorithm, GraphListener
 			graphChanged = false;
 		}
 	}
-
+/*
 	public Graph getGraph()
 	{
 		return graph;
 	}
-
-	public void setGraph( Graph graph )
+*/
+	public void init( Graph graph )
 	{
 		if( graph != this.graph )
 		{

@@ -61,12 +61,17 @@ import org.miv.graphstream.algorithm.*;
  * displays them accordingly, but you can optionnaly choose the attribute name.
  * </p>
  * 
+ * <p>
+ * This algorithm uses the <i>std-algo-1.0</i> algorithm's standard.
+ * </p>
+ * 
  * @version 0.1 30/08/2007
- * @author Fr�d�ric Guinand
+ * @author Frédéric Guinand
  * @author Antoine Dutot
- * @author Yoann Pign�
+ * @author Yoann Pigné
  */
-public class WelshPowell implements Algorithm
+public class WelshPowell
+	implements Algorithm
 {
 // Attributes
 	
@@ -124,12 +129,12 @@ public class WelshPowell implements Algorithm
 	}
 	
 // Accessors
-	
+	/*
 	public Graph getGraph()
 	{
 		return g;
 	}
-	
+	*/
 	/**
 	 * Return the last computed result of the algorithm.
 	 * @return The number of colors.
@@ -141,11 +146,6 @@ public class WelshPowell implements Algorithm
 	}
 	
 // Commands
-	
-	public void setGraph( Graph g )
-	{
-		this.g = g;
-	}
 	
 	/**
 	 * Set the name of the attribute to put in the graph if it is modified.
@@ -163,6 +163,11 @@ public class WelshPowell implements Algorithm
 	public void setModify( boolean modify )
 	{
 		this.modify = modify;
+	}
+	
+	public void init( Graph g )
+	{
+		this.g = g;
 	}
 	
 	public void compute()

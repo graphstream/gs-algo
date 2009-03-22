@@ -51,7 +51,7 @@ public class Algorithms implements Algorithm
 	
 	public Algorithms( Graph graph )
 	{
-		setGraph( graph );
+		init( graph );
 	}
 	
 // Access
@@ -677,7 +677,7 @@ public class Algorithms implements Algorithm
 		// NOP!
 	}
 	
-	public void setGraph( Graph graph )
+	public void init( Graph graph )
 	{
 		this.graph = graph;
 	}

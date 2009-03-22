@@ -62,6 +62,10 @@ import org.miv.graphstream.graph.Path;
  *  	Path path = astar.getShortestPath();
  *  </pre>
  *  </p>
+ * 
+ * <p>
+ * This algorithm uses the <i>std-algo-1.0</i> algorithm's standard.
+ * </p>
  *  
  * @complexity The complexity of A* depends on the heuristic.
  * @author Antoine Dutot
@@ -128,7 +132,7 @@ public class AStar implements Algorithm
 	 */
 	public AStar( Graph graph )
 	{
-		setGraph( graph );
+		init( graph );
 	}
 	
 	/**
@@ -145,12 +149,12 @@ public class AStar implements Algorithm
 	}
 	
 // Access
-
+	/*
     public Graph getGraph()
     {
 	    return graph;
     }
-	
+	*/
 // Command
 	
 	/**
@@ -188,6 +192,12 @@ public class AStar implements Algorithm
 	{
 		this.costs = costs;
 	}
+
+    public void init( Graph graph )
+    {
+		clearAll();
+		this.graph = graph;
+    }
 	
     public void compute()
     {
@@ -279,12 +289,6 @@ public class AStar implements Algorithm
 		setTarget( target );
 		compute();
 	}
-
-    public void setGraph( Graph graph )
-    {
-		clearAll();
-		this.graph = graph;
-    }
     
 	/**
 	 * Clear the already computed path. This does not clear the source node

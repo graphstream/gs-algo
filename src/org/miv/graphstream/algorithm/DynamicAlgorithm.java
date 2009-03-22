@@ -29,21 +29,14 @@ package org.miv.graphstream.algorithm;
  * </p>
  *
  * @author Antoine Dutot
- * @author Yoann Pigné
+ * @author Yoann Pignï¿½
  * @since 2007
  */
 public interface DynamicAlgorithm extends Algorithm
 {
 	/**
-	 * Start the algorithm. Then several calls to {@link #compute()} must be
-	 * made. A terminating call to {@link #end()} must finish the process.
-	 * @see #end()
-	 */
-	void begin();
-
-	/**
 	 * End an algorithm.
 	 * @see #begin()
 	 */
-	void end();
+	void terminate();
 }
