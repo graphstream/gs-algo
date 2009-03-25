@@ -427,7 +427,8 @@ protected class TabuEntity implements Entity
 	{
 		if( entityMemory > 0 )
 		{
-			memory.push( node );
+			memory.addFirst( node );
+		//	memory.push( node );
 		
 			if( memory.size() > entityMemory )
 				memory.removeLast();
