@@ -208,7 +208,7 @@ public class APSP
 			
 			ArrayList<Node> nodeList = new ArrayList<Node>();
 
-			for( Node node: graph.getNodeSet() )
+			for( Node node: graph )
 			{
 			    node.addAttribute( APSPInfo.ATTRIBUTE_NAME, new APSPInfo( node, weightAttributeName, directed ) );
 			    nodeList.add( node );

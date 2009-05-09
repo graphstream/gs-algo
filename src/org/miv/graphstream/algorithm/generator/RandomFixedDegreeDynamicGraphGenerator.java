@@ -305,7 +305,7 @@ public class RandomFixedDegreeDynamicGraphGenerator
 		double deg = 0;
 		if( dynagraph.getNodeCount() != 0 )
 		{
-			for( Node n : dynagraph.getNodeSet() )
+			for( Node n : dynagraph )
 			{
 				total = total + n.getDegree();
 			}

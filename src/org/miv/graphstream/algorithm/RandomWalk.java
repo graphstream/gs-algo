@@ -82,7 +82,12 @@ public class RandomWalk implements GraphElementsListener
 	 * The name of the attribute on edges that give their respective importance.
 	 */
 	protected String weightAttribute = null;
-	
+
+	/**
+	 * Number of entities that jump at each step.
+	 */
+	protected int jumpCount = 0, goCount = 0, waitCount = 0;
+
 // Constructor
 	
 	/**
@@ -137,6 +142,46 @@ public class RandomWalk implements GraphElementsListener
 	public long getRandomSeed()
 	{
 		return randomSeed;
+	}
+	
+	/**
+	 * Number of entities.
+	 * @return The number of entities.
+	 */
+	public int getEntityCount()
+	{
+		return entities.size();
+	}
+	
+	/**
+	 * Number of entities that jumped instead of traversing an edge at last step. An entity executes
+	 * a jump when it is blocked in a dead end (either a real one, or because of its tabu list).
+	 * @return The jump count.
+	 */
+	public int getJumpCount()
+	{
+		return jumpCount;
+	}
+
+	public int getWaitCount()
+	{
+		return waitCount;
+	}
+	
+	public int getGoCount()
+	{
+		return goCount;
+	}
+	
+	/**
+	 * Ratio of entities that executed a jump instead of traversing an edge at last step. An entity
+	 * executes a jump when it is blocked in a dead end (either a real one, or because of its tabu
+	 * list).
+	 * @return The jump ratio (in [0-1]).
+	 */
+	public float getJumpRatio()
+	{
+		return( ((float)jumpCount)/((float)entities.size()) );
 	}
 	
 	/**
@@ -216,6 +261,10 @@ public class RandomWalk implements GraphElementsListener
 	 */
 	public void step()
 	{
+		jumpCount = 0;
+		goCount = 0;
+		waitCount = 0;
+		
 		for( Entity entity: entities )
 		{
 			entity.step();
@@ -285,7 +334,7 @@ public class RandomWalk implements GraphElementsListener
 	{
 		ArrayList<Node> nodes = new ArrayList<Node>( graph.getNodeCount() );
 		Iterator<? extends Node> i = graph.getNodeIterator();
-	
+		
 		while( i.hasNext() )
 		{
 			nodes.add( i.next() );
@@ -316,9 +365,6 @@ protected interface Entity
 
 protected class TabuEntity implements Entity
 {
-	/**
-	 * The tabu list.
-	 */
 	protected LinkedList<Node> memory;
 	
 	protected Node current;
@@ -329,7 +375,7 @@ protected class TabuEntity implements Entity
 	{
 		current = start;
 	}
-	
+
 	public void step()
 	{
 		tabuStep();
@@ -408,6 +454,7 @@ protected class TabuEntity implements Entity
 	protected void jump()
 	{
 		current = randomNode( graph, random );
+		jumpCount++;
 	}
 
 	protected void cross( Edge e )
@@ -428,7 +475,6 @@ protected class TabuEntity implements Entity
 		if( entityMemory > 0 )
 		{
 			memory.addFirst( node );
-		//	memory.push( node );
 		
 			if( memory.size() > entityMemory )
 				memory.removeLast();
@@ -437,6 +483,9 @@ protected class TabuEntity implements Entity
 	
 	protected boolean tabu( Node node )
 	{
+		if( node.hasAttribute( "tabu" ) )
+			return true;
+		
 		if( entityMemory > 0 )
 		{
 			if( memory == null )
@@ -457,7 +506,7 @@ protected class TabuEntity implements Entity
 
 public class TabuTimedEntity extends TabuEntity
 {
-	protected static final float SPEED = 100;
+	protected static final float SPEED = 1000;
 	
 	protected float crossing = 0;
 	
@@ -471,13 +520,22 @@ public class TabuTimedEntity extends TabuEntity
     {
 		if( crossing > 0 )
 		{
+			waitCount++;
 			crossing -= SPEED;
 		}
 		else
 		{
+			goCount++;
 			tabuStep();
 		}
     }
+	
+	@Override
+	protected void jump()
+	{
+		super.jump();
+		crossing = 0;
+	}
 	
 	@Override
     protected void cross( Edge edge )
@@ -489,13 +547,16 @@ public class TabuTimedEntity extends TabuEntity
 		if( edge.hasLabel( "SPEED_CAT" ) )
 		{
 			String s = (String) edge.getLabel( "SPEED_CAT" );
-			speed = 8 - Float.parseFloat( s );
+			speed = 9 - Float.parseFloat( s );
 		}
 		if( edge.hasLabel( "LANE_CAT" ) )
 		{
 			String s = (String) edge.getLabel( "LANE_CAT" );
 			speed *= Float.parseFloat( s );
 		}
+
+		if( speed <= 0 )
+			speed = 1f;
 		
 		crossing = edgeLength( edge ) / speed;
 	}
