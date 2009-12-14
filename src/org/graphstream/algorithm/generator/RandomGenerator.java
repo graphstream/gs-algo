@@ -1,22 +1,26 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This file is part of GraphStream.
  * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * GraphStream is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
+ * GraphStream is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with GraphStream.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Copyright 2006 - 2009
+ * 	Julien Baudry
+ * 	Antoine Dutot
+ * 	Yoann Pigné
+ * 	Guilhelm Savin
  */
-
 package org.graphstream.algorithm.generator;
-
-import org.graphstream.graph.*;
 
 /**
  * Random graph generator.
@@ -55,11 +59,10 @@ import org.graphstream.graph.*;
  * which case the direction is chosen randomly.
  * </p>
  *
- * @author Antoine Dutot
- * @author Yoann Pign�
  * @since 2007
  */
-public class RandomGenerator extends BaseGenerator
+public class RandomGenerator
+	extends BaseGenerator
 {
 // Attributes
 
@@ -75,6 +78,11 @@ public class RandomGenerator extends BaseGenerator
 	
 // Constructors
 	
+	public RandomGenerator()
+	{
+		this(2);
+	}
+	
 	/**
 	 * New full graph generator. By default no attributes are added to nodes and
 	 * edges, and edges are not directed.
@@ -83,6 +91,8 @@ public class RandomGenerator extends BaseGenerator
 	public RandomGenerator( int averageDegree )
 	{
 		super();
+		enableKeepNodesId();
+		enableKeepEdgesId();
 		this.averageDegree = averageDegree;
 	}
 
@@ -94,6 +104,8 @@ public class RandomGenerator extends BaseGenerator
 	public RandomGenerator( int averageDegree, boolean directed, boolean randomlyDirectedEdges )
 	{
 		super( directed, randomlyDirectedEdges );
+		enableKeepNodesId();
+		enableKeepEdgesId();
 		this.averageDegree = averageDegree;
 	}
 	
@@ -108,6 +120,8 @@ public class RandomGenerator extends BaseGenerator
 	public RandomGenerator( int averageDegree, boolean directed, boolean randomlyDirectedEdges, String nodeAttribute, String edgeAttribute )
 	{
 		super( directed, randomlyDirectedEdges, nodeAttribute, edgeAttribute );
+		enableKeepNodesId();
+		enableKeepEdgesId();
 		this.averageDegree = averageDegree;
 	}
 	
@@ -116,12 +130,9 @@ public class RandomGenerator extends BaseGenerator
 // Commands
 	
 	@Override
-	public void begin( Graph graph )
+	public void begin()
 	{
-		this.graph  = graph;
-		
 		String id = Integer.toString( nodeNames++ );
-		
 		addNode( id );
 	}
 	
@@ -152,25 +163,26 @@ public class RandomGenerator extends BaseGenerator
 			
 			if( otherId != id )
 			{
-				Node node = graph.getNode( otherId );
+				String edgeId = getEdgeId(id,otherId);
 				
-				if( ! node.hasEdgeToward( id ) && ! node.hasEdgeFrom( id ) )
-				{
-					addEdge( null, id, otherId );
-				}
+				if( ! edges.contains(edgeId) )
+					addEdge( edgeId, id, otherId );
 			}
 		}
-/*		
-		for( String otherId: nodes )
-		{
-			if( otherId != id )		// We can compare refs safely here.
-			{
-				if( random.nextFloat() > 0.5f )
-					addEdge( null, id, otherId );
-			}
-		}
-*/		
+		
 		return false;
+	}
+	
+	protected String getEdgeId( String src, String trg )
+	{
+		if( src.compareTo(trg) < 0 )
+		{
+			return String.format( "%s_%s", src, trg );
+		}
+		else
+		{
+			return String.format( "%s_%s", trg, src );
+		}
 	}
 	
 	/**
@@ -178,8 +190,7 @@ public class RandomGenerator extends BaseGenerator
 	 * @param p The average value of the random number.
 	 * @return A random int.
 	 */
-	protected int
-	poisson( float p )
+	protected int poisson( float p )
 	{
 		double a = Math.exp( -p );
 		int    n = 0;

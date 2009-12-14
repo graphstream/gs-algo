@@ -1,24 +1,30 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This file is part of GraphStream.
  * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * GraphStream is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
+ * GraphStream is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with GraphStream.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Copyright 2006 - 2009
+ * 	Julien Baudry
+ * 	Antoine Dutot
+ * 	Yoann Pigné
+ * 	Guilhelm Savin
  */
-
 package org.graphstream.algorithm.generator;
 
-import java.util.Iterator;
+import java.util.HashMap;
 
-import org.graphstream.graph.*;
+import org.graphstream.io.Pipe;
 
 /**
  * Random Euclidean graph generator.
@@ -66,12 +72,12 @@ import org.graphstream.graph.*;
  * |dimension|) .
  * </p>
  * 
- * @author Antoine Dutot
- * @author Yoann Pign�
  * @since June 25 2007
  * @complexity For the construction of a n nodes graph, the complexity is about O(n^2).
  */
-public class RandomEuclideanGenerator extends BaseGenerator
+public class RandomEuclideanGenerator
+	extends BaseGenerator
+	implements Pipe
 {
 	// Attributes
 
@@ -85,6 +91,8 @@ public class RandomEuclideanGenerator extends BaseGenerator
 	 */
 	protected int dimension = 2;
 
+	protected HashMap<String,float[]>	coords = new HashMap<String,float[]>();
+	
 	/**
 	 * The threshold that defines whether or not a link is created between to
 	 * nodes. Since the coordinate system is defined between 0 and 1, the
@@ -93,6 +101,66 @@ public class RandomEuclideanGenerator extends BaseGenerator
 	protected float threshold=0.1f;
 	
 	// constructors
+
+	/**
+	 * New random Euclidean graph generator. By default no attributes are added
+	 * to nodes and edges. Dimension of  the space is two.
+	 */
+	public RandomEuclideanGenerator( )
+	{
+		super( );
+		initDimension(2);
+		enableKeepNodesId();
+	}
+
+	/**
+	 * New random Euclidean graph generator. By default no attributes are added
+	 * to nodes and edges.  You
+	 * may also specify a dimension for the space.
+	 * @param dimension The dimension of the space for the graph. By default it is two.
+	 */
+	public RandomEuclideanGenerator( int dimension )
+	{
+		super( );
+		initDimension(dimension);
+		enableKeepNodesId();
+	}
+
+	/**
+	 * New random Euclidean graph generator. By default no attributes are added
+	 * to nodes and edges. It is possible to make edge randomly directed. You
+	 * may also specify a dimension for the space.
+	 * @param dimension The dimension of the space for the graph. By default it is two.
+	 * @param directed If true the edges are directed.
+	 * @param randomlyDirectedEdges If true edge, are directed and the direction
+	 *        is chosen at randomly.
+	 */
+	public RandomEuclideanGenerator( int dimension, boolean directed, boolean randomlyDirectedEdges )
+	{
+		super( directed, randomlyDirectedEdges );
+		initDimension(dimension);
+		enableKeepNodesId();
+	}
+
+	/**
+	 * New random Euclidean graph generator.
+	 * @param dimension The dimension of the space for the graph. By default it is two.
+	 * @param directed If true the edges are directed.
+	 * @param randomlyDirectedEdges It true, edges are directed and the
+	 *        direction is chosen at random.
+	 * @param nodeAttribute put an attribute by that name on each node with a
+	 *        random numeric value.
+	 * @param edgeAttribute put an attribute by that name on each edge with a
+	 *        random numeric value.
+	 */
+	public RandomEuclideanGenerator( int dimension, boolean directed, boolean randomlyDirectedEdges, String nodeAttribute,
+			String edgeAttribute )
+	{
+		super( directed, randomlyDirectedEdges, nodeAttribute, edgeAttribute );
+		initDimension(dimension);
+		enableKeepNodesId();
+	}
+	
 	private void initDimension( int dimension )
 	{
 		this.dimension = dimension;
@@ -120,117 +188,56 @@ public class RandomEuclideanGenerator extends BaseGenerator
 			System.err.println( "dimension has to be higher that zero" );
 
 	}
-	/**
-	 * New random Euclidean graph generator. By default no attributes are added
-	 * to nodes and edges. Dimension of  the space is two.
-	 */
-	public RandomEuclideanGenerator( )
-	{
-		super( );
-		initDimension(2);
-	}
-
-	/**
-	 * New random Euclidean graph generator. By default no attributes are added
-	 * to nodes and edges.  You
-	 * may also specify a dimension for the space.
-	 * @param dimension The dimension of the space for the graph. By default it is two.
-	 */
-	public RandomEuclideanGenerator( int dimension )
-	{
-		super( );
-		initDimension(dimension);
-	}
-
-	/**
-	 * New random Euclidean graph generator. By default no attributes are added
-	 * to nodes and edges. It is possible to make edge randomly directed. You
-	 * may also specify a dimension for the space.
-	 * @param dimension The dimension of the space for the graph. By default it is two.
-	 * @param directed If true the edges are directed.
-	 * @param randomlyDirectedEdges If true edge, are directed and the direction
-	 *        is chosen at randomly.
-	 */
-	public RandomEuclideanGenerator( int dimension, boolean directed, boolean randomlyDirectedEdges )
-	{
-		super( directed, randomlyDirectedEdges );
-		initDimension(dimension);
-	}
-
-	/**
-	 * New random Euclidean graph generator.
-	 * @param dimension The dimension of the space for the graph. By default it is two.
-	 * @param directed If true the edges are directed.
-	 * @param randomlyDirectedEdges It true, edges are directed and the
-	 *        direction is chosen at random.
-	 * @param nodeAttribute put an attribute by that name on each node with a
-	 *        random numeric value.
-	 * @param edgeAttribute put an attribute by that name on each edge with a
-	 *        random numeric value.
-	 */
-	public RandomEuclideanGenerator( int dimension, boolean directed, boolean randomlyDirectedEdges, String nodeAttribute,
-			String edgeAttribute )
-	{
-		super( directed, randomlyDirectedEdges, nodeAttribute, edgeAttribute );
-		initDimension(dimension);
-	}
 
 	// Commands
 
-	
-	@Override
-	public void begin( Graph graph )
+	public void begin()// Graph graph )
 	{
-		this.graph = graph;
+		//this.graph = graph;
 
 		String id = Integer.toString( nodeNames++ );
 
 		addNode( id );
 	}
 
-	@Override
 	public void end()
-	{}
+	{
+		
+	}
 
-	@Override
 	public boolean nextElement()
 	{
 		String id = Integer.toString( nodeNames++ );
 
 		addNode( id );
-
-		Node n = graph.getNode(id);
-		Iterator<? extends Node> nodes = graph.getNodeIterator();
 		
-		while( nodes.hasNext() )
+		for( String node : nodes )
 		{
-		    Node n2 = nodes.next();
-		    
-		    if( n != n2 && distance(n, n2) < threshold)
-		    {
-			super.addEdge( id+"-"+n2.getId() , id, n2.getId());
-		    }
+		    if( ! id.equals(node) && distance(id,node) < threshold)
+		    	addEdge( id + "-" + node , id, node );
 		}
 		return true;
 	}
 
-	private float distance(Node n, Node n2)
+	private float distance( String n1, String n2 )
 	{
-		float d =0f;
+		float d = 0f;
+		
+		float [] p1 = coords.get(n1);
+		float [] p2 = coords.get(n2);
+		
 		if( dimension == 2 )
 		{
-			d = (float) Math.pow( Math.abs( (Float )n.getAttribute( "x" ) - (Float )n2.getAttribute( "x" ) ), 2 ) +  (float) Math.pow( Math.abs( (Float )n.getAttribute( "y" ) - (Float )n2.getAttribute( "y" ) ), 2 ); 
+			d = (float) Math.pow( p1[0] - p2[0], 2 ) +  (float) Math.pow( p1[1] - p2[1], 2 ); 
 		}
 		else if( dimension == 3 )
 		{
-			d = (float) Math.pow( Math.abs( (Float )n.getAttribute( "x" ) - (Float )n2.getAttribute( "x" ) ), 2 ) 
-				+ (float) Math.pow( Math.abs( (Float )n.getAttribute( "y" ) - (Float )n2.getAttribute( "y" ) ), 2 )
-				+ (float) Math.pow( Math.abs( (Float )n.getAttribute( "z" ) - (Float )n2.getAttribute( "z" ) ), 2 );
+			d = (float) Math.pow( p1[0] - p2[0], 2 ) +  (float) Math.pow( p1[1] - p2[1], 2 ) +  (float) Math.pow( p1[2] - p2[2], 2 );
 		}
 		else
 		{
 			for( int i = 0; i < dimension; i++ )
-				d+=  (float) Math.pow( Math.abs( (Float )n.getAttribute( "x"+i ) - (Float )n2.getAttribute( "x+i" ) ), 2 );
+				d += (float) Math.pow( p1[i] - p2[i], 2 );
 		}
 		
 		return (float) Math.sqrt( d );
@@ -245,10 +252,84 @@ public class RandomEuclideanGenerator extends BaseGenerator
 	public void setThreshold(float threshold)
 	{
 		if(threshold <= 1f && threshold >= 0f)
-		{
 			this.threshold = threshold;
-		}
 	}
 	
+	protected void nodeAttributeHandling( String nodeId, String key, Object val )
+	{
+		if( key != null && key.matches("x|y|z") && val instanceof Float )
+		{
+			int i = ( (int) key.charAt(0) ) - (int) 'x';
+			
+			if( i < dimension )
+			{
+				float [] p = coords.get(nodeId);
 
+				if( p == null )
+				{
+					p = new float [dimension];
+					coords.put(nodeId,p);
+				}
+
+				p [((int)key.charAt(0))-(int)'x'] = (Float) val;
+			}
+		}
+	}
+
+	public void edgeAttributeAdded(String sourceId, long timeId, String edgeId,
+			String attribute, Object value) {
+	}
+
+	public void edgeAttributeChanged(String sourceId, long timeId,
+			String edgeId, String attribute, Object oldValue, Object newValue) {
+	}
+
+	public void edgeAttributeRemoved(String sourceId, long timeId,
+			String edgeId, String attribute) {
+	}
+
+	public void graphAttributeAdded(String sourceId, long timeId,
+			String attribute, Object value) {
+	}
+
+	public void graphAttributeChanged(String sourceId, long timeId,
+			String attribute, Object oldValue, Object newValue) {
+	}
+
+	public void graphAttributeRemoved(String sourceId, long timeId,
+			String attribute) {
+	}
+
+	public void nodeAttributeAdded(String sourceId, long timeId, String nodeId,
+			String attribute, Object value) {
+		nodeAttributeHandling(nodeId,attribute,value);
+	}
+
+	public void nodeAttributeChanged(String sourceId, long timeId,
+			String nodeId, String attribute, Object oldValue, Object newValue) {
+		nodeAttributeHandling(nodeId,attribute,newValue);
+	}
+
+	public void nodeAttributeRemoved(String sourceId, long timeId,
+			String nodeId, String attribute) {
+	}
+
+	public void edgeAdded(String sourceId, long timeId, String edgeId,
+			String fromNodeId, String toNodeId, boolean directed) {
+	}
+
+	public void edgeRemoved(String sourceId, long timeId, String edgeId) {
+	}
+
+	public void graphCleared(String sourceId, long timeId) {
+	}
+
+	public void nodeAdded(String sourceId, long timeId, String nodeId) {
+	}
+
+	public void nodeRemoved(String sourceId, long timeId, String nodeId) {
+	}
+
+	public void stepBegins(String sourceId, long timeId, double step) {
+	}
 }

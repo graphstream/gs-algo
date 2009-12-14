@@ -1,24 +1,31 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This file is part of GraphStream.
  * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * GraphStream is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
+ * GraphStream is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with GraphStream.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Copyright 2006 - 2009
+ * 	Julien Baudry
+ * 	Antoine Dutot
+ * 	Yoann Pigné
+ * 	Guilhelm Savin
  */
-
 package org.graphstream.algorithm.generator;
 
 import java.util.*;
 
-import org.graphstream.graph.*;
+//import org.graphstream.graph.*;
+import org.graphstream.io.SourceBase;
 
 /**
  * Base graph generator.
@@ -48,18 +55,49 @@ import org.graphstream.graph.*;
  * must be oriented, the order given for the two nodes to connect is used). 
  * </p>
  *
- * @author Antoine Dutot
- * @author Yoann Pign�
  * @since 2007
  */
-public abstract class BaseGenerator implements Generator
+public abstract class BaseGenerator
+	extends SourceBase
+	implements Generator
 {
-// Attributes
+	protected class NodeKeepData
+	{
+		LinkedList<String> edges;
+		
+		void keepEdge( String id )
+		{
+			if( edges == null )
+				edges = new LinkedList<String>();
+			
+			if( ! edges.contains(id) )
+				edges.add(id);
+		}
+		
+		void unkeepEdge( String id )
+		{
+			if( edges != null )
+				edges.remove(id);
+		}
+	}
 	
-	/**
-	 * The graph to grow.
-	 */
-	protected Graph graph;
+	protected class EdgeKeepData
+	{
+		String src, trg;
+		
+		EdgeKeepData( String src, String trg )
+		{
+			keepNodes(src,trg);
+		}
+		
+		void keepNodes( String src, String trg )
+		{
+			this.src = src;
+			this.trg = trg;
+		}
+	}
+	
+// Attributes
 	
 	/**
 	 * Are edges directed ?.
@@ -95,7 +133,13 @@ public abstract class BaseGenerator implements Generator
 	 * List of all generated nodes so far. Used to create edges toward all other
 	 * nodes at each step.
 	 */
-	protected ArrayList<String> nodes = new ArrayList<String>();
+	protected ArrayList<String> 			nodes 		= new ArrayList<String>();
+	protected ArrayList<String> 			edges 		= new ArrayList<String>();
+	protected HashMap<String,NodeKeepData>	nodesData 	= new HashMap<String,NodeKeepData>();
+	protected HashMap<String,EdgeKeepData>	edgesData 	= new HashMap<String,EdgeKeepData>();
+	
+	protected boolean keepNodesId = false;
+	protected boolean keepEdgesId = false;
 	
 	/**
 	 * The random number generator.
@@ -132,6 +176,7 @@ public abstract class BaseGenerator implements Generator
 	 */
 	public BaseGenerator( boolean directed, boolean randomlyDirectedEdges )
 	{
+		super("generator");
 		setDirectedEdges( directed, randomlyDirectedEdges );
 		
 		nodeAttributeRange[0] = 0;
@@ -158,6 +203,26 @@ public abstract class BaseGenerator implements Generator
 // Access
 	
 // Commands
+	
+	protected void enableKeepNodesId()
+	{
+		keepNodesId = true;
+	}
+	
+	protected void disableKeepNodesId()
+	{
+		keepNodesId = false;
+	}
+	
+	protected void enableKeepEdgesId()
+	{
+		keepEdgesId = true;
+	}
+	
+	protected void disableKeepEdgesId()
+	{
+		keepEdgesId = false;
+	}
 	
 	/**
 	 * Set the random seed used for random number generation.
@@ -280,34 +345,55 @@ public abstract class BaseGenerator implements Generator
 	 * @param y The node ordinate.
 	 * @return The create node.
 	 */
-	protected Node addNode( String id, float x, float y )
+	protected void addNode( String id, float x, float y )
 	{
-		Node node = addNode( id );
-		node.addAttribute( "xy", x, y );
-		return node;
+		addNode(id);
+		sendNodeAttributeAdded(sourceId,id,"xy",new float [] {x,y});
 	}
 	
 	/**
 	 * Add a node and put attributes on it if needed.
 	 * @param id The new node identifier.
-	 * @return The node added.
 	 */
-	protected Node addNode( String id )
+	protected void addNode( String id )
 	{
-		Node node = graph.addNode( id );
-		nodes.add( id );
+		sendNodeAdded(sourceId,id);
 		
 		if( addNodeLabels )
-			node.addAttribute( "label", id );
+			sendNodeAttributeAdded(sourceId,id,"label",id);
+		
+		float value;
 		
 		for( String attr: nodeAttributes )
 		{
-			float value = ( random.nextFloat() * ( nodeAttributeRange[1] - nodeAttributeRange[0] ) ) + nodeAttributeRange[0];
-			
-			node.addAttribute( attr, value );
+			value = ( random.nextFloat() * ( nodeAttributeRange[1] - nodeAttributeRange[0] ) ) + nodeAttributeRange[0];
+			sendNodeAttributeAdded(sourceId,id,attr,value);
 		}
 		
-		return node;
+		if( keepNodesId )
+		{
+			nodes.add(id);
+			nodesData.put(id,new NodeKeepData());
+		}
+	}
+	
+	protected void delNode( String id )
+	{
+		if( keepNodesId )
+		{
+			if( keepEdgesId )
+			{
+				NodeKeepData nkd = nodesData.get(id);
+				
+				if( nkd.edges != null )
+					while( nkd.edges.size() > 0 ) delEdge(nkd.edges.peek());
+			}
+			
+			nodes.remove(id);
+			nodesData.remove(id);
+		}
+		
+		sendNodeRemoved( sourceId, id );
 	}
 	
 	/**
@@ -315,7 +401,6 @@ public abstract class BaseGenerator implements Generator
 	 * attribute on it if needed.
 	 * @param id The edge identifier, if null, the identifier is created from the nodes identifiers.
 	 * @param from The source node (can be inversed randomly with the target node).
-	 * @param to The target node.
 	 */
 	protected void addEdge( String id, String from, String to )
 	{
@@ -329,24 +414,45 @@ public abstract class BaseGenerator implements Generator
 		if( id == null )
 			id = from + "_" + to;
 		
-		Edge edge = graph.addEdge( id, from, to, directed );
+		sendEdgeAdded(sourceId,id,from,to,directed);
 		
 		if( addEdgeLabels )
-			edge.addAttribute( "label", id );
+			sendEdgeAttributeAdded(sourceId,id,"label",id);
 		
 		for( String attr: edgeAttributes )
 		{
 			float value = ( random.nextFloat() * ( edgeAttributeRange[1] - edgeAttributeRange[0] ) ) + edgeAttributeRange[0];
+			sendEdgeAttributeAdded(sourceId,id,attr,value);
+		}
+		
+		if( keepEdgesId )
+		{
+			edges.add(id);
 			
-			edge.addAttribute( attr, value );
+			if( keepNodesId )
+			{
+				edgesData.put(id,new EdgeKeepData(from,to));
+				nodesData.get(from).keepEdge(id);
+				nodesData.get(to).keepEdge(id);
+			}
 		}
 	}
 	
-// Commands -- The generator interface.
-	
-	public abstract void begin( Graph graph );
-
-	public abstract void end();
-
-	public abstract boolean nextElement();
+	protected void delEdge( String edgeId )
+	{
+		sendEdgeRemoved(sourceId,edgeId);
+		
+		if( keepEdgesId )
+		{
+			edges.remove(edgeId);
+			
+			if( keepNodesId )
+			{
+				EdgeKeepData ekd = edgesData.get(edgeId);
+				
+				nodesData.get(ekd.src).unkeepEdge(edgeId);
+				nodesData.get(ekd.trg).unkeepEdge(edgeId);
+			}
+		}
+	}
 }

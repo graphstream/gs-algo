@@ -1,24 +1,28 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This file is part of GraphStream.
  * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * GraphStream is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
+ * GraphStream is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with GraphStream.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Copyright 2006 - 2009
+ * 	Julien Baudry
+ * 	Antoine Dutot
+ * 	Yoann Pigné
+ * 	Guilhelm Savin
  */
-
 package org.graphstream.algorithm.generator;
 
-import java.util.*;
-
-import org.graphstream.graph.*;
+import java.util.ArrayList;
 
 /**
  * Scale-free graph (tree) generator using the preferential attachement rule.
@@ -35,21 +39,17 @@ import org.graphstream.graph.*;
  * therefore generate trees of any size.
  * </p>
  *
- * @author Antoine Dutot
- * @author Yoann Pign�
  * @since  20061128
  */
-public class
-	PreferentialAttachmentGenerator
-implements
-	Generator
+public class PreferentialAttachmentGenerator
+	extends BaseGenerator
 {
 // Attributes
 	
 	/**
 	 * The graph to grow.
 	 */
-	protected Graph graph;
+	//protected Graph graph;
 	
 	/**
 	 * Degree of each node.
@@ -61,45 +61,49 @@ implements
 	 */
 	protected int degreeMax = 0;
 	
+	protected int edgesCount = 0;
+	
 // Constructors
+	
+	public PreferentialAttachmentGenerator()
+	{
+		directed = false;
+	}
 	
 // Accessors
 	
 // Commands
 	
-	public void
-	begin( Graph graph )
+	public void begin()// Graph graph )
 	{
-		this.graph     = graph;
+		//this.graph     = graph;
 		this.degrees   = new ArrayList<Integer>();
 		this.degreeMax = 0;
 		
-		graph.addNode( "0" );
+		addNode( "0" );
 		degrees.add( 0 );
 	}
 
-	public void
-	end()
+	public void end()
 	{
-		graph     = null;
+		//graph     = null;
 		degrees   = null;
 		degreeMax = 0;
 	}
 
-	public boolean
-	nextElement()
+	public boolean nextElement()
 	{
 		// Generate a new node.
 		
 		int    index = degrees.size();
 		String id    = Integer.toString( index );
 		
-		graph.addNode( id );
+		addNode( id );
 		degrees.add( 0 );
 		
 		// Compute the attachment probability of each previouly added node
 		
-		int sumDeg = graph.getEdgeCount() * 2;
+		int sumDeg = edgesCount * 2;
 		
 		// Choose the node to attach to.
 		
@@ -127,7 +131,8 @@ implements
 			String oid = Integer.toString( otherIdx );
 			String eid = id +  "_" + oid;
 			
-			graph.addEdge( eid, oid, id, false );
+			addEdge( eid, oid, id );
+			edgesCount++;
 			degrees.set( otherIdx, degrees.get( otherIdx ) + 1 );
 			degrees.set( index, degrees.get( index ) + 1 );
 		}
