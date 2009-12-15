@@ -95,15 +95,11 @@ public class GridGenerator
 	
 // Commands
 	
-	@Override
-	public void begin()// Graph graph )
+	public void begin()
 	{
-		//this.graph = graph;
-		
 		addNode( nodeName( 0, 0 ), 0, 0 );
 	}
 
-	@Override
 	public void end()
 	{
 		if( tore )
@@ -155,7 +151,6 @@ public class GridGenerator
 		}
 	}
 
-	@Override
 	public boolean nextElement()
 	{
 		currentSize++;

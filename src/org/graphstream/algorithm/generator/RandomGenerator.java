@@ -129,19 +129,16 @@ public class RandomGenerator
 	
 // Commands
 	
-	@Override
 	public void begin()
 	{
 		String id = Integer.toString( nodeNames++ );
 		addNode( id );
 	}
 	
-	@Override
 	public void end()
 	{
 	}
 
-	@Override
 	public boolean nextElement()
 	{
 		String id = Integer.toString( nodeNames++ );

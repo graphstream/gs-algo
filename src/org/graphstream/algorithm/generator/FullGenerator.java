@@ -99,23 +99,18 @@ public class FullGenerator
 	
 // Commands
 	
-	@Override
-	public void begin()// Graph graph )
+	public void begin()
 	{
-		//this.graph  = graph;
-		
 		String id = Integer.toString( nodeNames++ );
 
 		addNode( id );
 	}
 	
-	@Override
 	public void end()
 	{
 		
 	}
 
-	@Override
 	public boolean nextElement()
 	{
 		String id = Integer.toString( nodeNames++ );
