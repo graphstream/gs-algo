@@ -564,7 +564,7 @@ public class TabuTimedEntity extends TabuEntity
 
 // Graph listener
 
-	public void edgeAdded( String graphId, String edgeId, String fromNodeId, String toNodeId, boolean directed )
+	public void edgeAdded( String graphId, long timeId, String edgeId, String fromNodeId, String toNodeId, boolean directed )
 	{
 		Edge edge = graph.getEdge( edgeId );
 		
@@ -572,15 +572,15 @@ public class TabuTimedEntity extends TabuEntity
 			edge.addAttribute( passesAttribute, 0.0 );
 	}
 	
-	public void nodeAdded( String graphId, String nodeId )
+	public void nodeAdded( String graphId, long timeId, String nodeId )
 	{
 		Node node = graph.getNode( nodeId );
 		
 		node.addAttribute( passesAttribute, 0.0 );
 	}
 	
-	public void graphCleared( String graphId ) {}
-	public void edgeRemoved( String graphId, String edgeId ) {}
-	public void nodeRemoved( String graphId, String nodeId ) {}
-	public void stepBegins( String graphId, double time ) {}
+	public void graphCleared( String graphId, long timeId ) {}
+	public void edgeRemoved( String graphId, long timeId, String edgeId ) {}
+	public void nodeRemoved( String graphId, long timeId, String nodeId ) {}
+	public void stepBegins( String graphId, long timeId, double step ) {}
 }
