@@ -19,7 +19,7 @@ package org.graphstream.algorithm;
 import java.util.*;
 
 import org.graphstream.graph.*;
-import org.miv.util.NotFoundException;
+import org.util.NotFoundException;
 
 /**
  * Lots of small often used algorithms on graphs.

@@ -503,69 +503,61 @@ public class APSP
 
 // Graph Listener
 	
-	public void nodeAdded( String graphId, String nodeId )
+	public void nodeAdded( String graphId, long timeId, String nodeId )
     {
 		graphChanged = true;
     }
 
-	public void nodeRemoved( String graphId, String nodeId )
+	public void nodeRemoved( String graphId, long timeId, String nodeId )
     {
 		graphChanged = true;
     }
 
-	public void edgeAdded( String graphId, String edgeId, String fromNodeId, String toNodeId,
+	public void edgeAdded( String graphId, long timeId, String edgeId, String fromNodeId, String toNodeId,
             boolean directed )
     {
 		graphChanged = true;
     }
 
-	public void edgeRemoved( String graphId, String edgeId )
+	public void edgeRemoved( String graphId, long timeId, String edgeId )
     {
 		graphChanged = true;
     }
 	
-	public void graphCleared( String graphId )
+	public void graphCleared( String graphId, long timeId )
 	{
 		graphChanged = true;
 	}
 
-	public void stepBegins( String graphId, double time )
+	public void stepBegins( String graphId, long timeId, double time )
     {
     }
 
-	public void graphAttributeAdded( String graphId, String attribute, Object value )
+	public void graphAttributeAdded( String graphId, long timeId, String attribute, Object value )
     {
     }
 
-	public void graphAttributeChanged( String graphId, String attribute, Object oldValue, Object value )
+	public void graphAttributeChanged( String graphId, long timeId, String attribute, Object oldValue, Object value )
     {
     }
 
-	public void graphAttributeRemoved( String graphId, String attribute )
+	public void graphAttributeRemoved( String graphId, long timeId, String attribute )
     {
     }
 
-	public void nodeAttributeAdded( String graphId, String nodeId, String attribute, Object value )
+	public void nodeAttributeAdded( String graphId, long timeId, String nodeId, String attribute, Object value )
     {
     }
 
-	public void nodeAttributeChanged( String graphId, String nodeId, String attribute, Object oldValue, Object value )
+	public void nodeAttributeChanged( String graphId, long timeId, String nodeId, String attribute, Object oldValue, Object value )
     {
     }
 
-	public void nodeAttributeRemoved( String graphId, String nodeId, String attribute )
+	public void nodeAttributeRemoved( String graphId, long timeId, String nodeId, String attribute )
     {
     }
 
-	public void edgeAttributeAdded( String graphId, String edgeId, String attribute, Object value )
-    {
-		if( attribute.equals( weightAttributeName ) )
-		{
-			graphChanged = true;
-		}
-    }
-
-	public void edgeAttributeChanged( String graphId, String edgeId, String attribute, Object oldValue, Object value )
+	public void edgeAttributeAdded( String graphId, long timeId, String edgeId, String attribute, Object value )
     {
 		if( attribute.equals( weightAttributeName ) )
 		{
@@ -573,7 +565,15 @@ public class APSP
 		}
     }
 
-	public void edgeAttributeRemoved( String graphId, String edgeId, String attribute )
+	public void edgeAttributeChanged( String graphId, long timeId, String edgeId, String attribute, Object oldValue, Object value )
+    {
+		if( attribute.equals( weightAttributeName ) )
+		{
+			graphChanged = true;
+		}
+    }
+
+	public void edgeAttributeRemoved( String graphId, long timeId, String edgeId, String attribute )
     {
     }
 }

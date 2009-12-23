@@ -25,7 +25,7 @@ import org.graphstream.graph.Element;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.GraphListener;
 import org.graphstream.graph.Node;
-import org.miv.util.set.FixedArrayList;
+import org.util.set.FixedArrayList;
 
 /**
  * Compute and update the number of connected components of a dynamic graph. 
@@ -400,7 +400,7 @@ public class ConnectedComponents
 		this.graph.addGraphListener( this );
 	}
 
-	public void edgeAdded( String graphId, String edgeId, String fromNodeId, String toNodeId, boolean directed )
+	public void edgeAdded( String graphId, long timeId, String edgeId, String fromNodeId, String toNodeId, boolean directed )
 	{
 		if( ! started && graph != null )
 		{
@@ -426,7 +426,7 @@ public class ConnectedComponents
 		}
 	}
 
-	public void nodeAdded( String graphId, String nodeId )
+	public void nodeAdded( String graphId, long timeId, String nodeId )
 	{
 		if( ! started && graph != null )
 		{
@@ -448,7 +448,7 @@ public class ConnectedComponents
 		}
 	}
 
-	public void edgeRemoved( String graphId, String edgeId )
+	public void edgeRemoved( String graphId, long timeId, String edgeId )
 	{
 		if( ! started && graph != null )
 		{
@@ -478,7 +478,7 @@ public class ConnectedComponents
 		}
 	}
 
-	public void nodeRemoved( String graphId, String nodeId )
+	public void nodeRemoved( String graphId, long timeId, String nodeId )
 	{
 		if( !started && graph != null )
 		{
@@ -497,44 +497,41 @@ public class ConnectedComponents
 		}
 	}
 	
-	public void graphCleared( String graphId )
+	public void graphCleared( String graphId, long timeId )
 	{
 		terminate();
 	}
 
-	public void stepBegins( String graphId, double time )
+	public void stepBegins( String graphId, long timeId, double time )
 	{
 	}
 
-	public void attributeChanged( Element element, String attribute, Object oldValue, Object newValue )
-	{
-	}
 
-	public void graphAttributeAdded( String graphId, String attribute, Object value )
+	public void graphAttributeAdded( String graphId, long timeId, String attribute, Object value )
     {
     }
 
-	public void graphAttributeChanged( String graphId, String attribute, Object oldValue, Object value )
+	public void graphAttributeChanged( String graphId, long timeId, String attribute, Object oldValue, Object value )
     {
     }
 
-	public void graphAttributeRemoved( String graphId, String attribute )
+	public void graphAttributeRemoved( String graphId, long timeId, String attribute )
     {
     }
 
-	public void nodeAttributeAdded( String graphId, String nodeId, String attribute, Object value )
+	public void nodeAttributeAdded( String graphId, long timeId, String nodeId, String attribute, Object value )
     {
     }
 
-	public void nodeAttributeChanged( String graphId, String nodeId, String attribute, Object oldValue, Object value )
+	public void nodeAttributeChanged( String graphId, long timeId, String nodeId, String attribute, Object oldValue, Object value )
     {
     }
 
-	public void nodeAttributeRemoved( String graphId, String nodeId, String attribute )
+	public void nodeAttributeRemoved( String graphId, long timeId, String nodeId, String attribute )
     {
     }
 
-	public void edgeAttributeAdded( String graphId, String edgeId, String attribute, Object value )
+	public void edgeAttributeAdded( String graphId, long timeId, String edgeId, String attribute, Object value )
     {
 		if( cutAttribute != null && attribute.equals( cutAttribute ) )
 		{
@@ -561,11 +558,11 @@ public class ConnectedComponents
 		}
     }
 
-	public void edgeAttributeChanged( String graphId, String edgeId, String attribute, Object oldValue, Object value )
+	public void edgeAttributeChanged( String graphId, long timeId, String edgeId, String attribute, Object oldValue, Object value )
     {
     }
 
-	public void edgeAttributeRemoved( String graphId, String edgeId, String attribute )
+	public void edgeAttributeRemoved( String graphId, long timeId, String edgeId, String attribute )
     {
 		if( cutAttribute != null && attribute.equals( cutAttribute ) )
 		{

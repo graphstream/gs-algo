@@ -240,7 +240,7 @@ public class ElementNervousness implements GraphElementsListener
 		throw new RuntimeException( "!!" );
 	}
 
-	public void edgeAdded( String graphId, String edgeId, String fromNodeId, String toNodeId,
+	public void edgeAdded( String graphId, long timeId, String edgeId, String fromNodeId, String toNodeId,
             boolean directed )
     {
 		Edge edge = graph.getEdge( edgeId );
@@ -263,11 +263,11 @@ public class ElementNervousness implements GraphElementsListener
 		}
     }
 
-	public void edgeRemoved( String graphId, String edgeId )
+	public void edgeRemoved( String graphId, long timeId, String edgeId )
     {
     }
 
-	public void nodeAdded( String graphId, String nodeId )
+	public void nodeAdded( String graphId, long timeId, String nodeId )
     {
 		Node node = graph.getNode( nodeId );
 		
@@ -289,15 +289,15 @@ public class ElementNervousness implements GraphElementsListener
 		}
     }
 
-	public void nodeRemoved( String graphId, String nodeId )
+	public void nodeRemoved( String graphId, long timeId, String nodeId )
     {
     }
 	
-	public void graphCleared( String graphId )
+	public void graphCleared( String graphId, long timeId )
 	{
 	}
 
-	public void stepBegins( String graphId, double time )
+	public void stepBegins( String graphId, long timeId, double time )
     {
 		if (structure != null)
 		{
@@ -366,4 +366,5 @@ public class ElementNervousness implements GraphElementsListener
 		}
 		pending.clear();
     }
+
 }
