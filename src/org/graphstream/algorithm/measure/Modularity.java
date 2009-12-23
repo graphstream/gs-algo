@@ -20,6 +20,7 @@ import java.util.*;
 
 import org.graphstream.algorithm.DynamicAlgorithm;
 import org.graphstream.graph.*;
+import org.graphstream.stream.Sink;
 
 import static org.graphstream.algorithm.Toolkit.*;
 
@@ -31,7 +32,7 @@ import static org.graphstream.algorithm.Toolkit.*;
  * </p>
  */
 public class Modularity
-	implements DynamicAlgorithm, GraphListener
+	implements DynamicAlgorithm, Sink
 {
 // Attributes
 	
@@ -129,14 +130,14 @@ public class Modularity
 		{
 			if( this.graph != null )
 			{
-				this.graph.removeGraphListener( this );
+				this.graph.removeSink( this );
 			}
 			
 			this.graph = graph;
 			
 			if( this.graph != null )
 			{
-				this.graph.addGraphListener( this );
+				this.graph.addSink( this );
 				initialize();
 			}
 		}

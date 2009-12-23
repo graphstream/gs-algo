@@ -14,7 +14,7 @@
 package org.graphstream.algorithm.measure;
 
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.GraphElementsListener;
+import org.graphstream.stream.ElementSink;
 
 /**
  * The <b>graph nervousness</b> is a measure that give for each step of a dynamic graph a ratio
@@ -24,7 +24,7 @@ import org.graphstream.graph.GraphElementsListener;
  * This measure is different from the Element Nervousness even different from the average element
  * nervousness.
  */
-public class GraphNervousness implements GraphElementsListener
+public class GraphNervousness implements ElementSink
 {
 	Graph graph = null;
 	int nbStructuralevents = 0;
@@ -56,7 +56,7 @@ public class GraphNervousness implements GraphElementsListener
 		if (this.graph == null)
 		{
 			this.graph = graph;
-			graph.addGraphElementsListener(this);
+			graph.addElementSink(this);
 
 		} else if (this.graph != graph)
 			try

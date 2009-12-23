@@ -25,7 +25,7 @@ package org.graphstream.algorithm.generator;
 import java.util.*;
 
 //import org.graphstream.graph.*;
-import org.graphstream.io.SourceBase;
+import org.graphstream.stream.SourceBase;
 
 /**
  * Base graph generator.

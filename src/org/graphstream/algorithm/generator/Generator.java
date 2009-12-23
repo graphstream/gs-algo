@@ -23,7 +23,7 @@
 package org.graphstream.algorithm.generator;
 
 //import org.graphstream.graph.*;
-import org.graphstream.io.Source;
+import org.graphstream.stream.Source;
 
 /**
  * Graph generator.

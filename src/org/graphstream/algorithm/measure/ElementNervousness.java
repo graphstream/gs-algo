@@ -21,8 +21,8 @@ import java.util.Iterator;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.GraphElementsListener;
 import org.graphstream.graph.Node;
+import org.graphstream.stream.ElementSink;
 
 /**
  * <p>
@@ -50,7 +50,7 @@ import org.graphstream.graph.Node;
  * graph. It is the average nervousness of the elements that compose the set or the whole graph.
  * </p>
  */
-public class ElementNervousness implements GraphElementsListener
+public class ElementNervousness implements ElementSink
 {
 	/**
 	 * The graph we listen at.
@@ -99,7 +99,7 @@ public class ElementNervousness implements GraphElementsListener
 	{
 		reinit();
 		this.graph = graph;
-		graph.addGraphElementsListener(this);
+		graph.addElementSink(this);
 	}
 
 	private void reinit()

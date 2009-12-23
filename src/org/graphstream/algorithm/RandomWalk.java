@@ -25,8 +25,8 @@ import java.util.Random;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.GraphElementsListener;
 import org.graphstream.graph.Node;
+import org.graphstream.stream.ElementSink;
 
 import static org.graphstream.algorithm.Toolkit.*;
 
@@ -44,7 +44,7 @@ import static org.graphstream.algorithm.Toolkit.*;
  * 
  * @author Antoine Dutot
  */
-public class RandomWalk implements GraphElementsListener
+public class RandomWalk implements ElementSink
 {
 // Attribute
 	
@@ -241,7 +241,7 @@ public class RandomWalk implements GraphElementsListener
 			entities.add( createEntity() );
 		
 		equipGraph();
-		graph.addGraphElementsListener( this );
+		graph.addElementSink( this );
 	}
 	
 	/**
@@ -277,7 +277,7 @@ public class RandomWalk implements GraphElementsListener
 	public void end()
 	{
 		entities.clear();
-		graph.removeGraphElementsListener( this );
+		graph.removeElementSink( this );
 		this.graph = null;
 	}
 	

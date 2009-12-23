@@ -23,8 +23,8 @@ import java.util.LinkedList;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Element;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.GraphListener;
 import org.graphstream.graph.Node;
+import org.graphstream.stream.Sink;
 import org.util.set.FixedArrayList;
 
 /**
@@ -108,7 +108,7 @@ import org.util.set.FixedArrayList;
  *             complexity is O(k).
  */
 public class ConnectedComponents
-	implements DynamicAlgorithm, GraphListener
+	implements DynamicAlgorithm, Sink
 {
 //	private static final String CONNECTED_COMPONENT = "connectedComponent";
 
@@ -281,7 +281,7 @@ public class ConnectedComponents
 	{
 		if( graph != null )
 		{
-			graph.removeGraphListener( this );
+			graph.removeSink( this );
 
 			graph   = null;
 			started = false;
@@ -393,11 +393,11 @@ public class ConnectedComponents
 	public void init( Graph graph )
 	{
 		if( this.graph != null )
-			this.graph.removeGraphListener( this );
+			this.graph.removeSink( this );
 		
 		this.graph = graph;
 		
-		this.graph.addGraphListener( this );
+		this.graph.addSink( this );
 	}
 
 	public void edgeAdded( String graphId, long timeId, String edgeId, String fromNodeId, String toNodeId, boolean directed )

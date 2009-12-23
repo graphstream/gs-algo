@@ -19,6 +19,7 @@ package org.graphstream.algorithm;
 import java.util.*;
 
 import org.graphstream.graph.*;
+import org.graphstream.stream.Sink;
 
 /**
  * All-pair shortest paths lengths.
@@ -70,7 +71,7 @@ import org.graphstream.graph.*;
  * </p>
  */
 public class APSP
-	implements Algorithm, GraphListener
+	implements Algorithm, Sink
 {
 // Attribute
 	
@@ -178,13 +179,13 @@ public class APSP
 	public void init( Graph graph )
 	{
 		if( this.graph != null )
-			this.graph.removeGraphListener( this );
+			this.graph.removeSink( this );
 		
 		this.graph = graph;
 		graphChanged = true;
 		
 		if( this.graph != null )
-			this.graph.addGraphListener( this );
+			this.graph.addSink( this );
 	}
 	
 	/**

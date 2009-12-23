@@ -24,7 +24,7 @@ package org.graphstream.algorithm.generator;
 
 import java.util.HashMap;
 
-import org.graphstream.io.Pipe;
+import org.graphstream.stream.Pipe;
 
 /**
  * Random Euclidean graph generator.
