@@ -87,6 +87,16 @@ public class RandomWalk implements ElementSink
 	 * Number of entities that jump at each step.
 	 */
 	protected int jumpCount = 0, goCount = 0, waitCount = 0;
+	
+	/**
+	 * Compute counts on nodes.
+	 */
+	protected boolean doNodes = true;
+	
+	/**
+	 * Compute counts on edges.
+	 */
+	protected boolean doEdges = true;
 
 // Constructor
 	
@@ -202,20 +212,14 @@ public class RandomWalk implements ElementSink
 	{
 		if( graph != null )
 		{
-			Iterator<? extends Edge> edges = graph.getEdgeIterator();
-			
-			while( edges.hasNext() )
+			for( Edge e: graph.edgeSet() )
 			{
-				Edge e = edges.next();
 				e.addAttribute( name, e.getNumber( passesAttribute ) );
 				e.removeAttribute( passesAttribute );
 			}
 
-			Iterator<? extends Node> nodes = graph.getNodeIterator();
-			
-			while( nodes.hasNext() )
+			for( Node n: graph.nodeSet() )
 			{
-				Node n = nodes.next();
 				n.addAttribute( name, n.getNumber( passesAttribute ) );
 				n.removeAttribute( passesAttribute );
 			}
@@ -283,19 +287,11 @@ public class RandomWalk implements ElementSink
 	
 	protected void equipGraph()
 	{
-		Iterator<? extends Edge> edges = graph.getEdgeIterator();
-		
-		while( edges.hasNext() )
-		{
-			Edge e = edges.next();
+		for( Edge e: graph.edgeSet() ) {
 			e.addAttribute( passesAttribute, 0.0 );
 		}
 
-		Iterator<? extends Node> nodes = graph.getNodeIterator();
-		
-		while( nodes.hasNext() )
-		{
-			Node n = nodes.next();
+		for( Node n: graph.nodeSet() ) {
 			n.addAttribute( passesAttribute, 0.0 );
 		}
 	}

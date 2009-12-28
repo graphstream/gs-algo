@@ -105,7 +105,7 @@ public class DorogovtsevMendesGenerator
 	public void begin()// Graph graph )
 	{
 		//this.graph = graph;
-		//this.random = this.random == null ? new Random( System.currentTimeMillis() ) : this.random;
+		this.random = this.random == null ? new Random( System.currentTimeMillis() ) : this.random;
 		
 		//Edge edge;
 		
