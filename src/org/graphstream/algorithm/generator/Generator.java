@@ -22,7 +22,6 @@
  */
 package org.graphstream.algorithm.generator;
 
-//import org.graphstream.graph.*;
 import org.graphstream.stream.Source;
 
 /**
@@ -47,7 +46,6 @@ public interface Generator
 	 * Begin the graph generation. This usually is the place for initialisation
 	 * of the generator. After calling this method, call the
 	 * {@link #nextElement()} method to add elements to the graph.
-	 * @param graph The graph to generate.
 	 */
 	void begin();
 

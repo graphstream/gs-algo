@@ -21,7 +21,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.graphstream.graph.Edge;
-import org.graphstream.graph.Element;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.stream.Sink;
@@ -328,7 +327,7 @@ public class ConnectedComponents
 	 * @param v The considered node.
 	 * @param id The id to assign to the given node.
 	 * @param exception An optional edge that may not be considered (useful when
-	 *        receiving a {@link #edgeRemoved(String,String)} event.
+	 *        receiving a {@link #edgeRemoved(String, long, String)} event.
 	 */
 	private void computeConnectedComponent( Node v, int id, Edge exception )
 	{

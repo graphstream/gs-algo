@@ -28,7 +28,7 @@
  * Generators have very few methods (apart from the generation parameter setup
  * methods that are specific to each generator). They are:
  * <ul>
- * 		<li>{@link org.graphstream.algorithm.generator.Generator#begin(org.graphstream.graph.Graph)}
+ * 		<li>{@link org.graphstream.algorithm.generator.Generator#begin()}
  * 			to start the generation of elements in the given graph. This graph
  * 			may or not already contain elements.</li>
  * 		<li>{@link org.graphstream.algorithm.generator.Generator#nextElement()}

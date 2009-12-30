@@ -343,7 +343,6 @@ public abstract class BaseGenerator
 	 * @param id The node identifier.
 	 * @param x The node abscissa.
 	 * @param y The node ordinate.
-	 * @return The create node.
 	 */
 	protected void addNode( String id, float x, float y )
 	{

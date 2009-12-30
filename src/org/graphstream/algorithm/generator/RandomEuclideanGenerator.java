@@ -33,7 +33,7 @@ import org.graphstream.stream.Pipe;
  * This generator creates random graphs of any size. Links of such graphs are
  * created according to a threshold. If the Euclidean distance between two nodes
  * is less than a given threshold, then a link is created between those 2 nodes.
- * Calling {@link #begin(Graph)} put one unique node in the graph, then
+ * Calling {@link #begin()} put one unique node in the graph, then
  * {@link #nextElement()} will add a new node each time it is called and connect
  * this node to its neighbors according to the threshold planar Euclidean
  * distance.

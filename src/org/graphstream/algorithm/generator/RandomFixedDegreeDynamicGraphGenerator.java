@@ -114,9 +114,7 @@ public class RandomFixedDegreeDynamicGraphGenerator
 	 * 		<li>nbSteps : integer</li>
 	 * </ul>
 	 *  
-	 * @throws IOException If an error occurs during output.
-	 * @throws IllegalArgumentException If one of the parameters if not given or is zero.
-	 * @see #RandomFixedDegreeDynamicGraphGenerator(String)
+	 * @see #RandomFixedDegreeDynamicGraphGenerator(int, double, double)
 	 */
 	public RandomFixedDegreeDynamicGraphGenerator()
 	{
@@ -124,12 +122,10 @@ public class RandomFixedDegreeDynamicGraphGenerator
 	}
 	
 	/**
-	 * Setup the generator but do not generate the graph. You can generate the graph using
-	 * {@link #generate(Graph)} or generate the graph and output it in DGS using {@link #generateGraph()}.
+	 * Setup the generator but do not generate the graph.
 	 * @param nbVertices The number of vertices.
 	 * @param meanDegreeLimit The average degree.
 	 * @param nervousness The nervousness.
-	 * @param nbSteps The number of steps.
 	 */
 	public RandomFixedDegreeDynamicGraphGenerator( int nbVertices, double meanDegreeLimit, double nervousness )
 	{
