@@ -20,7 +20,7 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.DefaultGraph;
-import org.graphstream.oldUi.GraphViewerRemote;
+import org.graphstream.ui.old.GraphViewerRemote;
 
 import java.util.Iterator;
 import java.util.LinkedList;
