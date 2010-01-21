@@ -27,9 +27,6 @@ import org.util.NotFoundException;
  * <p>
  * Use this class with a static import.
  * </p>
- * 
- * @author Antoine Dutot
- * @author Yoann Pign�
  */
 public class Toolkit
 {
