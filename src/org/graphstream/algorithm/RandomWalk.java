@@ -379,6 +379,9 @@ protected class TabuEntity implements Entity
 
 	protected float weight( Edge e )
 	{
+		if( ! e.hasAttribute( weightAttribute ) )
+			return 1;
+
 		return (float) e.getNumber( weightAttribute );
 	}
 	
