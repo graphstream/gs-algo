@@ -19,13 +19,12 @@ package org.graphstream.algorithm;
 import java.util.*;
 
 import org.graphstream.graph.*;
-import org.util.NotFoundException;
 
 /**
  * Lots of small often used algorithms on graphs.
  * 
  * <p>
- * Use this class with a static import.
+ * Use this class with a static import. This should be a trait or a mixin in an advanced language.
  * </p>
  */
 public class Toolkit
@@ -46,25 +45,23 @@ public class Toolkit
 		if(graph.getNodeCount() == 0)
 			return null;
 
-		int            max = 0;
-		int[]          dd;
-		int            d;
-		Iterator<? extends Node> nodes = graph.getNodeIterator();
+		int   max = 0;
+		int[] dd;
+		int   d;
 
-		while( nodes.hasNext() )
+		for( Node node: graph )
 		{
-		    d = nodes.next().getDegree();
+		    d = node.getDegree();
 		    
 		    if( d > max )
 			max = d;
 		}
 
 		dd    = new int[max+1];
-		nodes = graph.getNodeIterator();
-		
-		while( nodes.hasNext() )
+
+		for( Node node: graph )
 		{
-		    d = nodes.next().getDegree();
+		    d = node.getDegree();
 
 		    dd[d] += 1;
 		}
@@ -80,15 +77,14 @@ public class Toolkit
 	public static ArrayList<Node> degreeMap( Graph graph )
 	{
 		ArrayList<Node> map   = new ArrayList<Node>();
-		Iterator<? extends Node>  nodes = graph.getNodeIterator();
 		
-		while( nodes.hasNext() )
-		    map.add( nodes.next() );
+		for( Node node: graph )
+		    map.add( node );
 	
 		Collections.sort( map, new Comparator<Node>() {
 		    public int compare( Node a, Node b )
 		    {
-			return b.getDegree() - a.getDegree();
+		    	return b.getDegree() - a.getDegree();
 		    }
 		});
 		
@@ -137,13 +133,11 @@ public class Toolkit
 		float average = averageDegree( graph );
 		float sum     = 0;
 
-		Iterator<? extends Node> nodes = graph.getNodeIterator(); 
 		
-		while( nodes.hasNext() )
+		for( Node node: graph )
 		{
-			float d = nodes.next().getDegree() - average;
+			float d = node.getDegree() - average;
 			sum += d * d;
-		//    sum += Math.pow( ( nodes.next().getDegree() - average ), 2.0 );
 		}
 
 		return (float) Math.sqrt( sum / (float)graph.getNodeCount() );
@@ -162,14 +156,11 @@ public class Toolkit
 
 		if( n > 0 )
 		{
-			int            j     = 0;
-			double[]       coefs = new double[n];
-			Iterator<? extends Node> nodes = graph.getNodeIterator();
+			int      j     = 0;
+			double[] coefs = new double[n];
 
-			while( nodes.hasNext() )
-			{
-			    coefs[j++] = clusteringCoefficient( nodes.next() );
-			}
+			for( Node node: graph )
+			    coefs[j++] = clusteringCoefficient( node );
 
 			assert( j == n );
 
@@ -197,12 +188,9 @@ public class Toolkit
 			Node[]         nodes = new Node[n];
 			HashSet<Edge>  set   = new HashSet<Edge>();
 			int            i     = 0;
-			Iterator<? extends Edge> edges = node.getEdgeIterator();
 			
-			while( edges.hasNext() )
-			{
-			    nodes[i++] = edges.next().getOpposite( node );
-			}
+			for( Edge edge: node.getEdgeSet() )
+			    nodes[i++] = edge.getOpposite( node );
 
 			// Count the number of edges between these nodes.
 
@@ -234,7 +222,7 @@ public class Toolkit
 	
 	/**
 	 * Choose a node at random.
-	 * @return A node chosen at random.
+	 * @return A node chosen at random, null if the graph is empty.
 	 * @complexity at worse O(n) where n is the number of nodes.
 	 */
 	public static Node randomNode( Graph graph )
@@ -245,7 +233,7 @@ public class Toolkit
 	/**
 	 * Choose a node at random.
 	 * @param random The random number generator to use.
-	 * @return A node chosen at random.
+	 * @return A node chosen at random, null if the graph is empty.
 	 * @complexity at worse O(n) where n is the number of nodes.
 	 */
 	public static Node randomNode( Graph graph, Random random )
@@ -254,21 +242,137 @@ public class Toolkit
 		int r = random.nextInt( n );
 		int i = 0;
 		
-		Iterator<? extends Node> nodes = graph.getNodeIterator();
-		
-		while( nodes.hasNext() )
-		{
-		    Node node = nodes.next();
-		    
+		for( Node node: graph ) {
 		    if( r == i )
-		    {
-			return node;
-		    }
-			
-		    i++;
+		    	return node;
+		    i ++;
 		}
 		
-		throw new RuntimeException( "Outch !!" );
+		return null;
+	}
+	
+	/**
+	 * Choose an edge at random.
+	 * @return An edge chosen at random.
+	 * complexity at worse O(n) where n is the number of edges.
+	 */
+	public static Edge randomEdge( Graph graph )
+	{
+		return randomEdge( graph, new Random() );
+	}
+
+	/**
+	 * Choose an edge at random.
+	 * @param random The random number generator to use.
+	 * @return An edge chosen at random, null if the graph has no edges.
+	 * complexity at worse O(n) where n is the number of edges.
+	 */
+	public static Edge randomEdge( Graph graph, Random random )
+	{
+		int n = graph.getEdgeCount();
+		int r = random.nextInt( n );
+		int i = 0;
+		
+		for( Edge edge: graph.edgeSet() ) {
+			if( r == i )
+				return edge;
+			i ++;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Choose an edge at random from the edges connected to the given node.
+	 * @return An edge chosen at random, null if the node has no edges.
+	 * complexity at worse O(n) where n is the number of edges.
+	 */
+	public static Edge randomEdge( Node node )
+	{
+		return randomEdge( node, new Random() );
+	}
+	
+	/**
+	 * Choose an edge at random from the entering edges connected to the given node.
+	 * @return An edge chosen at random, null if the node has no entering edges.
+	 * complexity at worse O(n) where n is the number of edges.
+	 */
+	public static Edge randomInEdge( Node node )
+	{
+		return randomInEdge( node, new Random() );
+	}
+	
+	/**
+	 * Choose an edge at random from the leaving edges connected to the given node.
+	 * @return An edge chosen at random, null if the node has no leaving edges.
+	 * complexity at worse O(n) where n is the number of edges.
+	 */
+	public static Edge randomOutEdge( Node node )
+	{
+		return randomOutEdge( node, new Random() );
+	}
+	
+	/**
+	 * Choose an edge at random from the edges connected to the given node.
+	 * @param random The random number generator to use.
+	 * @return An edge chosen at random, null if the node has no edges.
+	 * complexity at worse O(n) where n is the number of edges.
+	 */
+	public static Edge randomEdge( Node node, Random random )
+	{
+		int n = node.getDegree();
+		int r = random.nextInt( n );
+		int i = 0;
+		
+		for( Edge edge: node.getEdgeSet() ) {
+			if( r == i )
+				return edge;
+			i ++;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Choose an edge at random from the entering edges connected to the given node.
+	 * @param random The random number generator to use.
+	 * @return An edge chosen at random, null if the node has no entering edges.
+	 * complexity at worse O(n) where n is the number of edges.
+	 */
+	public static Edge randomInEdge( Node node, Random random )
+	{
+		int n = node.getInDegree();
+		int r = random.nextInt( n );
+		int i = 0;
+		
+		for( Edge edge: node.getEnteringEdgeSet() ) {
+			if( r == i )
+				return edge;
+			i ++;
+		}
+		
+		return null;
+	}
+	
+	/**
+	 * Choose an edge at random from the leaving edges connected to the given node.
+	 * @param random The random number generator to use.
+	 * @return An edge chosen at random, null if the node has no leaving edges.
+	 * complexity at worse O(n) where n is the number of edges.
+	 */
+	public static Edge randomOutEdge( Node node, Random random )
+	{
+		int n = node.getOutDegree();
+		int r = random.nextInt( n );
+		int i = 0;
+		
+		for( Edge edge: node.getLeavingEdgeSet() ) {
+			if( r == i )
+				return edge;
+			i ++;
+		}
+		
+		return null;
 	}
 	
 	/**
@@ -289,22 +393,20 @@ public class Toolkit
 	public static HashMap<Object,HashSet<Node>> communities( Graph graph, String marker )
 	{
 		HashMap<Object,HashSet<Node>> communities = new HashMap<Object,HashSet<Node>>();
-		Iterator<? extends Node> nodes = graph.getNodeIterator();
-		
-		while( nodes.hasNext() )
+
+		for( Node node: graph )
 		{
-		    Node node = nodes.next();
 		    Object communityMarker = node.getAttribute( marker );
 			
 		    if( communityMarker == null )
-			communityMarker = "NULL_COMMUNITY";
+		    	communityMarker = "NULL_COMMUNITY";
 				
 		    HashSet<Node> community = communities.get( communityMarker );
 				
 		    if( community == null )
 		    {
-			community = new HashSet<Node>();
-			communities.put( communityMarker, community );
+		    	community = new HashSet<Node>();
+		    	communities.put( communityMarker, community );
 		    }
 				
 		    community.add( node );
@@ -425,22 +527,18 @@ public class Toolkit
 			
 			for( Node node: community )
 			{
-			    Iterator<? extends Edge> edges = node.getEdgeIterator();
-			    
-			    while( edges.hasNext() )
+			    for( Edge edge: node.getEdgeSet() )
 			    {
-				Edge edge = edges.next();
-				
-				if( ! marked.contains( edge ) )
-				{
-				    marked.add( edge );
-						
-				    if( ( community.contains( edge.getNode0() ) && otherCommunity.contains( edge.getNode1() ) )
-				    ||  ( community.contains( edge.getNode1() ) && otherCommunity.contains( edge.getNode0() ) ) )
-				    {
-					edgeCount++;
-				    }
-				}
+					if( ! marked.contains( edge ) )
+					{
+					    marked.add( edge );
+							
+					    if( ( community.contains( edge.getNode0() ) && otherCommunity.contains( edge.getNode1() ) )
+					    ||  ( community.contains( edge.getNode1() ) && otherCommunity.contains( edge.getNode0() ) ) )
+					    {
+					    	edgeCount++;
+					    }
+					}
 			    }
 			}
 		}
@@ -450,21 +548,17 @@ public class Toolkit
 			
 			for( Node node: community )
 			{
-			    Iterator<? extends Edge> edges = node.getEdgeIterator();
-			    
-			    while( edges.hasNext() )
+			    for( Edge edge: node.getEdgeSet() )
 			    {
-				Edge edge = edges.next();
-				
-				if( ! marked.contains( edge ) )
-				{
-				    marked.add( edge );
-						
-				    if( community.contains( edge.getNode0() ) && community.contains( edge.getNode1() ) )
-				    {
-					edgeCount++;
-				    }
-				}
+					if( ! marked.contains( edge ) )
+					{
+					    marked.add( edge );
+							
+					    if( community.contains( edge.getNode0() ) && community.contains( edge.getNode1() ) )
+					    {
+					    	edgeCount++;
+					    }
+					}
 			    }
 			}
 		}
@@ -507,17 +601,16 @@ public class Toolkit
 	 * fill up the array given as parameter. This array must have at least three cells.
 	 * @param id The node identifier.
 	 * @param xyz An array of at least three cells.
-	 * @throws NotFoundException If the node with the given identifier does not exist.
+	 * @throws RuntimeException If the node with the given identifier does not exist.
 	 */
 	public static void nodePosition( Graph graph, String id, float xyz[] )
-		throws NotFoundException
 	{
 		Node node = graph.getNode( id );
 		
 		if( node != null )
 			nodePosition( node, xyz );
 		
-		throw new NotFoundException( "node '"+id+"' does not exist" );
+		throw new RuntimeException( "node '"+id+"' does not exist" );
 	}
 	
 	/**
@@ -568,10 +661,9 @@ public class Toolkit
 	 * Compute the edge length of the given edge according to its two nodes positions.
 	 * @param id The identifier of the edge.
 	 * @return The edge length or -1 if the nodes of the edge have no positions.
-	 * @throws NotFoundException If the edge cannot be found.
+	 * @throws RuntimeException If the edge cannot be found.
 	 */
 	public static float edgeLength( Graph graph, String id )
-		throws NotFoundException
 	{
 		Edge edge = graph.getEdge( id );
 		
