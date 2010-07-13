@@ -30,7 +30,7 @@ import java.util.Random;
  * <p>
  * Generates a graph using the Dorogovtsev - Mendes algorithm. This starts by
  * creating three nodes and tree edges, making a triangle, and then add one
- * node at a time. Each time a node is added, an edge is choosed randomly and
+ * node at a time. Each time a node is added, an edge is chosen randomly and
  * the node is connected to the two extremities of this edge.
  * </p>
  * 
@@ -57,24 +57,9 @@ import java.util.Random;
  * </p>
  * @since 20070117
  */
-public class DorogovtsevMendesGenerator
-	extends BaseGenerator
+public class DorogovtsevMendesGenerator extends BaseGenerator
 {
 // Attributes
-	
-	/**
-	 * The graph to grow.
-	 */
-	//protected Graph graph;
-	
-	/**
-	 * Random number generator.
-	 */
-	//protected Random random;
-	
-	/**
-	 * Set of edges.
-	 */
 	
 	/**
 	 * Used to generate node names.
@@ -102,25 +87,16 @@ public class DorogovtsevMendesGenerator
 // Access
 // Commands
 
-	public void begin()// Graph graph )
+	public void begin()
 	{
-		//this.graph = graph;
 		this.random = this.random == null ? new Random( System.currentTimeMillis() ) : this.random;
 		
 		//Edge edge;
 		
-		/*
-		graph.addNode( "0" );
-		graph.addNode( "1" );
-		graph.addNode( "2" );
-		*/
 		addNode("0");
 		addNode("1");
 		addNode("2");
 		
-		/*edge = graph.addEdge( "0-1", "0", "1" ); edges.add( edge );
-		edge = graph.addEdge( "1-2", "1", "2" ); edges.add( edge );
-		edge = graph.addEdge( "2-0", "2", "0" ); edges.add( edge );*/
 		addEdge("0-1","0","1"); edges.add("0-1");
 		addEdge("1-2","1","2"); edges.add("1-2");
 		addEdge("2-0","2","0"); edges.add("2-0");
@@ -130,7 +106,6 @@ public class DorogovtsevMendesGenerator
 
 	public void end()
 	{
-		//graph = null;
 	}
 
 	public boolean nextElement()
@@ -140,13 +115,9 @@ public class DorogovtsevMendesGenerator
 		String edge = edges.get( rand );
 		String   n0 = edge.substring(0,edge.indexOf('-'));//, endIndex)edge.getNode0();
 		String   n1 = edge.substring(edge.indexOf('-')+1);//edge.getNode1();
-		//Edge   e    = null;
 
-		//graph.addNode( name );
 		addNode(name);
 
-		//e = graph.addEdge( n0.getId() + "-" + name, n0.getId(), name ); edges.add( e );
-		//e = graph.addEdge( n1.getId() + "-" + name, n1.getId(), name ); edges.add( e );
 		addEdge( n0 + "-" + name, n0, name );
 		addEdge( n1 + "-" + name, n1, name );
 		

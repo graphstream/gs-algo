@@ -37,7 +37,7 @@ import org.graphstream.stream.SourceBase;
  * </p>
  * 
  * <p>
- * Indeed, This generator has the ability to add randomly choosed numerical
+ * Indeed, This generator has the ability to add randomly chosen numerical
  * values on arbitrary attributes on edges or nodes of the graph, and to
  * randomly choose a direction for edges.
  * </p>
@@ -45,13 +45,13 @@ import org.graphstream.stream.SourceBase;
  * <p>
  * A list of attributes can be given for nodes and edges. In this case each
  * new node or edge added will have this attribute and the value will be a
- * randomly choosed number. The range in which these numbers are choosed can be
+ * randomly chosen number. The range in which these numbers are chosen can be
  * specified.
  * </p>
  * 
  * <p>
  * By default, edges are not oriented. It is possible to ask orientation, and in
- * addition to ask that the direction be choosed randomly (by default, if edges
+ * addition to ask that the direction be chosen randomly (by default, if edges
  * must be oriented, the order given for the two nodes to connect is used). 
  * </p>
  *
@@ -110,22 +110,22 @@ public abstract class BaseGenerator
 	protected boolean randomlyDirected = false;
 	
 	/**
-	 * List of attributes to put on nodes with a randomly choosed numerical value.
+	 * List of attributes to put on nodes with a randomly chosen numerical value.
 	 */
 	protected ArrayList<String> nodeAttributes = new ArrayList<String>();
 	
 	/**
-	 * List of attributes to put on edges with a randomly choosed numerical value.
+	 * List of attributes to put on edges with a randomly chosen numerical value.
 	 */
 	protected ArrayList<String> edgeAttributes = new ArrayList<String>();
 	
 	/**
-	 * If node attributes are added, in which range are the numbers choosed ?.
+	 * If node attributes are added, in which range are the numbers chosen ?.
 	 */
 	protected float[] nodeAttributeRange = new float[2];
 	
 	/**
-	 * If edge attributes are added, in which range are the numbers choosed ?.
+	 * If edge attributes are added, in which range are the numbers chosen ?.
 	 */
 	protected float[] edgeAttributeRange = new float[2];
 	
@@ -147,12 +147,12 @@ public abstract class BaseGenerator
 	protected Random random = new Random();
 
 	/**
-	 * Seth the node label attribute using the identifier?.
+	 * Set the node label attribute using the identifier?.
 	 */
 	protected boolean addNodeLabels = false;
 
 	/**
-	 * Seth the edge label attribute using the identifier?.
+	 * Set the edge label attribute using the identifier?.
 	 */
 	protected boolean addEdgeLabels = false;
 	
@@ -172,7 +172,7 @@ public abstract class BaseGenerator
 	 * edges. It is possible to make edge randomly directed.
 	 * @param directed If true the edges are directed.
 	 * @param randomlyDirectedEdges If true edge, are directed and the direction
-	 * is choosed randomly.
+	 * is chosen randomly.
 	 */
 	public BaseGenerator( boolean directed, boolean randomlyDirectedEdges )
 	{
@@ -347,7 +347,7 @@ public abstract class BaseGenerator
 	protected void addNode( String id, float x, float y )
 	{
 		addNode(id);
-		sendNodeAttributeAdded(sourceId,id,"xy",new float [] {x,y});
+		sendNodeAttributeAdded(sourceId,id,"xy",new Double[] { new Double(x), new Double(y) });
 	}
 	
 	/**
@@ -399,7 +399,7 @@ public abstract class BaseGenerator
 	 * Add an edge, choosing randomly its orientation if needed and putting
 	 * attribute on it if needed.
 	 * @param id The edge identifier, if null, the identifier is created from the nodes identifiers.
-	 * @param from The source node (can be inversed randomly with the target node).
+	 * @param from The source node (can be inverted randomly with the target node).
 	 */
 	protected void addEdge( String id, String from, String to )
 	{

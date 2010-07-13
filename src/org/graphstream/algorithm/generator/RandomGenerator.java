@@ -33,10 +33,10 @@ package org.graphstream.algorithm.generator;
  * </p>
  * 
  * <p>
- * The generator tried to generate nodes with random connections, with each node
+ * The generator tries to generate nodes with random connections, with each node
  * having in average a given degree. The law in a Poisson law, however, the
- * way this generator works, adding node after node, perturb this process.
- * We should first allocate all the needed nodes, then create edges, and we
+ * way this generator works, adding node after node, perturbs this process.
+ * We should first allocate all the needed nodes, then create edges. However, we
  * create nodes at the same rate as edges. The more nodes are added the more
  * the degree distribution curve is shifted toward the right.
  * </p>
@@ -64,7 +64,7 @@ package org.graphstream.algorithm.generator;
 public class RandomGenerator
 	extends BaseGenerator
 {
-// Attributes
+// Attribute
 
 	/**
 	 * Used to generate node names.
@@ -76,7 +76,7 @@ public class RandomGenerator
 	 */
 	protected int averageDegree = 1;
 	
-// Constructors
+// Construction
 	
 	public RandomGenerator()
 	{
@@ -125,9 +125,7 @@ public class RandomGenerator
 		this.averageDegree = averageDegree;
 	}
 	
-// Accessors
-	
-// Commands
+// Command
 	
 	public void begin()
 	{

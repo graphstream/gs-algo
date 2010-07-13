@@ -45,7 +45,7 @@ public class GridGenerator
 	/**
 	 * generate x and y attributes on a plane.
 	 */
-	protected boolean generateXY = false;
+	protected boolean generateXY = true;
 	
 	/**
 	 * Current width and height of the grid.
