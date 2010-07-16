@@ -167,7 +167,31 @@ public class Toolkit
 			return coefs;
 		}
 		
-		return null;
+		return new double[0];
+	}
+	
+	/**
+	 * Average clustering coefficient of the whole graph.
+	 * Average of each node individual clustering coefficient. 
+	 * @return The average clustering coefficient.
+	 * @complexity at worse O(n d^2) where n is the number of nodes and d the average or maximum
+	 *   degree of nodes.
+	 */
+	public static double averageClusteringCoefficient( Graph graph )
+	{
+		int n = graph.getNodeCount();
+		
+		if( n > 0 )
+		{
+			double cc = 0;
+			
+			for( Node node: graph )
+				cc += clusteringCoefficient( node );
+			
+				return cc / n;
+		}
+		
+		return 0;
 	}
 
 	/**
@@ -204,7 +228,7 @@ public class Toolkit
 
 						if( e != null )
 						{
-							if( ! set.contains( e ) )
+							//if( ! set.contains( e ) )
 								set.add( e );
 						}
 					}
