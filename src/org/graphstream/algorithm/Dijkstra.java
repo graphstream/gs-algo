@@ -46,13 +46,20 @@ import org.graphstream.graph.Path;
  * @complexity O(n^2 + m) with n the number of nodes and m the number of edges.
  * 
  * @author Antoine Dutot
- * @author Yoann Pign�
+ * @author Yoann Pigné
  */
 public class Dijkstra
 {
 	Node target = null;
 
 	Node source = null;
+	
+	/**
+	 * object-level unique string that identifies tags of this instance on a graph.
+	 */
+	private String parentEdgesString;
+
+
 
 	/**
 	 * Distances depending on the observed attribute.
@@ -77,6 +84,7 @@ public class Dijkstra
 	@SuppressWarnings("all")
 	public Dijkstra( Graph graph, Element element, String attribute, Node start )
 	{
+		parentEdgesString = this.toString()+"/ParentEdges";
 		distances = new Hashtable<Node, Double>();
 		length = new Hashtable<Node, Double>();
 		ArrayList<Node> computed = new ArrayList<Node>();
@@ -96,7 +104,7 @@ public class Dijkstra
 
 		for( Node v: graph )
 		{
-			v.removeAttribute( "Dijkstra.parentEdges" );
+			v.removeAttribute( parentEdgesString );
 		}
 
 		while( !priorityList.isEmpty() )
@@ -143,13 +151,13 @@ public class Dijkstra
 						{
 							if( dist == distances.get( neighborNode ) )
 							{
-								( (ArrayList<Edge>) neighborNode.getAttribute( "Dijkstra.parentEdges" ) ).add( runningEdge );
+								( (ArrayList<Edge>) neighborNode.getAttribute( parentEdgesString ) ).add( runningEdge );
 							}
 							else
 							{
 								ArrayList<Edge> parentEdges = new ArrayList<Edge>();
 								parentEdges.add( runningEdge );
-								neighborNode.addAttribute( "Dijkstra.parentEdges", parentEdges );
+								neighborNode.addAttribute( parentEdgesString, parentEdges );
 
 								distances.put( neighborNode, dist );
 								//neighborNode.addAttribute( "label", neighborNode.getId() + " - " + dist );
@@ -167,7 +175,7 @@ public class Dijkstra
 						length.put( neighborNode, len );
 						ArrayList<Edge> parentEdges = new ArrayList<Edge>();
 						parentEdges.add( runningEdge );
-						neighborNode.addAttribute( "Dijkstra.parentEdges", parentEdges );
+						neighborNode.addAttribute( parentEdgesString, parentEdges );
 
 					}
 
@@ -186,7 +194,7 @@ public class Dijkstra
 		{
 			return;
 		}
-		ArrayList<Edge> list = (ArrayList<Edge>) v.getAttribute( "Dijkstra.parentEdges" );
+		ArrayList<Edge> list = (ArrayList<Edge>) v.getAttribute( parentEdgesString );
 		if( list == null )
 		{
 			//System.err.println( "The list of parent Edges  is null, v=" + v.toString() + " source=" + source.toString() );
@@ -215,16 +223,16 @@ public class Dijkstra
 	@SuppressWarnings("unchecked")
     public Path getShortestPath( Node target )
 	{
+		Path p = new Path();
 		if( target == source )
 		{
-			return null;
+			return p;
 		}
-		Path p = new Path();
 		boolean noPath = false;
 		Node v = target;
 		while( v != source && !noPath )
 		{
-			ArrayList<? extends Edge> list = (ArrayList<? extends Edge>) v.getAttribute( "Dijkstra.parentEdges" );
+			ArrayList<? extends Edge> list = (ArrayList<? extends Edge>) v.getAttribute( parentEdgesString );
 			if( list == null )
 			{
 				noPath = true;
@@ -273,7 +281,7 @@ public class Dijkstra
 		while(it.hasNext())
 		{
 			Node n = it.next();
-			ArrayList<Edge> list = (ArrayList<Edge>) n.getAttribute( "Dijkstra.parentEdges" );
+			ArrayList<Edge> list = (ArrayList<Edge>) n.getAttribute( parentEdgesString );
 			if(list != null)
 				treeEdges.addAll( list );
 		}
@@ -298,7 +306,6 @@ public class Dijkstra
 	 */
 	public List<Path> getPathSetShortestPaths( Node end )
 	{
-		System.out.println( "getPathSetShortestPaths" );
 		ArrayList<Path> paths = new ArrayList<Path>();
 		pathSetShortestPath_facilitate( end, new Path(), paths );
 		return paths;
@@ -310,14 +317,14 @@ public class Dijkstra
 		if( current != source )
 		{
 			Node next = null;
-			ArrayList<? extends Edge> parentEdges = (ArrayList<? extends Edge>) current.getAttribute( "Dijkstra.parentEdges" );
+			ArrayList<? extends Edge> parentEdges = (ArrayList<? extends Edge>) current.getAttribute( parentEdgesString );
 			while( current != source && parentEdges.size() == 1 )
 			{
 				Edge e = parentEdges.get( 0 );
 				next = e.getOpposite( current );
 				path.add( current, e );
 				current = next;
-				parentEdges = (ArrayList<? extends Edge>) current.getAttribute( "Dijkstra.parentEdges" );
+				parentEdges = (ArrayList<? extends Edge>) current.getAttribute( parentEdgesString );
 			}
 			if( current != source )
 			{
