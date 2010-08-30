@@ -3,5 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/gs-core"/>
+	<classpathentry kind="lib" path="/gs-core/lib/util.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
