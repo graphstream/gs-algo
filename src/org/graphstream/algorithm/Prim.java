@@ -20,7 +20,7 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.DefaultGraph;
-import org.graphstream.ui.old.GraphViewerRemote;
+//import org.graphstream.ui.old.GraphViewerRemote;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -255,8 +255,9 @@ public class Prim
 		{
 			Graph graph = new DefaultGraph( "Kruskal's algorithm" );
 
-			GraphViewerRemote remote = graph.oldDisplay( false );
-			remote.setQuality( 4 );
+//			GraphViewerRemote remote = graph.oldDisplay( false );
+			graph.display( false );
+			//remote.setQuality( 4 );
 			
 			graph.addNode( "A" ).addAttribute( "xy", 0, 0);
 			graph.addNode( "B" ).addAttribute( "xy", 1, 0);
