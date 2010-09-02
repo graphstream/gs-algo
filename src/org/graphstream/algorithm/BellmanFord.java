@@ -63,7 +63,7 @@ public class BellmanFord
 		for(int i = 0; i < graph.getNodeCount(); i++)
 		{
 			System.out.println();
-			for(Edge e : graph.edgeSet())
+			for(Edge e : graph.getEachEdge())
 			{
 				Node n0 = e.getNode0();
 				Node n1 = e.getNode1();
@@ -112,7 +112,7 @@ public class BellmanFord
 	
 
 		// Step 3: check for negative-weight cycles
-		for(Edge e : graph.edgeSet()) {
+		for(Edge e : graph.getEachEdge()) {
 			Node n0 = e.getNode0();
 			Node n1 = e.getNode1();
 			Double d0 = (Double) n0.getAttribute( "BellmanFord.distance" );

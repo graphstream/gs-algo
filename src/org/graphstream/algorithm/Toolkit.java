@@ -297,7 +297,7 @@ public class Toolkit
 		int r = random.nextInt( n );
 		int i = 0;
 		
-		for( Edge edge: graph.edgeSet() ) {
+		for( Edge edge: graph.getEachEdge() ) {
 			if( r == i )
 				return edge;
 			i ++;

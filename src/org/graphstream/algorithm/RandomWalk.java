@@ -212,13 +212,13 @@ public class RandomWalk implements ElementSink
 	{
 		if( graph != null )
 		{
-			for( Edge e: graph.edgeSet() )
+			for( Edge e: graph.getEachEdge() )
 			{
 				e.addAttribute( name, e.getNumber( passesAttribute ) );
 				e.removeAttribute( passesAttribute );
 			}
 
-			for( Node n: graph.nodeSet() )
+			for( Node n: graph )
 			{
 				n.addAttribute( name, n.getNumber( passesAttribute ) );
 				n.removeAttribute( passesAttribute );
@@ -287,11 +287,11 @@ public class RandomWalk implements ElementSink
 	
 	protected void equipGraph()
 	{
-		for( Edge e: graph.edgeSet() ) {
+		for( Edge e: graph.getEachEdge() ) {
 			e.addAttribute( passesAttribute, 0.0 );
 		}
 
-		for( Node n: graph.nodeSet() ) {
+		for( Node n: graph ) {
 			n.addAttribute( passesAttribute, 0.0 );
 		}
 	}

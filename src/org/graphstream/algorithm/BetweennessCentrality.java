@@ -385,7 +385,7 @@ public class BetweennessCentrality
 			node.setAttribute( "ui.label", String.format( "%s C=%.2f", node.getId(), bcb.centrality(node) ) );
 		}
 		
-		for( Edge edge: graph.edgeSet() ) {
+		for( Edge edge: graph.getEachEdge() ) {
 			edge.setAttribute( "ui.label", String.format( "%.2f", bcb.weight( edge.getNode0(), edge.getNode1() ) ) );
 		}
 		
