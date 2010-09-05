@@ -327,7 +327,7 @@ public class PointsOfInterestGenerator
 	/**
 	 * @see org.graphstream.algorithm.generator.Generator
 	 */
-	public boolean nextElement()
+	public boolean nextEvents()
 	{
 		if( random.nextDouble() < delPeopleProbability )
 			killSomeone();

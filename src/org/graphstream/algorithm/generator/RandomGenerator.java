@@ -28,7 +28,7 @@ package org.graphstream.algorithm.generator;
  * <p>
  * This generator creates random graphs of any size. Calling
  * {@link #begin()} put one unique node in the graph, then
- * {@link #nextElement()} will add a new node each time it is called and
+ * {@link #nextEvents()} will add a new node each time it is called and
  * connect this node randomly to others.
  * </p>
  * 
@@ -137,7 +137,7 @@ public class RandomGenerator
 	{
 	}
 
-	public boolean nextElement()
+	public boolean nextEvents()
 	{
 		String id = Integer.toString( nodeNames++ );
 		

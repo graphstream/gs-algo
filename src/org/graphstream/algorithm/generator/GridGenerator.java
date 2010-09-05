@@ -151,7 +151,7 @@ public class GridGenerator
 		}
 	}
 
-	public boolean nextElement()
+	public boolean nextEvents()
 	{
 		currentSize++;
 		

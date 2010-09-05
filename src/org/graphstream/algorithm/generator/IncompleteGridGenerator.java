@@ -248,7 +248,7 @@ public class IncompleteGridGenerator
     /**
      * @see org.graphstream.algorithm.generator.Generator
      */
-    public boolean nextElement()
+    public boolean nextEvents()
     {
     	for( int i = 0; i < currentWidth; i++ )
     	{

@@ -34,7 +34,7 @@ import org.graphstream.stream.Pipe;
  * created according to a threshold. If the Euclidean distance between two nodes
  * is less than a given threshold, then a link is created between those 2 nodes.
  * Calling {@link #begin()} put one unique node in the graph, then
- * {@link #nextElement()} will add a new node each time it is called and connect
+ * {@link #nextEvents()} will add a new node each time it is called and connect
  * this node to its neighbors according to the threshold planar Euclidean
  * distance.
  * </p>
@@ -205,7 +205,7 @@ public class RandomEuclideanGenerator
 		
 	}
 
-	public boolean nextElement()
+	public boolean nextEvents()
 	{
 		String id = Integer.toString( nodeNames++ );
 

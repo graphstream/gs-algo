@@ -158,7 +158,7 @@ public class RandomFixedDegreeDynamicGraphGenerator
 		step = 0;
 	}
 
-	public boolean nextElement()
+	public boolean nextEvents()
 	{
 		int nbCreations, nbSuppressions, nbCreationsEdges;
 		String dead, source, dest;

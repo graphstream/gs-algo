@@ -108,7 +108,7 @@ public class DorogovtsevMendesGenerator extends BaseGenerator
 	{
 	}
 
-	public boolean nextElement()
+	public boolean nextEvents()
 	{
 		int    rand = random.nextInt( edges.size() );
 		String name = Integer.toString( nodeNames++ );

@@ -91,7 +91,7 @@ public class PreferentialAttachmentGenerator
 		degreeMax = 0;
 	}
 
-	public boolean nextElement()
+	public boolean nextEvents()
 	{
 		// Generate a new node.
 		

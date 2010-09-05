@@ -28,7 +28,7 @@ package org.graphstream.algorithm.generator;
  * <p>
  * Probably not very usefull, still sometimes needed. This genertor creates
  * fully connected graphs of any size. Calling {@link #begin()} put one
- * unique node in the graph, then {@link #nextElement()} will add a new node
+ * unique node in the graph, then {@link #nextEvents()} will add a new node
  * each time it is called.
  * </p>
  * 
@@ -109,7 +109,7 @@ public class FullGenerator
 		
 	}
 
-	public boolean nextElement()
+	public boolean nextEvents()
 	{
 		String id = Integer.toString( nodeNames++ );
 		

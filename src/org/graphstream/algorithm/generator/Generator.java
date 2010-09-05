@@ -45,7 +45,7 @@ public interface Generator
 	/**
 	 * Begin the graph generation. This usually is the place for initialisation
 	 * of the generator. After calling this method, call the
-	 * {@link #nextElement()} method to add elements to the graph.
+	 * {@link #nextEvents()} method to add elements to the graph.
 	 */
 	void begin();
 
@@ -57,11 +57,11 @@ public interface Generator
 	 * calling this method when enough elements have been generated.
 	 * @return True while there are elements to add to the graph.
 	 */
-	boolean nextElement();
+	boolean nextEvents();
 
 	/**
 	 * End the graph generation by finalising it. Once the
-	 * {@link #nextElement()} method returned false (or even if you stop before),
+	 * {@link #nextEvents()} method returned false (or even if you stop before),
 	 * this method must be called to finish the graph.
 	 */
 	void end();
