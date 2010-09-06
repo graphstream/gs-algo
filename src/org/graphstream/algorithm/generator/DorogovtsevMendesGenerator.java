@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with GraphStream.  If not, see <http://www.gnu.org/licenses/>.
  * 
- * Copyright 2006 - 2009
+ * Copyright 2006 - 2010
  * 	Julien Baudry
  * 	Antoine Dutot
  * 	Yoann Pigné
@@ -26,12 +26,12 @@ import java.util.Random;
 
 /**
  * Dorogovtsev - Mendes graph generator.
- *
+ * 
  * <p>
  * Generates a graph using the Dorogovtsev - Mendes algorithm. This starts by
- * creating three nodes and tree edges, making a triangle, and then add one
- * node at a time. Each time a node is added, an edge is chosen randomly and
- * the node is connected to the two extremities of this edge.
+ * creating three nodes and tree edges, making a triangle, and then add one node
+ * at a time. Each time a node is added, an edge is chosen randomly and the node
+ * is connected to the two extremities of this edge.
  * </p>
  * 
  * <p>
@@ -41,41 +41,41 @@ import java.util.Random;
  * </p>
  * 
  * <p>
- * This algorithm often generates graphs that seem more suitable than the
- * simple preferential attachment implemented in the PreferentialAttachmentGenerator
+ * This algorithm often generates graphs that seem more suitable than the simple
+ * preferential attachment implemented in the PreferentialAttachmentGenerator
  * class (despite the fact more complex and useful preferential attachment
  * generators could be realized in the future).
  * </p>
  * 
- * </p>
- * The Dorogovtsev - Mendes algorithm always produce planar graphs.
- * </p>
+ * </p> The Dorogovtsev - Mendes algorithm always produce planar graphs. </p>
  * 
  * <p>
  * The more this generator is iterated, the more nodes are generated. It can
  * therefore generate trees of any size.
  * </p>
+ * 
  * @since 20070117
  */
 public class DorogovtsevMendesGenerator extends BaseGenerator
-{
-// Attributes
-	
+{	
 	/**
 	 * Used to generate node names.
 	 */
 	protected int nodeNames = 0;
-	
-// Constructors
 
+	/**
+	 * Create a new generator with default random object.
+	 */
 	public DorogovtsevMendesGenerator()
 	{
 		keepEdgesId = true;
 	}
-	
+
 	/**
 	 * New generator with the given random number generator.
-	 * @param random The number generator to use.
+	 * 
+	 * @param random
+	 *            The number generator to use.
 	 */
 	public DorogovtsevMendesGenerator( Random random )
 	{
@@ -83,15 +83,15 @@ public class DorogovtsevMendesGenerator extends BaseGenerator
 		
 		this.random = random;
 	}
-	
-// Access
-// Commands
 
+	/**
+	 * Init the generator. An initial full graph of three nodes is build here.
+	 * 
+	 * @see org.graphstream.algorithm.generator.Generator#begin()
+	 */
 	public void begin()
 	{
 		this.random = this.random == null ? new Random( System.currentTimeMillis() ) : this.random;
-		
-		//Edge edge;
 		
 		addNode("0");
 		addNode("1");
@@ -104,23 +104,34 @@ public class DorogovtsevMendesGenerator extends BaseGenerator
 		nodeNames = 3;
 	}
 
-	public void end()
-	{
-	}
-
+	/**
+	 * Step of the DorogovtsevMendes generator. Add a new node <i>n</i>, then an
+	 * edge is chosen randomly and its extremities are connected to the new node
+	 * <i>n</i>.
+	 * 
+	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
+	 */
 	public boolean nextEvents()
 	{
 		int    rand = random.nextInt( edges.size() );
 		String name = Integer.toString( nodeNames++ );
 		String edge = edges.get( rand );
-		String   n0 = edge.substring(0,edge.indexOf('-'));//, endIndex)edge.getNode0();
-		String   n1 = edge.substring(edge.indexOf('-')+1);//edge.getNode1();
+		String   n0 = edge.substring(0,edge.indexOf('-'));
+		String   n1 = edge.substring(edge.indexOf('-')+1);
 
 		addNode(name);
 
 		addEdge( n0 + "-" + name, n0, name );
 		addEdge( n1 + "-" + name, n1, name );
 		
-		return false;
+		return true;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.algorithm.generator.Generator#end()
+	 */
+	public void end()
+	{
 	}
 }

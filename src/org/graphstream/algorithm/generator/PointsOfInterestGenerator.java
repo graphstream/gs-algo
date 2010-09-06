@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with GraphStream.  If not, see <http://www.gnu.org/licenses/>.
  * 
- * Copyright 2006 - 2009
+ * Copyright 2006 - 2010
  * 	Julien Baudry
  * 	Antoine Dutot
  * 	Yoann Pigné
@@ -31,33 +31,36 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Generate a **social** dynamic graph.
- * Graph is composed of high-connected group of nodes, modeling
- * organizations, and few connections between organizations.
+ * Generate a <b>social<b> dynamic graph. Graph is composed of high-connected
+ * group of nodes, modeling organizations, and few connections between
+ * organizations.
  * 
- * This is done by creating **points of interest**. Nodes can be
- * interested by these points or loose them interest. When two nodes
- * are interested by at least one common point, then there are connected.
+ * This is done by creating <i>points of interest</i>. Nodes can be interested
+ * by these points or loose them interest. When two nodes are interested by at
+ * least one common point, then there are connected.
  * 
  * Some probabilities can be set defining the following events :
- * - remove a node ;
- * - add a node ;
- * - remove a point of interest ;
- * - add a point of interest.
+ * <ul>
+ * <li>remove a node ;</li>
+ * <li>add a node ;</li>
+ * <li>remove a point of interest ;</li>
+ * <li>add a point of interest.</li>
+ * </ul>
  * 
  * Initial parameters are :
- * - initial count of points of interest ;
- * - initial count of nodes ;
+ * <ul>
+ * <li>initial count of points of interest ;</li>
+ * <li>initial count of nodes ;</li>
+ * </ul>
  * 
- * @author gsavin
- *
+ * @author Guilhelm Savin
+ * 
  */
 public class PointsOfInterestGenerator
 	extends BaseGenerator
 {
 	/**
-	 * Defines a point of interest.
-	 * It is just a set of *addicted* nodes.
+	 * Defines a point of interest. It is just a set of <i>addicted</i> nodes.
 	 */
 	protected class PointOfInterest
 	{
@@ -72,12 +75,12 @@ public class PointsOfInterestGenerator
 		}
 		
 		/**
-		 * Registers a node as an addict of this point.
-		 * The node will be linked to all nodes already addict
-		 * of this point. The list of points of interest of the
-		 * node will be updated.
+		 * Registers a node as an addict of this point. The node will be linked
+		 * to all nodes already addict of this point. The list of points of
+		 * interest of the node will be updated.
 		 * 
-		 * @param addictA the addicted node
+		 * @param addictA
+		 *            the addicted node
 		 */
 		void newAddict( Addict addictA )
 		{
@@ -92,12 +95,12 @@ public class PointsOfInterestGenerator
 		}
 		
 		/**
-		 * Unregisters a node.
-		 * The node will be unlinked to all nodes already addict
-		 * of this point. The list of points of interest of the
-		 * node will be updated.
+		 * Unregisters a node. The node will be unlinked to all nodes already
+		 * addict of this point. The list of points of interest of the node will
+		 * be updated.
 		 * 
-		 * @param addictA the addicted node
+		 * @param addictA
+		 *            the addicted node
 		 */
 		void delAddict( Addict addictA )
 		{
@@ -113,7 +116,9 @@ public class PointsOfInterestGenerator
 		
 		/**
 		 * Check is a node is addict of this point.
-		 * @param a the addict
+		 * 
+		 * @param a
+		 *            the addict
 		 * @return true if a is addict of this point
 		 */
 		boolean isAddict( Addict a )
@@ -123,9 +128,8 @@ public class PointsOfInterestGenerator
 	}
 	
 	/**
-	 * Defines data of a node.
-	 * We have to keep id of the node and to backup points of interest
-	 * of this node and neighbor of the node. 
+	 * Defines data of a node. We have to keep id of the node and to backup
+	 * points of interest of this node and neighbor of the node.
 	 */
 	protected class Addict
 	{
@@ -152,13 +156,13 @@ public class PointsOfInterestGenerator
 		}
 		
 		/**
-		 * Defines a step for a node.
-		 * Node will iterate over points-of-interest. For each point p,
-		 * if node is already interest by p, node will check if it is
-		 * still interested by this point (according to *lostInterestProbability*
-		 * probability). Else, node will checked if it can be interested by p,
-		 * according to *haveInterestProbability* probability and its points count
-		 * (the probability will decrease when the count of points increases).
+		 * Defines a step for a node. Node will iterate over points-of-interest.
+		 * For each point p, if node is already interest by p, node will check
+		 * if it is still interested by this point (according to
+		 * <i>lostInterestProbability</i> probability). Else, node will checked if it
+		 * can be interested by p, according to <i>haveInterestProbability</i>
+		 * probability and its points count (the probability will decrease when
+		 * the count of points increases).
 		 */
 		void step()
 		{
@@ -181,15 +185,16 @@ public class PointsOfInterestGenerator
 				}
 			}
 		}
-		
+
 		/**
-		 * Link this node to another.
-		 * Both nodes will share a common counter.
-		 * Links these two nodes will increase the counter and so unlink will decrease
-		 * the counter. If counter not exists, it is initialized and edge is created.
-		 * Else, if counter is equal to zero, counter is removed and edge is removed too.
+		 * Link this node to another. Both nodes will share a common counter.
+		 * Links these two nodes will increase the counter and so unlink will
+		 * decrease the counter. If counter not exists, it is initialized and
+		 * edge is created. Else, if counter is equal to zero, counter is
+		 * removed and edge is removed too.
 		 * 
-		 * @param a the node to link
+		 * @param a
+		 *            the node to link
 		 */
 		void link( Addict a )
 		{
@@ -205,11 +210,11 @@ public class PointsOfInterestGenerator
 		}
 		
 		/**
-		 * Unlink this node with another.
-		 * Links-counter between these two nodes is decreased and edge is removed is 
-		 * needeed.
+		 * Unlink this node with another. Links-counter between these two nodes
+		 * is decreased and edge is removed is needed.
 		 * 
-		 * @param a the node to unlink
+		 * @param a
+		 *            the node to unlink
 		 */
 		void unlink( Addict a )
 		{
@@ -248,20 +253,23 @@ public class PointsOfInterestGenerator
 	 * Initial count of nodes.
 	 */
 	protected int initialPeopleCount;
+	
 	/**
 	 * Probability to add a node during a step.
 	 */
 	protected float addPeopleProbability;
+	
 	/**
 	 * Probability to remove a node during a step.
 	 */
 	protected float delPeopleProbability;
 	
 	/**
-	 * Probability that a node becomes interested in a
-	 * point-of-interest it was not already interested.
+	 * Probability that a node becomes interested in a point-of-interest it was
+	 * not already interested.
 	 */
 	protected float haveInterestProbability;
+	
 	/**
 	 * Probability that a node looses its interest for
 	 * a point-of-interest.
@@ -272,10 +280,12 @@ public class PointsOfInterestGenerator
 	 * Initial count of point-of-interest.
 	 */
 	protected int initialPointOfInterestCount;
+	
 	/**
 	 * Probability to add a new point-of-interest.
 	 */
 	protected float addPointOfInterestProbability;
+	
 	/**
 	 * Probability to remove a point-of-interest.
 	 */
@@ -311,7 +321,9 @@ public class PointsOfInterestGenerator
 	}
 	
 	/**
-	 * @see org.graphstream.algorithm.generator.Generator
+	 * Add initial count of points of interest, and initial count of people.
+	 * 
+	 * @see org.graphstream.algorithm.generator.Generator#begin()
 	 */
 	public void begin()
 	{
@@ -325,7 +337,15 @@ public class PointsOfInterestGenerator
 	}
 
 	/**
-	 * @see org.graphstream.algorithm.generator.Generator
+	 * Step of the generator. Try to remove a node according to the
+	 * {@link #delPeopleProbability}. Try to add a node according to the
+	 * {@link #addPeopleProbability}. Try to remove a point of interest
+	 * according to the {@link #delPointOfInterestProbability}. Try to add a
+	 * point of interest according to the {@link #addPointOfInterestProbability}
+	 * . Then, step of <i>addicts</i>.
+	 * 
+	 * @see PointsOfInterestGenerator.Addict#step()
+	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
 	 */
 	public boolean nextEvents()
 	{
@@ -347,8 +367,9 @@ public class PointsOfInterestGenerator
 		return true;
 	}
 
-	/**
-	 * @see org.graphstream.algorithm.generator.Generator
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.algorithm.generator.Generator#end()
 	 */
 	public void end()
 	{

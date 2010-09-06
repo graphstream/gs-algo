@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with GraphStream.  If not, see <http://www.gnu.org/licenses/>.
  * 
- * Copyright 2006 - 2009
+ * Copyright 2006 - 2010
  * 	Julien Baudry
  * 	Antoine Dutot
  * 	Yoann Pigné
@@ -29,8 +29,8 @@ import org.graphstream.stream.Source;
  * 
  * <p>
  * A graph generator is an object that takes a graph as argument and
- * continuously create and evolve it. Some generators define an end to
- * the generation process, others may continue endlessly.
+ * continuously create and evolve it. Some generators define an end to the
+ * generation process, others may continue endlessly.
  * </p>
  * 
  * <p>
@@ -43,7 +43,7 @@ public interface Generator
 	extends Source
 {
 	/**
-	 * Begin the graph generation. This usually is the place for initialisation
+	 * Begin the graph generation. This usually is the place for initialization
 	 * of the generator. After calling this method, call the
 	 * {@link #nextEvents()} method to add elements to the graph.
 	 */
@@ -55,14 +55,19 @@ public interface Generator
 	 * Be careful that some generators never return false here, since they can
 	 * generate graphs of arbitrary size. For such generators, simply stop
 	 * calling this method when enough elements have been generated.
-	 * @return True while there are elements to add to the graph.
+	 * 
+	 * A call to this method can produce an undetermined number of nodes and
+	 * edges. Checking nodes count is advisable when generating the graph to
+	 * avoid an unwanted big graph.
+	 * 
+	 * @return true while there are elements to add to the graph.
 	 */
 	boolean nextEvents();
 
 	/**
-	 * End the graph generation by finalising it. Once the
-	 * {@link #nextEvents()} method returned false (or even if you stop before),
-	 * this method must be called to finish the graph.
+	 * End the graph generation by finalizing it. Once the {@link #nextEvents()}
+	 * method returned false (or even if you stop before), this method must be
+	 * called to finish the graph.
 	 */
 	void end();
 }

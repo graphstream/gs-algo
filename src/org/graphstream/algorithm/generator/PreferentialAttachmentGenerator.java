@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with GraphStream.  If not, see <http://www.gnu.org/licenses/>.
  * 
- * Copyright 2006 - 2009
+ * Copyright 2006 - 2010
  * 	Julien Baudry
  * 	Antoine Dutot
  * 	Yoann Pigné
@@ -38,19 +38,12 @@ import java.util.ArrayList;
  * The more this generator is iterated, the more nodes are generated. It can
  * therefore generate trees of any size.
  * </p>
- *
- * @since  20061128
+ * 
+ * @since 20061128
  */
 public class PreferentialAttachmentGenerator
 	extends BaseGenerator
 {
-// Attributes
-	
-	/**
-	 * The graph to grow.
-	 */
-	//protected Graph graph;
-	
 	/**
 	 * Degree of each node.
 	 */
@@ -61,22 +54,26 @@ public class PreferentialAttachmentGenerator
 	 */
 	protected int degreeMax = 0;
 	
+	/**
+	 * Number of edges.
+	 */
 	protected int edgesCount = 0;
-	
-// Constructors
-	
+
+	/**
+	 * New generator.
+	 */
 	public PreferentialAttachmentGenerator()
 	{
 		directed = false;
 	}
 	
-// Accessors
-	
-// Commands
-	
-	public void begin()// Graph graph )
+	/**
+	 * Start the generator. A single node is added.
+	 * 
+	 * @see org.graphstream.algorithm.generator.Generator#begin()
+	 */
+	public void begin()
 	{
-		//this.graph     = graph;
 		this.degrees   = new ArrayList<Integer>();
 		this.degreeMax = 0;
 		
@@ -84,13 +81,11 @@ public class PreferentialAttachmentGenerator
 		degrees.add( 0 );
 	}
 
-	public void end()
-	{
-		//graph     = null;
-		degrees   = null;
-		degreeMax = 0;
-	}
-
+	/**
+	 * Step of the generator. Add a node and try to connect it with some others.
+	 * 
+	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
+	 */
 	public boolean nextEvents()
 	{
 		// Generate a new node.
@@ -144,5 +139,17 @@ public class PreferentialAttachmentGenerator
 		// It is always possible to add an element.
 		
 		return true;
+	}
+
+	/**
+	 * Clean degrees.
+	 * 
+	 * @see org.graphstream.algorithm.generator.Generator#end()
+	 */
+	public void end()
+	{
+		degrees.clear();
+		degrees   = null;
+		degreeMax = 0;
 	}
 }

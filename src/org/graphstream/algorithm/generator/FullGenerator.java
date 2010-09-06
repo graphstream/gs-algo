@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with GraphStream.  If not, see <http://www.gnu.org/licenses/>.
  * 
- * Copyright 2006 - 2009
+ * Copyright 2006 - 2010
  * 	Julien Baudry
  * 	Antoine Dutot
  * 	Yoann Pigné
@@ -24,30 +24,30 @@ package org.graphstream.algorithm.generator;
 
 /**
  * Full graph generator.
- *
+ * 
  * <p>
- * Probably not very usefull, still sometimes needed. This genertor creates
- * fully connected graphs of any size. Calling {@link #begin()} put one
- * unique node in the graph, then {@link #nextEvents()} will add a new node
- * each time it is called.
+ * Probably not very useful, still sometimes needed. This generator creates
+ * fully connected graphs of any size. Calling {@link #begin()} put one unique
+ * node in the graph, then {@link #nextEvents()} will add a new node each time
+ * it is called.
  * </p>
  * 
  * <p>
- * This generator has the ability to add randomly choosed numerical values
- * on arbitrary attributes on edges or nodes of the graph, and to randomly
- * choose a direction for edges.
+ * This generator has the ability to add randomly chosen numerical values on
+ * arbitrary attributes on edges or nodes of the graph, and to randomly choose a
+ * direction for edges.
  * </p>
  * 
  * <p>
- * A list of attributes can be given for nodes and edges. In this case each
- * new node or edge added will have this attribute and the value will be a
- * randomly choosed number. The range in which these numbers are choosed can be
+ * A list of attributes can be given for nodes and edges. In this case each new
+ * node or edge added will have this attribute and the value will be a randomly
+ * chosen number. The range in which these numbers are chosen can be
  * specified.
  * </p>
  * 
  * <p>
- * By default, edges are not oriented. It is possible to ask orientation, in 
- * which case the direction is choosed randomly.
+ * By default, edges are not oriented. It is possible to ask orientation, in
+ * which case the direction is chosen randomly.
  * </p>
  * 
  * @since 2007
@@ -55,14 +55,10 @@ package org.graphstream.algorithm.generator;
 public class FullGenerator
 	extends BaseGenerator
 {
-// Attributes
-
 	/**
 	 * Used to generate node names.
 	 */
 	protected int nodeNames = 0;
-	
-// Constructors
 	
 	/**
 	 * New full graph generator. By default no attributes are added to nodes and
@@ -73,42 +69,59 @@ public class FullGenerator
 		super();
 		keepNodesId = true;
 	}
-	
+
+	/**
+	 * New full graph generator.
+	 * 
+	 * @param directed
+	 *            Are edge directed?
+	 * @param randomlyDirectedEdges
+	 *            randomly direct generated edges.
+	 */
 	public FullGenerator( boolean directed, boolean randomlyDirectedEdges )
 	{
 		super( directed, randomlyDirectedEdges );
 		keepNodesId = true;
 	}
-	
+
 	/**
 	 * New full graph generator.
-	 * @param directed Are edge directed?.
-	 * @param randomlyDirectedEdges randomly direct generated edges.
-	 * @param nodeAttribute put an attribute by that name on each node with a random numeric value.
-	 * @param edgeAttribute put an attribute by that name on each edge with a random numeric value.
+	 * 
+	 * @param directed
+	 *            Are edge directed?.
+	 * @param randomlyDirectedEdges
+	 *            randomly direct generated edges.
+	 * @param nodeAttribute
+	 *            put an attribute by that name on each node with a random
+	 *            numeric value.
+	 * @param edgeAttribute
+	 *            put an attribute by that name on each edge with a random
+	 *            numeric value.
 	 */
-	public FullGenerator( boolean directed, boolean randomlyDirectedEdges, String nodeAttribute, String edgeAttribute )
+	public FullGenerator( boolean directed, boolean randomlyDirectedEdges,
+			String nodeAttribute, String edgeAttribute )
 	{
 		super( directed, randomlyDirectedEdges, nodeAttribute, edgeAttribute );
 		keepNodesId = true;
 	}
-	
-// Accessors
-	
-// Commands
-	
+
+	/**
+	 * Begin the generator by adding a node.
+	 * 
+	 * @see org.graphstream.algorithm.generator.Generator#begin()
+	 */
 	public void begin()
 	{
 		String id = Integer.toString( nodeNames++ );
 
 		addNode( id );
 	}
-	
-	public void end()
-	{
-		
-	}
 
+	/**
+	 * Add a new node and connect it with all others.
+	 * 
+	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
+	 */
 	public boolean nextEvents()
 	{
 		String id = Integer.toString( nodeNames++ );
@@ -121,6 +134,15 @@ public class FullGenerator
 				addEdge( null, id, otherId );
 		}
 		
-		return false;
+		return true;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.algorithm.generator.Generator#end()
+	 */
+	public void end()
+	{
+		
 	}
 }

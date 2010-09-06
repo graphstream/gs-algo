@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with GraphStream.  If not, see <http://www.gnu.org/licenses/>.
  * 
- * Copyright 2006 - 2009
+ * Copyright 2006 - 2010
  * 	Julien Baudry
  * 	Antoine Dutot
  * 	Yoann Pigné
@@ -27,30 +27,59 @@ package org.graphstream.algorithm.generator;
  * 
  * @author Guilhelm Savin
  */
-
 public class IncompleteGridGenerator
 	extends BaseGenerator
 {
-
-	// Attributes
-    
-	protected int 		currentWidth 	= 0;
-    protected int 		currentHeight 	= 0;
-    protected float 	holeProbability = 0.5f;
-    protected int 		holeMaxSize 	= 5;
-    protected int 		holesPerStep 	= 3;
-    protected boolean 	cross 			= true;
+	/**
+	 * Current width of the grid.
+	 */
+	protected int currentWidth = 0;
 	
-    // Constructors
-
+	/**
+	 * Current height of the grid.
+	 */
+    protected int currentHeight = 0;
+    
     /**
-     * Default constructor.
+     * Probability of hole creation.
+     */
+    protected float holeProbability = 0.5f;
+    
+    /**
+     * Max size of holes.
+     */
+    protected int holeMaxSize = 5;
+    
+    /**
+     * Number of attempt to create a hole by step.
+     */
+    protected int holesPerStep = 3;
+    
+    /**
+     * Connect nodes diagonally.
+     */
+    protected boolean cross = true;
+	
+    /**
+     * New generator.
      */
     public IncompleteGridGenerator()
     {
     	this( true, 0.5f, 5, 3 );
     }
-    
+
+	/**
+	 * New generator.
+	 * 
+	 * @param cross
+	 *            connect nodes diagonally
+	 * @param holeProbability
+	 *            probability of an hole in the grid
+	 * @param holeMaxSize
+	 *            max size of holes
+	 * @param holesPerStep
+	 *            number of attempt to create a hole by step
+	 */
 	public IncompleteGridGenerator(boolean cross, float holeProbability,
 			int holeMaxSize, int holesPerStep)
     {
@@ -60,14 +89,6 @@ public class IncompleteGridGenerator
     	this.holeProbability 	= holeProbability;
     	this.holeMaxSize 		= holeMaxSize;
     	this.holesPerStep 		= holesPerStep;
-    }
-    
-    /**
-     * @see org.graphstream.algorithm.generator.Generator
-     */
-    public void begin()
-    {
-    	
     }
     
     protected String getNodeId( int x, int y )
@@ -86,7 +107,15 @@ public class IncompleteGridGenerator
     	
     	return String.format("%s-%s", n1, n2 );
     }
-    
+
+	/**
+	 * Connect a node.
+	 * 
+	 * @param x
+	 *            abscissa of the node to disconnect
+	 * @param y
+	 *            ordina of the node to disconnect
+	 */
     protected void connectNode( int x, int y )
     {
     	String nodeId = getNodeId(x,y);
@@ -165,7 +194,15 @@ public class IncompleteGridGenerator
     		}
     	}
     }
-    
+
+	/**
+	 * Disconnect a node. Used to create holes.
+	 * 
+	 * @param x
+	 *            abscissa of the node to disconnect
+	 * @param y
+	 *            ordina of the node to disconnect
+	 */
     protected void disconnectNode( int x, int y )
     {
     	String nodeId = getNodeId(x,y);
@@ -245,9 +282,22 @@ public class IncompleteGridGenerator
     	}
     }
     
-    /**
-     * @see org.graphstream.algorithm.generator.Generator
+    /*
+     * (non-Javadoc)
+     * @see org.graphstream.algorithm.generator.Generator#begin()
      */
+    public void begin()
+    {
+    	
+    }
+
+	/**
+	 * Grow the graph. If grid dimensions are width x height, then after a call
+	 * to this method dimensions will be (width+1)x(height+1). Eventually create
+	 * some hopes.
+	 * 
+	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
+	 */
     public boolean nextEvents()
     {
     	for( int i = 0; i < currentWidth; i++ )
@@ -297,11 +347,12 @@ public class IncompleteGridGenerator
     		}
     	}
     	
-    	return false;
+    	return true;
     }
     
-    /**
-     * @see org.graphstream.algorithm.generator.Generator
+    /*
+     * (non-Javadoc)
+     * @see org.graphstream.algorithm.generator.Generator#end()
      */
     public void end()
     {
