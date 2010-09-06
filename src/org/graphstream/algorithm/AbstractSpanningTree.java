@@ -28,11 +28,11 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 
 /**
- * Base for spanning tree algorithms.
- * In this implementation, you can specify the attribute and the values which
- * will define if an edge is in the spanning tree or not. You can easily use
- * this feature to colorize the spanning by specifying the color attribute
- * as <i>flagAttribute</i> and color of tree as <i>flagOn</i>.
+ * Base for spanning tree algorithms. In this implementation, you can specify
+ * the attribute and the values which will define if an edge is in the spanning
+ * tree or not. You can easily use this feature to colorize the spanning by
+ * specifying the color attribute as <i>flagAttribute</i> and color of tree as
+ * <i>flagOn</i>.
  */
 public abstract class AbstractSpanningTree
 	implements Algorithm
@@ -55,53 +55,45 @@ public abstract class AbstractSpanningTree
 	protected Object		flagOn;
 	
 	/**
-	 * Value of the <i>flagAttribute</i> if the edge is not
-	 * in the spanning tree.
+	 * Value of the <i>flagAttribute</i> if the edge is not in the spanning
+	 * tree.
 	 */
 	protected Object		flagOff;
 	
 	/**
-	 * Base constructor.
-	 * Graph will be set to null.
+	 * Create a new SpanningTree algorithm.
 	 */
 	public AbstractSpanningTree()
 	{
-		this( null );
+		this( "SpanningTree.flag" );
 	}
 	
 	/**
 	 * Create a new SpanningTree algorithm.
 	 * 
-	 * @param graph used graph
+	 * @param flagAttribute
+	 *            attribute used to compare edges
 	 */
-	public AbstractSpanningTree( Graph graph )
+	public AbstractSpanningTree( String flagAttribute )
 	{
-		this( graph, "SpanningTree.flag" );
+		this( flagAttribute, true, false );
 	}
 	
 	/**
 	 * Create a new SpanningTree algorithm.
 	 * 
-	 * @param graph used graph
-	 * @param flagAttribute attribute used to compare edges
+	 * @param flagAttribute
+	 *            attribute used to set if an edge is in the spanning tree
+	 * @param flagOn
+	 *            value of the <i>flagAttribute</i> if edge is in the spanning
+	 *            tree
+	 * @param flagOff
+	 *            value of the <i>flagAttribute</i> if edge is not in the
+	 *            spanning tree
 	 */
-	public AbstractSpanningTree( Graph graph,  String flagAttribute )
+	public AbstractSpanningTree( String flagAttribute,
+			Object flagOn, Object flagOff )
 	{
-		this( graph, flagAttribute, true, false );
-	}
-	
-	/**
-	 * Create a new SpanningTree algorithm.
-	 * 
-	 * @param graph used graph
-	 * @param flagAttribute attribute used to set if an edge is in the spanning tree
-	 * @param flagOn value of the <i>flagAttribute</i> if edge is in the spanning tree
-	 * @param flagOff value of the <i>flagAttribute</i> if edge is not in the spanning tree
-	 */
-	public AbstractSpanningTree( Graph graph, 
-			String flagAttribute, Object flagOn, Object flagOff )
-	{
-		this.graph = graph;
 		this.flagAttribute = flagAttribute;
 		
 		this.flagOn 	= flagOn;

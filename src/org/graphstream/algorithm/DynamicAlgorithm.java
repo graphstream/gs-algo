@@ -25,19 +25,20 @@ package org.graphstream.algorithm;
 /**
  * Base for algorithms that can compute and maintain a property on a dynamic
  * graph, during its evolution.
- *
+ * 
  * <p>
  * This is the same as the {@link org.graphstream.algorithm.Algorithm}
  * interface, with the addition of methods to make the algorithm dynamic. The
- * algorithm begins with a call to the {@link #init(org.graphstream.graph.Graph)}
- * method and ends with a call to the {@link #terminate()} method. In between, the
- * user must call {@link #compute()} in a loop, as long as the graph evolves.
+ * algorithm begins with a call to the
+ * {@link #init(org.graphstream.graph.Graph)} method and ends with a call to the
+ * {@link #terminate()} method. In between, the user must call
+ * {@link #compute()} in a loop, as long as the graph evolves.
  * </p>
  */
 public interface DynamicAlgorithm extends Algorithm
 {
 	/**
-	 * End an algorithm.
+	 * End the dynamic algorithm.
 	 * @see #init(org.graphstream.graph.Graph)
 	 */
 	void terminate();

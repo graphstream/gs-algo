@@ -23,9 +23,7 @@
 package org.graphstream.algorithm;
 
 import org.graphstream.graph.Edge;
-import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.DefaultGraph;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -33,18 +31,14 @@ import java.util.Comparator;
 import java.util.Collections;
 
 /**
- * Prim's algorithm is an algorithm which allows to find a minimal 
- * spanning tree in a weighted connected graph. More informations on 
- * <a href="http://en.wikipedia.org/wiki/Prim%27s_algorithm">Wikipedia</a>.
- * 
- * <p>
- * This algorithm uses the <i>std-algo-1.0</i> algorithm's standard.
- * </p>
+ * Prim's algorithm is an algorithm which allows to find a minimal spanning tree
+ * in a weighted connected graph. More informations on <a
+ * href="http://en.wikipedia.org/wiki/Prim%27s_algorithm">Wikipedia</a>.
  * 
  * @complexity 0(m+m<sup>2</sup>log(m)), where m = |E|
  * 
  * @author Guilhelm Savin
- *
+ * 
  */
 public class Prim
 	extends AbstractSpanningTree
@@ -56,45 +50,43 @@ public class Prim
 
 	/**
 	 * Create a new Prim's algorithm.
-	 * Graph will be set to null.
 	 */
 	public Prim()
 	{
-		this( null );
+		this( "weight", "Kruskal.flag" );
 	}
+	
 	/**
 	 * Create a new Prim's algorithm.
 	 * 
-	 * @param graph used graph
+	 * @param weightAttribute
+	 *            attribute used to compare edges
+	 * @param flagAttribute
+	 *            attribute used to set if an edge is in the spanning tree
 	 */
-	public Prim( Graph graph )
+	public Prim( String weightAttribute, String flagAttribute )
 	{
-		this( graph, "weight", "Kruskal.flag" );
+		this( weightAttribute, flagAttribute, true, false );
 	}
+	
 	/**
 	 * Create a new Prim's algorithm.
 	 * 
-	 * @param graph used graph
-	 * @param weightAttribute attribute used to compare edges
-	 * @param flagAttribute attribute used to set if an edge is in the spanning tree
+	 * @param weightAttribute
+	 *            attribute used to compare edges
+	 * @param flagAttribute
+	 *            attribute used to set if an edge is in the spanning tree
+	 * @param flagOn
+	 *            value of the <i>flagAttribute</i> if edge is in the spanning
+	 *            tree
+	 * @param flagOff
+	 *            value of the <i>flagAttribute</i> if edge is not in the
+	 *            spanning tree
 	 */
-	public Prim( Graph graph, String weightAttribute, String flagAttribute )
-	{
-		this( graph, weightAttribute, flagAttribute, true, false );
-	}
-	/**
-	 * Create a new Prim's algorithm.
-	 * 
-	 * @param graph used graph
-	 * @param weightAttribute attribute used to compare edges
-	 * @param flagAttribute attribute used to set if an edge is in the spanning tree
-	 * @param flagOn value of the <i>flagAttribute</i> if edge is in the spanning tree
-	 * @param flagOff value of the <i>flagAttribute</i> if edge is not in the spanning tree
-	 */
-	public Prim( Graph graph, String weightAttribute, String flagAttribute, 
+	public Prim( String weightAttribute, String flagAttribute, 
 			Object flagOn, Object flagOff )
 	{
-		super( graph, flagAttribute, flagOn, flagOff );
+		super( flagAttribute, flagOn, flagOff );
 		
 		this.weightAttribute = weightAttribute;
 	}
@@ -108,26 +100,31 @@ public class Prim
 	{
 		return this.weightAttribute;
 	}
+
 	/**
 	 * Set the weight attribute.
 	 * 
-	 * @param newWeightAttribute new attribute used
+	 * @param newWeightAttribute
+	 *            new attribute used
 	 */
 	public void setWeightAttribute( String newWeightAttribute )
 	{
 		this.weightAttribute = newWeightAttribute;
 	}
+	
 	/**
 	 * Get weight of an edge.
 	 * 
-	 * @param e an edge
+	 * @param e
+	 *            an edge
 	 * @return weight of <i>n</i>
 	 */
-	@SuppressWarnings("all")
+	@SuppressWarnings("rawtypes")
 	protected Comparable getWeight( Edge e )
 	{
 		return (Comparable) e.getAttribute( weightAttribute, Comparable.class );
 	}
+	
 	/**
 	 * Check if all edges have a weight attribute and that this attribute is an
 	 * instance of Comparable.
@@ -154,6 +151,7 @@ public class Prim
 			System.err.printf( "*** error *** Prim's algorithm: some edges seem to not have a weigth." );
 		}
 	}
+	
 	/**
 	 * Build the tree.
 	 */
@@ -253,52 +251,4 @@ public class Prim
 			return o instanceof WeightEdgeComparator;
 		}
 	}
-	
-//	 Main for tests
-
-		public static void main( String [] args )
-		{
-			Graph graph = new DefaultGraph( "Kruskal's algorithm" );
-
-			graph.display( false );
-			
-			graph.addNode( "A" ).addAttribute( "xy", 0, 0);
-			graph.addNode( "B" ).addAttribute( "xy", 1, 0);
-			graph.addNode( "C" ).addAttribute( "xy", 2, 0);
-			graph.addNode( "D" ).addAttribute( "xy", 0, 1);
-			graph.addNode( "E" ).addAttribute( "xy", 2, 1);
-			graph.addNode( "F" ).addAttribute( "xy", 0, 2);
-			graph.addNode( "G" ).addAttribute( "xy", 2, 2);
-			
-			graph.addEdge( "AB", "A", "B", false ).addAttribute( "weight",  7 );
-			graph.getEdge("AB").addAttribute("label", "7");
-			graph.addEdge( "AD", "A", "D", false ).addAttribute( "weight",  5 );
-			graph.getEdge("AD").addAttribute("label", "5");
-			
-			graph.addEdge( "BC", "B", "C", false ).addAttribute( "weight",  8 );
-			graph.getEdge("BC").addAttribute("label", "8");
-			graph.addEdge( "BD", "B", "D", false ).addAttribute( "weight",  9 );
-			graph.getEdge("BD").addAttribute("label", "9");
-			graph.addEdge( "BE", "B", "E", false ).addAttribute( "weight",  7 );
-			graph.getEdge("BE").addAttribute("label", "7");
-			
-			graph.addEdge( "CE", "C", "E", false ).addAttribute( "weight",  5 );
-			graph.getEdge("CE").addAttribute("label", "5");
-			
-			graph.addEdge( "DE", "D", "E", false ).addAttribute( "weight",  15 );
-			graph.getEdge("DE").addAttribute("label", "15");
-			graph.addEdge( "DF", "D", "F", false ).addAttribute( "weight",  6 );
-			graph.getEdge("DF").addAttribute("label", "6");
-			
-			graph.addEdge( "EF", "E", "F", false ).addAttribute( "weight",  8 );
-			graph.getEdge("EF").addAttribute("label", "8");
-			graph.addEdge( "EG", "E", "G", false ).addAttribute( "weight",  9 );
-			graph.getEdge("EG").addAttribute("label", "9");
-			
-			graph.addEdge( "FG", "F", "G", false ).addAttribute( "weight",  11 );
-			graph.getEdge("FG").addAttribute("label", "11");
-			
-			Prim p = new Prim( graph, "weight", "color", "red", "black" );
-			p.compute();
-		}
 }

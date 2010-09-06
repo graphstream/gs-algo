@@ -30,7 +30,8 @@ import org.graphstream.graph.*;
  * Lots of small often used algorithms on graphs.
  * 
  * <p>
- * Use this class with a static import. This should be a trait or a mixin in an advanced language.
+ * Use this class with a static import. This should be a trait or a mixin in an
+ * advanced language.
  * </p>
  */
 public class Toolkit
@@ -77,6 +78,7 @@ public class Toolkit
 	
 	/**
 	 * Return a list of nodes sorted by degree, the larger first.
+	 * 
 	 * @return The degree map.
 	 * @complexity O(n log(n)) where n is the number of nodes.
 	 */
@@ -98,7 +100,9 @@ public class Toolkit
 	}
 
 	/**
-	 * Returns the value of the average degree of the graph. A node with a loop edge has degree two.
+	 * Returns the value of the average degree of the graph. A node with a loop
+	 * edge has degree two.
+	 * 
 	 * @return The average degree of the graph.
 	 * @complexity O(1).
 	 */
@@ -114,7 +118,9 @@ public class Toolkit
 	}
 	
 	/**
-	 * The density is the number of links in the graph divided by the total number of possible links.
+	 * The density is the number of links in the graph divided by the total
+	 * number of possible links.
+	 * 
 	 * @return The density of the graph.
 	 * @complexity O(1)
 	 */
@@ -131,6 +137,7 @@ public class Toolkit
 	
 	/**
 	 * Returns the value of the degree average deviation of the graph.
+	 * 
 	 * @return The degree average deviation.
 	 * @complexity O(n) where n is the number of nodes.
 	 */
@@ -151,8 +158,9 @@ public class Toolkit
 	
 	/**
 	 * Clustering coefficient for each node of the graph.
+	 * 
 	 * @return An array whose size correspond to the number of nodes, where each
-	 * element is the clustering coefficient of a node.
+	 *         element is the clustering coefficient of a node.
 	 * @complexity at worse O(n d^2) where n is the number of nodes and d the
 	 *             average or maximum degree of nodes.
 	 */
@@ -177,11 +185,12 @@ public class Toolkit
 	}
 	
 	/**
-	 * Average clustering coefficient of the whole graph.
-	 * Average of each node individual clustering coefficient. 
+	 * Average clustering coefficient of the whole graph. Average of each node
+	 * individual clustering coefficient.
+	 * 
 	 * @return The average clustering coefficient.
-	 * @complexity at worse O(n d^2) where n is the number of nodes and d the average or maximum
-	 *   degree of nodes.
+	 * @complexity at worse O(n d^2) where n is the number of nodes and d the
+	 *             average or maximum degree of nodes.
 	 */
 	public static double averageClusteringCoefficient( Graph graph )
 	{
@@ -202,9 +211,11 @@ public class Toolkit
 
 	/**
 	 * Clustering coefficient for one node of the graph.
-	 * @param node The node to compute the clustering coefficient for.
+	 * 
+	 * @param node
+	 *            The node to compute the clustering coefficient for.
 	 * @return The clustering coefficient for this node.
-	 * @complexity O(d^2) where d is the degree of the given node.  
+	 * @complexity O(d^2) where d is the degree of the given node.
 	 */
 	public static double clusteringCoefficient( Node node )
 	{
@@ -252,6 +263,7 @@ public class Toolkit
 	
 	/**
 	 * Choose a node at random.
+	 * 
 	 * @return A node chosen at random, null if the graph is empty.
 	 * @complexity at worse O(n) where n is the number of nodes.
 	 */
@@ -262,7 +274,9 @@ public class Toolkit
 	
 	/**
 	 * Choose a node at random.
-	 * @param random The random number generator to use.
+	 * 
+	 * @param random
+	 *            The random number generator to use.
 	 * @return A node chosen at random, null if the graph is empty.
 	 * @complexity at worse O(n) where n is the number of nodes.
 	 */
@@ -283,8 +297,9 @@ public class Toolkit
 	
 	/**
 	 * Choose an edge at random.
-	 * @return An edge chosen at random.
-	 * complexity at worse O(n) where n is the number of edges.
+	 * 
+	 * @return An edge chosen at random. complexity at worse O(n) where n is the
+	 *         number of edges.
 	 */
 	public static Edge randomEdge( Graph graph )
 	{
@@ -293,9 +308,11 @@ public class Toolkit
 
 	/**
 	 * Choose an edge at random.
-	 * @param random The random number generator to use.
+	 * 
+	 * @param random
+	 *            The random number generator to use.
 	 * @return An edge chosen at random, null if the graph has no edges.
-	 * complexity at worse O(n) where n is the number of edges.
+	 *         complexity at worse O(n) where n is the number of edges.
 	 */
 	public static Edge randomEdge( Graph graph, Random random )
 	{
@@ -314,8 +331,9 @@ public class Toolkit
 	
 	/**
 	 * Choose an edge at random from the edges connected to the given node.
+	 * 
 	 * @return An edge chosen at random, null if the node has no edges.
-	 * complexity at worse O(n) where n is the number of edges.
+	 *         complexity at worse O(n) where n is the number of edges.
 	 */
 	public static Edge randomEdge( Node node )
 	{
@@ -323,9 +341,11 @@ public class Toolkit
 	}
 	
 	/**
-	 * Choose an edge at random from the entering edges connected to the given node.
+	 * Choose an edge at random from the entering edges connected to the given
+	 * node.
+	 * 
 	 * @return An edge chosen at random, null if the node has no entering edges.
-	 * complexity at worse O(n) where n is the number of edges.
+	 *         complexity at worse O(n) where n is the number of edges.
 	 */
 	public static Edge randomInEdge( Node node )
 	{
@@ -333,9 +353,11 @@ public class Toolkit
 	}
 	
 	/**
-	 * Choose an edge at random from the leaving edges connected to the given node.
+	 * Choose an edge at random from the leaving edges connected to the given
+	 * node.
+	 * 
 	 * @return An edge chosen at random, null if the node has no leaving edges.
-	 * complexity at worse O(n) where n is the number of edges.
+	 *         complexity at worse O(n) where n is the number of edges.
 	 */
 	public static Edge randomOutEdge( Node node )
 	{
@@ -344,9 +366,11 @@ public class Toolkit
 	
 	/**
 	 * Choose an edge at random from the edges connected to the given node.
-	 * @param random The random number generator to use.
+	 * 
+	 * @param random
+	 *            The random number generator to use.
 	 * @return An edge chosen at random, null if the node has no edges.
-	 * complexity at worse O(n) where n is the number of edges.
+	 *         complexity at worse O(n) where n is the number of edges.
 	 */
 	public static Edge randomEdge( Node node, Random random )
 	{
@@ -364,10 +388,13 @@ public class Toolkit
 	}
 	
 	/**
-	 * Choose an edge at random from the entering edges connected to the given node.
-	 * @param random The random number generator to use.
+	 * Choose an edge at random from the entering edges connected to the given
+	 * node.
+	 * 
+	 * @param random
+	 *            The random number generator to use.
 	 * @return An edge chosen at random, null if the node has no entering edges.
-	 * complexity at worse O(n) where n is the number of edges.
+	 *         complexity at worse O(n) where n is the number of edges.
 	 */
 	public static Edge randomInEdge( Node node, Random random )
 	{
@@ -385,10 +412,13 @@ public class Toolkit
 	}
 	
 	/**
-	 * Choose an edge at random from the leaving edges connected to the given node.
-	 * @param random The random number generator to use.
+	 * Choose an edge at random from the leaving edges connected to the given
+	 * node.
+	 * 
+	 * @param random
+	 *            The random number generator to use.
 	 * @return An edge chosen at random, null if the node has no leaving edges.
-	 * complexity at worse O(n) where n is the number of edges.
+	 *         complexity at worse O(n) where n is the number of edges.
 	 */
 	public static Edge randomOutEdge( Node node, Random random )
 	{
@@ -412,11 +442,13 @@ public class Toolkit
 	 * method will return two sets, one containing all nodes corresponding to
 	 * the nodes whose "color" attribute is red, the other with blue nodes. If
 	 * some nodes do not have the "color" attribute, a third set is returned.
-	 * The returned sets are stored in a hash map whose keys are the values
-	 * of the marker attribute (in our example, the keys would be "red" and
-	 * "blue", and if there are nodes that do not have the "color" attribute,
-	 * the third set will have key "NULL_COMMUNITY").
-	 * @param marker The attribute that allows to group nodes.
+	 * The returned sets are stored in a hash map whose keys are the values of
+	 * the marker attribute (in our example, the keys would be "red" and "blue",
+	 * and if there are nodes that do not have the "color" attribute, the third
+	 * set will have key "NULL_COMMUNITY").
+	 * 
+	 * @param marker
+	 *            The attribute that allows to group nodes.
 	 * @return The communities indexed by the value of the marker.
 	 * @complexity O(n) with n the number of nodes.
 	 */
@@ -446,13 +478,15 @@ public class Toolkit
 	}
 	
 	/**
-	 * Create the modularity matrix E from the communities. The given communities
-	 * are set of nodes forming the communities as produced by the
+	 * Create the modularity matrix E from the communities. The given
+	 * communities are set of nodes forming the communities as produced by the
 	 * {@link #communities(Graph,String)} method.
-	 * @param communities Set of nodes.
+	 * 
+	 * @param communities
+	 *            Set of nodes.
 	 * @return The E matrix as defined by Newman and Girvan.
-	 * @complexity O(m�k) with m the number of communities and k the average
-	 * number of nodes per community.
+	 * @complexity O(m!k) with m the number of communities and k the average
+	 *             number of nodes per community.
 	 */
 	public static float[][] modularityMatrix( Graph graph, HashMap<Object,HashSet<Node>> communities )
 	{
@@ -489,9 +523,12 @@ public class Toolkit
 	
 	/**
 	 * Compute the modularity of the graph from the E matrix.
-	 * @param E The E matrix given by {@link #modularityMatrix(Graph,HashMap)}.
+	 * 
+	 * @param E
+	 *            The E matrix given by {@link #modularityMatrix(Graph,HashMap)}
+	 *            .
 	 * @return The modularity of the graph.
-	 * @complexity O(m�) with m the number of communities.
+	 * @complexity O(m!) with m the number of communities.
 	 */
 	public static float modularity( float[][] E )
 	{
@@ -514,23 +551,25 @@ public class Toolkit
 	
 	/**
 	 * Computes the modularity as defined by Newman and Girvan in "Finding and
-	 * evaluating community structure in networks". This algorithm traverses
-	 * the graph to count nodes in communities. For this to work, there must
-	 * exist an attribute on each node whose value define the community the
-	 * node pertains to (see {@link #communities(Graph,String)}).
+	 * evaluating community structure in networks". This algorithm traverses the
+	 * graph to count nodes in communities. For this to work, there must exist
+	 * an attribute on each node whose value define the community the node
+	 * pertains to (see {@link #communities(Graph,String)}).
 	 * 
 	 * This method is an utility method that call:
 	 * <ul>
-	 * 	<li>{@link #communities(Graph,String)}</li>
-	 * 	<li>{@link #modularityMatrix(Graph,HashMap)}</li>
-	 * 	<li>{@link #modularity(float[][])}</li>
+	 * <li>{@link #communities(Graph,String)}</li>
+	 * <li>{@link #modularityMatrix(Graph,HashMap)}</li>
+	 * <li>{@link #modularity(float[][])}</li>
 	 * </ul>
 	 * in order to produce the modularity value.
-	 *  
-	 * @param marker The community attribute stored on nodes.
+	 * 
+	 * @param marker
+	 *            The community attribute stored on nodes.
 	 * @return The graph modularity.
-	 * @complexity 0(n + m� + m�k) with n the number of nodes, m the number of
-	 * communities and k the average number of nodes per communities.
+	 * @complexity 0(n + m! + m!k) with n the number of nodes, m the number of
+	 *             communities and k the average number of nodes per
+	 *             communities.
 	 * @see org.graphstream.algorithm.measure.Modularity
 	 */
 	public static float modularity( Graph graph, String marker )
@@ -541,8 +580,11 @@ public class Toolkit
 	/**
 	 * Count the number of edges between the two communities (works if the two
 	 * communities are the same).
-	 * @param community The first community.
-	 * @param otherCommunity The second community.
+	 * 
+	 * @param community
+	 *            The first community.
+	 * @param otherCommunity
+	 *            The second community.
 	 * @return The number of edges between the two communities.
 	 */
 	protected static int modularityCountEdges( HashSet<Node> community, HashSet<Node> otherCommunity )
@@ -597,10 +639,14 @@ public class Toolkit
 	}
 	
 	/**
-	 * Retrieve a node position from its attributes ("x", "y", "z", or "xy", or "xyz").
-	 * @param id The node identifier.
-	 * @return A newly allocated array of three floats containing the (x,y,z) position of the node,
-	 * or null if the node is not part of the graph.
+	 * Retrieve a node position from its attributes ("x", "y", "z", or "xy", or
+	 * "xyz").
+	 * 
+	 * @param id
+	 *            The node identifier.
+	 * @return A newly allocated array of three floats containing the (x,y,z)
+	 *         position of the node, or null if the node is not part of the
+	 *         graph.
 	 */
 	public static float[] nodePosition( Graph graph, String id )
 	{
@@ -613,9 +659,13 @@ public class Toolkit
 	}
 	
 	/**
-	 * Like {@link #nodePosition(Graph,String)} but use an existing node as argument.
-	 * @param node The node to consider.
-	 * @return A newly allocated array of three floats containing the (x,y,z) position of the node.
+	 * Like {@link #nodePosition(Graph,String)} but use an existing node as
+	 * argument.
+	 * 
+	 * @param node
+	 *            The node to consider.
+	 * @return A newly allocated array of three floats containing the (x,y,z)
+	 *         position of the node.
 	 */
 	public static float[] nodePosition( Node node )
 	{
@@ -627,11 +677,16 @@ public class Toolkit
 	}
 	
 	/**
-	 * Like {@link #nodePosition(Graph,String)}, but instead of returning a newly allocated array,
-	 * fill up the array given as parameter. This array must have at least three cells.
-	 * @param id The node identifier.
-	 * @param xyz An array of at least three cells.
-	 * @throws RuntimeException If the node with the given identifier does not exist.
+	 * Like {@link #nodePosition(Graph,String)}, but instead of returning a
+	 * newly allocated array, fill up the array given as parameter. This array
+	 * must have at least three cells.
+	 * 
+	 * @param id
+	 *            The node identifier.
+	 * @param xyz
+	 *            An array of at least three cells.
+	 * @throws RuntimeException
+	 *             If the node with the given identifier does not exist.
 	 */
 	public static void nodePosition( Graph graph, String id, float xyz[] )
 	{
@@ -644,9 +699,13 @@ public class Toolkit
 	}
 	
 	/**
-	 * Like {@link #nodePosition(Graph,String,float[])} but use an existing node as argument.
-	 * @param node The node to consider.
-	 * @param xyz An array of at least three cells.
+	 * Like {@link #nodePosition(Graph,String,float[])} but use an existing node
+	 * as argument.
+	 * 
+	 * @param node
+	 *            The node to consider.
+	 * @param xyz
+	 *            An array of at least three cells.
 	 */
 	public static void nodePosition( Node node, float xyz[] )
 	{
@@ -688,10 +747,14 @@ public class Toolkit
 	}
 	
 	/**
-	 * Compute the edge length of the given edge according to its two nodes positions.
-	 * @param id The identifier of the edge.
+	 * Compute the edge length of the given edge according to its two nodes
+	 * positions.
+	 * 
+	 * @param id
+	 *            The identifier of the edge.
 	 * @return The edge length or -1 if the nodes of the edge have no positions.
-	 * @throws RuntimeException If the edge cannot be found.
+	 * @throws RuntimeException
+	 *             If the edge cannot be found.
 	 */
 	public static float edgeLength( Graph graph, String id )
 	{
@@ -704,7 +767,9 @@ public class Toolkit
 	}
 	
 	/**
-	 * Like {@link #edgeLength(Graph,String)} but use an existing edge as argument.
+	 * Like {@link #edgeLength(Graph,String)} but use an existing edge as
+	 * argument.
+	 * 
 	 * @param edge
 	 * @return The edge length or -1 if the nodes of the edge have no positions.
 	 */

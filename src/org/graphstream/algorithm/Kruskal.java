@@ -23,9 +23,7 @@
 package org.graphstream.algorithm;
 
 import org.graphstream.graph.Edge;
-import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.DefaultGraph;
 
 import java.util.LinkedList;
 import java.util.Collections;
@@ -33,75 +31,75 @@ import java.util.Comparator;
 import java.util.Iterator;
 
 /**
- * Kruskal's algorithm is a greedy algorithm which allows to find a minimal 
- * spanning tree in a weighted connected graph. More informations on 
- * <a href="http://en.wikipedia.org/wiki/Kruskal%27s_algorithm">Wikipedia</a>.
- * 
- * <p>
- * This algorithm uses the <i>std-algo-1.0</i> algorithm's standard.
- * </p>
+ * Kruskal's algorithm is a greedy algorithm which allows to find a minimal
+ * spanning tree in a weighted connected graph. More informations on <a
+ * href="http://en.wikipedia.org/wiki/Kruskal%27s_algorithm">Wikipedia</a>.
  * 
  * @complexity m*(log(m)+3)+n+n<sup>2</sup>, m = |E|, n = |V|
  * 
  * @author Guilhelm Savin
- *
+ * 
  */
-public class Kruskal extends AbstractSpanningTree
+public class Kruskal
+	extends AbstractSpanningTree
 {
 	/**
 	 * Attribute which will be used to compare edges.
 	 */
-	protected String		weightAttribute;
+	protected String weightAttribute;
+	
 	/**
 	 * Attribute used to clusterize the graph.
 	 */
-	protected String		clusterAttribute = "Kruskal.cluster";
+	protected String clusterAttribute = "Kruskal.cluster";
+	
 	/**
 	 * List of edges that will be added to the tree.
 	 */
-	protected LinkedList<Edge>	edgesToTreat;
+	protected LinkedList<Edge> edgesToTreat;
 	
 	/**
 	 * Create a new Kruskal's algorithm.
-	 * Graph will be set to null.
+	 * 
+	 * @param graph
+	 *            used graph
 	 */
 	public Kruskal()
 	{
-		this( null );
+		this( "weight", "Kruskal.flag" );
 	}
+	
 	/**
 	 * Create a new Kruskal's algorithm.
 	 * 
-	 * @param graph used graph
+	 * @param weightAttribute
+	 *            attribute used to compare edges
+	 * @param flagAttribute
+	 *            attribute used to set if an edge is in the spanning tree
 	 */
-	public Kruskal( Graph graph )
+	public Kruskal( String weightAttribute, String flagAttribute )
 	{
-		this( graph, "weight", "Kruskal.flag" );
+		this( weightAttribute, flagAttribute, true, false );
 	}
+	
 	/**
 	 * Create a new Kruskal's algorithm.
 	 * 
-	 * @param graph used graph
-	 * @param weightAttribute attribute used to compare edges
-	 * @param flagAttribute attribute used to set if an edge is in the spanning tree
+	 * @param weightAttribute
+	 *            attribute used to compare edges
+	 * @param flagAttribute
+	 *            attribute used to set if an edge is in the spanning tree
+	 * @param flagOn
+	 *            value of the <i>flagAttribute</i> if edge is in the spanning
+	 *            tree
+	 * @param flagOff
+	 *            value of the <i>flagAttribute</i> if edge is not in the
+	 *            spanning tree
 	 */
-	public Kruskal( Graph graph, String weightAttribute, String flagAttribute )
-	{
-		this( graph, weightAttribute, flagAttribute, true, false );
-	}
-	/**
-	 * Create a new Kruskal's algorithm.
-	 * 
-	 * @param graph used graph
-	 * @param weightAttribute attribute used to compare edges
-	 * @param flagAttribute attribute used to set if an edge is in the spanning tree
-	 * @param flagOn value of the <i>flagAttribute</i> if edge is in the spanning tree
-	 * @param flagOff value of the <i>flagAttribute</i> if edge is not in the spanning tree
-	 */
-	public Kruskal( Graph graph, String weightAttribute, String flagAttribute, 
+	public Kruskal( String weightAttribute, String flagAttribute, 
 			Object flagOn, Object flagOff )
 	{
-		super( graph, flagAttribute, flagOn, flagOff );
+		super( flagAttribute, flagOn, flagOff );
 		
 		this.weightAttribute = weightAttribute;
 		this.edgesToTreat = new LinkedList<Edge>();
@@ -116,10 +114,12 @@ public class Kruskal extends AbstractSpanningTree
 	{
 		return this.weightAttribute;
 	}
+
 	/**
 	 * Set the weight attribute.
 	 * 
-	 * @param newWeightAttribute new attribute used
+	 * @param newWeightAttribute
+	 *            new attribute used
 	 */
 	public void setWeightAttribute( String newWeightAttribute )
 	{
@@ -135,9 +135,10 @@ public class Kruskal extends AbstractSpanningTree
 	{
 		Collections.sort( edgesToTreat, new WeightEdgeComparator() );
 	}
+
 	/**
-	 * Create the <i>edgesToTreat</i> list. Also check if all edges as
-	 * a <i>weightAttribute</i> which is an instance of Comparable.
+	 * Create the <i>edgesToTreat</i> list. Also check if all edges as a
+	 * <i>weightAttribute</i> which is an instance of Comparable.
 	 * 
 	 * @see java.lang.Comparable
 	 */
@@ -164,6 +165,7 @@ public class Kruskal extends AbstractSpanningTree
 			System.err.printf( "*** error *** Kruskal's algorithm: some weight are not comparable%n" );
 		}
 	}
+	
 	/**
 	 * Reset cluster and flag attribute values.
 	 */
@@ -182,27 +184,32 @@ public class Kruskal extends AbstractSpanningTree
 			iteN.next().setAttribute( clusterAttribute, cluster++ );
 		}
 	}
+	
 	/**
 	 * Get weight of an edge.
 	 * 
-	 * @param e an edge
+	 * @param e
+	 *            an edge
 	 * @return weight of <i>e</i>
 	 */
-	@SuppressWarnings("all")
+	@SuppressWarnings({"rawtypes"})
 	protected Comparable getWeight( Edge e )
 	{
 		return (Comparable) e.getAttribute( weightAttribute, Comparable.class );
 	}
+	
 	/**
 	 * Get cluster of a node.
 	 * 
-	 * @param n a node
+	 * @param n
+	 *            a node
 	 * @return cluster of <i>n</i>
 	 */
 	protected int getCluster( Node n )
 	{
 		return (Integer) n.getAttribute( clusterAttribute );
 	}
+	
 	/**
 	 * Build the spanning tree.
 	 */
@@ -235,11 +242,14 @@ public class Kruskal extends AbstractSpanningTree
 			}
 		}
 	}
+	
 	/**
 	 * Merge two clusters.
 	 * 
-	 * @param n0 first node
-	 * @param n1 second node
+	 * @param n0
+	 *            first node
+	 * @param n1
+	 *            second node
 	 */
 	protected void mergeClusters( Node n0, Node n1 )
 	{
@@ -278,13 +288,14 @@ public class Kruskal extends AbstractSpanningTree
 	 * 
 	 * @author Guilhelm Savin
 	 */
-	@SuppressWarnings("all")
-	private final class WeightEdgeComparator implements Comparator<Edge>
+	private final class WeightEdgeComparator
+		implements Comparator<Edge>
 	{
 		/**
 		 * Compare two edges.
 		 * 
-		 * @return an integer less than 0 if e1 less than e2, more than 0 if e1 more than e2
+		 * @return an integer less than 0 if e1 less than e2, more than 0 if e1
+		 *         more than e2
 		 */
 		@SuppressWarnings( "all" )
 		public int compare( Edge e1, Edge e2 )
@@ -296,53 +307,5 @@ public class Kruskal extends AbstractSpanningTree
 		{
 			return o instanceof WeightEdgeComparator;
 		}
-	}
-	
-// Main for tests
-
-	public static void main( String [] args )
-	{
-		Graph graph = new DefaultGraph( "Kruskal's algorithm" );
-
-		graph.display( false );
-		
-		graph.addNode( "A" ).addAttribute( "xy", 0, 0);
-		graph.addNode( "B" ).addAttribute( "xy", 1, 0);
-		graph.addNode( "C" ).addAttribute( "xy", 2, 0);
-		graph.addNode( "D" ).addAttribute( "xy", 0, 1);
-		graph.addNode( "E" ).addAttribute( "xy", 2, 1);
-		graph.addNode( "F" ).addAttribute( "xy", 0, 2);
-		graph.addNode( "G" ).addAttribute( "xy", 2, 2);
-		
-		graph.addEdge( "AB", "A", "B", false ).addAttribute( "weight",  7 );
-		graph.getEdge("AB").addAttribute("label", "7");
-		graph.addEdge( "AD", "A", "D", false ).addAttribute( "weight",  5 );
-		graph.getEdge("AD").addAttribute("label", "5");
-		
-		graph.addEdge( "BC", "B", "C", false ).addAttribute( "weight",  8 );
-		graph.getEdge("BC").addAttribute("label", "8");
-		graph.addEdge( "BD", "B", "D", false ).addAttribute( "weight",  9 );
-		graph.getEdge("BD").addAttribute("label", "9");
-		graph.addEdge( "BE", "B", "E", false ).addAttribute( "weight",  7 );
-		graph.getEdge("BE").addAttribute("label", "7");
-		
-		graph.addEdge( "CE", "C", "E", false ).addAttribute( "weight",  5 );
-		graph.getEdge("CE").addAttribute("label", "5");
-		
-		graph.addEdge( "DE", "D", "E", false ).addAttribute( "weight",  15 );
-		graph.getEdge("DE").addAttribute("label", "15");
-		graph.addEdge( "DF", "D", "F", false ).addAttribute( "weight",  6 );
-		graph.getEdge("DF").addAttribute("label", "6");
-		
-		graph.addEdge( "EF", "E", "F", false ).addAttribute( "weight",  8 );
-		graph.getEdge("EF").addAttribute("label", "8");
-		graph.addEdge( "EG", "E", "G", false ).addAttribute( "weight",  9 );
-		graph.getEdge("EG").addAttribute("label", "9");
-		
-		graph.addEdge( "FG", "F", "G", false ).addAttribute( "weight",  11 );
-		graph.getEdge("FG").addAttribute("label", "11");
-		
-		Kruskal k = new Kruskal( graph, "weight", "color", "red", "black" );
-		k.compute();
 	}
 }

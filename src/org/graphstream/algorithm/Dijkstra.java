@@ -56,61 +56,92 @@ import org.graphstream.graph.Path;
 public class Dijkstra
 	implements Algorithm
 {
+	/**
+	 * Graph being used on computation.
+	 */
 	protected Graph graph;
 	
-	Node target = null;
-
-	Node source = null;
+	/**
+	 * Source node of last computation.
+	 */
+	protected Node source;
+	
+	/**
+	 * Id of the source node which will be used on the next computation.
+	 */
+	protected String sourceNodeId = null;
 	
 	/**
 	 * object-level unique string that identifies tags of this instance on a
 	 * graph.
 	 */
-	private String parentEdgesString;
+	protected String parentEdgesString;
 
 	/**
 	 * Distances depending on the observed attribute.
 	 */
-	Hashtable<Node, Double> distances;
+	protected Hashtable<Node, Double> distances;
 
 	/**
 	 * Lengths in number of links.
 	 */
-	Hashtable<Node, Double> length;
+	protected Hashtable<Node, Double> length;
 
+	/**
+	 * The attribute considered for the distance computation.
+	 */
 	protected String attribute;
 	
+	/**
+	 * The kind of element observed in the graph.
+	 */
 	protected Element element;
+	
+	/**
+	 * Same as {@link #Dijkstra(Element, String, String)} but source node id
+	 * will be set to null.
+	 *  
+	 * @param element
+	 *            The kind of element observed in the graph.
+	 * @param attribute
+	 *            The attribute considered for the distance computation.
+	 */
+	public Dijkstra( Element element, String attribute )
+	{
+		this( element, attribute, null );
+	}
 	
 	/**
 	 * Computes the Dijkstra's algorithm on the given graph starting from the
 	 * given source node, considering the given attribute locates on the given
 	 * kind of elements (nodes or edges).
 	 * 
-	 * @param graph
-	 *            The Graph on witch the algorithm will construct a shortest
-	 *            path tree.
 	 * @param element
 	 *            The kind of element observed in the graph.
 	 * @param attribute
 	 *            The attribute considered for the distance computation.
-	 * @param start
-	 *            The root node of the shortest path tree.
+	 * @param sourceNodeId
+	 *            Id of the root node of the shortest path tree.
 	 */
-	@SuppressWarnings("unchecked")
-	public Dijkstra( Graph graph, Element element, String attribute, Node start )
+	public Dijkstra( Element element, String attribute, String sourceNodeId )
 	{
-		parentEdgesString = this.toString()+"/ParentEdges";
-		distances = new Hashtable<Node, Double>();
-		length = new Hashtable<Node, Double>();
+		this.parentEdgesString = this.toString()+"/ParentEdges";
+		this.distances         = new Hashtable<Node, Double>();
+		this.length            = new Hashtable<Node, Double>();
 		
-		this.attribute = attribute;
-		this.element = element;
+		this.attribute    = attribute;
+		this.element      = element;
+		this.sourceNodeId = sourceNodeId;
 	}
 
-	public void setSource()
+	/**
+	 * Set the id of the source node which will be used on the computation.
+	 * 
+	 * @param sourceNodeId id of the source node
+	 */
+	public void setSource( String sourceNodeId )
 	{
-		
+		this.sourceNodeId = sourceNodeId;
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -141,10 +172,12 @@ public class Dijkstra
 	/**
 	 * Returns the shortest path between the source node and one given target
 	 * one. If multiple shortest paths exist, a of them is returned at random.
-	 * @param target the target of the shortest path starting at the source node
-	 *        given in the constructor.
-	 * @return A {@link org.graphstream.graph.Path} object that constrains
-	 *         the list of nodes and edges that constitute it.
+	 * 
+	 * @param target
+	 *            the target of the shortest path starting at the source node
+	 *            given in the constructor.
+	 * @return A {@link org.graphstream.graph.Path} object that constrains the
+	 *         list of nodes and edges that constitute it.
 	 */
 	@SuppressWarnings("unchecked")
     public Path getShortestPath( Node target )
@@ -377,18 +410,21 @@ public class Dijkstra
 		distances.clear();
 		length.clear();
 		
+		source = graph.getNode( sourceNodeId );
+		
 		ArrayList<Node> computed = new ArrayList<Node>();
-		//Collection<? extends Edge> edges;
-		//Edge runningEdge;
+		
 		double dist;
 		double len;
+		
 		Node runningNode;
 		Node neighborNode;
+		
 		PriorityList<Node> priorityList = new PriorityList<Node>();
-		priorityList.insertion( start, 0.0 );
-		distances.put( start, 0.0 );
-		length.put( start, 0.0 );
-		source = start;
+		priorityList.insertion( source, 0.0 );
+		
+		distances.put( source, 0.0 );
+		length.put( source, 0.0 );
 
 		// initialization
 

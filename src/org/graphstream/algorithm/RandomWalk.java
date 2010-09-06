@@ -32,7 +32,7 @@ import java.util.Random;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import org.graphstream.stream.ElementSink;
+import org.graphstream.stream.SinkAdapter;
 
 import static org.graphstream.algorithm.Toolkit.*;
 
@@ -40,17 +40,19 @@ import static org.graphstream.algorithm.Toolkit.*;
  * A random walk on a graph.
  * 
  * <p>
- * This algorithm create a given number of entities first associated with random nodes in the
- * graph. Then by turns, each entity choose an edge at random and cross it. This is iterated a
- * given number of turns. Each time an entity crosses an edge, a count is incremented on it.
- * When the number of turns awaited is reached, one can observe the counts on each edge.
- * Edges that are very important in terms of topology should have a more important count than
+ * This algorithm create a given number of entities first associated with random
+ * nodes in the graph. Then by turns, each entity choose an edge at random and
+ * cross it. This is iterated a given number of turns. Each time an entity
+ * crosses an edge, a count is incremented on it. When the number of turns
+ * awaited is reached, one can observe the counts on each edge. Edges that are
+ * very important in terms of topology should have a more important count than
  * others.
  * </p>
  * 
  * @author Antoine Dutot
  */
-public class RandomWalk implements ElementSink
+public class RandomWalk
+	extends SinkAdapter implements DynamicAlgorithm
 {
 // Attribute
 	
@@ -73,6 +75,11 @@ public class RandomWalk implements ElementSink
 	 * The random seed.
 	 */
 	protected long randomSeed;
+	
+	/**
+	 * Initial count of entities.
+	 */
+	protected int entityCount = 100;
 	
 	/**
 	 * The node tabu list.
@@ -117,10 +124,12 @@ public class RandomWalk implements ElementSink
 	}
 	
 	/**
-	 * New random walk with a given random seed, with an entity
-	 * memory set to 10 nodes (tabu list), with an attributes to store passes
-	 * named "passes" and no weight attribute.
-	 * @param randomSeed The random seed.
+	 * New random walk with a given random seed, with an entity memory set to 10
+	 * nodes (tabu list), with an attributes to store passes named "passes" and
+	 * no weight attribute.
+	 * 
+	 * @param randomSeed
+	 *            The random seed.
 	 */
 	public RandomWalk( long randomSeed )
 	{
@@ -131,6 +140,7 @@ public class RandomWalk implements ElementSink
 	/**
 	 * The name of the attribute where the number of entities passes are stored
 	 * (for edges and nodes).
+	 * 
 	 * @return A string representing the attribute name for entity passes.
 	 */
 	public String getPassesAttribute()
@@ -141,7 +151,9 @@ public class RandomWalk implements ElementSink
 	/**
 	 * Set the entity memory in number of nodes remembered. This memory is used
 	 * as a tabu list, that is a set of nodes not to cross.
-	 * @param size The memory size, 0 is a valid size to disable the tabu list.
+	 * 
+	 * @param size
+	 *            The memory size, 0 is a valid size to disable the tabu list.
 	 */
 	public void setEntityMemory( int size )
 	{
@@ -153,6 +165,7 @@ public class RandomWalk implements ElementSink
 	
 	/**
 	 * The random seed used.
+	 * 
 	 * @return A long integer containing the random seed.
 	 */
 	public long getRandomSeed()
@@ -162,6 +175,7 @@ public class RandomWalk implements ElementSink
 	
 	/**
 	 * Number of entities.
+	 * 
 	 * @return The number of entities.
 	 */
 	public int getEntityCount()
@@ -170,8 +184,10 @@ public class RandomWalk implements ElementSink
 	}
 	
 	/**
-	 * Number of entities that jumped instead of traversing an edge at last step. An entity executes
-	 * a jump when it is blocked in a dead end (either a real one, or because of its tabu list).
+	 * Number of entities that jumped instead of traversing an edge at last
+	 * step. An entity executes a jump when it is blocked in a dead end (either
+	 * a real one, or because of its tabu list).
+	 * 
 	 * @return The jump count.
 	 */
 	public int getJumpCount()
@@ -190,9 +206,10 @@ public class RandomWalk implements ElementSink
 	}
 	
 	/**
-	 * Ratio of entities that executed a jump instead of traversing an edge at last step. An entity
-	 * executes a jump when it is blocked in a dead end (either a real one, or because of its tabu
-	 * list).
+	 * Ratio of entities that executed a jump instead of traversing an edge at
+	 * last step. An entity executes a jump when it is blocked in a dead end
+	 * (either a real one, or because of its tabu list).
+	 * 
 	 * @return The jump ratio (in [0-1]).
 	 */
 	public float getJumpRatio()
@@ -233,25 +250,16 @@ public class RandomWalk implements ElementSink
 		
 		passesAttribute = name;
 	}
-	
+
 	/**
-	 * Initialise the algorithm for a given graph with a given entity count. The entities
-	 * are created at random locations on the graph.
-	 * @param graph The graph to explore.
-	 * @param entityCount The number of entities that will run on the graph.
+	 * Set the number of entities which will be created at the algorithm
+	 * initialization.
+	 * 
+	 * @param entityCount
 	 */
-	public void begin( Graph graph, int entityCount )
+	public void setEntityCount( int entityCount )
 	{
-		if( this.graph != null )
-			throw new RuntimeException( "cannot begin a random walk if the previous one was not finished, use end()." );
-		
-		this.graph = graph;
-		
-		for( int i=0; i<entityCount; i++ )
-			entities.add( createEntity() );
-		
-		equipGraph();
-		graph.addElementSink( this );
+		this.entityCount = entityCount;
 	}
 	
 	/**
@@ -264,12 +272,36 @@ public class RandomWalk implements ElementSink
 //		 return new TabuEntity( graph.algorithm().getRandomNode( random ) );
 		 return new TabuTimedEntity( randomNode( graph, random ) );
 	}
+
+	/**
+	 * Initialize the algorithm for a given graph with a given entity count. The
+	 * entities are created at random locations on the graph.
+	 * 
+	 * @param graph
+	 *            The graph to explore.
+	 */
+	public void init( Graph graph )
+	{
+		if( this.graph != null )
+			throw new RuntimeException( "cannot begin a random walk if the previous one was not finished, use end()." );
+		
+		this.graph = graph;
+		
+		entities.clear();
+		
+		for( int i=0; i<entityCount; i++ )
+			entities.add( createEntity() );
+		
+		equipGraph();
+		graph.addElementSink( this );
+	}
 	
 	/**
-	 * Execute one step of the algorithm. During one step, each entity choose a next edge
-	 * to cross, toward a new node. The passes attribute of these edge and node are updated.
+	 * Execute one step of the algorithm. During one step, each entity choose a
+	 * next edge to cross, toward a new node. The passes attribute of these edge
+	 * and node are updated.
 	 */
-	public void step()
+	public void compute()
 	{
 		jumpCount = 0;
 		goCount = 0;
@@ -282,9 +314,10 @@ public class RandomWalk implements ElementSink
 	}
 
 	/**
-	 * End the algorithm by removing any listener on the graph and releasing memory.
+	 * End the algorithm by removing any listener on the graph and releasing
+	 * memory.
 	 */
-	public void end()
+	public void terminate()
 	{
 		entities.clear();
 		graph.removeElementSink( this );
@@ -303,8 +336,11 @@ public class RandomWalk implements ElementSink
 	}
 	
 	/**
-	 * Sort all edges by their "passes" attribute and return the array of sorted edges.
-	 * @return An array with all edges of the graph sorted by their number of entity pass.
+	 * Sort all edges by their "passes" attribute and return the array of sorted
+	 * edges.
+	 * 
+	 * @return An array with all edges of the graph sorted by their number of
+	 *         entity pass.
 	 */
 	public ArrayList<Edge> findTheMostUsedEdges()
 	{
@@ -329,8 +365,11 @@ public class RandomWalk implements ElementSink
 	}
 	
 	/**
-	 * Sort all nodes by their "passes" attribute and return the array of sorted nodes.
-	 * @return An array with all nodes of the graph sorted by their number of entity pass.
+	 * Sort all nodes by their "passes" attribute and return the array of sorted
+	 * nodes.
+	 * 
+	 * @return An array with all nodes of the graph sorted by their number of
+	 *         entity pass.
 	 */
 	public ArrayList<Node> findTheMostUsedNodes()
 	{
@@ -569,7 +608,8 @@ public class TabuTimedEntity extends TabuEntity
 
 // Graph listener
 
-	public void edgeAdded( String graphId, long timeId, String edgeId, String fromNodeId, String toNodeId, boolean directed )
+	public void edgeAdded( String graphId, long timeId, String edgeId,
+			String fromNodeId, String toNodeId, boolean directed )
 	{
 		Edge edge = graph.getEdge( edgeId );
 		
@@ -583,9 +623,4 @@ public class TabuTimedEntity extends TabuEntity
 		
 		node.addAttribute( passesAttribute, 0.0 );
 	}
-	
-	public void graphCleared( String graphId, long timeId ) {}
-	public void edgeRemoved( String graphId, long timeId, String edgeId ) {}
-	public void nodeRemoved( String graphId, long timeId, String nodeId ) {}
-	public void stepBegins( String graphId, long timeId, double step ) {}
 }
