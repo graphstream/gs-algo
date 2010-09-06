@@ -1,19 +1,25 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This file is part of GraphStream.
  * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * GraphStream is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
+ * GraphStream is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with GraphStream.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Copyright 2006 - 2010
+ * 	Julien Baudry
+ * 	Antoine Dutot
+ * 	Yoann Pigné
+ * 	Guilhelm Savin
  */
-
 package org.graphstream.algorithm.coloring;
 
 import java.util.*;
@@ -34,23 +40,23 @@ import org.graphstream.graph.*;
  * <p>
  * This is an iterative greedy algorithm:
  * <ul>
- * 		<li>Step 1: All vertices are sorted according to the decreasing value of
- * 			their degree in a list V.
- * 		<li>Step 2: Colors are ordered in a list C.
- * 		<li>Step 3: The first non colored vertex v in V is colored with the
- * 			first available color in C. <i>available</i> means a color that was
- * 			not previously used by the algorithm.
- * 		<li>Step 4: The remaining part of the ordered list V is traversed and
- * 			the same color is allocated to every vertex for which no adjacent
- * 			vertex has the same color.
- * 		<li>Step 5: Steps 3 and 4 are applied iteratively until all the vertices
- * 			have been colored.
- * 		</ul>
+ * <li>Step 1: All vertices are sorted according to the decreasing value of
+ * their degree in a list V.
+ * <li>Step 2: Colors are ordered in a list C.
+ * <li>Step 3: The first non colored vertex v in V is colored with the first
+ * available color in C. <i>available</i> means a color that was not previously
+ * used by the algorithm.
+ * <li>Step 4: The remaining part of the ordered list V is traversed and the
+ * same color is allocated to every vertex for which no adjacent vertex has the
+ * same color.
+ * <li>Step 5: Steps 3 and 4 are applied iteratively until all the vertices have
+ * been colored.
+ * </ul>
  * <p>
  * 
  * <p>
- * This algorithm is known to use at most d(G)+1 colors where d(G)
- * represents the largest value of the degree in the graph G.
+ * This algorithm is known to use at most d(G)+1 colors where d(G) represents
+ * the largest value of the degree in the graph G.
  * </p>
  * 
  * <p>
@@ -99,17 +105,18 @@ public class WelshPowell
 	
 	/**
 	 * New Welsh and Powell coloring algorithm.
-	 * @param g An instance of a graph.
-	 * @param modify A boolean equals to true if the graph has to be modified,
-	 *        false otherwise
-	 * @param attrName If modify is true, then attrName may be indicated as the
-	 *        name of the attribute corresponding to the color allocated by this
-	 *        algorithm. Note that if attrName is "color", then the color of the
-	 *        nodes will be modified accordingly.
+	 * 
+	 * @param modify
+	 *            A boolean equals to true if the graph has to be modified,
+	 *            false otherwise
+	 * @param attrName
+	 *            If modify is true, then attrName may be indicated as the name
+	 *            of the attribute corresponding to the color allocated by this
+	 *            algorithm. Note that if attrName is "color", then the color of
+	 *            the nodes will be modified accordingly.
 	 */
-	public WelshPowell( Graph g, boolean modify, String attrName )
+	public WelshPowell( boolean modify, String attrName )
 	{
-		this.g        = g;
 		this.modify   = modify;
 		this.attrName = attrName;
 	}
@@ -118,23 +125,18 @@ public class WelshPowell
 	 * New Welsh and Powell coloring algorithm, using "color" as the attribute
 	 * name. If the graph is to be modified, the modification will store colors
 	 * in it and the viewer should display them accordingly.
-	 * @param g An instance of a graph.
-	 * @param modify A boolean equals to true if the graph has to be modified,
-	 *        false otherwise
+	 * 
+	 * @param modify
+	 *            A boolean equals to true if the graph has to be modified,
+	 *            false otherwise
 	 */
-	public WelshPowell( Graph g, boolean modify )
+	public WelshPowell( boolean modify )
 	{
-		this.g        = g;
 		this.modify   = modify;
 	}
 	
 // Accessors
-	/*
-	public Graph getGraph()
-	{
-		return g;
-	}
-	*/
+
 	/**
 	 * Return the last computed result of the algorithm.
 	 * @return The number of colors.
@@ -165,11 +167,19 @@ public class WelshPowell
 		this.modify = modify;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
+	 */
 	public void init( Graph g )
 	{
 		this.g = g;
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.algorithm.Algorithm#compute()
+	 */
 	public void compute()
 	{
 		String attributeName = "welshpowell";
