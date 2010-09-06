@@ -1,17 +1,24 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This file is part of GraphStream.
  * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * GraphStream is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
+ * GraphStream is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with GraphStream.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Copyright 2006 - 2010
+ * 	Julien Baudry
+ * 	Antoine Dutot
+ * 	Yoann Pigné
+ * 	Guilhelm Savin
  */
 package org.graphstream.algorithm;
 
@@ -34,22 +41,24 @@ import org.graphstream.ui.swingViewer.ViewerPipe;
 /**
  * Compute the "betweeness" centrality of each vertex of a given graph.
  * 
- * This algorithm, by default, stores the centrality values for each edge inside the "Cb"
- * attribute. You can change this attribute name at construction time.
+ * This algorithm, by default, stores the centrality values for each edge inside
+ * the "Cb" attribute. You can change this attribute name at construction time.
  * 
  * This algorithm does not accept multi-graphs.
  * 
- * By default the algorithm performs on a graph considered as not weighted with complexity O(nm).
- * You can specify that the graph edges contains weights in which case the algorithm complexity
- * is O(nm + n^2 log n). By default the weight attribute name is "weight". You can change this
- * using the dedicated constructor or the {@link #setWeightAttributeName(String)} method.
+ * By default the algorithm performs on a graph considered as not weighted with
+ * complexity O(nm). You can specify that the graph edges contains weights in
+ * which case the algorithm complexity is O(nm + n^2 log n). By default the
+ * weight attribute name is "weight". You can change this using the dedicated
+ * constructor or the {@link #setWeightAttributeName(String)} method.
  * 
- * The result of the computation is stored on each node inside the "Cb" attribute. You can change
- * the name of this attribute using the dedicated constructor or the 
- * {@link #setCentralityAttributeName(String)} method.
+ * The result of the computation is stored on each node inside the "Cb"
+ * attribute. You can change the name of this attribute using the dedicated
+ * constructor or the {@link #setCentralityAttributeName(String)} method.
  * 
- * This is based on the algorithm described in "A Faster Algorithm for Betweenness
- * Centrality", Ulrik Brandes, Journal of Mathematical Sociology, 2001 (available on Citeseer).
+ * This is based on the algorithm described in "A Faster Algorithm for
+ * Betweenness Centrality", Ulrik Brandes, Journal of Mathematical Sociology,
+ * 2001 (available on Citeseer).
  */
 public class BetweennessCentrality
 {
@@ -74,17 +83,21 @@ public class BetweennessCentrality
 // Construction
 	
 	/**
-	 * New centrality algorithm that will perform as if the graph was unweighted. By default the
-	 * centrality will be stored in a "Cb" attribute on each node. 
+	 * New centrality algorithm that will perform as if the graph was
+	 * unweighted. By default the centrality will be stored in a "Cb" attribute
+	 * on each node.
 	 */
 	public BetweennessCentrality() {}
 	
 	/**
-	 * New centrality algorithm that will perform as if the graph was unweighted. The centrality
-	 * for each node will be stored in an attribute whose name is specified by the
-	 * <code>centralityAttributeName</code> argument.
-	 * @param centralityAttributeName The name of the attribute used to store the result of the algorithm
-	 * on each node.
+	 * New centrality algorithm that will perform as if the graph was
+	 * unweighted. The centrality for each node will be stored in an attribute
+	 * whose name is specified by the <code>centralityAttributeName</code>
+	 * argument.
+	 * 
+	 * @param centralityAttributeName
+	 *            The name of the attribute used to store the result of the
+	 *            algorithm on each node.
 	 */
 	public BetweennessCentrality( String centralityAttributeName ) {
 		this.centralityAttributeName = centralityAttributeName;
@@ -92,23 +105,29 @@ public class BetweennessCentrality
 	}
 	
 	/**
-	 * New centrality algorithm that will perform on the graph using the edges weights to compute
-	 * the shortest paths if <code>weighted</code> is true. The weights must be stored in an
-	 * attribute named "weight". If there are no weights, the edge is considered to have weight
-	 * one. 
-	 * @param weighted If true the graph is considered weighted.
+	 * New centrality algorithm that will perform on the graph using the edges
+	 * weights to compute the shortest paths if <code>weighted</code> is true.
+	 * The weights must be stored in an attribute named "weight". If there are
+	 * no weights, the edge is considered to have weight one.
+	 * 
+	 * @param weighted
+	 *            If true the graph is considered weighted.
 	 */
 	public BetweennessCentrality( boolean weighted ) {
 		this.unweighted = ! weighted;
 	}
 	
 	/**
-	 * New centrality algorithm that will perform on a weighted graph, taking the weight of each
-	 * edge in the given <code>weightAttributeName</code>. The result of the algorithm is stored for
-	 * each node using the given <code>centralityAttributeName</code>.  If an edge has no weight
-	 * attribute, it is considered as having a weight of one.
-	 * @param centralityAttributeName Name to use to store the centrality results on each node.
-	 * @param weightAttributeName Name to use to retrieve the edge weights.
+	 * New centrality algorithm that will perform on a weighted graph, taking
+	 * the weight of each edge in the given <code>weightAttributeName</code>.
+	 * The result of the algorithm is stored for each node using the given
+	 * <code>centralityAttributeName</code>. If an edge has no weight attribute,
+	 * it is considered as having a weight of one.
+	 * 
+	 * @param centralityAttributeName
+	 *            Name to use to store the centrality results on each node.
+	 * @param weightAttributeName
+	 *            Name to use to retrieve the edge weights.
 	 */
 	public BetweennessCentrality( String centralityAttributeName, String weightAttributeName ) {
 		this.centralityAttributeName = centralityAttributeName;
@@ -135,8 +154,9 @@ public class BetweennessCentrality
 // Command
 	
 	/**
-	 * Specify the name of the weight attribute to retrieve edge attributes. This automatically
-	 * set the algorithm to perform on the graph as if it was weighted.
+	 * Specify the name of the weight attribute to retrieve edge attributes.
+	 * This automatically set the algorithm to perform on the graph as if it was
+	 * weighted.
 	 */
 	public void setWeightAttributeName( String weightAttributeName ) {
 		unweighted = false;
@@ -151,7 +171,8 @@ public class BetweennessCentrality
 	}
 	
 	/**
-	 * Specify the name of the attribute used to store the computed centrality values for each node.
+	 * Specify the name of the attribute used to store the computed centrality
+	 * values for each node.
 	 */
 	public void setCentralityAttributeName( String centralityAttributeName ) {
 		this.centralityAttributeName = centralityAttributeName;
@@ -186,10 +207,15 @@ public class BetweennessCentrality
 	}
 	
 	/**
-	 * Compute single-source multiple-targets shortest paths on an unweighted graph.
-	 * @param source The source node.
-	 * @param graph The graph.
-	 * @return A priority queue of explored nodes with sigma values usable to compute the centrality.
+	 * Compute single-source multiple-targets shortest paths on an unweighted
+	 * graph.
+	 * 
+	 * @param source
+	 *            The source node.
+	 * @param graph
+	 *            The graph.
+	 * @return A priority queue of explored nodes with sigma values usable to
+	 *         compute the centrality.
 	 */
 	protected PriorityQueue<Node> simpleExplore( Node source, Graph graph ) {
 		LinkedList<Node> Q = new LinkedList<Node>();
@@ -226,9 +252,13 @@ public class BetweennessCentrality
 	
 	/**
 	 * Compute single-source multiple-targets paths on a weighted graph.
-	 * @param source The source node.
-	 * @param graph The graph.
-	 * @return A priority queue of explored nodes with sigma values usable to compute the centrality.
+	 * 
+	 * @param source
+	 *            The source node.
+	 * @param graph
+	 *            The graph.
+	 * @return A priority queue of explored nodes with sigma values usable to
+	 *         compute the centrality.
 	 */
 	protected PriorityQueue<Node> dijkstraExplore( Node source, Graph graph ) {
 		PriorityQueue<Node> S = new PriorityQueue<Node>( graph.getNodeCount(), new BrandesNodeComparatorLargerFirst() );

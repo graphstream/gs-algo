@@ -1,25 +1,34 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This file is part of GraphStream.
  * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * GraphStream is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
+ * GraphStream is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with GraphStream.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Copyright 2006 - 2010
+ * 	Julien Baudry
+ * 	Antoine Dutot
+ * 	Yoann Pigné
+ * 	Guilhelm Savin
  */
-
 package org.graphstream.algorithm;
 
 import java.util.*;
 
-import org.graphstream.graph.*;
-import org.graphstream.stream.Sink;
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
+import org.graphstream.graph.Path;
+import org.graphstream.stream.SinkAdapter;
 
 /**
  * All-pair shortest paths lengths.
@@ -71,7 +80,7 @@ import org.graphstream.stream.Sink;
  * </p>
  */
 public class APSP
-	implements Algorithm, Sink
+	extends SinkAdapter implements Algorithm
 {
 // Attribute
 	
@@ -150,6 +159,10 @@ public class APSP
 		return weightAttributeName;
 	}
 	
+	/**
+	 * Access to the working graph.
+	 * @return graph being used
+	 */
 	public Graph getGraph()
 	{
 		return graph;
@@ -176,6 +189,9 @@ public class APSP
 		weightAttributeName = name;
 	}
 
+	/**
+	 * @see Algorithm#init(Graph)
+	 */
 	public void init( Graph graph )
 	{
 		if( this.graph != null )
@@ -502,7 +518,7 @@ public class APSP
 		}
 	}
 
-// Graph Listener
+// Sink implementation
 	
 	public void nodeAdded( String graphId, long timeId, String nodeId )
     {
@@ -530,34 +546,6 @@ public class APSP
 		graphChanged = true;
 	}
 
-	public void stepBegins( String graphId, long timeId, double time )
-    {
-    }
-
-	public void graphAttributeAdded( String graphId, long timeId, String attribute, Object value )
-    {
-    }
-
-	public void graphAttributeChanged( String graphId, long timeId, String attribute, Object oldValue, Object value )
-    {
-    }
-
-	public void graphAttributeRemoved( String graphId, long timeId, String attribute )
-    {
-    }
-
-	public void nodeAttributeAdded( String graphId, long timeId, String nodeId, String attribute, Object value )
-    {
-    }
-
-	public void nodeAttributeChanged( String graphId, long timeId, String nodeId, String attribute, Object oldValue, Object value )
-    {
-    }
-
-	public void nodeAttributeRemoved( String graphId, long timeId, String nodeId, String attribute )
-    {
-    }
-
 	public void edgeAttributeAdded( String graphId, long timeId, String edgeId, String attribute, Object value )
     {
 		if( attribute.equals( weightAttributeName ) )
@@ -572,9 +560,5 @@ public class APSP
 		{
 			graphChanged = true;
 		}
-    }
-
-	public void edgeAttributeRemoved( String graphId, long timeId, String edgeId, String attribute )
-    {
     }
 }

@@ -38,19 +38,22 @@ public abstract class AbstractSpanningTree
 	implements Algorithm
 {
 	/**
-	 * Graph on which we are working.
+	 * The graph on which algorithm try to extract a spanning tree.
 	 */
 	protected Graph 		graph;
+	
 	/**
 	 * Attribute which will be used to set is an edge
 	 * is in the spanning tree or not.
 	 */
 	protected String		flagAttribute;
+	
 	/**
 	 * Value of the <i>flagAttribute</i> if the edge is
 	 * in the spanning tree.
 	 */
 	protected Object		flagOn;
+	
 	/**
 	 * Value of the <i>flagAttribute</i> if the edge is not
 	 * in the spanning tree.
@@ -58,13 +61,14 @@ public abstract class AbstractSpanningTree
 	protected Object		flagOff;
 	
 	/**
-	 * Create a new Kruskal's algorithm.
+	 * Base constructor.
 	 * Graph will be set to null.
 	 */
 	public AbstractSpanningTree()
 	{
 		this( null );
 	}
+	
 	/**
 	 * Create a new SpanningTree algorithm.
 	 * 
@@ -74,6 +78,7 @@ public abstract class AbstractSpanningTree
 	{
 		this( graph, "SpanningTree.flag" );
 	}
+	
 	/**
 	 * Create a new SpanningTree algorithm.
 	 * 
@@ -84,6 +89,7 @@ public abstract class AbstractSpanningTree
 	{
 		this( graph, flagAttribute, true, false );
 	}
+	
 	/**
 	 * Create a new SpanningTree algorithm.
 	 * 
@@ -111,6 +117,7 @@ public abstract class AbstractSpanningTree
 	{
 		return this.flagAttribute;
 	}
+	
 	/**
 	 * Set the flag attribute.
 	 * 
@@ -120,15 +127,18 @@ public abstract class AbstractSpanningTree
 	{
 		this.flagAttribute = newFlagAttribute;
 	}
+	
 	/**
 	 * Get value used to set that an edge is in the spanning tree.
 	 * 
 	 * @return on value
 	 */
+	
 	public Object getFlagOn()
 	{
 		return this.flagOn;
 	}
+	
 	/**
 	 * Set value used to set that an edge is in the spanning tree.
 	 * 
@@ -139,6 +149,7 @@ public abstract class AbstractSpanningTree
 		if( ! this.flagOff.equals( newFlagOn ) )
 			this.flagOn = newFlagOn;
 	}
+	
 	/**
 	 * Get value used to set that an edge is not in the spanning tree.
 	 * 
@@ -148,6 +159,7 @@ public abstract class AbstractSpanningTree
 	{
 		return this.flagOff;
 	}
+	
 	/**
 	 * Set value used to set that an edge is not in the spanning tree.
 	 * 
@@ -170,6 +182,7 @@ public abstract class AbstractSpanningTree
 	{
 		e.changeAttribute( flagAttribute, flagOn );
 	}
+	
 	/**
 	 * Remove an edge of the spanning tree.
 	 * 
@@ -179,6 +192,7 @@ public abstract class AbstractSpanningTree
 	{
 		e.changeAttribute( flagAttribute, flagOff );
 	}
+	
 	/**
 	 * Reset cluster and flag attribute values.
 	 */
@@ -191,6 +205,7 @@ public abstract class AbstractSpanningTree
 		while( iteE.hasNext() )
 			edgeOff( iteE.next() );
 	}
+	
 	/**
 	 * Method that will be implemented by spanning tree's algorithms
 	 * to build the tree.

@@ -1,19 +1,25 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This file is part of GraphStream.
  * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * GraphStream is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
+ * GraphStream is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with GraphStream.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Copyright 2006 - 2010
+ * 	Julien Baudry
+ * 	Antoine Dutot
+ * 	Yoann Pigné
+ * 	Guilhelm Savin
  */
-
 package org.graphstream.algorithm;
 
 import static org.graphstream.algorithm.Toolkit.edgeLength;
@@ -193,12 +199,20 @@ public class AStar implements Algorithm
 		this.costs = costs;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
+	 */
     public void init( Graph graph )
     {
 		clearAll();
 		this.graph = graph;
     }
 	
+    /*
+     * (non-Javadoc)
+     * @see org.graphstream.algorithm.Algorithm#compute()
+     */
     public void compute()
     {
 		if( source != null && target != null )
@@ -319,9 +333,6 @@ public class AStar implements Algorithm
 
 			assert( current != null );
 			
-//			System.err.printf( "OPEN=%d%n", open.size() );
-//			System.err.printf( "CUR %s [%f | %f | %f]%n", current.node.getId(), current.g, current.h, current.rank );
-			
 			if( current.node == targetNode )
 			{
 				// We found it !
@@ -362,7 +373,6 @@ public class AStar implements Algorithm
 
 					closed.remove( next );
 					open.put( next, new AStarNode( next, edge, current, g, h ) );
-//					System.err.printf( "   PUT %s [%f | %f | %f]%n", next.getId(), g, h, g+h );
 				}
 			}
 		}

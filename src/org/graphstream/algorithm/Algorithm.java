@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with GraphStream.  If not, see <http://www.gnu.org/licenses/>.
  * 
- * Copyright 2006 - 2009
+ * Copyright 2006 - 2010
  * 	Julien Baudry
  * 	Antoine Dutot
  * 	Yoann Pigné
@@ -25,20 +25,26 @@ package org.graphstream.algorithm;
 import org.graphstream.graph.*;
 
 /**
- * Base for algorithms operating on a graph.
+ * This interface defines algorithms which can be run on a graph.
+ * Such algorithms are divided in two step :
+ * <ol>
+ * <li>an initialization step</li>
+ * <li>a computing step</li>
+ * </ol>
+ * 
+ * Complexity of algorithms can be specify in the documentation with the
+ * help of the "@complexity" tag.
  */
 public interface Algorithm
 {
 	/**
-	 * Initialise this algorithm.
+	 * Initialization of the algorithm.
 	 * @param graph The graph this algorithm is using.
 	 */
 	void init( Graph graph );
 
 	/**
-	 * Launch the algorithm on the previously specified graph. Please specify
-	 * the complexity of the algorithm. A dedicated tag can be
-	 * used "@complexity".
+	 * Launch the algorithm on the previously specified graph.
 	 * @see #init(Graph)
 	 */
 	void compute();

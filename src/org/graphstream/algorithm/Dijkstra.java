@@ -1,23 +1,28 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This file is part of GraphStream.
  * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * GraphStream is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
+ * GraphStream is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with GraphStream.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Copyright 2006 - 2010
+ * 	Julien Baudry
+ * 	Antoine Dutot
+ * 	Yoann Pigné
+ * 	Guilhelm Savin
  */
-
 package org.graphstream.algorithm;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -49,17 +54,19 @@ import org.graphstream.graph.Path;
  * @author Yoann Pigné
  */
 public class Dijkstra
+	implements Algorithm
 {
+	protected Graph graph;
+	
 	Node target = null;
 
 	Node source = null;
 	
 	/**
-	 * object-level unique string that identifies tags of this instance on a graph.
+	 * object-level unique string that identifies tags of this instance on a
+	 * graph.
 	 */
 	private String parentEdgesString;
-
-
 
 	/**
 	 * Distances depending on the observed attribute.
@@ -71,122 +78,41 @@ public class Dijkstra
 	 */
 	Hashtable<Node, Double> length;
 
+	protected String attribute;
+	
+	protected Element element;
+	
 	/**
 	 * Computes the Dijkstra's algorithm on the given graph starting from the
 	 * given source node, considering the given attribute locates on the given
 	 * kind of elements (nodes or edges).
-	 * @param graph The Graph on witch the algorithm will construct a shortest
-	 *        path tree.
-	 * @param element The kind of element observed in the graph.
-	 * @param attribute The attribute considered for the distance computation.
-	 * @param start The root node of the shortest path tree.
+	 * 
+	 * @param graph
+	 *            The Graph on witch the algorithm will construct a shortest
+	 *            path tree.
+	 * @param element
+	 *            The kind of element observed in the graph.
+	 * @param attribute
+	 *            The attribute considered for the distance computation.
+	 * @param start
+	 *            The root node of the shortest path tree.
 	 */
-	@SuppressWarnings("all")
+	@SuppressWarnings("unchecked")
 	public Dijkstra( Graph graph, Element element, String attribute, Node start )
 	{
 		parentEdgesString = this.toString()+"/ParentEdges";
 		distances = new Hashtable<Node, Double>();
 		length = new Hashtable<Node, Double>();
-		ArrayList<Node> computed = new ArrayList<Node>();
-		Collection<? extends Edge> edges;
-		//Edge runningEdge;
-		double dist;
-		double len;
-		Node runningNode;
-		Node neighborNode;
-		PriorityList<Node> priorityList = new PriorityList<Node>();
-		priorityList.insertion( start, 0.0 );
-		distances.put( start, 0.0 );
-		length.put( start, 0.0 );
-		source = start;
-
-		// initialization
-
-		for( Node v: graph )
-		{
-			v.removeAttribute( parentEdgesString );
-		}
-
-		while( !priorityList.isEmpty() )
-		{
-			runningNode = priorityList.lire( 0 );
-			//edges = runningNode.getLeavingEdgeSet();
-			//Iterator<Edge> aretesIterator = (Iterator<Edge>) edges.iterator();
-
-			//while( aretesIterator.hasNext() )
-			for( Edge runningEdge: runningNode.getLeavingEdgeSet() )
-			{
-			//	runningEdge = ( (Edge) aretesIterator.next() );
-				neighborNode = runningEdge.getOpposite( runningNode );
-
-				if( !computed.contains( neighborNode ) )
-				{
-					double val = 0;
-					if( attribute == null )
-					{
-						val = 1.0;
-					}
-					else
-					{
-						if( element == Element.edge )
-						{
-							val = ( (Number)runningEdge.getAttribute( attribute ) ).doubleValue();
-						}
-						else
-						{
-							val = ( (Number) neighborNode.getAttribute( attribute ) ).doubleValue();
-						}
-					}
-					if( val < 0 )
-					{
-						throw new NumberFormatException( "Attribute \"" + attribute + "\" has a negative value on element "
-								+ ( element == Element.edge ? runningEdge.toString() : neighborNode.toString() ) );
-					}
-					dist = ( distances.get( runningNode ) + val );
-					len = (int) ( length.get( runningNode ) + 1 );
-
-					if( priorityList.containsKey( neighborNode ) )
-					{
-						if( dist <= distances.get( neighborNode ) )
-						{
-							if( dist == distances.get( neighborNode ) )
-							{
-								( (ArrayList<Edge>) neighborNode.getAttribute( parentEdgesString ) ).add( runningEdge );
-							}
-							else
-							{
-								ArrayList<Edge> parentEdges = new ArrayList<Edge>();
-								parentEdges.add( runningEdge );
-								neighborNode.addAttribute( parentEdgesString, parentEdges );
-
-								distances.put( neighborNode, dist );
-								//neighborNode.addAttribute( "label", neighborNode.getId() + " - " + dist );
-								length.put( neighborNode, len );
-
-								priorityList.suppression( neighborNode );
-								priorityList.insertion( neighborNode, dist );
-							}
-						}
-					}
-					else
-					{
-						priorityList.insertion( neighborNode, dist );
-						distances.put( neighborNode, dist );
-						length.put( neighborNode, len );
-						ArrayList<Edge> parentEdges = new ArrayList<Edge>();
-						parentEdges.add( runningEdge );
-						neighborNode.addAttribute( parentEdgesString, parentEdges );
-
-					}
-
-				}
-			}
-			priorityList.suppression( runningNode );
-			computed.add( runningNode );
-		}
-
+		
+		this.attribute = attribute;
+		this.element = element;
 	}
 
+	public void setSource()
+	{
+		
+	}
+	
 	@SuppressWarnings("unchecked")
 	private void facilitate_getShortestPaths( List<Edge> g, Node v )
 	{
@@ -427,6 +353,123 @@ public class Dijkstra
 	public static enum Element
 	{
 		edge, node
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
+	 */
+	public void init(Graph graph)
+	{
+		this.graph = graph;
+	}
+
+	/**
+	 * Computes the Dijkstra's algorithm on the given graph starting from the
+	 * given source node, considering the given attribute locates on the given
+	 * kind of elements (nodes or edges).
+	 * 
+	 * @see org.graphstream.algorithm.Algorithm#compute()
+	 */
+	@SuppressWarnings("unchecked")
+	public void compute()
+	{
+		distances.clear();
+		length.clear();
+		
+		ArrayList<Node> computed = new ArrayList<Node>();
+		//Collection<? extends Edge> edges;
+		//Edge runningEdge;
+		double dist;
+		double len;
+		Node runningNode;
+		Node neighborNode;
+		PriorityList<Node> priorityList = new PriorityList<Node>();
+		priorityList.insertion( start, 0.0 );
+		distances.put( start, 0.0 );
+		length.put( start, 0.0 );
+		source = start;
+
+		// initialization
+
+		for( Node v: graph )
+		{
+			v.removeAttribute( parentEdgesString );
+		}
+
+		while( !priorityList.isEmpty() )
+		{
+			runningNode = priorityList.lire( 0 );
+			
+			for( Edge runningEdge: runningNode.getLeavingEdgeSet() )
+			{
+				neighborNode = runningEdge.getOpposite( runningNode );
+
+				if( !computed.contains( neighborNode ) )
+				{
+					double val = 0;
+					if( attribute == null )
+					{
+						val = 1.0;
+					}
+					else
+					{
+						if( element == Element.edge )
+						{
+							val = ( (Number)runningEdge.getAttribute( attribute ) ).doubleValue();
+						}
+						else
+						{
+							val = ( (Number) neighborNode.getAttribute( attribute ) ).doubleValue();
+						}
+					}
+					if( val < 0 )
+					{
+						throw new NumberFormatException( "Attribute \"" + attribute + "\" has a negative value on element "
+								+ ( element == Element.edge ? runningEdge.toString() : neighborNode.toString() ) );
+					}
+					dist = ( distances.get( runningNode ) + val );
+					len = (int) ( length.get( runningNode ) + 1 );
+
+					if( priorityList.containsKey( neighborNode ) )
+					{
+						if( dist <= distances.get( neighborNode ) )
+						{
+							if( dist == distances.get( neighborNode ) )
+							{
+								( (ArrayList<Edge>) neighborNode.getAttribute( parentEdgesString ) ).add( runningEdge );
+							}
+							else
+							{
+								ArrayList<Edge> parentEdges = new ArrayList<Edge>();
+								parentEdges.add( runningEdge );
+								neighborNode.addAttribute( parentEdgesString, parentEdges );
+
+								distances.put( neighborNode, dist );
+								//neighborNode.addAttribute( "label", neighborNode.getId() + " - " + dist );
+								length.put( neighborNode, len );
+
+								priorityList.suppression( neighborNode );
+								priorityList.insertion( neighborNode, dist );
+							}
+						}
+					}
+					else
+					{
+						priorityList.insertion( neighborNode, dist );
+						distances.put( neighborNode, dist );
+						length.put( neighborNode, len );
+						ArrayList<Edge> parentEdges = new ArrayList<Edge>();
+						parentEdges.add( runningEdge );
+						neighborNode.addAttribute( parentEdgesString, parentEdges );
+
+					}
+
+				}
+			}
+			priorityList.suppression( runningNode );
+			computed.add( runningNode );
+		}
 	}
 
 }

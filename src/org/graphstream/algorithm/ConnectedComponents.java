@@ -1,19 +1,25 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This file is part of GraphStream.
  * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * GraphStream is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
+ * GraphStream is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with GraphStream.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Copyright 2006 - 2010
+ * 	Julien Baudry
+ * 	Antoine Dutot
+ * 	Yoann Pigné
+ * 	Guilhelm Savin
  */
-
 package org.graphstream.algorithm;
 
 import java.util.HashMap;
@@ -23,7 +29,7 @@ import java.util.LinkedList;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import org.graphstream.stream.Sink;
+import org.graphstream.stream.SinkAdapter;
 import org.util.set.FixedArrayList;
 
 /**
@@ -96,7 +102,7 @@ import org.util.set.FixedArrayList;
  * </p>
  * 
  * 
- * @author Yoann Pign�
+ * @author Yoann Pigné
  * @author Antoine Dutot
  * 
  * @since June 26 2007
@@ -107,7 +113,7 @@ import org.util.set.FixedArrayList;
  *             complexity is O(k).
  */
 public class ConnectedComponents
-	implements DynamicAlgorithm, Sink
+	extends SinkAdapter implements DynamicAlgorithm
 {
 //	private static final String CONNECTED_COMPONENT = "connectedComponent";
 
@@ -137,16 +143,16 @@ public class ConnectedComponents
 	protected boolean started = false;
 	
 	/**
-	 * Optional edge attribute that make it "invisible". The algorithm will
-	 * find two connected components if such an edge is the only link between
-	 * two node groups.
+	 * Optional edge attribute that make it "invisible". The algorithm will find
+	 * two connected components if such an edge is the only link between two
+	 * node groups.
 	 */
 	protected String cutAttribute = null;
 	
 	
 	/**
-	 * Optional attribute to set on each node of a given component. This attribute will
-	 * have for value an index different for each component.
+	 * Optional attribute to set on each node of a given component. This
+	 * attribute will have for value an index different for each component.
 	 */
 	protected String countAttribute = null;
 	
@@ -158,7 +164,9 @@ public class ConnectedComponents
 	/**
 	 * Constructor with the given graph. The computation of the algorithm start
 	 * only when the {@link #init(Graph)} method is invoked.
-	 * @param graph The graph who's connected components will be computed.
+	 * 
+	 * @param graph
+	 *            The graph who's connected components will be computed.
 	 */
 	public ConnectedComponents( Graph graph )
 	{
@@ -184,6 +192,7 @@ public class ConnectedComponents
 
 	/**
 	 * Allocate a new identifier for a connected component.
+	 * 
 	 * @return The new component identifier.
 	 */
 	protected int addIdentifier()
@@ -195,7 +204,9 @@ public class ConnectedComponents
 	
 	/**
 	 * Remove a identifier that is no more used.
-	 * @param identifier The identifier to remove.
+	 * 
+	 * @param identifier
+	 *            The identifier to remove.
 	 */
 	protected void removeIdentifier( int identifier )
 	{	
@@ -213,10 +224,12 @@ public class ConnectedComponents
 	/**
 	 * Enable (or disable by passing null) an optional attribute that makes
 	 * edges that have it invisible (as if the edge did not existed). Be
-	 * careful, setting the cut attribute will trigger a new computation of
-	 * the algorithm.
-	 * @param cutAttribute The name for the cut attribute or null if the
-	 *        cut attribute option must be disabled.
+	 * careful, setting the cut attribute will trigger a new computation of the
+	 * algorithm.
+	 * 
+	 * @param cutAttribute
+	 *            The name for the cut attribute or null if the cut attribute
+	 *            option must be disabled.
 	 */
 	public void setCutAttribute( String cutAttribute )
 	{
@@ -231,8 +244,9 @@ public class ConnectedComponents
 	 * attribute that will be assigned to each node. The value of this attribute
 	 * will be an integer different for each computed component.
 	 * 
-	 * @param countAttribute The name of the attribute to put on each node (pass
-	 *        null to disable this feature).
+	 * @param countAttribute
+	 *            The name of the attribute to put on each node (pass null to
+	 *            disable this feature).
 	 */
 	public void setCountAttribute( String countAttribute )
 	{
@@ -270,25 +284,25 @@ public class ConnectedComponents
 			}
 		}
 	}
-/*
-	public void begin()
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
+	 */
+	public void init( Graph graph )
 	{
-		compute();
-	}
-*/
-	public void terminate()
-	{
-		if( graph != null )
-		{
-			graph.removeSink( this );
-
-			graph   = null;
-			started = false;
-			
-			connectedComponents = 0;
-		}
+		if( this.graph != null )
+			this.graph.removeSink( this );
+		
+		this.graph = graph;
+		
+		this.graph.addSink( this );
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.algorithm.Algorithm#compute()
+	 */
 	public void compute()
 	{
 		connectedComponents   = 0;
@@ -320,14 +334,35 @@ public class ConnectedComponents
 		
 		remapMarks();
 	}
+	
+	/*
+     * (non-Javadoc)
+     * @see org.graphstream.algorithm.DynamicAlgorithm#terminate()
+     */
+	public void terminate()
+	{
+		if( graph != null )
+		{
+			graph.removeSink( this );
+
+			graph   = null;
+			started = false;
+			
+			connectedComponents = 0;
+		}
+	}
 
 	/**
 	 * Goes recursively (depth first) into the connected component and assigns
 	 * each node an id.
-	 * @param v The considered node.
-	 * @param id The id to assign to the given node.
-	 * @param exception An optional edge that may not be considered (useful when
-	 *        receiving a {@link #edgeRemoved(String, long, String)} event.
+	 * 
+	 * @param v
+	 *            The considered node.
+	 * @param id
+	 *            The id to assign to the given node.
+	 * @param exception
+	 *            An optional edge that may not be considered (useful when
+	 *            receiving a {@link #edgeRemoved(String, long, String)} event.
 	 */
 	private void computeConnectedComponent( Node v, int id, Edge exception )
 	{
@@ -377,28 +412,16 @@ public class ConnectedComponents
 	
 	protected void markNode( Node node, int id )
 	{
-		
-		if(countAttribute != null)
+		if( countAttribute != null )
 		{
 			node.addAttribute( countAttribute, id-1 );		
 		}
 	}
-	/*
-	public Graph getGraph()
-	{
-		return graph;
-	}
-*/
-	public void init( Graph graph )
-	{
-		if( this.graph != null )
-			this.graph.removeSink( this );
-		
-		this.graph = graph;
-		
-		this.graph.addSink( this );
-	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.stream.SinkAdapter#edgeAdded(java.lang.String, long, java.lang.String, java.lang.String, java.lang.String, boolean)
+	 */
 	public void edgeAdded( String graphId, long timeId, String edgeId, String fromNodeId, String toNodeId, boolean directed )
 	{
 		if( ! started && graph != null )
@@ -425,6 +448,10 @@ public class ConnectedComponents
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.stream.SinkAdapter#nodeAdded(java.lang.String, long, java.lang.String)
+	 */
 	public void nodeAdded( String graphId, long timeId, String nodeId )
 	{
 		if( ! started && graph != null )
@@ -447,6 +474,10 @@ public class ConnectedComponents
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.stream.SinkAdapter#edgeRemoved(java.lang.String, long, java.lang.String)
+	 */
 	public void edgeRemoved( String graphId, long timeId, String edgeId )
 	{
 		if( ! started && graph != null )
@@ -477,6 +508,10 @@ public class ConnectedComponents
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.stream.SinkAdapter#nodeRemoved(java.lang.String, long, java.lang.String)
+	 */
 	public void nodeRemoved( String graphId, long timeId, String nodeId )
 	{
 		if( !started && graph != null )
@@ -496,40 +531,19 @@ public class ConnectedComponents
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.stream.SinkAdapter#graphCleared(java.lang.String, long)
+	 */
 	public void graphCleared( String graphId, long timeId )
 	{
 		terminate();
 	}
 
-	public void stepBegins( String graphId, long timeId, double time )
-	{
-	}
-
-
-	public void graphAttributeAdded( String graphId, long timeId, String attribute, Object value )
-    {
-    }
-
-	public void graphAttributeChanged( String graphId, long timeId, String attribute, Object oldValue, Object value )
-    {
-    }
-
-	public void graphAttributeRemoved( String graphId, long timeId, String attribute )
-    {
-    }
-
-	public void nodeAttributeAdded( String graphId, long timeId, String nodeId, String attribute, Object value )
-    {
-    }
-
-	public void nodeAttributeChanged( String graphId, long timeId, String nodeId, String attribute, Object oldValue, Object value )
-    {
-    }
-
-	public void nodeAttributeRemoved( String graphId, long timeId, String nodeId, String attribute )
-    {
-    }
-
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.stream.SinkAdapter#edgeAttributeAdded(java.lang.String, long, java.lang.String, java.lang.String, java.lang.Object)
+	 */
 	public void edgeAttributeAdded( String graphId, long timeId, String edgeId, String attribute, Object value )
     {
 		if( cutAttribute != null && attribute.equals( cutAttribute ) )
@@ -557,10 +571,10 @@ public class ConnectedComponents
 		}
     }
 
-	public void edgeAttributeChanged( String graphId, long timeId, String edgeId, String attribute, Object oldValue, Object value )
-    {
-    }
-
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.stream.SinkAdapter#edgeAttributeRemoved(java.lang.String, long, java.lang.String, java.lang.String)
+	 */
 	public void edgeAttributeRemoved( String graphId, long timeId, String edgeId, String attribute )
     {
 		if( cutAttribute != null && attribute.equals( cutAttribute ) )
