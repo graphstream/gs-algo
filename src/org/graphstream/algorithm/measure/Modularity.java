@@ -1,28 +1,38 @@
 /*
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later
- * version.
+ * This file is part of GraphStream.
  * 
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
- * details.
+ * GraphStream is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
  * 
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
- * Place - Suite 330, Boston, MA 02111-1307, USA.
+ * GraphStream is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with GraphStream.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * Copyright 2006 - 2010
+ * 	Julien Baudry
+ * 	Antoine Dutot
+ * 	Yoann Pigné
+ * 	Guilhelm Savin
  */
-
 package org.graphstream.algorithm.measure;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import org.graphstream.algorithm.DynamicAlgorithm;
-import org.graphstream.graph.*;
-import org.graphstream.stream.Sink;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
+import org.graphstream.stream.SinkAdapter;
 
-import static org.graphstream.algorithm.Toolkit.*;
+import static org.graphstream.algorithm.Toolkit.communities;
+import static org.graphstream.algorithm.Toolkit.modularity;
+import static org.graphstream.algorithm.Toolkit.modularityMatrix;
 
 /**
  * Computes and update the modularity of a given graph as it evolves.
@@ -32,10 +42,8 @@ import static org.graphstream.algorithm.Toolkit.*;
  * </p>
  */
 public class Modularity
-	implements DynamicAlgorithm, Sink
+	extends SinkAdapter implements DynamicAlgorithm
 {
-// Attributes
-	
 	/**
 	 * The graph.
 	 */
@@ -61,23 +69,28 @@ public class Modularity
 	 */
 	protected float Q;
 	
-// Construction
-	
+	/**
+	 * New modularity algorithm.
+	 */
 	public Modularity()
 	{
 		
 	}
-	
-	public Modularity( Graph graph, String marker )
+
+	/**
+	 * New modularity algorithm with a given marker for communities.
+	 * 
+	 * @param marker
+	 *            name of the attribute marking the communities.
+	 */
+	public Modularity( String marker )
 	{
 		this.marker = marker;
-		init( graph );
 	}
 
-// Access
-	
 	/**
 	 * The last computed modularity.
+	 * 
 	 * @complexity O(1)
 	 * @return The last computed modularity.
 	 */
@@ -88,7 +101,8 @@ public class Modularity
 	
 	/**
 	 * Compute the modularity (if the graph changed since the last computation).
-	 * @complexity O(n+m�+m�k)
+	 * 
+	 * @complexity O(n+m!+m!k)
 	 * @return The current modularity.
 	 */
 	public float getModularity()
@@ -96,34 +110,11 @@ public class Modularity
 		compute();
 		return Q;
 	}
-	
-// Command
-	
-	public void begin()
-	{
-		// NOP.
-	}
 
-	public void terminate()
-	{
-		// NOP.
-	}
-
-	public void compute()
-	{
-		if( graphChanged )
-		{
-			float[][] E = modularityMatrix( graph, communities );
-			Q = modularity( E );
-			graphChanged = false;
-		}
-	}
-/*
-	public Graph getGraph()
-	{
-		return graph;
-	}
-*/
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
+	 */
 	public void init( Graph graph )
 	{
 		if( graph != this.graph )
@@ -142,12 +133,35 @@ public class Modularity
 			}
 		}
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.algorithm.Algorithm#compute()
+	 */
+	public void compute()
+	{
+		if( graphChanged )
+		{
+			float[][] E = modularityMatrix( graph, communities );
+			Q = modularity( E );
+			graphChanged = false;
+		}
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.algorithm.DynamicAlgorithm#terminate()
+	 */
+	public void terminate()
+	{
+		// NOP.
+	}
 	
 	protected void initialize()
 	{
 		communities = communities( graph, marker );
 	}
-
+/*
 	public void attributeChanged( Element element, String attribute,
 			Object oldValue, Object newValue )
 	{
@@ -182,7 +196,11 @@ public class Modularity
 			}
 		}
 	}
-
+*/
+	
+	/*
+	 * @see org.graphstream.stream.Sink#nodeAdded(java.lang.String, long, java.lang.String)
+	 */
 	public void nodeAdded( String graphId, long timeId, String nodeId )
     {
 		// A node added, put it in the communities.
@@ -210,6 +228,10 @@ public class Modularity
 		}
     }
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.stream.Sink#nodeRemoved(java.lang.String, long, java.lang.String)
+	 */
 	public void nodeRemoved( String graphId, long timeId, String nodeId )
     {
 		Node node = graph.getNode( nodeId );
@@ -239,44 +261,50 @@ public class Modularity
 		}
     }
 
-	public void edgeAdded( String graphId, long timeId, String edgeId, String fromNodeId, String toNodeId,
-            boolean directed )
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.stream.Sink#edgeAdded(java.lang.String, long, java.lang.String, java.lang.String, java.lang.String, boolean)
+	 */
+	public void edgeAdded( String graphId, long timeId, String edgeId,
+			String fromNodeId, String toNodeId, boolean directed )
     {
 		graphChanged = true;
     }
 
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.stream.Sink#edgeRemoved(java.lang.String, long, java.lang.String)
+	 */
 	public void edgeRemoved( String graphId, long timeId, String edgeId )
     {
 		graphChanged = true;
     }
 	
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.stream.Sink#graphCleared(java.lang.String, long)
+	 */
 	public void graphCleared( String graphId, long timeId)
 	{
 		graphChanged = true;
 	}
 
-	public void stepBegins( String graphId, long timeId, double time )
-    {
-    }
-
-	public void graphAttributeAdded( String graphId, long timeId, String attribute, Object value )
-    {
-    }
-
-	public void graphAttributeChanged( String graphId, long timeId, String attribute, Object oldValue, Object newValue )
-    {
-    }
-
-	public void graphAttributeRemoved( String graphId, long timeId, String attribute )
-    {
-    }
-
-	public void nodeAttributeAdded( String graphId, long timeId, String nodeId, String attribute, Object value )
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.stream.Sink#nodeAttributeAdded(java.lang.String, long, java.lang.String, java.lang.String, java.lang.Object)
+	 */
+	public void nodeAttributeAdded( String graphId, long timeId,
+			String nodeId, String attribute, Object value )
     {
 		nodeAttributeChanged( graphId, timeId, nodeId, attribute, null, value );
     }
 
-	public void nodeAttributeChanged( String graphId, long timeId, String nodeId, String attribute, Object oldValue, Object newValue )
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.stream.Sink#nodeAttributeChanged(java.lang.String, long, java.lang.String, java.lang.String, java.lang.Object, java.lang.Object)
+	 */
+	public void nodeAttributeChanged( String graphId, long timeId, String nodeId,
+			String attribute, Object oldValue, Object newValue )
     {
 		if( attribute.equals( marker ) )
 		{
@@ -307,21 +335,5 @@ public class Modularity
 				communityTo.add( node );
 			}
 		}
-    }
-
-	public void nodeAttributeRemoved( String graphId, long timeId, String nodeId, String attribute )
-    {
-    }
-
-	public void edgeAttributeAdded( String graphId, long timeId, String edgeId, String attribute, Object value )
-    {
-    }
-
-	public void edgeAttributeChanged( String graphId, long timeId, String edgeId, String attribute, Object oldValue, Object newValue )
-    {
-    }
-
-	public void edgeAttributeRemoved( String graphId, long timeId, String edgeId, String attribute )
-    {
     }
 }

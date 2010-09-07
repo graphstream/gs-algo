@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with GraphStream.  If not, see <http://www.gnu.org/licenses/>.
  * 
- * Copyright 2006 - 2009
+ * Copyright 2006 - 2010
  * 	Julien Baudry
  * 	Antoine Dutot
  * 	Yoann Pigné
@@ -24,48 +24,44 @@ package org.graphstream.algorithm.generator;
 
 /**
  * Random graph generator.
- *
+ * 
  * <p>
- * This generator creates random graphs of any size. Calling
- * {@link #begin()} put one unique node in the graph, then
- * {@link #nextEvents()} will add a new node each time it is called and
- * connect this node randomly to others.
+ * This generator creates random graphs of any size. Calling {@link #begin()}
+ * put one unique node in the graph, then {@link #nextEvents()} will add a new
+ * node each time it is called and connect this node randomly to others.
  * </p>
  * 
  * <p>
  * The generator tries to generate nodes with random connections, with each node
- * having in average a given degree. The law in a Poisson law, however, the
- * way this generator works, adding node after node, perturbs this process.
- * We should first allocate all the needed nodes, then create edges. However, we
- * create nodes at the same rate as edges. The more nodes are added the more
- * the degree distribution curve is shifted toward the right.
+ * having in average a given degree. The law in a Poisson law, however, the way
+ * this generator works, adding node after node, perturbs this process. We
+ * should first allocate all the needed nodes, then create edges. However, we
+ * create nodes at the same rate as edges. The more nodes are added the more the
+ * degree distribution curve is shifted toward the right.
  * </p>
  * 
  * <p>
- * This generator has the ability to add randomly chosen numerical values
- * on arbitrary attributes on edges or nodes of the graph, and to randomly
- * choose a direction for edges.
+ * This generator has the ability to add randomly chosen numerical values on
+ * arbitrary attributes on edges or nodes of the graph, and to randomly choose a
+ * direction for edges.
  * </p>
  * 
  * <p>
- * A list of attributes can be given for nodes and edges. In this case each
- * new node or edge added will have this attribute and the value will be a
- * randomly chosen number. The range in which these numbers are chosen can be
- * specified.
+ * A list of attributes can be given for nodes and edges. In this case each new
+ * node or edge added will have this attribute and the value will be a randomly
+ * chosen number. The range in which these numbers are chosen can be specified.
  * </p>
  * 
  * <p>
- * By default, edges are not oriented. It is possible to ask orientation, in 
+ * By default, edges are not oriented. It is possible to ask orientation, in
  * which case the direction is chosen randomly.
  * </p>
- *
+ * 
  * @since 2007
  */
 public class RandomGenerator
 	extends BaseGenerator
 {
-// Attribute
-
 	/**
 	 * Used to generate node names.
 	 */
@@ -76,8 +72,9 @@ public class RandomGenerator
 	 */
 	protected int averageDegree = 1;
 	
-// Construction
-	
+	/**
+	 * New full graph generator with default attributes.
+	 */
 	public RandomGenerator()
 	{
 		this(2);
@@ -86,7 +83,9 @@ public class RandomGenerator
 	/**
 	 * New full graph generator. By default no attributes are added to nodes and
 	 * edges, and edges are not directed.
-	 * @param averageDegree The average degree of nodes.
+	 * 
+	 * @param averageDegree
+	 *            The average degree of nodes.
 	 */
 	public RandomGenerator( int averageDegree )
 	{
@@ -97,46 +96,65 @@ public class RandomGenerator
 	}
 
 	/**
-	 * @param averageDegree The average degree of nodes.
-	 * @param directed Are edges directed?.
-	 * @param randomlyDirectedEdges randomly direct generated edges.
+	 * New full graph generator.
+	 * 
+	 * @param averageDegree
+	 *            The average degree of nodes.
+	 * @param directed
+	 *            Are edges directed?.
+	 * @param randomlyDirectedEdges
+	 *            randomly direct generated edges.
 	 */
-	public RandomGenerator( int averageDegree, boolean directed, boolean randomlyDirectedEdges )
+	public RandomGenerator( int averageDegree, boolean directed,
+			boolean randomlyDirectedEdges )
 	{
 		super( directed, randomlyDirectedEdges );
 		enableKeepNodesId();
 		enableKeepEdgesId();
 		this.averageDegree = averageDegree;
 	}
-	
+
 	/**
 	 * New random graph generator.
-	 * @param averageDegree The average degree of nodes.
-	 * @param directed Are edges directed?.
-	 * @param randomlyDirectedEdges randomly direct generated edges.
-	 * @param nodeAttribute put an attribute by that name on each node with a random numeric value.
-	 * @param edgeAttribute put an attribute by that name on each edge with a random numeric value.
+	 * 
+	 * @param averageDegree
+	 *            The average degree of nodes.
+	 * @param directed
+	 *            Are edges directed?.
+	 * @param randomlyDirectedEdges
+	 *            randomly direct generated edges.
+	 * @param nodeAttribute
+	 *            put an attribute by that name on each node with a random
+	 *            numeric value.
+	 * @param edgeAttribute
+	 *            put an attribute by that name on each edge with a random
+	 *            numeric value.
 	 */
-	public RandomGenerator( int averageDegree, boolean directed, boolean randomlyDirectedEdges, String nodeAttribute, String edgeAttribute )
+	public RandomGenerator( int averageDegree, boolean directed,
+			boolean randomlyDirectedEdges, String nodeAttribute, String edgeAttribute )
 	{
 		super( directed, randomlyDirectedEdges, nodeAttribute, edgeAttribute );
 		enableKeepNodesId();
 		enableKeepEdgesId();
 		this.averageDegree = averageDegree;
 	}
-	
-// Command
-	
+
+	/**
+	 * Start the generator. A single node is added.
+	 * 
+	 * @see org.graphstream.algorithm.generator.Generator#begin()
+	 */
 	public void begin()
 	{
 		String id = Integer.toString( nodeNames++ );
 		addNode( id );
 	}
-	
-	public void end()
-	{
-	}
 
+	/**
+	 * Step the generator. A new node is added and connected with some others.
+	 * 
+	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
+	 */
 	public boolean nextEvents()
 	{
 		String id = Integer.toString( nodeNames++ );
@@ -165,7 +183,15 @@ public class RandomGenerator
 			}
 		}
 		
-		return false;
+		return true;
+	}
+	
+	/*
+	 * (non-Javadoc)
+	 * @see org.graphstream.algorithm.generator.Generator#end()
+	 */
+	public void end()
+	{
 	}
 	
 	protected String getEdgeId( String src, String trg )
@@ -181,7 +207,7 @@ public class RandomGenerator
 	}
 	
 	/**
-	 * Generate a random integer centred around p.
+	 * Generate a random integer centered around p.
 	 * @param p The average value of the random number.
 	 * @return A random int.
 	 */
