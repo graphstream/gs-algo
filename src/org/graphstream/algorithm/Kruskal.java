@@ -60,9 +60,6 @@ public class Kruskal
 	
 	/**
 	 * Create a new Kruskal's algorithm.
-	 * 
-	 * @param graph
-	 *            used graph
 	 */
 	public Kruskal()
 	{

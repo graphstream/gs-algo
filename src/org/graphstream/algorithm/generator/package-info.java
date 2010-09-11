@@ -38,7 +38,7 @@
  * 		<li>{@link org.graphstream.algorithm.generator.Generator#begin()}
  * 			to start the generation of elements in the given graph. This graph
  * 			may or not already contain elements.</li>
- * 		<li>{@link org.graphstream.algorithm.generator.Generator#nextElement()}
+ * 		<li>{@link org.graphstream.algorithm.generator.Generator#nextEvents()}
  * 			to generate one or a set of elements in the graph. The more this
  * 			method is iterated, the more the graph grows. This method returns
  * 			false when no more elements can be generated. BE CAREFUL: some
@@ -46,7 +46,7 @@
  * 			size.</li>
  * 		<li>{@link org.graphstream.algorithm.generator.Generator#end()} to
  * 			finish the graph generation process, either once
- * 			{@link org.graphstream.algorithm.generator.Generator#nextElement()}
+ * 			{@link org.graphstream.algorithm.generator.Generator#nextEvents()}
  * 			returned false, or one chooses to stop the generation process.</li>
  * </ul>
  * </p>
