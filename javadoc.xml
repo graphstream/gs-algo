@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc 
+        	access="public" 
+        	author="true" 
+        	classpath="../gs-core/lib/mbox2.jar:../gs-core/lib/util.jar:../gs-core/lib/pherd.jar:../gs-core/bin/" 
+        	destdir="doc" 
+        	doctitle="GraphStream 1.0 API" 
+        	nodeprecated="false" 
+        	nodeprecatedlist="false" 
+        	noindex="false" 
+        	nonavbar="false" 
+        	notree="false"  
+        	source="1.5" 
+        	sourcepath="src" 
+        	splitindex="true" 
+        	use="true" 
+        	version="true" >
+        	<tag name="complexity" scope="all" description="Complexity:"/>
+        </javadoc>
+    </target>
+</project>
