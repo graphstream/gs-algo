@@ -184,8 +184,9 @@ public abstract class DistributedCommunityAlgorithm implements
 		if (marker == null) {
 			marker = "community";
 		}
-		this.marker = this.getClass().getName() + "." + instanceNumber + "."
-				+ marker;
+		this.marker = this.getClass().getName()
+				.substring(this.getClass().getName().lastIndexOf('.') + 1)
+				+ "." + instanceNumber + "." + marker;
 	}
 
 	/**
