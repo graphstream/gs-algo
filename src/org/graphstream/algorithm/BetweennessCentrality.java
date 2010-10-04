@@ -33,10 +33,6 @@ import java.util.Set;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.SingleGraph;
-import org.graphstream.ui.swingViewer.Viewer;
-import org.graphstream.ui.swingViewer.ViewerListener;
-import org.graphstream.ui.swingViewer.ViewerPipe;
 
 /**
  * Compute the "betweeness" centrality of each vertex of a given graph.
@@ -44,10 +40,10 @@ import org.graphstream.ui.swingViewer.ViewerPipe;
  * This algorithm, by default, stores the centrality values for each edge inside
  * the "Cb" attribute. You can change this attribute name at construction time.
  * 
- * This algorithm does not accept multi-graphs.
+ * This algorithm does not accept multi-graphs (p-graphs with p>1).
  * 
  * By default the algorithm performs on a graph considered as not weighted with
- * complexity O(nm). You can specify that the graph edges contains weights in
+ * complexity O(nm). You can specify that the graph edges contain weights in
  * which case the algorithm complexity is O(nm + n^2 log n). By default the
  * weight attribute name is "weight". You can change this using the dedicated
  * constructor or the {@link #setWeightAttributeName(String)} method.
@@ -189,6 +185,7 @@ public class BetweennessCentrality implements Algorithm
 	
 	/**
 	 * Compute the betweenness centrality on the given graph for each node. 
+	 * The result is by default stored in the "Cb" attribute on each node.
 	 */
 	public void compute() {
 	    if( graph != null ) {
@@ -197,31 +194,34 @@ public class BetweennessCentrality implements Algorithm
 	}
 	
 	/**
-	 * Compute the betweenness centrality on the given graph for each node. 
+	 * Compute the betweenness centrality on the given graph for each node. This method is
+	 * equivalent to a call in sequence to the two methods {@link #init(Graph)}
+	 * then {@link #compute()}.
 	 */
 	public void betweennessCentrality( Graph graph ) {
-		initAllNodes( graph );
+	    init( graph );
+	    initAllNodes( graph );
 		
-		for( Node s : graph ) {
-			PriorityQueue<Node> S = null;
+	    for( Node s : graph ) {
+		PriorityQueue<Node> S = null;
 			
-			if( unweighted )
-			      S = simpleExplore( s, graph );
-			else S = dijkstraExplore( s, graph );
+		if( unweighted )
+		     S = simpleExplore( s, graph );
+		else S = dijkstraExplore( s, graph );
 
-			// The real new things in the Brandes algorithm are here :
+		// The really new things in the Brandes algorithm are here:
 
-			while( ! S.isEmpty() ) {
-				Node w = S.poll();
+		while( ! S.isEmpty() ) {
+		    Node w = S.poll();
 				
-				for( Node v : predecessorsOf( w ) ) {
-					setDelta( v, delta(v) + ( ( sigma(v)/sigma(w) ) * ( 1 + delta( w ) ) ) );
-					if( w != s ) {
-						setCentrality( w, centrality( w ) + delta( w ) );
-					}
-				}
+		    for( Node v : predecessorsOf( w ) ) {
+			setDelta( v, delta(v) + ( ( sigma(v)/sigma(w) ) * ( 1 + delta( w ) ) ) );
+			if( w != s ) {
+			    setCentrality( w, centrality( w ) + delta( w ) );
 			}
+		    }
 		}
+	    }
 	}
 	
 	/**
