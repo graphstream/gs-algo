@@ -33,10 +33,6 @@ import java.util.Set;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.SingleGraph;
-import org.graphstream.ui.swingViewer.Viewer;
-import org.graphstream.ui.swingViewer.ViewerListener;
-import org.graphstream.ui.swingViewer.ViewerPipe;
 
 /**
  * Compute the "betweeness" centrality of each vertex of a given graph.
@@ -44,10 +40,10 @@ import org.graphstream.ui.swingViewer.ViewerPipe;
  * This algorithm, by default, stores the centrality values for each edge inside
  * the "Cb" attribute. You can change this attribute name at construction time.
  * 
- * This algorithm does not accept multi-graphs.
+ * This algorithm does not accept multi-graphs (p-graphs with p>1).
  * 
  * By default the algorithm performs on a graph considered as not weighted with
- * complexity O(nm). You can specify that the graph edges contains weights in
+ * complexity O(nm). You can specify that the graph edges contain weights in
  * which case the algorithm complexity is O(nm + n^2 log n). By default the
  * weight attribute name is "weight". You can change this using the dedicated
  * constructor or the {@link #setWeightAttributeName(String)} method.
@@ -60,7 +56,7 @@ import org.graphstream.ui.swingViewer.ViewerPipe;
  * Betweenness Centrality", Ulrik Brandes, Journal of Mathematical Sociology,
  * 2001 (available on Citeseer).
  */
-public class BetweennessCentrality
+public class BetweennessCentrality implements Algorithm
 {
 // Attribute
 	
@@ -79,6 +75,8 @@ public class BetweennessCentrality
 	protected String weightAttributeName = "weight";
 	
 	protected boolean unweighted = true;
+	
+	protected Graph graph;
 
 // Construction
 	
@@ -179,31 +177,51 @@ public class BetweennessCentrality
 	}
 	
 	/**
+	 * Setup the algorithm to work on the given graph. 
+	 */
+	public void init(Graph graph) {
+	    this.graph = graph;
+	}
+	
+	/**
 	 * Compute the betweenness centrality on the given graph for each node. 
+	 * The result is by default stored in the "Cb" attribute on each node.
+	 */
+	public void compute() {
+	    if( graph != null ) {
+		betweennessCentrality(graph);
+	    }
+	}
+	
+	/**
+	 * Compute the betweenness centrality on the given graph for each node. This method is
+	 * equivalent to a call in sequence to the two methods {@link #init(Graph)}
+	 * then {@link #compute()}.
 	 */
 	public void betweennessCentrality( Graph graph ) {
-		initAllNodes( graph );
+	    init( graph );
+	    initAllNodes( graph );
 		
-		for( Node s : graph ) {
-			PriorityQueue<Node> S = null;
+	    for( Node s : graph ) {
+		PriorityQueue<Node> S = null;
 			
-			if( unweighted )
-			      S = simpleExplore( s, graph );
-			else S = dijkstraExplore( s, graph );
+		if( unweighted )
+		     S = simpleExplore( s, graph );
+		else S = dijkstraExplore( s, graph );
 
-			// The real new things in the Brandes algorithm are here :
+		// The really new things in the Brandes algorithm are here:
 
-			while( ! S.isEmpty() ) {
-				Node w = S.poll();
+		while( ! S.isEmpty() ) {
+		    Node w = S.poll();
 				
-				for( Node v : predecessorsOf( w ) ) {
-					setDelta( v, delta(v) + ( ( sigma(v)/sigma(w) ) * ( 1 + delta( w ) ) ) );
-					if( w != s ) {
-						setCentrality( w, centrality( w ) + delta( w ) );
-					}
-				}
+		    for( Node v : predecessorsOf( w ) ) {
+			setDelta( v, delta(v) + ( ( sigma(v)/sigma(w) ) * ( 1 + delta( w ) ) ) );
+			if( w != s ) {
+			    setCentrality( w, centrality( w ) + delta( w ) );
 			}
+		    }
 		}
+	    }
 	}
 	
 	/**
@@ -312,7 +330,7 @@ public class BetweennessCentrality
 	
 	protected float delta( Node node ) { return (float)node.getNumber( deltaAttributeName ); }
 	
-	protected float centrality( Node node ) { return (float)node.getNumber( centralityAttributeName ); }
+	public float centrality( Node node ) { return (float)node.getNumber( centralityAttributeName ); }
 	
 	@SuppressWarnings("all")
 	protected Set<Node> predecessorsOf( Node node ) { return (HashSet<Node>)node.getAttribute( predAttributeName ); }
@@ -323,11 +341,11 @@ public class BetweennessCentrality
 	
 	protected void setDelta( Node node, float delta ) { node.setAttribute( deltaAttributeName, delta ); }
 	
-	protected void setCentrality( Node node, float centrality ) { node.setAttribute( centralityAttributeName, centrality ); }
+	public void setCentrality( Node node, float centrality ) { node.setAttribute( centralityAttributeName, centrality ); }
 	
-	protected void setWeight( Node from, Node to, float weight ) { from.getEdgeToward(to.getId()).setAttribute( weightAttributeName, weight ); }
+	public void setWeight( Node from, Node to, float weight ) { from.getEdgeToward(to.getId()).setAttribute( weightAttributeName, weight ); }
 	
-	protected float weight( Node from, Node to ) {
+	public float weight( Node from, Node to ) {
 		Edge edge = from.getEdgeToward( to.getId() );
 		
 		if( edge != null ) {
@@ -379,151 +397,4 @@ public class BetweennessCentrality
 			return (int) ( distance(x) - distance(y) );
 		}
 	}
-
-// Test
-	
-	protected static boolean loop = true;
-	
-	/**
-	 * Quick test of the centrality algorithm.
-	 */
-	public static void main( String args[] ) {
-		//System.setProperty( "gs.ui.renderer", "org.graphstream.ui.j2dviewer.J2DGraphRenderer" );
-		
-		Graph graph = new SingleGraph( "Betweeness Centrality" );
-		
-		Viewer viewer = graph.display( false );
-		ViewerPipe pipeIn = viewer.newViewerPipe();
-		
-		pipeIn.addViewerListener( new ViewerListener() {
-			public void viewClosed( String id ) { loop = false; }
-		 	public void buttonPushed( String id ) {}
-		 	public void buttonReleased( String id ) {} 
-		});
-
-		graph.addAttribute( "ui.stylesheet", styleSheet );
-		graph.addAttribute( "ui.antialias" );
-		graph.addAttribute( "ui.quality" );
-		
-		BetweennessCentrality bcb = new BetweennessCentrality( true );
-
-		buildGraph3( graph, bcb );
-		
-		bcb.betweennessCentrality( graph );
-		
-		for( Node node: graph ) {
-			node.setAttribute( "ui.label", String.format( "%s C=%.2f", node.getId(), bcb.centrality(node) ) );
-		}
-		
-		for( Edge edge: graph.getEachEdge() ) {
-			edge.setAttribute( "ui.label", String.format( "%.2f", bcb.weight( edge.getNode0(), edge.getNode1() ) ) );
-		}
-		
-		while( loop ) {
-			pipeIn.pump();
-			sleep( 4 );
-		}
-		
-		System.exit( 0 );
-	}
-	
-	protected static void sleep( long ms ) { try{ Thread.sleep( ms ); } catch ( Exception e ) {} }
-	
-	protected static void buildGraph1( Graph graph, BetweennessCentrality bcb ) {
-		Node A = graph.addNode( "A" );
-		Node B = graph.addNode( "B" );
-		Node C = graph.addNode( "C" );
-		Node D = graph.addNode( "D" );
-		Node E = graph.addNode( "E" );
-		Node F = graph.addNode( "F" );
-		
-		graph.addEdge( "AB", "A", "B" );
-		graph.addEdge( "AC", "A", "C" );
-		graph.addEdge( "AF", "A", "F" );
-		graph.addEdge( "BC", "B", "C" );
-		graph.addEdge( "FC", "F", "C" );
-		graph.addEdge( "CD", "C", "D" );
-		graph.addEdge( "FE", "F", "E" );
-		graph.addEdge( "ED", "E", "D" );
-		graph.addEdge( "BD", "B", "D" );
-		
-		A.addAttribute( "xyz", -1,  0 );	A.addAttribute( "ui.label", "A" );
-		B.addAttribute( "xyz",  0, -1 );	B.addAttribute( "ui.label", "B" );
-		C.addAttribute( "xyz",  0,  0 );	C.addAttribute( "ui.label", "C" );
-		D.addAttribute( "xyz",  2,  0 );	D.addAttribute( "ui.label", "D" );
-		E.addAttribute( "xyz",  1, .7 );	E.addAttribute( "ui.label", "E" );
-		F.addAttribute( "xyz",  0,  1 );	F.addAttribute( "ui.label", "F" );
-	}
-	
-	protected static void buildGraph2( Graph graph, BetweennessCentrality bcb ) {
-		Node A = graph.addNode( "A" );
-		Node B = graph.addNode( "B" );
-		Node C = graph.addNode( "C" );
-		Node D = graph.addNode( "D" );
-		
-		graph.addEdge( "AB", "A", "B" );
-		graph.addEdge( "BC", "B", "C" );
-		graph.addEdge( "CD", "C", "D" );
-		graph.addEdge( "DA", "D", "A" );
-		
-		A.addAttribute( "xyz", -1,  0 );	A.addAttribute( "ui.label", "A" );
-		B.addAttribute( "xyz",  0,  1 );	B.addAttribute( "ui.label", "B" );
-		C.addAttribute( "xyz",  1,  0 );	C.addAttribute( "ui.label", "C" );
-		D.addAttribute( "xyz",  0, -1 );	D.addAttribute( "ui.label", "D" );
-		
-		bcb.setWeight( B, C, 10f );
-	}
-	
-	protected static void buildGraph3( Graph graph, BetweennessCentrality bcb ) {
-		Node A = graph.addNode( "A" );
-		Node B = graph.addNode( "B" );
-		Node C = graph.addNode( "C" );
-		Node D = graph.addNode( "D" );
-		Node E = graph.addNode( "E" );
-		
-		graph.addEdge( "AB", "A", "B" );
-		graph.addEdge( "BC", "B", "C" );
-		graph.addEdge( "CD", "C", "D" );
-		graph.addEdge( "DA", "D", "A" );
-		
-		graph.addEdge( "AE", "A", "E" );
-		graph.addEdge( "BE", "B", "E" );
-		graph.addEdge( "CE", "C", "E" );
-		graph.addEdge( "DE", "D", "E" );
-		
-		A.addAttribute( "xyz", -1,  0 );	A.addAttribute( "ui.label", "A" );
-		B.addAttribute( "xyz",  0,  1 );	B.addAttribute( "ui.label", "B" );
-		C.addAttribute( "xyz",  1,  0 );	C.addAttribute( "ui.label", "C" );
-		D.addAttribute( "xyz",  0, -1 );	D.addAttribute( "ui.label", "D" );
-		E.addAttribute( "xyz",  0,  0 );	E.addAttribute( "ui.label", "E" );
-		
-		bcb.setWeight( B, C, 10f );
-		bcb.setWeight( A, E, 10f );
-		bcb.setWeight( E, D, 10f );
-		bcb.setWeight( B, E, 10f );
-	}
-	
-	protected static String mkString( Collection<Node> set ) {
-		int n = set.size();
-		StringBuffer buf = new StringBuffer();
-		
-		for( Node node: set ) {
-			buf.append( node.getId() );
-			if( n > 1 )
-				buf.append( ", " );
-			n--;
-		}
-		
-		return buf.toString();
-	}
-	
-	protected static String styleSheet =
-		"graph {" +
-		"	padding: 60px;" +
-		"}" +
-		"node {" +
-		"	text-color: black;" +
-		"	text-background-mode: plain;" +
-		"	text-background-color: white;" +
-		"}";
 }
