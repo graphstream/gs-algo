@@ -45,7 +45,7 @@ import org.graphstream.graph.Node;
  * @author Guillaume-Jean Herbiet
  * 
  */
-public class EpidemicCommunityAlgorithm extends DistributedCommunityAlgorithm {
+public class EpidemicCommunityAlgorithm extends DecentralizedCommunityAlgorithm {
 
 	/**
 	 * Heard communities and their associated scores

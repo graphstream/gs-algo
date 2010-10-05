@@ -36,7 +36,7 @@ import org.graphstream.graph.Node;
  * 
  */
 public final class DummyCommunityAlgorithm extends
-		DistributedCommunityAlgorithm {
+		DecentralizedCommunityAlgorithm {
 
 	public DummyCommunityAlgorithm() {
 		super();

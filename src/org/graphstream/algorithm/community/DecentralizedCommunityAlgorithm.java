@@ -39,7 +39,7 @@ import org.graphstream.stream.Sink;
  * @author Guillaume-Jean Herbiet
  * 
  */
-public abstract class DistributedCommunityAlgorithm implements
+public abstract class DecentralizedCommunityAlgorithm implements
 		DynamicAlgorithm, Sink {
 	/**
 	 * The graph to apply the algorithm.
@@ -88,7 +88,7 @@ public abstract class DistributedCommunityAlgorithm implements
 	 * Create a new distributed community detection algorithm, without attaching
 	 * it to a graph
 	 */
-	public DistributedCommunityAlgorithm() {
+	public DecentralizedCommunityAlgorithm() {
 		instanceNumber = ALGORITHMS_INSTANCE_NUMBER;
 		ALGORITHMS_INSTANCE_NUMBER++;
 	}
@@ -100,7 +100,7 @@ public abstract class DistributedCommunityAlgorithm implements
 	 * @param graph
 	 *            The graph on which the community assignment will be performed
 	 */
-	public DistributedCommunityAlgorithm(Graph graph) {
+	public DecentralizedCommunityAlgorithm(Graph graph) {
 		this();
 		init(graph);
 	}
@@ -115,7 +115,7 @@ public abstract class DistributedCommunityAlgorithm implements
 	 * @param marker
 	 *            Marker string used to store the current community of a node
 	 */
-	public DistributedCommunityAlgorithm(Graph graph, String marker) {
+	public DecentralizedCommunityAlgorithm(Graph graph, String marker) {
 		this();
 		setMarker(marker);
 		init(graph);
