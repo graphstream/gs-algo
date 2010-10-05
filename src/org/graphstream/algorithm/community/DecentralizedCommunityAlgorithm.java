@@ -39,7 +39,7 @@ import org.graphstream.stream.Sink;
  * @author Guillaume-Jean Herbiet
  * 
  */
-public abstract class DistributedCommunityAlgorithm implements
+public abstract class DecentralizedCommunityAlgorithm implements
 		DynamicAlgorithm, Sink {
 	/**
 	 * The graph to apply the algorithm.
@@ -47,22 +47,13 @@ public abstract class DistributedCommunityAlgorithm implements
 	protected Graph graph;
 
 	/**
-	 * Instance number of the distributed community detection algorithms.
-	 */
-	protected static int ALGORITHMS_INSTANCE_NUMBER = 0;
-
-	/**
-	 * Instance number of this particular algorithm instance.
-	 */
-	protected int instanceNumber;
-
-	/**
 	 * Name of the attribute marking the communities. Default is "community".
-	 * This is prefixed by [AlgorithmClass].[InstanceNumber] to make this unique
+	 * This is prefixed by the algorithm class and memory location to make this unique
 	 * for each instance of the algorithm.
 	 */
 	protected String marker;
-
+	protected String nonUniqueMarker;
+	
 	/**
 	 * Set to false after {@link #compute()}, unless static mode is set.
 	 */
@@ -80,17 +71,10 @@ public abstract class DistributedCommunityAlgorithm implements
 	protected Random rng;
 
 	/**
-	 * Seed used for the random number generator
-	 */
-	protected Long seed;
-
-	/**
 	 * Create a new distributed community detection algorithm, without attaching
 	 * it to a graph
 	 */
-	public DistributedCommunityAlgorithm() {
-		instanceNumber = ALGORITHMS_INSTANCE_NUMBER;
-		ALGORITHMS_INSTANCE_NUMBER++;
+	public DecentralizedCommunityAlgorithm() {
 	}
 
 	/**
@@ -100,7 +84,7 @@ public abstract class DistributedCommunityAlgorithm implements
 	 * @param graph
 	 *            The graph on which the community assignment will be performed
 	 */
-	public DistributedCommunityAlgorithm(Graph graph) {
+	public DecentralizedCommunityAlgorithm(Graph graph) {
 		this();
 		init(graph);
 	}
@@ -115,7 +99,7 @@ public abstract class DistributedCommunityAlgorithm implements
 	 * @param marker
 	 *            Marker string used to store the current community of a node
 	 */
-	public DistributedCommunityAlgorithm(Graph graph, String marker) {
+	public DecentralizedCommunityAlgorithm(Graph graph, String marker) {
 		this();
 		setMarker(marker);
 		init(graph);
@@ -137,7 +121,11 @@ public abstract class DistributedCommunityAlgorithm implements
 	/**
 	 * Initialize the distributed community detection algorithm, attaching it to
 	 * the specified graph, and using the default marker to store the community
-	 * attribute
+	 * attribute.
+	 * 
+	 * By default an uncontrolled random number generator will be used. For sake
+	 * of reproducibility, use the {@link #setRandom()} function to use a
+	 * controlled random number generator with this algorithm.
 	 * 
 	 * @param graph
 	 */
@@ -152,12 +140,10 @@ public abstract class DistributedCommunityAlgorithm implements
 		this.graph = graph;
 
 		/*
-		 * Initiate the random network generator
+		 * Initiate an uncontrolled random network generator
 		 */
-		if (this.seed == null)
+		if (this.rng == null)
 			rng = new Random();
-		else
-			rng = new Random(this.seed);
 	}
 
 	@Override
@@ -182,11 +168,12 @@ public abstract class DistributedCommunityAlgorithm implements
 	 */
 	public void setMarker(String marker) {
 		if (marker == null) {
-			marker = "community";
+			this.nonUniqueMarker = "community";
 		}
-		this.marker = this.getClass().getName()
-				.substring(this.getClass().getName().lastIndexOf('.') + 1)
-				+ "." + instanceNumber + "." + marker;
+		else {
+			this.nonUniqueMarker = marker;
+		}
+		this.marker = this.toString() + "." + nonUniqueMarker;
 	}
 
 	/**
@@ -199,18 +186,24 @@ public abstract class DistributedCommunityAlgorithm implements
 	}
 
 	/**
-	 * Set the seed for this algorithm random number generator and creates or
-	 * update the random number generator accordingly.
+	 * Set the random number generator for this algorithm. For sake of
+	 * reproducibility, the given random number generator shall be initiated
+	 * with a controlled seed.
 	 * 
-	 * @param seed
+	 * @param rng
+	 *            an initialized java.util.Random object.
 	 */
-	public void setSeed(long seed) {
-		this.seed = new Long(seed);
+	public void setRandom(Random rng) {
+		this.rng = rng;
+	}
 
-		if (this.rng == null)
-			this.rng = new Random(seed);
-		else
-			this.rng.setSeed(seed);
+	/**
+	 * Get the random number generator currently used for this algorithm.
+	 * 
+	 * @return the current random number generator.
+	 */
+	public Random getRandom() {
+		return this.rng;
 	}
 
 	/**
@@ -231,7 +224,7 @@ public abstract class DistributedCommunityAlgorithm implements
 			Collections.shuffle(nodeSet, rng);
 			for (Node node : nodeSet) {
 				computeNode(node);
-				updateDisplay(node);
+				updateDisplayClass(node);
 			}
 			graphChanged = staticMode;
 		}
@@ -255,29 +248,16 @@ public abstract class DistributedCommunityAlgorithm implements
 	}
 
 	/**
-	 * Update the display attributes (label, shape, color, size) based on the
-	 * current assignment
+	 * Update the display class of the node based on its current community.
+	 * 
+	 * The class name is [marker]_[id] where "marker" is the attribute name used
+	 * to store the current community, and [id] the id of this community.
 	 * 
 	 * @param node
 	 */
-	protected void updateDisplay(Node node) {
-		Community community = (Community) node.getAttribute(marker);
-
-		/*
-		 * Update the label of this node
-		 */
-		node.setAttribute("label", node.getId() + "<" + community + ">");
-
-		/*
-		 * Set the color for this community
-		 */
-		Double c = new Double(community.id());
-		Double N = new Double(graph.getNodeCount());
-		Double C = new Double(Math.pow(2, 24));
-		Color col = new Color((int) (c * C / N));
-		node.setAttribute("ui.style", "fill-color: rgb(" + col.getRed() + ","
-				+ col.getGreen() + "," + col.getBlue() + ");");
-
+	protected void updateDisplayClass(Node node) {
+		node.setAttribute("ui.class", nonUniqueMarker 
+				+ "_" + ((Community)node.getAttribute(marker)).getId());
 	}
 
 	public void attributeChanged(Element element, String attribute,
