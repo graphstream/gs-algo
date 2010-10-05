@@ -80,11 +80,6 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	protected Random rng;
 
 	/**
-	 * Seed used for the random number generator
-	 */
-	protected Long seed;
-
-	/**
 	 * Create a new distributed community detection algorithm, without attaching
 	 * it to a graph
 	 */
@@ -137,7 +132,11 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	/**
 	 * Initialize the distributed community detection algorithm, attaching it to
 	 * the specified graph, and using the default marker to store the community
-	 * attribute
+	 * attribute.
+	 * 
+	 * By default an uncontrolled random number generator will be used. For sake
+	 * of reproducibility, use the {@link #setRandom()} function to use a
+	 * controlled random number generator with this algorithm.
 	 * 
 	 * @param graph
 	 */
@@ -152,12 +151,10 @@ public abstract class DecentralizedCommunityAlgorithm implements
 		this.graph = graph;
 
 		/*
-		 * Initiate the random network generator
+		 * Initiate an uncontrolled random network generator
 		 */
-		if (this.seed == null)
+		if (this.rng == null)
 			rng = new Random();
-		else
-			rng = new Random(this.seed);
 	}
 
 	@Override
@@ -199,18 +196,24 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	}
 
 	/**
-	 * Set the seed for this algorithm random number generator and creates or
-	 * update the random number generator accordingly.
+	 * Set the random number generator for this algorithm. For sake of
+	 * reproducibility, the given random number generator shall be initiated
+	 * with a controlled seed.
 	 * 
-	 * @param seed
+	 * @param rng
+	 *            an initialized java.util.Random object.
 	 */
-	public void setSeed(long seed) {
-		this.seed = new Long(seed);
+	public void setRandom(Random rng) {
+		this.rng = rng;
+	}
 
-		if (this.rng == null)
-			this.rng = new Random(seed);
-		else
-			this.rng.setSeed(seed);
+	/**
+	 * Get the random number generator currently used for this algorithm.
+	 * 
+	 * @return the current random number generator.
+	 */
+	public Random getRandom() {
+		return this.rng;
 	}
 
 	/**
