@@ -47,16 +47,6 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	protected Graph graph;
 
 	/**
-	 * Instance number of the distributed community detection algorithms.
-	 */
-	protected static int ALGORITHMS_INSTANCE_NUMBER = 0;
-
-	/**
-	 * Instance number of this particular algorithm instance.
-	 */
-	protected int instanceNumber;
-
-	/**
 	 * Name of the attribute marking the communities. Default is "community".
 	 * This is prefixed by [AlgorithmClass].[InstanceNumber] to make this unique
 	 * for each instance of the algorithm.
@@ -84,8 +74,6 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 * it to a graph
 	 */
 	public DecentralizedCommunityAlgorithm() {
-		instanceNumber = ALGORITHMS_INSTANCE_NUMBER;
-		ALGORITHMS_INSTANCE_NUMBER++;
 	}
 
 	/**
@@ -181,9 +169,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 		if (marker == null) {
 			marker = "community";
 		}
-		this.marker = this.getClass().getName()
-				.substring(this.getClass().getName().lastIndexOf('.') + 1)
-				+ "." + instanceNumber + "." + marker;
+		this.marker = this.toString() + "." + marker;
 	}
 
 	/**
