@@ -48,11 +48,12 @@ public abstract class DecentralizedCommunityAlgorithm implements
 
 	/**
 	 * Name of the attribute marking the communities. Default is "community".
-	 * This is prefixed by [AlgorithmClass].[InstanceNumber] to make this unique
+	 * This is prefixed by the algorithm class and memory location to make this unique
 	 * for each instance of the algorithm.
 	 */
 	protected String marker;
-
+	protected String nonUniqueMarker;
+	
 	/**
 	 * Set to false after {@link #compute()}, unless static mode is set.
 	 */
@@ -167,9 +168,12 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 */
 	public void setMarker(String marker) {
 		if (marker == null) {
-			marker = "community";
+			this.nonUniqueMarker = "community";
 		}
-		this.marker = this.toString() + "." + marker;
+		else {
+			this.nonUniqueMarker = marker;
+		}
+		this.marker = this.toString() + "." + nonUniqueMarker;
 	}
 
 	/**
@@ -220,7 +224,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 			Collections.shuffle(nodeSet, rng);
 			for (Node node : nodeSet) {
 				computeNode(node);
-				updateDisplay(node);
+				updateDisplayClass(node);
 			}
 			graphChanged = staticMode;
 		}
@@ -244,29 +248,16 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	}
 
 	/**
-	 * Update the display attributes (label, shape, color, size) based on the
-	 * current assignment
+	 * Update the display class of the node based on its current community.
+	 * 
+	 * The class name is [marker]_[id] where "marker" is the attribute name used
+	 * to store the current community, and [id] the id of this community.
 	 * 
 	 * @param node
 	 */
-	protected void updateDisplay(Node node) {
-		Community community = (Community) node.getAttribute(marker);
-
-		/*
-		 * Update the label of this node
-		 */
-		node.setAttribute("label", node.getId() + "<" + community + ">");
-
-		/*
-		 * Set the color for this community
-		 */
-		Double c = new Double(community.id());
-		Double N = new Double(graph.getNodeCount());
-		Double C = new Double(Math.pow(2, 24));
-		Color col = new Color((int) (c * C / N));
-		node.setAttribute("ui.style", "fill-color: rgb(" + col.getRed() + ","
-				+ col.getGreen() + "," + col.getBlue() + ");");
-
+	protected void updateDisplayClass(Node node) {
+		node.setAttribute("ui.class", nonUniqueMarker 
+				+ "_" + ((Community)node.getAttribute(marker)).getId());
 	}
 
 	public void attributeChanged(Element element, String attribute,

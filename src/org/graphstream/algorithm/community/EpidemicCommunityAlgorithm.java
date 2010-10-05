@@ -145,17 +145,4 @@ public class EpidemicCommunityAlgorithm extends DecentralizedCommunityAlgorithm 
 		super.originateCommunity(node);
 		node.setAttribute(marker + ".score", 0.0);
 	}
-
-	@Override
-	protected void updateDisplay(Node node) {
-		super.updateDisplay(node);
-
-		Double score = (Double) node.getAttribute(marker + ".score");
-		String scoreStr = String.format("%.3f", score);
-		node.setAttribute("label", node.getAttribute("label") + "(" + scoreStr
-				+ ")");
-		node.setAttribute("ui.style", node.getAttribute("ui.style") + " size: "
-				+ 5 * score + "px;");
-	}
-
 }

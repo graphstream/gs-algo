@@ -281,12 +281,4 @@ public class Leung extends EpidemicCommunityAlgorithm {
 		// Correct the original community score for the Leung algorithm
 		node.setAttribute(marker + ".score", 1.0);
 	}
-
-	@Override
-	protected void updateDisplay(Node node) {
-		super.updateDisplay(node);
-		node.setAttribute("ui.style", node.getAttribute("ui.style") + " size: "
-				+ 20 + "px;");
-	}
-
 }
