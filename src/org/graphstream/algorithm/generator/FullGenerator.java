@@ -41,8 +41,7 @@ package org.graphstream.algorithm.generator;
  * <p>
  * A list of attributes can be given for nodes and edges. In this case each new
  * node or edge added will have this attribute and the value will be a randomly
- * chosen number. The range in which these numbers are chosen can be
- * specified.
+ * chosen number. The range in which these numbers are chosen can be specified.
  * </p>
  * 
  * <p>
@@ -52,20 +51,17 @@ package org.graphstream.algorithm.generator;
  * 
  * @since 2007
  */
-public class FullGenerator
-	extends BaseGenerator
-{
+public class FullGenerator extends BaseGenerator {
 	/**
 	 * Used to generate node names.
 	 */
 	protected int nodeNames = 0;
-	
+
 	/**
 	 * New full graph generator. By default no attributes are added to nodes and
 	 * edges, and edges are not directed.
 	 */
-	public FullGenerator()
-	{
+	public FullGenerator() {
 		super();
 		keepNodesId = true;
 	}
@@ -78,9 +74,8 @@ public class FullGenerator
 	 * @param randomlyDirectedEdges
 	 *            randomly direct generated edges.
 	 */
-	public FullGenerator( boolean directed, boolean randomlyDirectedEdges )
-	{
-		super( directed, randomlyDirectedEdges );
+	public FullGenerator(boolean directed, boolean randomlyDirectedEdges) {
+		super(directed, randomlyDirectedEdges);
 		keepNodesId = true;
 	}
 
@@ -98,10 +93,9 @@ public class FullGenerator
 	 *            put an attribute by that name on each edge with a random
 	 *            numeric value.
 	 */
-	public FullGenerator( boolean directed, boolean randomlyDirectedEdges,
-			String nodeAttribute, String edgeAttribute )
-	{
-		super( directed, randomlyDirectedEdges, nodeAttribute, edgeAttribute );
+	public FullGenerator(boolean directed, boolean randomlyDirectedEdges,
+			String nodeAttribute, String edgeAttribute) {
+		super(directed, randomlyDirectedEdges, nodeAttribute, edgeAttribute);
 		keepNodesId = true;
 	}
 
@@ -110,11 +104,10 @@ public class FullGenerator
 	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#begin()
 	 */
-	public void begin()
-	{
-		String id = Integer.toString( nodeNames++ );
+	public void begin() {
+		String id = Integer.toString(nodeNames++);
 
-		addNode( id );
+		addNode(id);
 	}
 
 	/**
@@ -122,27 +115,25 @@ public class FullGenerator
 	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
 	 */
-	public boolean nextEvents()
-	{
-		String id = Integer.toString( nodeNames++ );
-		
-		addNode( id );
-		
-		for( String otherId: nodes )
-		{
-			if( otherId != id )		// We can compare refs safely here.
-				addEdge( null, id, otherId );
+	public boolean nextEvents() {
+		String id = Integer.toString(nodeNames++);
+
+		addNode(id);
+
+		for (String otherId : nodes) {
+			if (otherId != id) // We can compare refs safely here.
+				addEdge(null, id, otherId);
 		}
-		
+
 		return true;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#end()
 	 */
-	public void end()
-	{
-		
+	public void end() {
+
 	}
 }

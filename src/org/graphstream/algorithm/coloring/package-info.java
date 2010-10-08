@@ -25,3 +25,4 @@
  * Various graph colouring algorithms.
  */
 package org.graphstream.algorithm.coloring;
+

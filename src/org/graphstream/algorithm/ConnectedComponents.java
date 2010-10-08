@@ -33,7 +33,7 @@ import org.graphstream.stream.SinkAdapter;
 import org.util.set.FixedArrayList;
 
 /**
- * Compute and update the number of connected components of a dynamic graph. 
+ * Compute and update the number of connected components of a dynamic graph.
  * 
  * <p>
  * This algorithm computes the connected components of one given graph. The
@@ -43,38 +43,36 @@ import org.util.set.FixedArrayList;
  * consider the direction of the edges. The number of connected components of an
  * undirected graph is equal to the number of connected components of the same
  * directed graph. See <a
- * href="http://en.wikipedia.org/wiki/Connected_component_%28graph_theory%29">wikipedia</a>
- * for details.
+ * href="http://en.wikipedia.org/wiki/Connected_component_%28graph_theory%29"
+ * >wikipedia</a> for details.
  * </p>
  * 
  * <h2>Dynamics</h2>
  * 
  * <p>
  * This algorithm tries to handle the dynamics of the graph, trying not to
- * recompute all from scratch at each change (kind of
- * re-optimization). In this way, each instance of the algorithm is registered
- * as a graph listener. Each change in the graph topology may affect the
- * algorithm.
+ * recompute all from scratch at each change (kind of re-optimization). In this
+ * way, each instance of the algorithm is registered as a graph listener. Each
+ * change in the graph topology may affect the algorithm.
  * </p>
  * 
  * <h2>Usage</h2>
  * 
  * <p>
  * To start using the algorithm, you first need an instance of
- * {@link org.graphstream.graph.Graph}, then you only have to
- * instantiate the algorithm class. Whether you specify a reference to the graph
- * in the constructor or you set it with the {@link #init(Graph)}
- * method.
+ * {@link org.graphstream.graph.Graph}, then you only have to instantiate the
+ * algorithm class. Whether you specify a reference to the graph in the
+ * constructor or you set it with the {@link #init(Graph)} method.
  * </p>
  * 
  * <p>
  * The computation of the algorithm starts only when the graph is specified with
- * the {@link #init(Graph)} method or with the appropriated
- * constructor. In case of a static graph, you may call the {@link #compute()}
- * method. In case of a dynamic graph, the algorithm will compute itself
- * automatically when an event (node or edge added or removed) occurs.
+ * the {@link #init(Graph)} method or with the appropriated constructor. In case
+ * of a static graph, you may call the {@link #compute()} method. In case of a
+ * dynamic graph, the algorithm will compute itself automatically when an event
+ * (node or edge added or removed) occurs.
  * </p>
- *
+ * 
  * <p>
  * Finally you may ask the algorithm for the number of connected components at
  * any moment with a call to the {@link #getConnectedComponentsCount()} method.
@@ -84,21 +82,21 @@ import org.util.set.FixedArrayList;
  * 
  * <p>
  * This algorithm allows to consider some edges as non existent by marking them
- * with a specific attribute. Use the {@link #setCutAttribute(String)} to 
+ * with a specific attribute. Use the {@link #setCutAttribute(String)} to
  * specify the name of the attribute that, if present on an edge (whatever be
- * its value, excepted null, naturally), will make it invisible to the algorithm.
- * This allows to create connected components without really modifying the
- * graph. The name of the attribute is given to the {@link #setCutAttribute(String)}
- * method. The value of the attribute can be chosen arbitrarily, but cannot be
- * null.
+ * its value, excepted null, naturally), will make it invisible to the
+ * algorithm. This allows to create connected components without really
+ * modifying the graph. The name of the attribute is given to the
+ * {@link #setCutAttribute(String)} method. The value of the attribute can be
+ * chosen arbitrarily, but cannot be null.
  * </p>
  * 
  * <p>
- * You can tag each node with an integer that identifies the component it pertains
- * to using {@link #setCountAttribute(String)}. The argument of this method is
- * an arbitrary name that will be used as attribute on each node of the graph.
- * The value of this attribute will be an integer (counting from zero) that
- * is different for each connected component.
+ * You can tag each node with an integer that identifies the component it
+ * pertains to using {@link #setCountAttribute(String)}. The argument of this
+ * method is an arbitrary name that will be used as attribute on each node of
+ * the graph. The value of this attribute will be an integer (counting from
+ * zero) that is different for each connected component.
  * </p>
  * 
  * 
@@ -112,10 +110,9 @@ import org.util.set.FixedArrayList;
  *             the number of nodes concerned by the changes (k <= n), the
  *             complexity is O(k).
  */
-public class ConnectedComponents
-	extends SinkAdapter implements DynamicAlgorithm
-{
-//	private static final String CONNECTED_COMPONENT = "connectedComponent";
+public class ConnectedComponents extends SinkAdapter implements
+		DynamicAlgorithm {
+	// private static final String CONNECTED_COMPONENT = "connectedComponent";
 
 	/**
 	 * Map of connected components.
@@ -141,23 +138,21 @@ public class ConnectedComponents
 	 * A token to decide whether or not the algorithm is started.
 	 */
 	protected boolean started = false;
-	
+
 	/**
 	 * Optional edge attribute that make it "invisible". The algorithm will find
 	 * two connected components if such an edge is the only link between two
 	 * node groups.
 	 */
 	protected String cutAttribute = null;
-	
-	
+
 	/**
 	 * Optional attribute to set on each node of a given component. This
 	 * attribute will have for value an index different for each component.
 	 */
 	protected String countAttribute = null;
-	
-	public ConnectedComponents()
-	{
+
+	public ConnectedComponents() {
 		this(null);
 	}
 
@@ -168,11 +163,11 @@ public class ConnectedComponents
 	 * @param graph
 	 *            The graph who's connected components will be computed.
 	 */
-	public ConnectedComponents( Graph graph )
-	{
-		ids.add( "" );	// The dummy first identifier (since zero is a special value).
-		
-		init( graph );
+	public ConnectedComponents(Graph graph) {
+		ids.add(""); // The dummy first identifier (since zero is a special
+						// value).
+
+		init(graph);
 
 		connectedComponentsMap = new HashMap<Node, Integer>();
 	}
@@ -180,10 +175,8 @@ public class ConnectedComponents
 	/**
 	 * Ask the algorithm for the number of connected components.
 	 */
-	public int getConnectedComponentsCount()
-	{
-		if( !started )
-		{
+	public int getConnectedComponentsCount() {
+		if (!started) {
 			compute();
 		}
 
@@ -195,32 +188,30 @@ public class ConnectedComponents
 	 * 
 	 * @return The new component identifier.
 	 */
-	protected int addIdentifier()
-	{
-		ids.add( "" );
+	protected int addIdentifier() {
+		ids.add("");
 
 		return ids.getLastIndex();
 	}
-	
+
 	/**
 	 * Remove a identifier that is no more used.
 	 * 
 	 * @param identifier
 	 *            The identifier to remove.
 	 */
-	protected void removeIdentifier( int identifier )
-	{	
-/*		// Eventual verification to ensure no used identifier is removed.
- 
- 		for( Node node: graph.getNodeSet() )
-		{
-			if( connectedComponentsMap.get( node ) == identifier )
-				System.err.printf( "     **** ID %d STILL USED BY node %s%n", identifier, node.getId() );
-		}
-*/		
-		ids.remove( identifier );
+	protected void removeIdentifier(int identifier) {
+		/*
+		 * // Eventual verification to ensure no used identifier is removed.
+		 * 
+		 * for( Node node: graph.getNodeSet() ) { if(
+		 * connectedComponentsMap.get( node ) == identifier ) System.err.printf(
+		 * "     **** ID %d STILL USED BY node %s%n", identifier, node.getId()
+		 * ); }
+		 */
+		ids.remove(identifier);
 	}
-	
+
 	/**
 	 * Enable (or disable by passing null) an optional attribute that makes
 	 * edges that have it invisible (as if the edge did not existed). Be
@@ -231,14 +222,12 @@ public class ConnectedComponents
 	 *            The name for the cut attribute or null if the cut attribute
 	 *            option must be disabled.
 	 */
-	public void setCutAttribute( String cutAttribute )
-	{
+	public void setCutAttribute(String cutAttribute) {
 		this.cutAttribute = cutAttribute;
-		
+
 		compute();
 	}
-	
-	
+
 	/**
 	 * Enable (or disable by passing null for countAttribute) an optional
 	 * attribute that will be assigned to each node. The value of this attribute
@@ -248,106 +237,98 @@ public class ConnectedComponents
 	 *            The name of the attribute to put on each node (pass null to
 	 *            disable this feature).
 	 */
-	public void setCountAttribute( String countAttribute )
-	{
+	public void setCountAttribute(String countAttribute) {
 		removeMarks();
 		this.countAttribute = countAttribute;
 		remapMarks();
 	}
-	
-	protected void removeMarks()
-	{
+
+	protected void removeMarks() {
 		Iterator<? extends Node> nodes = graph.getNodeIterator();
-			
-		while( nodes.hasNext() )
-		{
+
+		while (nodes.hasNext()) {
 			Node node = nodes.next();
-			
-			if( countAttribute == null )
-				node.removeAttribute( countAttribute );
+
+			if (countAttribute == null)
+				node.removeAttribute(countAttribute);
 		}
 	}
-	
-	protected void remapMarks()
-	{
-		
-		if( countAttribute != null )
-		{
+
+	protected void remapMarks() {
+
+		if (countAttribute != null) {
 			Iterator<? extends Node> nodes = graph.getNodeIterator();
-			
-			while( nodes.hasNext() )
-			{
-				Node v  = nodes.next();
-				int  id = connectedComponentsMap.get( v );
-				
-				v.addAttribute( countAttribute, id-1 );
+
+			while (nodes.hasNext()) {
+				Node v = nodes.next();
+				int id = connectedComponentsMap.get(v);
+
+				v.addAttribute(countAttribute, id - 1);
 			}
 		}
-	}
-	
-	/*
-	 * (non-Javadoc)
-	 * @see org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
-	 */
-	public void init( Graph graph )
-	{
-		if( this.graph != null )
-			this.graph.removeSink( this );
-		
-		this.graph = graph;
-		
-		this.graph.addSink( this );
 	}
 
 	/*
 	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
+	 */
+	public void init(Graph graph) {
+		if (this.graph != null)
+			this.graph.removeSink(this);
+
+		this.graph = graph;
+
+		this.graph.addSink(this);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.graphstream.algorithm.Algorithm#compute()
 	 */
-	public void compute()
-	{
-		connectedComponents   = 0;
-		started               = true;
+	public void compute() {
+		connectedComponents = 0;
+		started = true;
 
 		ids.clear();
-		ids.add( "" );	// The dummy first identifier (since zero is a special value).
-		
+		ids.add(""); // The dummy first identifier (since zero is a special
+						// value).
+
 		Iterator<? extends Node> nodes = graph.getNodeIterator();
 
-		while( nodes.hasNext() )
-		{
-			connectedComponentsMap.put( nodes.next(), 0 );
+		while (nodes.hasNext()) {
+			connectedComponentsMap.put(nodes.next(), 0);
 		}
-		
+
 		nodes = graph.getNodeIterator();
 
-		while( nodes.hasNext() )
-		{
+		while (nodes.hasNext()) {
 			Node v = nodes.next();
-			
-			if( connectedComponentsMap.get( v ) == 0 )
-			{
+
+			if (connectedComponentsMap.get(v) == 0) {
 				connectedComponents++;
 
-				computeConnectedComponent( v, addIdentifier(), null );
+				computeConnectedComponent(v, addIdentifier(), null);
 			}
 		}
-		
+
 		remapMarks();
 	}
-	
-	/*
-     * (non-Javadoc)
-     * @see org.graphstream.algorithm.DynamicAlgorithm#terminate()
-     */
-	public void terminate()
-	{
-		if( graph != null )
-		{
-			graph.removeSink( this );
 
-			graph   = null;
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.graphstream.algorithm.DynamicAlgorithm#terminate()
+	 */
+	public void terminate() {
+		if (graph != null) {
+			graph.removeSink(this);
+
+			graph = null;
 			started = false;
-			
+
 			connectedComponents = 0;
 		}
 	}
@@ -364,44 +345,37 @@ public class ConnectedComponents
 	 *            An optional edge that may not be considered (useful when
 	 *            receiving a {@link #edgeRemoved(String, long, String)} event.
 	 */
-	private void computeConnectedComponent( Node v, int id, Edge exception )
-	{
+	private void computeConnectedComponent(Node v, int id, Edge exception) {
 		LinkedList<Node> open = new LinkedList<Node>();
 
-		open.add( v );
-		
-		while( ! open.isEmpty() )
-		{
+		open.add(v);
+
+		while (!open.isEmpty()) {
 			Node n = open.remove();
 
-			connectedComponentsMap.put( n, id );
-			
-			markNode( n, id );
-			
+			connectedComponentsMap.put(n, id);
+
+			markNode(n, id);
+
 			Iterator<? extends Edge> edges = n.getEdgeIterator();
 
-			while( edges.hasNext() )
-			{
+			while (edges.hasNext()) {
 				Edge e = edges.next();
-				
-				if( e != exception )
-				{
-					if( ( cutAttribute != null ) ? ( ! e.hasAttribute( cutAttribute ) ) : true )
-					{
-						Node n2 = e.getOpposite( n );
-		
-						if(  connectedComponentsMap.get( n2 ) != id )
-						{
-							open.add( n2 );
-							connectedComponentsMap.put( n2, id );
-							markNode( n2, id ); /* useless */
+
+				if (e != exception) {
+					if ((cutAttribute != null) ? (!e.hasAttribute(cutAttribute))
+							: true) {
+						Node n2 = e.getOpposite(n);
+
+						if (connectedComponentsMap.get(n2) != id) {
+							open.add(n2);
+							connectedComponentsMap.put(n2, id);
+							markNode(n2, id); /* useless */
 						}
 						// Also work with (but slower):
 						/*
-						 if(  connectedComponentsMap.get( n2 ) != id  && ! open.contains(n2) )
-						{
-							open.add( n2 );
-						}
+						 * if( connectedComponentsMap.get( n2 ) != id && !
+						 * open.contains(n2) ) { open.add( n2 ); }
 						 */
 
 					}
@@ -409,40 +383,36 @@ public class ConnectedComponents
 			}
 		}
 	}
-	
-	protected void markNode( Node node, int id )
-	{
-		if( countAttribute != null )
-		{
-			node.addAttribute( countAttribute, id-1 );		
+
+	protected void markNode(Node node, int id) {
+		if (countAttribute != null) {
+			node.addAttribute(countAttribute, id - 1);
 		}
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.graphstream.stream.SinkAdapter#edgeAdded(java.lang.String, long, java.lang.String, java.lang.String, java.lang.String, boolean)
+	 * 
+	 * @see org.graphstream.stream.SinkAdapter#edgeAdded(java.lang.String, long,
+	 * java.lang.String, java.lang.String, java.lang.String, boolean)
 	 */
-	public void edgeAdded( String graphId, long timeId, String edgeId, String fromNodeId, String toNodeId, boolean directed )
-	{
-		if( ! started && graph != null )
-		{
+	public void edgeAdded(String graphId, long timeId, String edgeId,
+			String fromNodeId, String toNodeId, boolean directed) {
+		if (!started && graph != null) {
 			compute();
-		}
-		else if( started )
-		{
-			Edge edge = graph.getEdge( edgeId );
-			
-			if( edge != null )
-			{
-				if( ! ( connectedComponentsMap.get( edge.getNode0() ).equals( connectedComponentsMap.get( edge.getNode1() ) ) ) )
-				{
+		} else if (started) {
+			Edge edge = graph.getEdge(edgeId);
+
+			if (edge != null) {
+				if (!(connectedComponentsMap.get(edge.getNode0())
+						.equals(connectedComponentsMap.get(edge.getNode1())))) {
 					connectedComponents--;
-					
-					int id0 = connectedComponentsMap.get( edge.getNode0() );
-					int id1 = connectedComponentsMap.get( edge.getNode1() );
-	
-					computeConnectedComponent( edge.getNode1(), id0, edge );
-					removeIdentifier( id1 );
+
+					int id0 = connectedComponentsMap.get(edge.getNode0());
+					int id1 = connectedComponentsMap.get(edge.getNode1());
+
+					computeConnectedComponent(edge.getNode1(), id0, edge);
+					removeIdentifier(id1);
 				}
 			}
 		}
@@ -450,59 +420,52 @@ public class ConnectedComponents
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.graphstream.stream.SinkAdapter#nodeAdded(java.lang.String, long, java.lang.String)
+	 * 
+	 * @see org.graphstream.stream.SinkAdapter#nodeAdded(java.lang.String, long,
+	 * java.lang.String)
 	 */
-	public void nodeAdded( String graphId, long timeId, String nodeId )
-	{
-		if( ! started && graph != null )
-		{
+	public void nodeAdded(String graphId, long timeId, String nodeId) {
+		if (!started && graph != null) {
 			compute();
-		}
-		else if( started )
-		{
-			Node node = graph.getNode( nodeId );
-			
-			if( node != null )
-			{
+		} else if (started) {
+			Node node = graph.getNode(nodeId);
+
+			if (node != null) {
 				connectedComponents++;
-	
+
 				int id = addIdentifier();
-	
-				connectedComponentsMap.put( node, id );
-				markNode( node, id );
+
+				connectedComponentsMap.put(node, id);
+				markNode(node, id);
 			}
 		}
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.graphstream.stream.SinkAdapter#edgeRemoved(java.lang.String, long, java.lang.String)
+	 * 
+	 * @see org.graphstream.stream.SinkAdapter#edgeRemoved(java.lang.String,
+	 * long, java.lang.String)
 	 */
-	public void edgeRemoved( String graphId, long timeId, String edgeId )
-	{
-		if( ! started && graph != null )
-		{
+	public void edgeRemoved(String graphId, long timeId, String edgeId) {
+		if (!started && graph != null) {
 			compute();
 		}
 
-		if( started )
-		{
-			Edge edge = graph.getEdge( edgeId );
-			
-			if( edge != null )
-			{
-				int id    = addIdentifier();
-				int oldId = connectedComponentsMap.get( edge.getNode0() );
-	
-				computeConnectedComponent( edge.getNode0(), id, edge );
-				
-				if( !( connectedComponentsMap.get( edge.getNode0() ).equals( connectedComponentsMap.get( edge.getNode1() ) ) ) )
-				{
+		if (started) {
+			Edge edge = graph.getEdge(edgeId);
+
+			if (edge != null) {
+				int id = addIdentifier();
+				int oldId = connectedComponentsMap.get(edge.getNode0());
+
+				computeConnectedComponent(edge.getNode0(), id, edge);
+
+				if (!(connectedComponentsMap.get(edge.getNode0())
+						.equals(connectedComponentsMap.get(edge.getNode1())))) {
 					connectedComponents++;
-				}
-				else
-				{
-					removeIdentifier( oldId );
+				} else {
+					removeIdentifier(oldId);
 				}
 			}
 		}
@@ -510,92 +473,93 @@ public class ConnectedComponents
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.graphstream.stream.SinkAdapter#nodeRemoved(java.lang.String, long, java.lang.String)
+	 * 
+	 * @see org.graphstream.stream.SinkAdapter#nodeRemoved(java.lang.String,
+	 * long, java.lang.String)
 	 */
-	public void nodeRemoved( String graphId, long timeId, String nodeId )
-	{
-		if( !started && graph != null )
-		{
+	public void nodeRemoved(String graphId, long timeId, String nodeId) {
+		if (!started && graph != null) {
 			compute();
 		}
 
-		if( started )
-		{
-			Node node = graph.getNode( nodeId );
-			
-			if( node != null )
-			{
+		if (started) {
+			Node node = graph.getNode(nodeId);
+
+			if (node != null) {
 				connectedComponents--;
-				removeIdentifier( connectedComponentsMap.get( node ) );
+				removeIdentifier(connectedComponentsMap.get(node));
 			}
 		}
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * @see org.graphstream.stream.SinkAdapter#graphCleared(java.lang.String, long)
+	 * 
+	 * @see org.graphstream.stream.SinkAdapter#graphCleared(java.lang.String,
+	 * long)
 	 */
-	public void graphCleared( String graphId, long timeId )
-	{
+	public void graphCleared(String graphId, long timeId) {
 		terminate();
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.graphstream.stream.SinkAdapter#edgeAttributeAdded(java.lang.String, long, java.lang.String, java.lang.String, java.lang.Object)
+	 * 
+	 * @see
+	 * org.graphstream.stream.SinkAdapter#edgeAttributeAdded(java.lang.String,
+	 * long, java.lang.String, java.lang.String, java.lang.Object)
 	 */
-	public void edgeAttributeAdded( String graphId, long timeId, String edgeId, String attribute, Object value )
-    {
-		if( cutAttribute != null && attribute.equals( cutAttribute ) )
-		{
-			if( ! started && graph != null )
+	public void edgeAttributeAdded(String graphId, long timeId, String edgeId,
+			String attribute, Object value) {
+		if (cutAttribute != null && attribute.equals(cutAttribute)) {
+			if (!started && graph != null)
 				compute();
 
-			Edge edge = graph.getEdge( edgeId );
+			Edge edge = graph.getEdge(edgeId);
 
 			// The attribute is added. Do as if the edge was added.
-			
-			int id    = addIdentifier();
-			int oldId = connectedComponentsMap.get( edge.getNode0() );
-			
-			computeConnectedComponent( edge.getNode0(), id, edge );
-			
-			if( ! connectedComponentsMap.get( edge.getNode0() ).equals( connectedComponentsMap.get( edge.getNode1() ) ) )
-			{
+
+			int id = addIdentifier();
+			int oldId = connectedComponentsMap.get(edge.getNode0());
+
+			computeConnectedComponent(edge.getNode0(), id, edge);
+
+			if (!connectedComponentsMap.get(edge.getNode0()).equals(
+					connectedComponentsMap.get(edge.getNode1()))) {
 				connectedComponents++;
-			}
-			else
-			{
-				removeIdentifier( oldId );
+			} else {
+				removeIdentifier(oldId);
 			}
 		}
-    }
+	}
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.graphstream.stream.SinkAdapter#edgeAttributeRemoved(java.lang.String, long, java.lang.String, java.lang.String)
+	 * 
+	 * @see
+	 * org.graphstream.stream.SinkAdapter#edgeAttributeRemoved(java.lang.String,
+	 * long, java.lang.String, java.lang.String)
 	 */
-	public void edgeAttributeRemoved( String graphId, long timeId, String edgeId, String attribute )
-    {
-		if( cutAttribute != null && attribute.equals( cutAttribute ) )
-		{
-			if( ! started && graph != null )
+	public void edgeAttributeRemoved(String graphId, long timeId,
+			String edgeId, String attribute) {
+		if (cutAttribute != null && attribute.equals(cutAttribute)) {
+			if (!started && graph != null)
 				compute();
 
-			Edge edge = graph.getEdge( edgeId );
+			Edge edge = graph.getEdge(edgeId);
 
 			// The attribute is removed. Do as if the edge was removed.
-			
-			if( ! ( connectedComponentsMap.get( edge.getNode0() ).equals( connectedComponentsMap.get( edge.getNode1() ) ) ) )
-			{
-				connectedComponents--;
-				
-				int id0 = connectedComponentsMap.get( edge.getNode0() );
-				int id1 = connectedComponentsMap.get( edge.getNode1() );
 
-				computeConnectedComponent( edge.getNode1(), id0, edge );
-				removeIdentifier( id1 );
+			if (!(connectedComponentsMap.get(edge.getNode0())
+					.equals(connectedComponentsMap.get(edge.getNode1())))) {
+				connectedComponents--;
+
+				int id0 = connectedComponentsMap.get(edge.getNode0());
+				int id1 = connectedComponentsMap.get(edge.getNode1());
+
+				computeConnectedComponent(edge.getNode1(), id0, edge);
+				removeIdentifier(id1);
 			}
 		}
-    }
+	}
 }

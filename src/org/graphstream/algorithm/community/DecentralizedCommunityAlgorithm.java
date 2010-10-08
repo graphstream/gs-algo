@@ -48,12 +48,12 @@ public abstract class DecentralizedCommunityAlgorithm implements
 
 	/**
 	 * Name of the attribute marking the communities. Default is "community".
-	 * This is prefixed by the algorithm class and memory location to make this unique
-	 * for each instance of the algorithm.
+	 * This is prefixed by the algorithm class and memory location to make this
+	 * unique for each instance of the algorithm.
 	 */
 	protected String marker;
 	protected String nonUniqueMarker;
-	
+
 	/**
 	 * Set to false after {@link #compute()}, unless static mode is set.
 	 */
@@ -169,8 +169,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	public void setMarker(String marker) {
 		if (marker == null) {
 			this.nonUniqueMarker = "community";
-		}
-		else {
+		} else {
 			this.nonUniqueMarker = marker;
 		}
 		this.marker = this.toString() + "." + nonUniqueMarker;
@@ -256,8 +255,10 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 * @param node
 	 */
 	protected void updateDisplayClass(Node node) {
-		node.setAttribute("ui.class", nonUniqueMarker 
-				+ "_" + ((Community)node.getAttribute(marker)).getId());
+		node.setAttribute(
+				"ui.class",
+				nonUniqueMarker + "_"
+						+ ((Community) node.getAttribute(marker)).getId());
 	}
 
 	public void attributeChanged(Element element, String attribute,

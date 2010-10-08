@@ -574,14 +574,14 @@ public class Toolkit {
 	public static float modularity(Graph graph, String marker) {
 		return modularity(modularityMatrix(graph, communities(graph, marker)));
 	}
-	
+
 	/**
-	 * Computes the weighted modularity. This algorithm traverses the
-	 * graph to count nodes in communities. For this to work, there must exist
-	 * an attribute on each node whose value define the community the node
-	 * pertains to (see {@link #communities(Graph,String)}) and a attribute
-	 * on each edge storing their weight (all edges without this attribute will
-	 * be ignored in the computation).
+	 * Computes the weighted modularity. This algorithm traverses the graph to
+	 * count nodes in communities. For this to work, there must exist an
+	 * attribute on each node whose value define the community the node pertains
+	 * to (see {@link #communities(Graph,String)}) and a attribute on each edge
+	 * storing their weight (all edges without this attribute will be ignored in
+	 * the computation).
 	 * 
 	 * This method is an utility method that call:
 	 * <ul>
@@ -601,13 +601,15 @@ public class Toolkit {
 	 *             communities.
 	 * @see org.graphstream.algorithm.measure.Modularity
 	 */
-	public static float modularity(Graph graph, String marker, String weightMarker) {
-		return modularity(modularityMatrix(graph, communities(graph, marker), weightMarker));
+	public static float modularity(Graph graph, String marker,
+			String weightMarker) {
+		return modularity(modularityMatrix(graph, communities(graph, marker),
+				weightMarker));
 	}
 
 	/**
-	 * Count the number of edges between the two communities (works if
-	 * the two communities are the same).
+	 * Count the number of edges between the two communities (works if the two
+	 * communities are the same).
 	 * 
 	 * @param community
 	 *            The first community.
@@ -619,10 +621,10 @@ public class Toolkit {
 			HashSet<Node> otherCommunity) {
 		return modularityCountEdges(community, otherCommunity, null);
 	}
-	
+
 	/**
-	 * Count the total weight of edges between the two communities (works if
-	 * the two communities are the same).
+	 * Count the total weight of edges between the two communities (works if the
+	 * two communities are the same).
 	 * 
 	 * @param community
 	 *            The first community.
@@ -653,7 +655,8 @@ public class Toolkit {
 							if (weightMarker == null)
 								edgeCount++;
 							else if (edge.hasAttribute(weightMarker))
-								edgeCount += (Double)edge.getAttribute(weightMarker);
+								edgeCount += (Double) edge
+										.getAttribute(weightMarker);
 						}
 					}
 				}
@@ -671,7 +674,8 @@ public class Toolkit {
 							if (weightMarker == null)
 								edgeCount++;
 							else if (edge.hasAttribute(weightMarker))
-								edgeCount += (Double)edge.getAttribute(weightMarker);
+								edgeCount += (Double) edge
+										.getAttribute(weightMarker);
 						}
 					}
 				}

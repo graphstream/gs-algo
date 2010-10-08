@@ -39,9 +39,7 @@ import org.graphstream.stream.Source;
  * reading process needs to have a read access to the graph.
  * </p>
  */
-public interface Generator
-	extends Source
-{
+public interface Generator extends Source {
 	/**
 	 * Begin the graph generation. This usually is the place for initialization
 	 * of the generator. After calling this method, call the

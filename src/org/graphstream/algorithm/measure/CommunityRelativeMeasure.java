@@ -79,8 +79,8 @@ public abstract class CommunityRelativeMeasure extends CommunityMeasure {
 	// *
 	// * @param algo
 	// * Algorithm which results will be used for measurement.
-	//  * @param referenceMarker
-	//  *            Reference community assignment attribute name
+	// * @param referenceMarker
+	// * Reference community assignment attribute name
 	// */
 	// public CommunityMeasure(CommunityAlgorithm algo) {
 	// this.marker = algo.getMarker();

@@ -41,19 +41,17 @@ import java.util.ArrayList;
  * 
  * @since 20061128
  */
-public class PreferentialAttachmentGenerator
-	extends BaseGenerator
-{
+public class PreferentialAttachmentGenerator extends BaseGenerator {
 	/**
 	 * Degree of each node.
 	 */
 	protected ArrayList<Integer> degrees;
-	
+
 	/**
 	 * Maximal degree at time t.
 	 */
 	protected int degreeMax = 0;
-	
+
 	/**
 	 * Number of edges.
 	 */
@@ -62,23 +60,21 @@ public class PreferentialAttachmentGenerator
 	/**
 	 * New generator.
 	 */
-	public PreferentialAttachmentGenerator()
-	{
+	public PreferentialAttachmentGenerator() {
 		directed = false;
 	}
-	
+
 	/**
 	 * Start the generator. A single node is added.
 	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#begin()
 	 */
-	public void begin()
-	{
-		this.degrees   = new ArrayList<Integer>();
+	public void begin() {
+		this.degrees = new ArrayList<Integer>();
 		this.degreeMax = 0;
-		
-		addNode( "0" );
-		degrees.add( 0 );
+
+		addNode("0");
+		degrees.add(0);
 	}
 
 	/**
@@ -86,58 +82,53 @@ public class PreferentialAttachmentGenerator
 	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
 	 */
-	public boolean nextEvents()
-	{
+	public boolean nextEvents() {
 		// Generate a new node.
-		
-		int    index = degrees.size();
-		String id    = Integer.toString( index );
-		
-		addNode( id );
-		degrees.add( 0 );
-		
+
+		int index = degrees.size();
+		String id = Integer.toString(index);
+
+		addNode(id);
+		degrees.add(0);
+
 		// Compute the attachment probability of each previouly added node
-		
+
 		int sumDeg = edgesCount * 2;
-		
+
 		// Choose the node to attach to.
-		
+
 		float sumProba = 0;
-		float rnd      = (float) Math.random();
-		int   otherIdx = -1;
-		
-		for( int i=0; i<index; ++i )
-		{
-			float proba = sumDeg == 0 ? 1 : ((float)degrees.get( i )) / ((float)sumDeg);
-			
+		float rnd = (float) Math.random();
+		int otherIdx = -1;
+
+		for (int i = 0; i < index; ++i) {
+			float proba = sumDeg == 0 ? 1 : ((float) degrees.get(i))
+					/ ((float) sumDeg);
+
 			sumProba += proba;
-			
-			if( sumProba > rnd )
-			{
+
+			if (sumProba > rnd) {
 				otherIdx = i;
 				break;
 			}
 		}
-		
+
 		// Attach to the other node.
-		
-		if( otherIdx >= 0 )
-		{
-			String oid = Integer.toString( otherIdx );
-			String eid = id +  "_" + oid;
-			
-			addEdge( eid, oid, id );
+
+		if (otherIdx >= 0) {
+			String oid = Integer.toString(otherIdx);
+			String eid = id + "_" + oid;
+
+			addEdge(eid, oid, id);
 			edgesCount++;
-			degrees.set( otherIdx, degrees.get( otherIdx ) + 1 );
-			degrees.set( index, degrees.get( index ) + 1 );
+			degrees.set(otherIdx, degrees.get(otherIdx) + 1);
+			degrees.set(index, degrees.get(index) + 1);
+		} else {
+			System.err.printf("PreferentialAttachmentGenerator: Aieuu!%n");
 		}
-		else
-		{
-			System.err.printf( "PreferentialAttachmentGenerator: Aieuu!%n" );
-		}
-		
+
 		// It is always possible to add an element.
-		
+
 		return true;
 	}
 
@@ -146,10 +137,9 @@ public class PreferentialAttachmentGenerator
 	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#end()
 	 */
-	public void end()
-	{
+	public void end() {
 		degrees.clear();
-		degrees   = null;
+		degrees = null;
 		degreeMax = 0;
 	}
 }

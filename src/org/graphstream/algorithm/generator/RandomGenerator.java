@@ -59,9 +59,7 @@ package org.graphstream.algorithm.generator;
  * 
  * @since 2007
  */
-public class RandomGenerator
-	extends BaseGenerator
-{
+public class RandomGenerator extends BaseGenerator {
 	/**
 	 * Used to generate node names.
 	 */
@@ -71,15 +69,14 @@ public class RandomGenerator
 	 * The average degree of each node.
 	 */
 	protected int averageDegree = 1;
-	
+
 	/**
 	 * New full graph generator with default attributes.
 	 */
-	public RandomGenerator()
-	{
+	public RandomGenerator() {
 		this(2);
 	}
-	
+
 	/**
 	 * New full graph generator. By default no attributes are added to nodes and
 	 * edges, and edges are not directed.
@@ -87,8 +84,7 @@ public class RandomGenerator
 	 * @param averageDegree
 	 *            The average degree of nodes.
 	 */
-	public RandomGenerator( int averageDegree )
-	{
+	public RandomGenerator(int averageDegree) {
 		super();
 		enableKeepNodesId();
 		enableKeepEdgesId();
@@ -105,10 +101,9 @@ public class RandomGenerator
 	 * @param randomlyDirectedEdges
 	 *            randomly direct generated edges.
 	 */
-	public RandomGenerator( int averageDegree, boolean directed,
-			boolean randomlyDirectedEdges )
-	{
-		super( directed, randomlyDirectedEdges );
+	public RandomGenerator(int averageDegree, boolean directed,
+			boolean randomlyDirectedEdges) {
+		super(directed, randomlyDirectedEdges);
 		enableKeepNodesId();
 		enableKeepEdgesId();
 		this.averageDegree = averageDegree;
@@ -130,10 +125,10 @@ public class RandomGenerator
 	 *            put an attribute by that name on each edge with a random
 	 *            numeric value.
 	 */
-	public RandomGenerator( int averageDegree, boolean directed,
-			boolean randomlyDirectedEdges, String nodeAttribute, String edgeAttribute )
-	{
-		super( directed, randomlyDirectedEdges, nodeAttribute, edgeAttribute );
+	public RandomGenerator(int averageDegree, boolean directed,
+			boolean randomlyDirectedEdges, String nodeAttribute,
+			String edgeAttribute) {
+		super(directed, randomlyDirectedEdges, nodeAttribute, edgeAttribute);
 		enableKeepNodesId();
 		enableKeepEdgesId();
 		this.averageDegree = averageDegree;
@@ -144,10 +139,9 @@ public class RandomGenerator
 	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#begin()
 	 */
-	public void begin()
-	{
-		String id = Integer.toString( nodeNames++ );
-		addNode( id );
+	public void begin() {
+		String id = Integer.toString(nodeNames++);
+		addNode(id);
 	}
 
 	/**
@@ -155,70 +149,63 @@ public class RandomGenerator
 	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
 	 */
-	public boolean nextEvents()
-	{
-		String id = Integer.toString( nodeNames++ );
-		
-		addNode( id );
-		
+	public boolean nextEvents() {
+		String id = Integer.toString(nodeNames++);
+
+		addNode(id);
+
 		// Choose the degree of the node randomly, centred around the
 		// predefined average degree.
-		
-		int degree = poisson( averageDegree );
-		
+
+		int degree = poisson(averageDegree);
+
 		// For this degree, we choose randomly degree other nodes to be linked
 		// to the new node.
-		
-		for( int i=0; i<degree; ++i )
-		{
-			int    n       = random.nextInt( nodes.size() );
-			String otherId = nodes.get( n );
-			
-			if( otherId != id )
-			{
-				String edgeId = getEdgeId(id,otherId);
-				
-				if( ! edges.contains(edgeId) )
-					addEdge( edgeId, id, otherId );
+
+		for (int i = 0; i < degree; ++i) {
+			int n = random.nextInt(nodes.size());
+			String otherId = nodes.get(n);
+
+			if (otherId != id) {
+				String edgeId = getEdgeId(id, otherId);
+
+				if (!edges.contains(edgeId))
+					addEdge(edgeId, id, otherId);
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#end()
 	 */
-	public void end()
-	{
+	public void end() {
 	}
-	
-	protected String getEdgeId( String src, String trg )
-	{
-		if( src.compareTo(trg) < 0 )
-		{
-			return String.format( "%s_%s", src, trg );
-		}
-		else
-		{
-			return String.format( "%s_%s", trg, src );
+
+	protected String getEdgeId(String src, String trg) {
+		if (src.compareTo(trg) < 0) {
+			return String.format("%s_%s", src, trg);
+		} else {
+			return String.format("%s_%s", trg, src);
 		}
 	}
-	
+
 	/**
 	 * Generate a random integer centered around p.
-	 * @param p The average value of the random number.
+	 * 
+	 * @param p
+	 *            The average value of the random number.
 	 * @return A random int.
 	 */
-	protected int poisson( float p )
-	{
-		double a = Math.exp( -p );
-		int    n = 0;
+	protected int poisson(float p) {
+		double a = Math.exp(-p);
+		int n = 0;
 		double u = random.nextFloat();
 
-		while( u > a )
-		{
+		while (u > a) {
 			u *= random.nextFloat();
 			n++;
 		}

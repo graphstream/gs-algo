@@ -34,51 +34,46 @@ import org.graphstream.graph.Graph;
  * specifying the color attribute as <i>flagAttribute</i> and color of tree as
  * <i>flagOn</i>.
  */
-public abstract class AbstractSpanningTree
-	implements Algorithm
-{
+public abstract class AbstractSpanningTree implements Algorithm {
 	/**
 	 * The graph on which algorithm try to extract a spanning tree.
 	 */
-	protected Graph 		graph;
-	
+	protected Graph graph;
+
 	/**
-	 * Attribute which will be used to set is an edge
-	 * is in the spanning tree or not.
+	 * Attribute which will be used to set is an edge is in the spanning tree or
+	 * not.
 	 */
-	protected String		flagAttribute;
-	
+	protected String flagAttribute;
+
 	/**
-	 * Value of the <i>flagAttribute</i> if the edge is
-	 * in the spanning tree.
+	 * Value of the <i>flagAttribute</i> if the edge is in the spanning tree.
 	 */
-	protected Object		flagOn;
-	
+	protected Object flagOn;
+
 	/**
 	 * Value of the <i>flagAttribute</i> if the edge is not in the spanning
 	 * tree.
 	 */
-	protected Object		flagOff;
-	
+	protected Object flagOff;
+
 	/**
 	 * Create a new SpanningTree algorithm.
 	 */
-	public AbstractSpanningTree()
-	{
-		this( "SpanningTree.flag" );
+	public AbstractSpanningTree() {
+		this("SpanningTree.flag");
 	}
-	
+
 	/**
 	 * Create a new SpanningTree algorithm.
 	 * 
 	 * @param flagAttribute
 	 *            attribute used to compare edges
 	 */
-	public AbstractSpanningTree( String flagAttribute )
-	{
-		this( flagAttribute, true, false );
+	public AbstractSpanningTree(String flagAttribute) {
+		this(flagAttribute, true, false);
 	}
-	
+
 	/**
 	 * Create a new SpanningTree algorithm.
 	 * 
@@ -91,136 +86,129 @@ public abstract class AbstractSpanningTree
 	 *            value of the <i>flagAttribute</i> if edge is not in the
 	 *            spanning tree
 	 */
-	public AbstractSpanningTree( String flagAttribute,
-			Object flagOn, Object flagOff )
-	{
+	public AbstractSpanningTree(String flagAttribute, Object flagOn,
+			Object flagOff) {
 		this.flagAttribute = flagAttribute;
-		
-		this.flagOn 	= flagOn;
-		this.flagOff 	= flagOff;
+
+		this.flagOn = flagOn;
+		this.flagOff = flagOff;
 	}
 
 	/**
-	 * Get key attribute which will be used to set if edges are in the spanning tree, or not.
+	 * Get key attribute which will be used to set if edges are in the spanning
+	 * tree, or not.
 	 * 
 	 * @return flag attribute
 	 */
-	public String getFlagAttribute()
-	{
+	public String getFlagAttribute() {
 		return this.flagAttribute;
 	}
-	
+
 	/**
 	 * Set the flag attribute.
 	 * 
-	 * @param newFlagAttribute new attribute used
+	 * @param newFlagAttribute
+	 *            new attribute used
 	 */
-	public void setFlagAttribute( String newFlagAttribute )
-	{
+	public void setFlagAttribute(String newFlagAttribute) {
 		this.flagAttribute = newFlagAttribute;
 	}
-	
+
 	/**
 	 * Get value used to set that an edge is in the spanning tree.
 	 * 
 	 * @return on value
 	 */
-	
-	public Object getFlagOn()
-	{
+
+	public Object getFlagOn() {
 		return this.flagOn;
 	}
-	
+
 	/**
 	 * Set value used to set that an edge is in the spanning tree.
 	 * 
-	 * @param newFlagOn on value
+	 * @param newFlagOn
+	 *            on value
 	 */
-	public void setFlagOn( Object newFlagOn )
-	{
-		if( ! this.flagOff.equals( newFlagOn ) )
+	public void setFlagOn(Object newFlagOn) {
+		if (!this.flagOff.equals(newFlagOn))
 			this.flagOn = newFlagOn;
 	}
-	
+
 	/**
 	 * Get value used to set that an edge is not in the spanning tree.
 	 * 
 	 * @return off value
 	 */
-	public Object getFlagOff()
-	{
+	public Object getFlagOff() {
 		return this.flagOff;
 	}
-	
+
 	/**
 	 * Set value used to set that an edge is not in the spanning tree.
 	 * 
-	 * @param newFlagOff off value
+	 * @param newFlagOff
+	 *            off value
 	 */
-	public void setFlagOff( Object newFlagOff )
-	{
-		if( ! this.flagOn.equals( newFlagOff ) )
+	public void setFlagOff(Object newFlagOff) {
+		if (!this.flagOn.equals(newFlagOff))
 			this.flagOff = newFlagOff;
 	}
-	
-// Protected Access
+
+	// Protected Access
 
 	/**
 	 * Add an edge to the spanning tree.
 	 * 
-	 * @param e edge to add
+	 * @param e
+	 *            edge to add
 	 */
-	protected void edgeOn( Edge e )
-	{
-		e.changeAttribute( flagAttribute, flagOn );
+	protected void edgeOn(Edge e) {
+		e.changeAttribute(flagAttribute, flagOn);
 	}
-	
+
 	/**
 	 * Remove an edge of the spanning tree.
 	 * 
-	 * @param e edge to remove
+	 * @param e
+	 *            edge to remove
 	 */
-	protected void edgeOff( Edge e )
-	{
-		e.changeAttribute( flagAttribute, flagOff );
+	protected void edgeOff(Edge e) {
+		e.changeAttribute(flagAttribute, flagOff);
 	}
-	
+
 	/**
 	 * Reset cluster and flag attribute values.
 	 */
-	protected void resetFlags()
-	{
+	protected void resetFlags() {
 		Iterator<? extends Edge> iteE;
-		
+
 		iteE = graph.getEdgeIterator();
-		
-		while( iteE.hasNext() )
-			edgeOff( iteE.next() );
+
+		while (iteE.hasNext())
+			edgeOff(iteE.next());
 	}
-	
+
 	/**
-	 * Method that will be implemented by spanning tree's algorithms
-	 * to build the tree.
+	 * Method that will be implemented by spanning tree's algorithms to build
+	 * the tree.
 	 */
 	protected abstract void makeTree();
-	
-// Algorithm interface
 
-	public void init( Graph graph )
-	{
+	// Algorithm interface
+
+	public void init(Graph graph) {
 		this.graph = graph;
 	}
-	
+
 	/**
 	 * Compute the spanning tree using Kruskal's algorithm.
 	 */
-	public void compute()
-	{
-		if( this.graph == null )
-		{
+	public void compute() {
+		if (this.graph == null) {
 			return;
 		}
-		
+
 		resetFlags();
 		makeTree();
 	}

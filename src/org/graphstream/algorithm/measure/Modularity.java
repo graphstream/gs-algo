@@ -77,8 +77,8 @@ public class Modularity extends CommunityMeasure {
 	}
 
 	/**
-	 * Enables weighted extension of the modularity using the
-	 * given weightMarker for edge weights.
+	 * Enables weighted extension of the modularity using the given weightMarker
+	 * for edge weights.
 	 * 
 	 * @param weightMarker
 	 *            name of the attribute marking the weight of edges.
