@@ -18,22 +18,24 @@ in your class path.
 Authors
 -------
 
-This crap is made by:
+The GraphStream team:
 
 Julien Baudry <julien.baudry@graphstream-project.org>
 Antoine Dutot <antoine.dutot@graphstream-project.org>
 Yoann Pigné <yoann.pigne@graphstream-project.org> 
 Guilhelm Savin <guilhelm.savin@graphstream-project.org>
 
-Contributor:
+
+Contributors:
 
 Frédéric Guinand <frederic.guinand@univ-lehavre.fr>
+Guillaume-Jean Herbiet <guillaume-jean@herbiet.net>
 
 
 Help
 ----
 
-You may check the documentation on the website (www.graphstream-project.org). 
+You may check the documentation on the website (http://graphstream-project.org). 
 You may also share your questions on the mailing list at 
 http://sympa.litislab.fr/sympa/subscribe/graphstream-users 
 

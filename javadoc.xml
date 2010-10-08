@@ -17,7 +17,8 @@
         	splitindex="true" 
         	use="true" 
         	version="true" >
-        	<tag name="complexity" scope="all" description="Complexity:"/>
+        	<tag name="complexity" scope="all" description="Computational Complexity:"/>
+        	<tag name="reference" scope="all" description="Scientific Reference:"/>
         </javadoc>
     </target>
 </project>

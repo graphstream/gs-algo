@@ -30,8 +30,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.DefaultGraph;
+
+import static java.lang.Math.min;
+import static java.lang.Math.max;
+import static java.lang.Math.pow;
+import static java.lang.Math.atan;
+
 /**
- * Generate a <b>social<b> dynamic graph. Graph is composed of high-connected
+ * Generate a <b>social</b> dynamic graph. Graph is composed of high-connected
  * group of nodes, modeling organizations, and few connections between
  * organizations.
  * 
@@ -127,6 +135,39 @@ public class PointsOfInterestGenerator
 		}
 	}
 	
+	protected static class AddictNeighbor
+	{
+		AtomicInteger counter;
+		boolean connected;
+		
+		public AddictNeighbor()
+		{
+			this.counter = new AtomicInteger(0);
+			this.connected = false;
+		}
+		
+		public AddictNeighbor( AtomicInteger i )
+		{
+			this.counter = i;
+			this.connected = false;
+		}
+		
+		int incrementAndGet()
+		{
+			return counter.incrementAndGet();
+		}
+		
+		int decrementAndGet()
+		{
+			return counter.decrementAndGet();
+		}
+		
+		boolean isConnected()
+		{
+			return connected;
+		}
+	}
+	
 	/**
 	 * Defines data of a node. We have to keep id of the node and to backup
 	 * points of interest of this node and neighbor of the node.
@@ -146,13 +187,13 @@ public class PointsOfInterestGenerator
 		/**
 		 * List of neighbors.
 		 */
-		Map<Addict,AtomicInteger> neighbor;
+		Map<Addict,AddictNeighbor> neighbor;
 		
 		Addict( String id )
 		{
 			this.id = id;
 			pointsOfInterest = new LinkedList<PointOfInterest>();
-			neighbor = new HashMap<Addict,AtomicInteger>();
+			neighbor = new HashMap<Addict,AddictNeighbor>();
 		}
 		
 		/**
@@ -180,7 +221,10 @@ public class PointsOfInterestGenerator
 				}
 				else
 				{
-					if( random.nextFloat() < Math.pow( haveInterestProbability, 1.2 * pointsOfInterest.size() ) )
+					double p = atan( 20.0 * min(pointsOfInterest.size(),averagePointsOfInterestCount) / (double) averagePointsOfInterestCount - 10 );
+					p = ( p - atan(-10) ) / ( atan(10) - atan(-10) );
+					
+					if( random.nextFloat() < haveInterestProbability * ( 1 - p ) )//pow( haveInterestProbability, 1.2 * pointsOfInterest.size() ) )
 						poi.newAddict(this);
 				}
 			}
@@ -200,13 +244,21 @@ public class PointsOfInterestGenerator
 		{
 			if( ! neighbor.containsKey(a) )
 			{
-				PointsOfInterestGenerator.this.addEdge( getEdgeId(id,a.id), id, a.id );
-				AtomicInteger i = new AtomicInteger(0);
-				neighbor.put(a,i);
-				a.neighbor.put(this,i);
+				AddictNeighbor an = new AddictNeighbor();
+				neighbor.put(a,an);
+				a.neighbor.put(this,an);
 			}
 			
-			neighbor.get(a).incrementAndGet();
+			AddictNeighbor an = neighbor.get(a);
+			
+			if( an.incrementAndGet() >= linksNeededToCreateEdge && ! an.connected )
+			{
+				if( random.nextDouble() < pow(linkProbability,1.0/(double)(an.counter.get()-linksNeededToCreateEdge+1)) )
+				{
+					an.connected = true;
+					PointsOfInterestGenerator.this.addEdge( getEdgeId(id,a.id), id, a.id );
+				}
+			}
 		}
 		
 		/**
@@ -220,7 +272,7 @@ public class PointsOfInterestGenerator
 		{
 			if( neighbor.containsKey(a) )
 			{
-				if( neighbor.get(a).decrementAndGet() <= 0 )
+				if( neighbor.get(a).decrementAndGet() < linksNeededToCreateEdge )
 				{
 					neighbor.remove(a);
 					a.neighbor.remove(this);
@@ -239,6 +291,8 @@ public class PointsOfInterestGenerator
 				a.neighbor.remove(this);
 				PointsOfInterestGenerator.this.delEdge( getEdgeId(id,a.id) );
 			}
+			
+			neighbor.clear();
 		}
 	}
 	
@@ -247,6 +301,21 @@ public class PointsOfInterestGenerator
 		return nodeA.compareTo(nodeB) < 0 ?
 				String.format( "%s---%s", nodeA, nodeB ) :
 				String.format( "%s---%s", nodeB, nodeA ); 
+	}
+	
+	public static enum Parameter
+	{
+		INITIAL_PEOPLE_COUNT,
+		ADD_PEOPLE_PROBABILITY,
+		DEL_PEOPLE_PROBABILITY,
+		INITIAL_POINT_OF_INTEREST_COUNT,
+		AVERAGE_POINTS_OF_INTEREST_COUNT,
+		ADD_POINT_OF_INTEREST_PROBABILITY,
+		DEL_POINT_OF_INTEREST_PROBABILITY,
+		HAVE_INTEREST_PROBABILITY,
+		LOST_INTEREST_PROBABILITY,
+		LINKS_NEEDED_TO_CREATE_EDGE,
+		LINK_PROBABILITY
 	}
 	
 	/**
@@ -292,6 +361,15 @@ public class PointsOfInterestGenerator
 	protected float delPointOfInterestProbability;
 	
 	/**
+	 * Average points of interest by addict.
+	 */
+	protected float averagePointsOfInterestCount;
+	
+	protected int linksNeededToCreateEdge;
+	
+	protected float linkProbability;
+	
+	/**
 	 * List of addicts.
 	 */
 	protected LinkedList<Addict> addicts;
@@ -301,6 +379,8 @@ public class PointsOfInterestGenerator
 	protected LinkedList<PointOfInterest> pointsOfInterest;
 	
 	private long currentId;
+	
+	private long currentStep;
 	
 	public PointsOfInterestGenerator()
 	{
@@ -316,8 +396,54 @@ public class PointsOfInterestGenerator
 		initialPointOfInterestCount = 15;
 		addPointOfInterestProbability = delPointOfInterestProbability = 0.001f;
 		
+		linkProbability = 0.3f;
+		averagePointsOfInterestCount = 3;
+		linksNeededToCreateEdge = 2;
+		
 		addicts = new LinkedList<Addict>();
 		pointsOfInterest = new LinkedList<PointOfInterest>();
+		
+		currentStep = 0;
+	}
+	
+	public void setParameter( Parameter p, Object value )
+	{
+		switch(p)
+		{
+		case INITIAL_PEOPLE_COUNT:
+			this.initialPeopleCount = (Integer) value;
+			break;
+		case ADD_PEOPLE_PROBABILITY:
+			this.addPeopleProbability = (Float) value;
+			break;
+		case DEL_PEOPLE_PROBABILITY:
+			this.delPeopleProbability = (Float) value;
+			break;
+		case INITIAL_POINT_OF_INTEREST_COUNT:
+			this.initialPointOfInterestCount = (Integer) value;
+			break;
+		case AVERAGE_POINTS_OF_INTEREST_COUNT:
+			this.averagePointsOfInterestCount = (Float) value;
+			break;
+		case ADD_POINT_OF_INTEREST_PROBABILITY:
+			this.addPointOfInterestProbability = (Float) value;
+			break;
+		case DEL_POINT_OF_INTEREST_PROBABILITY:
+			this.delPointOfInterestProbability = (Float) value;
+			break;
+		case HAVE_INTEREST_PROBABILITY:
+			this.haveInterestProbability = (Float) value;
+			break;
+		case LOST_INTEREST_PROBABILITY:
+			this.lostInterestProbability = (Float) value;
+			break;
+		case LINKS_NEEDED_TO_CREATE_EDGE:
+			this.linksNeededToCreateEdge = (Integer) value;
+			break;
+		case LINK_PROBABILITY:
+			this.linkProbability = ( (Number) value ).floatValue();
+			break;
+		}
 	}
 	
 	/**
@@ -349,6 +475,8 @@ public class PointsOfInterestGenerator
 	 */
 	public boolean nextEvents()
 	{
+		sendStepBegins(sourceId,currentStep++);
+		
 		if( random.nextDouble() < delPeopleProbability )
 			killSomeone();
 		
@@ -420,5 +548,59 @@ public class PointsOfInterestGenerator
 	protected void killSomeone()
 	{
 		killAddict( addicts.get( random.nextInt( addicts.size() ) ) );
+	}
+	
+	public static void main( String ... args )
+	{
+		PointsOfInterestGenerator gen = new PointsOfInterestGenerator();
+		
+		gen.setParameter( Parameter.INITIAL_PEOPLE_COUNT, 500 );
+		gen.setParameter( Parameter.ADD_PEOPLE_PROBABILITY, 0.01f );
+		gen.setParameter( Parameter.DEL_PEOPLE_PROBABILITY, 0.01f );
+		gen.setParameter( Parameter.INITIAL_POINT_OF_INTEREST_COUNT, 30 );
+		gen.setParameter( Parameter.AVERAGE_POINTS_OF_INTEREST_COUNT, 4.0f );
+		gen.setParameter( Parameter.ADD_POINT_OF_INTEREST_PROBABILITY, 0.0f );
+		gen.setParameter( Parameter.DEL_POINT_OF_INTEREST_PROBABILITY, 0.0f );
+		gen.setParameter( Parameter.HAVE_INTEREST_PROBABILITY, 0.1f );
+		gen.setParameter( Parameter.LOST_INTEREST_PROBABILITY, 0.001f );
+		gen.setParameter( Parameter.LINKS_NEEDED_TO_CREATE_EDGE, 2 );
+		gen.setParameter( Parameter.LINK_PROBABILITY, 0.05f );
+		
+		Graph g = new DefaultGraph("theGraph");
+		gen.addSink(g);
+		
+		String stylesheet = 
+			"graph { " +
+			"  fill-color: white;" + 
+			"  padding: 50px;" +
+			"}" + 
+			"node { " +  
+			"  fill-color: black;" + 
+			"}" + 
+			"edge {" +
+			"  fill-color: black;" +
+			"}";
+		
+		g.addAttribute( "ui.stylesheet", stylesheet );
+		g.addAttribute( "ui.quality" );
+		//g.addAttribute( "ui.antialias" );
+		
+		g.display();
+		
+		gen.begin();
+		
+		while( true )
+		{
+			gen.nextEvents();
+			
+			try
+			{
+				Thread.sleep(60);
+			}
+			catch( Exception e )
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 }
