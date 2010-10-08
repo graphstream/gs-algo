@@ -60,7 +60,7 @@ public class BetweennessCentrality implements Algorithm
 {
 // Attribute
 	
-	protected static float INFINITY = 1000000f;
+	protected static double INFINITY = 1000000.0;
 	
 	protected String centralityAttributeName = "Cb";
 	
@@ -215,7 +215,7 @@ public class BetweennessCentrality implements Algorithm
 		    Node w = S.poll();
 				
 		    for( Node v : predecessorsOf( w ) ) {
-			setDelta( v, delta(v) + ( ( sigma(v)/sigma(w) ) * ( 1 + delta( w ) ) ) );
+			setDelta( v, delta(v) + ( ( sigma(v)/sigma(w) ) * ( 1.0 + delta( w ) ) ) );
 			if( w != s ) {
 			    setCentrality( w, centrality( w ) + delta( w ) );
 			}
@@ -241,8 +241,8 @@ public class BetweennessCentrality implements Algorithm
 		
 		setupAllNodes( graph );
 		Q.add( source );
-		setSigma( source, 1 );
-		setDistance( source, 0 );
+		setSigma( source, 1.0 );
+		setDistance( source, 0.0 );
 		
 		while( ! Q.isEmpty() ) {
 			Node v = Q.removeFirst();
@@ -258,7 +258,7 @@ public class BetweennessCentrality implements Algorithm
 					setDistance( w, distance( v ) + 1 );
 				}
 				
-				if( distance( w ) == distance( v ) + 1 ) {
+				if( distance( w ) == ( distance( v ) + 1.0 ) ) {
 					setSigma( w, sigma( w ) + sigma( v ) );
 					addToPredecessorsOf( w, v );
 				}
@@ -284,16 +284,17 @@ public class BetweennessCentrality implements Algorithm
 		
 		setupAllNodes( graph );
 		
-		setDistance( source, 0 );
-		setSigma( source, 1 );
+		setDistance( source, 0.0 );
+		setSigma( source, 1.0 );
 		
 		Q.add( source );
 		
 		while( ! Q.isEmpty() ) {
 			Node u = Q.poll();
 			
-			if( distance( u ) < 0 ) { // XXX Can happen ??? XXX
+			if( distance( u ) < 0.0 ) { // XXX Can happen ??? XXX
 				Q.clear();
+				throw new RuntimeException( "negative distance ??" );
 			} else {
 				S.add( u );
 				
@@ -301,7 +302,7 @@ public class BetweennessCentrality implements Algorithm
 				
 				while( k.hasNext() ) {
 					Node v = k.next();
-					float alt = distance( u ) + weight( u, v );
+					double alt = distance( u ) + weight( u, v );
 					
 					if( alt < distance( v ) ) {
 						if( distance(v) == INFINITY ) {
@@ -324,36 +325,36 @@ public class BetweennessCentrality implements Algorithm
 		return S;
 	}
 	
-	protected float sigma( Node node ) { return (float)node.getNumber( sigmaAttributeName ); }
+	protected double sigma( Node node ) { return node.getNumber( sigmaAttributeName ); }
 	
-	protected float distance( Node node ) { return (float)node.getNumber( distAttributeName ); }
+	protected double distance( Node node ) { return node.getNumber( distAttributeName ); }
 	
-	protected float delta( Node node ) { return (float)node.getNumber( deltaAttributeName ); }
+	protected double delta( Node node ) { return node.getNumber( deltaAttributeName ); }
 	
-	public float centrality( Node node ) { return (float)node.getNumber( centralityAttributeName ); }
+	public double centrality( Node node ) { return node.getNumber( centralityAttributeName ); }
 	
 	@SuppressWarnings("all")
 	protected Set<Node> predecessorsOf( Node node ) { return (HashSet<Node>)node.getAttribute( predAttributeName ); }
 	
-	protected void setSigma( Node node, float sigma ) { node.setAttribute( sigmaAttributeName, sigma ); }
+	protected void setSigma( Node node, double sigma ) { node.setAttribute( sigmaAttributeName, sigma ); }
 	
-	protected void setDistance( Node node, float distance ) { node.setAttribute( distAttributeName, distance ); }
+	protected void setDistance( Node node, double distance ) { node.setAttribute( distAttributeName, distance ); }
 	
-	protected void setDelta( Node node, float delta ) { node.setAttribute( deltaAttributeName, delta ); }
+	protected void setDelta( Node node, double delta ) { node.setAttribute( deltaAttributeName, delta ); }
 	
-	public void setCentrality( Node node, float centrality ) { node.setAttribute( centralityAttributeName, centrality ); }
+	public void setCentrality( Node node, double centrality ) { node.setAttribute( centralityAttributeName, centrality ); }
 	
-	public void setWeight( Node from, Node to, float weight ) { from.getEdgeToward(to.getId()).setAttribute( weightAttributeName, weight ); }
+	public void setWeight( Node from, Node to, double weight ) { from.getEdgeToward(to.getId()).setAttribute( weightAttributeName, weight ); }
 	
-	public float weight( Node from, Node to ) {
+	public double weight( Node from, Node to ) {
 		Edge edge = from.getEdgeToward( to.getId() );
 		
 		if( edge != null ) {
 			if( edge.hasAttribute( weightAttributeName ) )
-			      return (float)edge.getNumber( weightAttributeName );
-			else return 1f;
+			      return edge.getNumber( weightAttributeName );
+			else return 1.0;
 		} else {
-			return 0f;
+			return 0.0;
 		}
 	}
 
@@ -380,21 +381,33 @@ public class BetweennessCentrality implements Algorithm
 	protected void setupAllNodes( Graph graph ) {
 		for( Node node : graph ) {
 			node.addAttribute( predAttributeName, new HashSet<Node>() );
-			node.addAttribute( sigmaAttributeName, 0 );
+			node.addAttribute( sigmaAttributeName, 0.0 );
 			node.addAttribute( distAttributeName, INFINITY );
-			node.addAttribute( deltaAttributeName, 0 );
+			node.addAttribute( deltaAttributeName, 0.0 );
 		}
 	}
 	
 	protected class BrandesNodeComparatorLargerFirst implements Comparator<Node> {
 		public int compare( Node x, Node y ) {
-			return (int) ( distance(y) - distance(x) );
+		//	return (int) ( (distance(y)*1000.0) - (distance(x)*1000.0) );
+			double yy = distance(y);
+			double xx = distance(x);
+			
+			if( xx > yy ) return -1;
+			else if( xx < yy ) return 1;
+			else return 0;
 		}
 	}
 
 	protected class BrandesNodeComparatorSmallerFirst implements Comparator<Node> {
 		public int compare( Node x, Node y ) {
-			return (int) ( distance(x) - distance(y) );
+		//	return (int) ( (distance(x)*1000.0) - (distance(y)*1000.0) );
+			double yy = distance(y);
+			double xx = distance(x);
+			
+			if( xx > yy ) return 1;
+			else if( xx < yy ) return -1;
+			else return 0;
 		}
 	}
 }
