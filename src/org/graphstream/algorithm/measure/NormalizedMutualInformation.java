@@ -75,6 +75,7 @@ public class NormalizedMutualInformation extends CommunityRelativeMeasure {
 	@Override
 	public void compute() {
 		if (graphChanged) {
+
 			// Get the updated confusion matrix
 			int[][] N = confusionMatrix();
 
@@ -91,7 +92,7 @@ public class NormalizedMutualInformation extends CommunityRelativeMeasure {
 				int ttl = 0;
 				for (int i = 0; i < N_A.length; i++)
 					ttl += N[i][j];
-				N_A[j] = ttl;
+				N_B[j] = ttl;
 			}
 
 			// Get the total nodes number
@@ -103,10 +104,14 @@ public class NormalizedMutualInformation extends CommunityRelativeMeasure {
 
 			// First the numerator
 			float num = 0;
-			for (int i = 0; i < N_A.length; i++)
-				for (int j = 0; j < N_B.length; j++)
-					num += -2.0 * N[i][j]
-							* Math.log((N[i][j] * n) / (N_A[i] * N_B[j]));
+			for (int i = 0; i < N_A.length; i++) {
+				for (int j = 0; j < N_B.length; j++) {
+					if (N[i][j] > 0) {
+						num += -2.0 * N[i][j]
+								* Math.log((N[i][j] * n) / (N_A[i] * N_B[j]));
+					}
+				}
+			}
 
 			// Then the denominator
 			float denom = 0;
