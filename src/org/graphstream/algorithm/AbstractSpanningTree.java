@@ -27,6 +27,9 @@ import java.util.Iterator;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 
+import org.graphstream.algorithm.Parameter;
+import static org.graphstream.algorithm.Parameter.processParameters;
+
 /**
  * Base for spanning tree algorithms. In this implementation, you can specify
  * the attribute and the values which will define if an edge is in the spanning
@@ -38,23 +41,27 @@ public abstract class AbstractSpanningTree implements Algorithm {
 	/**
 	 * The graph on which algorithm try to extract a spanning tree.
 	 */
+	@DefineParameter(name="graph")
 	protected Graph graph;
 
 	/**
 	 * Attribute which will be used to set is an edge is in the spanning tree or
 	 * not.
 	 */
+	@DefineParameter(name="flagAttribute")
 	protected String flagAttribute;
 
 	/**
 	 * Value of the <i>flagAttribute</i> if the edge is in the spanning tree.
 	 */
+	@DefineParameter(name="flagOn")
 	protected Object flagOn;
 
 	/**
 	 * Value of the <i>flagAttribute</i> if the edge is not in the spanning
 	 * tree.
 	 */
+	@DefineParameter(name="flagOff")
 	protected Object flagOff;
 
 	/**
@@ -197,8 +204,14 @@ public abstract class AbstractSpanningTree implements Algorithm {
 
 	// Algorithm interface
 
-	public void init(Graph graph) {
-		this.graph = graph;
+	public void init(Parameter ... params) {
+		try {
+			processParameters(this,params);
+		}
+		catch( Exception e ) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
 	}
 
 	/**

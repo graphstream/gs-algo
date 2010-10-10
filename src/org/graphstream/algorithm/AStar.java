@@ -24,6 +24,7 @@ package org.graphstream.algorithm;
 
 import static org.graphstream.algorithm.Toolkit.edgeLength;
 import static org.graphstream.algorithm.Toolkit.nodePosition;
+import static org.graphstream.algorithm.Parameter.processParameters;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -85,16 +86,19 @@ public class AStar implements Algorithm {
 	/**
 	 * The graph.
 	 */
+	@DefineParameter(name="graph")
 	protected Graph graph;
 
 	/**
 	 * The source node id.
 	 */
+	@DefineParameter(name="source",setter="setSource")
 	protected String source;
 
 	/**
 	 * The target node id.
 	 */
+	@DefineParameter(name="target",setter="setTarget")
 	protected String target;
 
 	/**
@@ -140,7 +144,7 @@ public class AStar implements Algorithm {
 	 *            The graph where the algorithm will compute paths.
 	 */
 	public AStar(Graph graph) {
-		init(graph);
+		this.graph = graph;
 	}
 
 	/**
@@ -210,9 +214,15 @@ public class AStar implements Algorithm {
 	 * @see
 	 * org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
 	 */
-	public void init(Graph graph) {
+	public void init(Parameter ... params) {
 		clearAll();
-		this.graph = graph;
+		try {
+			processParameters(this,params);
+		}
+		catch( Exception e ) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
 	}
 
 	/*

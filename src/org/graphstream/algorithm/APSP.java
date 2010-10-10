@@ -30,6 +30,9 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.Path;
 import org.graphstream.stream.SinkAdapter;
 
+import org.graphstream.algorithm.Parameter;
+import static org.graphstream.algorithm.Parameter.processParameters;
+
 /**
  * All-pair shortest paths lengths.
  * 
@@ -84,6 +87,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 	/**
 	 * The graph to use.
 	 */
+	@DefineParameter(name="graph",setter="setGraph")
 	protected Graph graph;
 
 	/**
@@ -94,12 +98,14 @@ public class APSP extends SinkAdapter implements Algorithm {
 	/**
 	 * If false, do not take edge orientation into account.
 	 */
+	@DefineParameter(name="directed")
 	protected boolean directed = true;
 
 	/**
 	 * Name of the attribute on each edge indicating the weight of the edge.
 	 * This attribute must contain a descendant of Number.
 	 */
+	@DefineParameter(name="weightAttributeName")
 	protected String weightAttributeName;
 
 	// Construction
@@ -136,7 +142,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 		this.weightAttributeName = weightAttributeName;
 		this.directed = directed;
 
-		init(graph);
+		setGraph(graph);
 	}
 
 	// Access
@@ -190,11 +196,8 @@ public class APSP extends SinkAdapter implements Algorithm {
 	public void setWeightAttributeName(String name) {
 		weightAttributeName = name;
 	}
-
-	/**
-	 * @see Algorithm#init(Graph)
-	 */
-	public void init(Graph graph) {
+	
+	protected void setGraph( Graph graph ) {
 		if (this.graph != null)
 			this.graph.removeSink(this);
 
@@ -203,6 +206,19 @@ public class APSP extends SinkAdapter implements Algorithm {
 
 		if (this.graph != null)
 			this.graph.addSink(this);
+	}
+
+	/**
+	 * @see Algorithm#init(Parameter)
+	 */
+	public void init(Parameter ... params) {
+		try {
+			processParameters(this,params);
+		}
+		catch( Exception e ) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
 	}
 
 	/**

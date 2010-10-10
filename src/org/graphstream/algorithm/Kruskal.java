@@ -44,11 +44,13 @@ public class Kruskal extends AbstractSpanningTree {
 	/**
 	 * Attribute which will be used to compare edges.
 	 */
+	@DefineParameter(name="weightAttribute")
 	protected String weightAttribute;
 
 	/**
 	 * Attribute used to clusterize the graph.
 	 */
+	@DefineParameter(name="clusterAttribute")
 	protected String clusterAttribute = "Kruskal.cluster";
 
 	/**

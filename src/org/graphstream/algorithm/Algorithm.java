@@ -38,11 +38,8 @@ import org.graphstream.graph.*;
 public interface Algorithm {
 	/**
 	 * Initialization of the algorithm.
-	 * 
-	 * @param graph
-	 *            The graph this algorithm is using.
 	 */
-	void init(Graph graph);
+	void init(Parameter ... params);
 
 	/**
 	 * Launch the algorithm on the previously specified graph.

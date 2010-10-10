@@ -22,6 +22,8 @@
  */
 package org.graphstream.algorithm;
 
+import static org.graphstream.algorithm.Parameter.processParameters;
+
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
@@ -57,6 +59,7 @@ public class Dijkstra implements Algorithm {
 	/**
 	 * Graph being used on computation.
 	 */
+	@DefineParameter(name = "graph")
 	protected Graph graph;
 
 	/**
@@ -67,6 +70,7 @@ public class Dijkstra implements Algorithm {
 	/**
 	 * Id of the source node which will be used on the next computation.
 	 */
+	@DefineParameter(name = "sourceNodeId")
 	protected String sourceNodeId = null;
 
 	/**
@@ -88,11 +92,13 @@ public class Dijkstra implements Algorithm {
 	/**
 	 * The attribute considered for the distance computation.
 	 */
+	@DefineParameter(name = "attribute")
 	protected String attribute;
 
 	/**
 	 * The kind of element observed in the graph.
 	 */
+	@DefineParameter(name = "element")
 	protected Element element;
 
 	/**
@@ -373,8 +379,13 @@ public class Dijkstra implements Algorithm {
 	 * @see
 	 * org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
 	 */
-	public void init(Graph graph) {
-		this.graph = graph;
+	public void init(Parameter... params) {
+		try {
+			processParameters(this, params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
 	}
 
 	/**

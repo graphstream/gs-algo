@@ -32,6 +32,8 @@ import org.graphstream.graph.Node;
 import org.graphstream.stream.SinkAdapter;
 import org.util.set.FixedArrayList;
 
+import static org.graphstream.algorithm.Parameter.processParameters;
+
 /**
  * Compute and update the number of connected components of a dynamic graph.
  * 
@@ -122,6 +124,7 @@ public class ConnectedComponents extends SinkAdapter implements
 	/**
 	 * The Graph the algorithm is working on.
 	 */
+	@DefineParameter(name = "graph")
 	protected Graph graph;
 
 	/**
@@ -144,12 +147,14 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * two connected components if such an edge is the only link between two
 	 * node groups.
 	 */
+	@DefineParameter(name = "cutAttribute", afterSet = "compute")
 	protected String cutAttribute = null;
 
 	/**
 	 * Optional attribute to set on each node of a given component. This
 	 * attribute will have for value an index different for each component.
 	 */
+	@DefineParameter(name = "countAttribute", beforeSet = "removeMarks", afterSet = "remapMarks")
 	protected String countAttribute = null;
 
 	public ConnectedComponents() {
@@ -167,7 +172,7 @@ public class ConnectedComponents extends SinkAdapter implements
 		ids.add(""); // The dummy first identifier (since zero is a special
 						// value).
 
-		init(graph);
+		setGraph(graph);
 
 		connectedComponentsMap = new HashMap<Node, Integer>();
 	}
@@ -243,6 +248,15 @@ public class ConnectedComponents extends SinkAdapter implements
 		remapMarks();
 	}
 
+	public void setGraph(Graph graph) {
+		if (this.graph != null)
+			this.graph.removeSink(this);
+
+		this.graph = graph;
+
+		this.graph.addSink(this);
+	}
+
 	protected void removeMarks() {
 		Iterator<? extends Node> nodes = graph.getNodeIterator();
 
@@ -274,13 +288,13 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * @see
 	 * org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
 	 */
-	public void init(Graph graph) {
-		if (this.graph != null)
-			this.graph.removeSink(this);
-
-		this.graph = graph;
-
-		this.graph.addSink(this);
+	public void init(Parameter... params) {
+		try {
+			processParameters(this, params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
 	}
 
 	/*

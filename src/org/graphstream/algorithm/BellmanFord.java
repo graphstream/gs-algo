@@ -30,6 +30,8 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.Path;
 
+import static org.graphstream.algorithm.Parameter.processParameters;
+
 /**
  * <p>
  * The Bellman-Ford algorithm computes single-source shortest paths in a
@@ -57,16 +59,19 @@ public class BellmanFord implements Algorithm {
 	/**
 	 * The graph to be computed for shortest path.
 	 */
+	@DefineParameter(name = "graph")
 	protected Graph graph;
 
 	/**
 	 * ID of the source node.
 	 */
+	@DefineParameter(name = "source")
 	protected String source;
 
 	/**
 	 * Name of attribute used to get weight of edges.
 	 */
+	@DefineParameter(name = "weightAttribute")
 	protected String weightAttribute;
 
 	/**
@@ -166,8 +171,13 @@ public class BellmanFord implements Algorithm {
 	 * @see
 	 * org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
 	 */
-	public void init(Graph graph) {
-		this.graph = graph;
+	public void init(Parameter... params) {
+		try {
+			processParameters(this, params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
 	}
 
 	/*

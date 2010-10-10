@@ -44,6 +44,7 @@ public class Prim extends AbstractSpanningTree {
 	/**
 	 * Attribute key which will be used to compare edges.
 	 */
+	@DefineParameter(name="weightAttribute")
 	protected String weightAttribute;
 
 	/**

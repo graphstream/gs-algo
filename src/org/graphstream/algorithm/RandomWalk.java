@@ -35,6 +35,7 @@ import org.graphstream.graph.Node;
 import org.graphstream.stream.SinkAdapter;
 
 import static org.graphstream.algorithm.Toolkit.*;
+import static org.graphstream.algorithm.Parameter.processParameters;
 
 /**
  * A random walk on a graph.
@@ -57,6 +58,7 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	/**
 	 * The graph.
 	 */
+	@DefineParameter(name = "graph", optional = false)
 	protected Graph graph;
 
 	/**
@@ -72,26 +74,31 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	/**
 	 * The random seed.
 	 */
+	@DefineParameter(name = "randomSeed")
 	protected long randomSeed;
 
 	/**
 	 * Initial count of entities.
 	 */
+	@DefineParameter(name = "entityCount")
 	protected int entityCount = 100;
 
 	/**
 	 * The node tabu list.
 	 */
+	@DefineParameter(name = "entityMemory")
 	protected int entityMemory = 40;
 
 	/**
 	 * The name of the attribute used to count the number of pass on an edge.
 	 */
+	@DefineParameter(name = "passesAttribute")
 	protected String passesAttribute = "passes";
 
 	/**
 	 * The name of the attribute on edges that give their respective importance.
 	 */
+	@DefineParameter(name = "weightAttribute")
 	protected String weightAttribute = null;
 
 	/**
@@ -266,12 +273,17 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 * @param graph
 	 *            The graph to explore.
 	 */
-	public void init(Graph graph) {
+	public void init(Parameter... params) {
 		if (this.graph != null)
 			throw new RuntimeException(
 					"cannot begin a random walk if the previous one was not finished, use end().");
 
-		this.graph = graph;
+		try {
+			processParameters(this, params);
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
 
 		entities.clear();
 
