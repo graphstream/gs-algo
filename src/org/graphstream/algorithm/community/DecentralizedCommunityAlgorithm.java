@@ -129,7 +129,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 * 
 	 * @param graph
 	 */
-	@Override
+//	@Override
 	public void init(Graph graph) {
 		/*
 		 * Set the marker to a default value unless set when instantiating the
@@ -146,7 +146,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 			rng = new Random();
 	}
 
-	@Override
+//	@Override
 	public void terminate() {
 	}
 
@@ -211,7 +211,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 * @complexity N times the complexity of the computeNode() function, where N
 	 *             is the number of nodes in the network.
 	 */
-	@Override
+//	@Override
 	public void compute() {
 		/*
 		 * This simply calls the computeNode method for all nodes in the graph.

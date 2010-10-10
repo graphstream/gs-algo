@@ -93,7 +93,7 @@ public class Community implements Comparable<Community> {
 	 * Comparison method for two Community objects, based on the value of their
 	 * identfiers.
 	 */
-	@Override
+//	@Override
 	public int compareTo(Community o) {
 		return this.id.compareTo(o.id());
 	}

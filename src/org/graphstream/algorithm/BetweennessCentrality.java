@@ -22,7 +22,6 @@
  */
 package org.graphstream.algorithm;
 
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -219,9 +218,9 @@ public class BetweennessCentrality implements Algorithm {
 				for (Node v : predecessorsOf(w)) {
 					setDelta(v, delta(v)
 							+ ((sigma(v) / sigma(w)) * (1.0 + delta(w))));
-					if (w != s) {
-						setCentrality(w, centrality(w) + delta(w));
-					}
+				}
+				if (w != s) {
+					setCentrality(w, centrality(w) + delta(w));
 				}
 			}
 		}
@@ -289,7 +288,6 @@ public class BetweennessCentrality implements Algorithm {
 				new BrandesNodeComparatorSmallerFirst());
 
 		setupAllNodes(graph);
-
 		setDistance(source, 0.0);
 		setSigma(source, 1.0);
 
@@ -297,7 +295,7 @@ public class BetweennessCentrality implements Algorithm {
 
 		while (!Q.isEmpty()) {
 			Node u = Q.poll();
-
+			
 			if (distance(u) < 0.0) { // XXX Can happen ??? XXX
 				Q.clear();
 				throw new RuntimeException("negative distance ??");
@@ -308,6 +306,7 @@ public class BetweennessCentrality implements Algorithm {
 
 				while (k.hasNext()) {
 					Node v = k.next();
+			//		if( ! S.contains(v) ) {
 					double alt = distance(u) + weight(u, v);
 
 					if (alt < distance(v)) {
@@ -325,13 +324,14 @@ public class BetweennessCentrality implements Algorithm {
 						setSigma(v, sigma(v) + sigma(u));
 						addToPredecessorsOf(v, u);
 					}
+		//		}
 				}
 			}
 		}
 
 		return S;
 	}
-
+	
 	protected double sigma(Node node) {
 		return node.getNumber(sigmaAttributeName);
 	}
