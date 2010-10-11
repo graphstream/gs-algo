@@ -17,7 +17,7 @@
  * Copyright 2006 - 2010
  * 	Julien Baudry
  * 	Antoine Dutot
- * 	Yoann Pigné
+ * 	Yoann PignÃ©
  * 	Guilhelm Savin
  */
 package org.graphstream.algorithm;
@@ -59,47 +59,64 @@ public class Parameter {
 		//
 		// We are lazy, if no parameters there is no need to work !
 		//
-		if (params == null|| params.length==0)
+		if (params == null || params.length == 0)
 			return;
 
 		//
-		// Building a map associating keys with values.
-		// This map should be empty at the end of the process.
+		// Create a new ParametersProcessor to process the parameters and
+		// run it.
 		//
-		HashMap<String, Object> paramsMap = new HashMap<String, Object>();
+		ParametersProcessor pp = new ParametersProcessor(env, params);
+		pp.process();
+	}
 
-		for (Parameter p : params)
-			paramsMap.put(p.getKey(), p.getValue());
+	/**
+	 * Defines the object which will process parameters.
+	 * 
+	 */
+	public static class ParametersProcessor {
+		HashMap<Field, Object> fields;
+		HashMap<String, Object> params;
 
-		//
-		// We now retrieve fields which contains
-		// the DefineParameter annotations.
-		// Search is made in superclass to.
-		//
-		LinkedList<Field> fields = new LinkedList<Field>();
+		public ParametersProcessor(Object obj, Parameter... parameters) {
+			fields = new HashMap<Field, Object>();
+			params = new HashMap<String, Object>();
+			
+			if (obj.getClass().isArray()) {
+				Object[] objects = (Object[]) obj;
 
-		{
-			Class<?> cls = env.getClass();
-
-			while (cls != Object.class) {
-				Field[] clsFields = cls.getDeclaredFields();
-
-				if (clsFields != null) {
-					for (Field f : clsFields)
-						if (f.getAnnotation(DefineParameter.class) != null)
-							fields.add(f);
-				}
-
-				cls = cls.getSuperclass();
+				for (Object o : objects)
+					buildFields(o);
+			} else {
+				buildFields(obj);
 			}
+
+			buildParametersMap(parameters);
 		}
-		
-		for (Field f : fields) {
-			try {
+
+		/**
+		 * Start the processing part. First, this checks is all non-optional
+		 * parameters will receive a value, else a MissingParameterException is
+		 * thrown. Then, values are assigned to the attribute (
+		 * {@link ParametersProcessor#setValue(DefineParameter, Field, Object)}
+		 * ). Finally, the method checks is no parameter remaining. In this
+		 * case, an InvalidParameterException is thrown.
+		 * 
+		 * @throws InvalidParameterException
+		 * @throws MissingParameterException
+		 */
+		public void process() throws InvalidParameterException,
+				MissingParameterException {
+			checkNonOptionnalParameters();
+
+			LinkedList<String> remainingParameters = new LinkedList<String>(
+					params.keySet());
+
+			for (Field f : fields.keySet()) {
 				final DefineParameter dp = f
 						.getAnnotation(DefineParameter.class);
 
-				if (dp != null && paramsMap.containsKey(dp.name())) {
+				if (params.containsKey(dp.name())) {
 					//
 					// We try to make the field accessible,
 					// if it is a protected or private field.
@@ -111,280 +128,447 @@ public class Parameter {
 						// Trying anyway to continue !
 					}
 
-					final Object value = paramsMap.get(dp.name());
-					final boolean isNumber = value instanceof Number;
+					final Object value = params.get(dp.name());
 
-					paramsMap.remove(dp.name());
+					setValue(dp, f, value);
 
-					//
-					// If type is defined, value should be assignable to this
-					// type.
-					//
-					if (dp.type() != Object.class
-							&& !dp.type().isAssignableFrom(value.getClass()))
-						throw new InvalidParameterException(
-								"invalid parameter type, should be %s", dp
-										.type().getName());
-
-					//
-					// If min or max are defined, value should be a number
-					// between min and max.
-					//
-					if (!Double.isNaN(dp.min()) || !Double.isNaN(dp.max())) {
-						if (!isNumber)
-							throw new InvalidParameterException(
-									"min or max defined but value is not a number for %s",
-									dp.name());
-
-						Number n = (Number) value;
-
-						if (dp.min() != Double.NaN
-								&& n.doubleValue() < dp.min())
-							throw new InvalidParameterException(String.format(
-									"bad value for \"%s\", %f < min",
-									dp.name(), n.doubleValue()));
-
-						if (dp.max() != Double.NaN
-								&& n.doubleValue() > dp.max())
-							throw new InvalidParameterException(String.format(
-									"bad value for \"%s\", %f > max",
-									dp.name(), n.doubleValue()));
-					}
-
-					//
-					// If strings is defined, value should be a String and must
-					// be one of the defined values.
-					//
-					if (dp.strings().length > 0) {
-						if (value.getClass() != String.class)
-							throw new InvalidParameterException(
-									"value should be a String");
-
-						String s = (String) value;
-						boolean found = false;
-
-						for (String alt : dp.strings())
-							if (alt.equals(s)) {
-								found = true;
-								break;
-							}
-
-						if (!found)
-							throw new InvalidParameterException(
-									"\"%s\" is not in the allowed values for %s",
-									value, dp.name());
-					}
-
-					//
-					// Check for the 'beforeSet' trigger.
-					//
-					if( dp.beforeSet().length() > 0 ) {
-						Method beforeSet = null;
-						
-						{
-							Class<?> cls = env.getClass();
-							
-							while( beforeSet == null && cls != Object.class )
-							{
-								Method [] methods = cls.getDeclaredMethods();
-								
-								if( methods != null )
-								{
-									for( Method m : methods )
-										if( m.getName().equals(dp.beforeSet()) )
-										{
-											beforeSet = m;
-											break;
-										}
-								}
-								
-								cls = cls.getSuperclass();
-							}
-						}
-						
-						if( beforeSet == null )
-							throw new InvalidParameterException("'beforeSet' trigger '%s()' can not be found for %s",dp.beforeSet(),dp.name());
-						
-						Object [] args = null;
-						
-						switch(beforeSet.getParameterTypes().length)
-						{
-						case 0:
-							// Nothing
-							break;
-						case 1:
-							// If trigger has one argument, we pass the value of the parameter.
-							args = new Object [] { value };
-							break;
-						case 2:
-							// If trigger has two arguments, we pass the key and the value of the parameter.
-							args = new Object [] { dp.name(), value };
-							break;
-						default:
-							throw new InvalidParameterException("two much arguments in 'beforeSet' trigger '%s()' for %s",dp.beforeSet(),dp.name());
-						}
-						
-						try {
-							beforeSet.invoke(env,args);
-						} catch (IllegalArgumentException e) {
-							throw new InvalidParameterException("bad arguments in 'beforeSet' trigger '%s()'for %s",dp.beforeSet(),dp.name());
-						} catch (IllegalAccessException e) {
-							throw new InvalidParameterException("illegal access to 'beforeSet' trigger '%s()' for %s",dp.beforeSet(),dp.name());							
-						} catch (InvocationTargetException e) {
-							throw new InvalidParameterException("invocation error of 'beforeSet' trigger '%s()' for %s",dp.beforeSet(),dp.name());
-						}
-					}
-					
-					//
-					// Now we try to set the value of this field.
-					//
-					if( dp.setter().length() == 0 ) {
-						try {
-							f.set(env, value);
-						} catch (IllegalArgumentException e) {
-							throw new InvalidParameterException(
-									"invalid value type for %s, %s expected",
-									dp.name(), f.getType().getName());
-						} catch (IllegalAccessException e) {
-							throw new InvalidParameterException(
-							"parameter value can not be set. maybe a permission problem");
-						}
-					}
-					else {
-						Method setter = null;
-						
-						{
-							Class<?> cls = env.getClass();
-							
-							while( setter == null && cls != Object.class )
-							{
-								Method [] methods = cls.getDeclaredMethods();
-								
-								if( methods != null )
-								{
-									for( Method m : methods )
-										if( m.getName().equals(dp.setter()) )
-										{
-											setter = m;
-											break;
-										}
-								}
-								
-								cls = cls.getSuperclass();
-							}
-						}
-						
-						if( setter == null )
-							throw new InvalidParameterException("'setter' '%s()' can not be found for %s",dp.setter(),dp.name());
-						
-						Object [] args = null;
-						
-						switch(setter.getParameterTypes().length)
-						{
-						case 1:
-							// If trigger has one argument, we pass the value of the parameter.
-							args = new Object [] { value };
-							break;
-						case 2:
-							// If trigger has two arguments, we pass the key and the value of the parameter.
-							args = new Object [] { dp.name(), value };
-							break;
-						default:
-							throw new InvalidParameterException("bad argument count in 'setter' '%s()' for %s",dp.setter(),dp.name());
-						}
-						
-						try {
-							setter.invoke(env,args);
-						} catch (IllegalArgumentException e) {
-							throw new InvalidParameterException("bad arguments in 'setter' '%s()'for %s",dp.setter(),dp.name());
-						} catch (IllegalAccessException e) {
-							throw new InvalidParameterException("illegal access to 'setter' '%s()' for %s",dp.setter(),dp.name());							
-						} catch (InvocationTargetException e) {
-							throw new InvalidParameterException("invocation error of 'setter' '%s()' for %s",dp.setter(),dp.name());
-						}
-					}
-
-					//
-					// Check for the 'afterSet' trigger.
-					//
-					if( dp.afterSet().length() > 0 ) {
-						Method afterSet = null;
-						
-						{
-							Class<?> cls = env.getClass();
-							
-							while( afterSet == null && cls != Object.class )
-							{
-								Method [] methods = cls.getDeclaredMethods();
-								
-								if( methods != null )
-								{
-									for( Method m : methods )
-										if( m.getName().equals(dp.afterSet()) )
-										{
-											afterSet = m;
-											break;
-										}
-								}
-								
-								cls = cls.getSuperclass();
-							}
-						}
-						
-						if( afterSet == null )
-							throw new InvalidParameterException("'afterSet' trigger '%s()' can not be found for %s",dp.afterSet(),dp.name());
-						
-						Object [] args = null;
-						
-						switch(afterSet.getParameterTypes().length)
-						{
-						case 0:
-							// Nothing
-							break;
-						case 1:
-							// If trigger has one argument, we pass the value of the parameter.
-							args = new Object [] { value };
-							break;
-						case 2:
-							// If trigger has two arguments, we pass the key and the value of the parameter.
-							args = new Object [] { dp.name(), value };
-							break;
-						default:
-							throw new InvalidParameterException("two much arguments in 'afterSet' trigger '%s()' for %s",dp.afterSet(),dp.name());
-						}
-						
-						try {
-							afterSet.invoke(env,args);
-						} catch (IllegalArgumentException e) {
-							throw new InvalidParameterException("bad arguments in 'afterSet' trigger '%s()'for %s",dp.afterSet(),dp.name());
-						} catch (IllegalAccessException e) {
-							throw new InvalidParameterException("illegal access to 'afterSet' trigger '%s()' for %s",dp.afterSet(),dp.name());							
-						} catch (InvocationTargetException e) {
-							throw new InvalidParameterException("invocation error of 'afterSet' trigger '%s()' for %s",dp.afterSet(),dp.name());
-						}
-					}
+					remainingParameters.remove(dp.name());
 				}
-				else if( ! dp.optional() ) {
-					throw new MissingParameterException("parameter \"%s\" is missing",dp.name());
-				}
-			} catch (NullPointerException e) {
-				// Nothing, it is not a parameter
+			}
+
+			//
+			// If values remain in paramsMap, user try to define parameters
+			// which do not exist.
+			//
+			if (remainingParameters.size() > 0) {
+				String uneatenParams = "";
+
+				for (String s : remainingParameters)
+					uneatenParams += String.format("%s\"%s\"",
+							(uneatenParams.length() > 0 ? ", " : ""), s);
+
+				throw new InvalidParameterException(
+						"some parameters does not exist : %s", uneatenParams);
 			}
 		}
 
-		//
-		// If values remain in paramsMap, user try to define parameters
-		// which do not exist.
-		//
-		if (paramsMap.size() > 0) {
-			String uneatenParams = "";
+		/**
+		 * Find fields owning a DefineParameter annotation.
+		 * 
+		 * @param obj
+		 *            the object on which searching fields.
+		 */
+		protected void buildFields(Object obj) {
+			Class<?> cls = obj.getClass();
 
-			for (String s : paramsMap.keySet())
-				uneatenParams += String.format("%s\"%s\"",
-						(uneatenParams.length() > 0 ? ", " : ""), s);
+			while (cls != Object.class) {
+				Field[] clsFields = cls.getDeclaredFields();
 
-			throw new InvalidParameterException(
-					"some parameters does not exist : %s", uneatenParams);
+				if (clsFields != null) {
+					for (Field f : clsFields)
+						if (f.getAnnotation(DefineParameter.class) != null)
+							fields.put(f, obj);
+				}
+
+				cls = cls.getSuperclass();
+			}
+		}
+
+		/**
+		 * Create a map "key -> value" for parameters.
+		 * 
+		 * @param parameters
+		 *            parameters which will be used in the process part.
+		 */
+		protected void buildParametersMap(Parameter... parameters) {
+			for (Parameter p : parameters)
+				params.put(p.getKey(), p.getValue());
+		}
+
+		/**
+		 * Set the value of a field according to a parameter. First, the value
+		 * is check ( {@link #checkValue(DefineParameter, Field, Object)} ).
+		 * Then, the beforeSet trigger is called (
+		 * {@link #callBeforeSetTrigger(DefineParameter, Field, Object)} ).
+		 * Then, if 'setters' value is empty, value is simply assigned to the
+		 * field, else 'setter' is called (
+		 * {@link #callSetter(DefineParameter, Field, Object)} ). Finally, the
+		 * afterSet trigger is called (
+		 * {@link #callAfterSetTrigger(DefineParameter, Field, Object)}).
+		 * 
+		 * @param dp
+		 *            the DefineParameter annotation being set.
+		 * @param f
+		 *            field associated to the annotation.
+		 * @param value
+		 *            value which will be assigned to the field.
+		 * @throws InvalidParameterException
+		 */
+		protected void setValue(DefineParameter dp, Field f, Object value)
+				throws InvalidParameterException {
+			checkValue(dp, f, value);
+
+			Object env = fields.get(f);
+
+			callBeforeSetTrigger(dp, f, value);
+
+			if (dp.setter().length() == 0) {
+				try {
+					f.set(env, value);
+				} catch (IllegalArgumentException e) {
+					throw new InvalidParameterException(
+							"invalid value type for %s, %s expected",
+							dp.name(), f.getType().getName());
+				} catch (IllegalAccessException e) {
+					throw new InvalidParameterException(
+							"parameter value can not be set. maybe a permission problem");
+				}
+			} else {
+				callSetter(dp, f, value);
+			}
+
+			callAfterSetTrigger(dp, f, value);
+		}
+
+		/**
+		 * Check is the value is valid according to the DefineParameter
+		 * annotation.
+		 * 
+		 * @param dp
+		 *            the DefineParameter annotation associated to the field.
+		 * @param f
+		 *            the field.
+		 * @param value
+		 *            the value.
+		 * @throws InvalidParameterException
+		 */
+		protected void checkValue(DefineParameter dp, Field f, Object value)
+				throws InvalidParameterException {
+			final boolean isNumber = value instanceof Number;
+
+			//
+			// If type is defined, value should be assignable to this
+			// type.
+			//
+			if (dp.type() != Object.class
+					&& !dp.type().isAssignableFrom(value.getClass()))
+				throw new InvalidParameterException(
+						"invalid parameter type, should be %s", dp.type()
+								.getName());
+
+			//
+			// If min or max are defined, value should be a number
+			// between min and max.
+			//
+			if (!Double.isNaN(dp.min()) || !Double.isNaN(dp.max())) {
+				if (!isNumber)
+					throw new InvalidParameterException(
+							"min or max defined but value is not a number for %s",
+							dp.name());
+
+				Number n = (Number) value;
+
+				if (dp.min() != Double.NaN && n.doubleValue() < dp.min())
+					throw new InvalidParameterException(String.format(
+							"bad value for \"%s\", %f < min", dp.name(),
+							n.doubleValue()));
+
+				if (dp.max() != Double.NaN && n.doubleValue() > dp.max())
+					throw new InvalidParameterException(String.format(
+							"bad value for \"%s\", %f > max", dp.name(),
+							n.doubleValue()));
+			}
+
+			//
+			// If strings is defined, value should be a String and must
+			// be one of the defined values.
+			//
+			if (dp.strings().length > 0) {
+				if (value.getClass() != String.class)
+					throw new InvalidParameterException(
+							"value should be a String");
+
+				String s = (String) value;
+				boolean found = false;
+
+				for (String alt : dp.strings())
+					if (alt.equals(s)) {
+						found = true;
+						break;
+					}
+
+				if (!found)
+					throw new InvalidParameterException(
+							"\"%s\" is not in the allowed values for %s",
+							value, dp.name());
+			}
+		}
+
+		/**
+		 * Check if all non-optional parameters will receive a value.
+		 * 
+		 * @throws MissingParameterException
+		 *             a non-optional parameter does not receive its value.
+		 */
+		protected void checkNonOptionnalParameters()
+				throws MissingParameterException {
+			for (Field f : fields.keySet()) {
+				DefineParameter dp = f.getAnnotation(DefineParameter.class);
+
+				if (!dp.optional() && !params.containsKey(dp.name()))
+					throw new MissingParameterException(
+							"parameter \"%s\" is missing", dp.name());
+			}
+		}
+
+		/**
+		 * Call setter of a parameter. This is called when
+		 * {@link DefineParameter#setter()} is not empty. If arguments count of
+		 * the setter is 1, then the value is passed as argument. If count is 2,
+		 * then parameter name and value are passed as arguments. Else, a
+		 * InvalidParameterException is thrown.
+		 * 
+		 * @param dp
+		 *            the DefineParameter annotation associated to the field.
+		 * @param f
+		 *            the field.
+		 * @param value
+		 *            the value.
+		 * @throws InvalidParameterException
+		 */
+		protected void callSetter(DefineParameter dp, Field f, Object value)
+				throws InvalidParameterException {
+			Object env = fields.get(f);
+
+			Method setter = null;
+
+			{
+				Class<?> cls = env.getClass();
+
+				while (setter == null && cls != Object.class) {
+					Method[] methods = cls.getDeclaredMethods();
+
+					if (methods != null) {
+						for (Method m : methods)
+							if (m.getName().equals(dp.setter())) {
+								setter = m;
+								break;
+							}
+					}
+
+					cls = cls.getSuperclass();
+				}
+			}
+
+			if (setter == null)
+				throw new InvalidParameterException(
+						"'setter' '%s()' can not be found for %s", dp.setter(),
+						dp.name());
+
+			Object[] args = null;
+
+			switch (setter.getParameterTypes().length) {
+			case 1:
+				// If trigger has one argument, we pass the value of
+				// the parameter.
+				args = new Object[] { value };
+				break;
+			case 2:
+				// If trigger has two arguments, we pass the key and
+				// the value of the parameter.
+				args = new Object[] { dp.name(), value };
+				break;
+			default:
+				throw new InvalidParameterException(
+						"bad argument count in 'setter' '%s()' for %s",
+						dp.setter(), dp.name());
+			}
+
+			try {
+				setter.invoke(env, args);
+			} catch (IllegalArgumentException e) {
+				throw new InvalidParameterException(
+						"bad arguments in 'setter' '%s()'for %s", dp.setter(),
+						dp.name());
+			} catch (IllegalAccessException e) {
+				throw new InvalidParameterException(
+						"illegal access to 'setter' '%s()' for %s",
+						dp.setter(), dp.name());
+			} catch (InvocationTargetException e) {
+				throw new InvalidParameterException(
+						"invocation error of 'setter' '%s()' for %s",
+						dp.setter(), dp.name());
+			}
+		}
+
+		/**
+		 * Call the beforeSet trigger. The name of the method to call can be
+		 * defined in @link {@link DefineParameter#beforeSet()}. If arguments
+		 * count of the method is 0, no argument is given. If 1, then the value
+		 * is given. If 2, then the parameter name and its value are given.
+		 * Else, throw an InvalidParameterException.
+		 * 
+		 * @param dp
+		 *            the DefineParameter annotation associated to the field.
+		 * @param f
+		 *            the field.
+		 * @param value
+		 *            the value.
+		 * @throws InvalidParameterException
+		 */
+		protected void callBeforeSetTrigger(DefineParameter dp, Field f,
+				Object value) throws InvalidParameterException {
+			if (dp.beforeSet().length() > 0) {
+				Object env = fields.get(f);
+
+				Method beforeSet = null;
+
+				{
+					Class<?> cls = env.getClass();
+
+					while (beforeSet == null && cls != Object.class) {
+						Method[] methods = cls.getDeclaredMethods();
+
+						if (methods != null) {
+							for (Method m : methods)
+								if (m.getName().equals(dp.beforeSet())) {
+									beforeSet = m;
+									break;
+								}
+						}
+
+						cls = cls.getSuperclass();
+					}
+				}
+
+				if (beforeSet == null)
+					throw new InvalidParameterException(
+							"'beforeSet' trigger '%s()' can not be found for %s",
+							dp.beforeSet(), dp.name());
+
+				Object[] args = null;
+
+				switch (beforeSet.getParameterTypes().length) {
+				case 0:
+					// Nothing
+					break;
+				case 1:
+					// If trigger has one argument, we pass the value of
+					// the parameter.
+					args = new Object[] { value };
+					break;
+				case 2:
+					// If trigger has two arguments, we pass the key and
+					// the value of the parameter.
+					args = new Object[] { dp.name(), value };
+					break;
+				default:
+					throw new InvalidParameterException(
+							"two much arguments in 'beforeSet' trigger '%s()' for %s",
+							dp.beforeSet(), dp.name());
+				}
+
+				try {
+					beforeSet.invoke(env, args);
+				} catch (IllegalArgumentException e) {
+					throw new InvalidParameterException(
+							"bad arguments in 'beforeSet' trigger '%s()'for %s",
+							dp.beforeSet(), dp.name());
+				} catch (IllegalAccessException e) {
+					throw new InvalidParameterException(
+							"illegal access to 'beforeSet' trigger '%s()' for %s",
+							dp.beforeSet(), dp.name());
+				} catch (InvocationTargetException e) {
+					throw new InvalidParameterException(
+							"invocation error of 'beforeSet' trigger '%s()' for %s",
+							dp.beforeSet(), dp.name());
+				}
+			}
+		}
+
+		/**
+		 * Call the afterSet trigger. The name of the method to call can be
+		 * defined in @link {@link DefineParameter#afterSet()}. If arguments
+		 * count of the method is 0, no argument is given. If 1, then the value
+		 * is given. If 2, then the parameter name and its value are given.
+		 * Else, throw an InvalidParameterException.
+		 * 
+		 * @param dp
+		 *            the DefineParameter annotation associated to the field.
+		 * @param f
+		 *            the field.
+		 * @param value
+		 *            the value.
+		 * @throws InvalidParameterException
+		 */
+		protected void callAfterSetTrigger(DefineParameter dp, Field f,
+				Object value) throws InvalidParameterException {
+			Object env = fields.get(f);
+
+			if (dp.afterSet().length() > 0) {
+				Method afterSet = null;
+
+				{
+					Class<?> cls = env.getClass();
+
+					while (afterSet == null && cls != Object.class) {
+						Method[] methods = cls.getDeclaredMethods();
+
+						if (methods != null) {
+							for (Method m : methods)
+								if (m.getName().equals(dp.afterSet())) {
+									afterSet = m;
+									break;
+								}
+						}
+
+						cls = cls.getSuperclass();
+					}
+				}
+
+				if (afterSet == null)
+					throw new InvalidParameterException(
+							"'afterSet' trigger '%s()' can not be found for %s",
+							dp.afterSet(), dp.name());
+
+				Object[] args = null;
+
+				switch (afterSet.getParameterTypes().length) {
+				case 0:
+					// Nothing
+					break;
+				case 1:
+					// If trigger has one argument, we pass the value of
+					// the parameter.
+					args = new Object[] { value };
+					break;
+				case 2:
+					// If trigger has two arguments, we pass the key and
+					// the value of the parameter.
+					args = new Object[] { dp.name(), value };
+					break;
+				default:
+					throw new InvalidParameterException(
+							"two much arguments in 'afterSet' trigger '%s()' for %s",
+							dp.afterSet(), dp.name());
+				}
+
+				try {
+					afterSet.invoke(env, args);
+				} catch (IllegalArgumentException e) {
+					throw new InvalidParameterException(
+							"bad arguments in 'afterSet' trigger '%s()'for %s",
+							dp.afterSet(), dp.name());
+				} catch (IllegalAccessException e) {
+					throw new InvalidParameterException(
+							"illegal access to 'afterSet' trigger '%s()' for %s",
+							dp.afterSet(), dp.name());
+				} catch (InvocationTargetException e) {
+					throw new InvalidParameterException(
+							"invocation error of 'afterSet' trigger '%s()' for %s",
+							dp.afterSet(), dp.name());
+				}
+			}
 		}
 	}
 
