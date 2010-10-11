@@ -37,21 +37,54 @@ import static org.graphstream.algorithm.Toolkit.modularityMatrix;
  * @author Guillaume-Jean Herbiet
  */
 public class Modularity extends CommunityMeasure {
+
 	/**
-	 * New modularity algorithm usign the default marker for communities.
+	 * Possible weighted extension for the modularity computation
+	 */
+	protected String weightMarker = null;
+
+	/**
+	 * New modularity algorithm using the default marker for communities and no
+	 * weight on edges.
 	 */
 	public Modularity() {
 		super("community");
 	}
 
 	/**
-	 * New modularity algorithm with a given marker for communities.
+	 * New modularity algorithm with a given marker for communities and no
+	 * weight on edges.
 	 * 
 	 * @param marker
 	 *            name of the attribute marking the communities.
 	 */
 	public Modularity(String marker) {
 		super(marker);
+	}
+
+	/**
+	 * New weighted modularity algorithm with a given marker for communities and
+	 * the given weightMarker for edge weights.
+	 * 
+	 * @param marker
+	 *            name of the attribute marking the communities.
+	 * @param weightMarker
+	 *            name of the attribute marking the weight of edges.
+	 */
+	public Modularity(String marker, String weightMarker) {
+		super(marker);
+		this.weightMarker = weightMarker;
+	}
+
+	/**
+	 * Enables weighted extension of the modularity using the given weightMarker
+	 * for edge weights.
+	 * 
+	 * @param weightMarker
+	 *            name of the attribute marking the weight of edges.
+	 */
+	public void setWeightMarker(String weightMarker) {
+		this.weightMarker = weightMarker;
 	}
 
 	/*
@@ -63,8 +96,9 @@ public class Modularity extends CommunityMeasure {
 	 * @complexity O(n+m!+m!k)
 	 */
 	public void compute() {
+
 		if (graphChanged) {
-			float[][] E = modularityMatrix(graph, communities);
+			float[][] E = modularityMatrix(graph, communities, weightMarker);
 			M = modularity(E);
 			graphChanged = false;
 		}

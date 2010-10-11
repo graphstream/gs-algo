@@ -35,10 +35,10 @@ package org.graphstream.algorithm;
  * {@link #compute()} in a loop, as long as the graph evolves.
  * </p>
  */
-public interface DynamicAlgorithm extends Algorithm
-{
+public interface DynamicAlgorithm extends Algorithm {
 	/**
 	 * End the dynamic algorithm.
+	 * 
 	 * @see #init(org.graphstream.graph.Graph)
 	 */
 	void terminate();

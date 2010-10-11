@@ -76,33 +76,31 @@ import org.graphstream.graph.*;
  * @author Antoine Dutot
  * @author Yoann Pigné
  */
-public class WelshPowell
-	implements Algorithm
-{
-// Attributes
-	
+public class WelshPowell implements Algorithm {
+	// Attributes
+
 	/**
 	 * Modify the graph ?.
 	 */
 	protected boolean modify = false;
-	
+
 	/**
 	 * Name of the attributes added to the graph.
 	 */
 	protected String attrName = "color";
-	
+
 	/**
 	 * The graph.
 	 */
 	protected Graph g;
 
 	/**
-	 * The algorithm result (number of colors). 
+	 * The algorithm result (number of colors).
 	 */
 	protected int result;
-	
-// Constructors
-	
+
+	// Constructors
+
 	/**
 	 * New Welsh and Powell coloring algorithm.
 	 * 
@@ -115,12 +113,11 @@ public class WelshPowell
 	 *            algorithm. Note that if attrName is "color", then the color of
 	 *            the nodes will be modified accordingly.
 	 */
-	public WelshPowell( boolean modify, String attrName )
-	{
-		this.modify   = modify;
+	public WelshPowell(boolean modify, String attrName) {
+		this.modify = modify;
 		this.attrName = attrName;
 	}
-	
+
 	/**
 	 * New Welsh and Powell coloring algorithm, using "color" as the attribute
 	 * name. If the graph is to be modified, the modification will store colors
@@ -130,100 +127,96 @@ public class WelshPowell
 	 *            A boolean equals to true if the graph has to be modified,
 	 *            false otherwise
 	 */
-	public WelshPowell( boolean modify )
-	{
-		this.modify   = modify;
+	public WelshPowell(boolean modify) {
+		this.modify = modify;
 	}
-	
-// Accessors
+
+	// Accessors
 
 	/**
 	 * Return the last computed result of the algorithm.
+	 * 
 	 * @return The number of colors.
 	 * @see #compute()
 	 */
-	public int getLastComputedResult()
-	{
+	public int getLastComputedResult() {
 		return result;
 	}
-	
-// Commands
-	
+
+	// Commands
+
 	/**
 	 * Set the name of the attribute to put in the graph if it is modified.
-	 * @param attrName An attribute name.
+	 * 
+	 * @param attrName
+	 *            An attribute name.
 	 */
-	public void setAttributeName( String attrName )
-	{
+	public void setAttributeName(String attrName) {
 		this.attrName = attrName;
 	}
-	
+
 	/**
 	 * Modify the graph when computing the algorithm?.
-	 * @param modify If true, attributes are stored in the graph.
+	 * 
+	 * @param modify
+	 *            If true, attributes are stored in the graph.
 	 */
-	public void setModify( boolean modify )
-	{
+	public void setModify(boolean modify) {
 		this.modify = modify;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
-	 * @see org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
+	 * 
+	 * @see
+	 * org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
 	 */
-	public void init( Graph g )
-	{
+	public void init(Graph g) {
 		this.g = g;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.graphstream.algorithm.Algorithm#compute()
 	 */
-	public void compute()
-	{
+	public void compute() {
 		String attributeName = "welshpowell";
 
-		if( modify && ( attrName != null ) )
+		if (modify && (attrName != null))
 			attributeName = attrName;
-	
+
 		// ------- STEP 1 -----------
 		// the algorithm requires the use of a sorted list using
 		// degree values for sorting them.
 
-		Comparator<Node> degreeComparator = new Comparator<Node>()
-		{
-			public int compare( Node ni, Node nj )
-			{
+		Comparator<Node> degreeComparator = new Comparator<Node>() {
+			public int compare(Node ni, Node nj) {
 				int returnValue = 0;
 				int diff = ni.getDegree() - nj.getDegree();
-				
-				if( diff > 0 )
-				{
+
+				if (diff > 0) {
 					returnValue = -1;
-				}
-				else if( diff < 0 )
-				{
+				} else if (diff < 0) {
 					returnValue = 1;
 				}
-				
+
 				return returnValue;
 			}
 		};
 
-		PriorityQueue<Node> pq = new PriorityQueue<Node>( g.getNodeCount(), degreeComparator );
+		PriorityQueue<Node> pq = new PriorityQueue<Node>(g.getNodeCount(),
+				degreeComparator);
 		Iterator<? extends Node> nodes = g.getNodeIterator();
-		
-		while( nodes.hasNext() )
-		{
-		    pq.add( nodes.next() );
+
+		while (nodes.hasNext()) {
+			pq.add(nodes.next());
 		}
 
 		ArrayList<Node> sortedNodes = new ArrayList<Node>();
 
-		for( int i = 0; i < g.getNodeCount(); i++ )
-		{
-			sortedNodes.add( pq.poll() );
+		for (int i = 0; i < g.getNodeCount(); i++) {
+			sortedNodes.add(pq.poll());
 		}
 
 		// ------ STEP 2 --------
@@ -233,63 +226,54 @@ public class WelshPowell
 		Color col;
 		int nbColors = 0;
 
-		for( int i = 0; i < g.getNodeCount(); i++ )
-		{
-			col = Color.getHSBColor( (float) ( Math.random() ), 0.8f, 0.9f );
-			allColors.add( col );
+		for (int i = 0; i < g.getNodeCount(); i++) {
+			col = Color.getHSBColor((float) (Math.random()), 0.8f, 0.9f);
+			allColors.add(col);
 		}
 
 		// ------- STEP 3 --------
 
-		Color currentColor = allColors.remove( 0 );
+		Color currentColor = allColors.remove(0);
 		nbColors++;
 
-		while( !sortedNodes.isEmpty() )
-		{
+		while (!sortedNodes.isEmpty()) {
 			int index = 0;
 
-			while( index < sortedNodes.size() )
-			{
-				Node n = sortedNodes.get( index );
-				Iterator<? extends Node> neighbors = n.getNeighborNodeIterator();
+			while (index < sortedNodes.size()) {
+				Node n = sortedNodes.get(index);
+				Iterator<? extends Node> neighbors = n
+						.getNeighborNodeIterator();
 				boolean conflict = false;
 
-				while( neighbors.hasNext() && !conflict )
-				{
+				while (neighbors.hasNext() && !conflict) {
 					Node neighb = neighbors.next();
 
-					if( neighb.hasAttribute( attributeName ) )
-					{
-						if( ( (Color) ( neighb.getAttribute( attributeName ) ) ).equals( currentColor ) )
-						{
+					if (neighb.hasAttribute(attributeName)) {
+						if (((Color) (neighb.getAttribute(attributeName)))
+								.equals(currentColor)) {
 							conflict = true;
 						}
 					}
 				}
 
-				if( !conflict )
-				{
-					n.addAttribute( attributeName, currentColor );
-					sortedNodes.remove( index );
-				}
-				else
-				{
+				if (!conflict) {
+					n.addAttribute(attributeName, currentColor);
+					sortedNodes.remove(index);
+				} else {
 					index++;
 				}
 			}
 
-			currentColor = allColors.remove( 0 );
+			currentColor = allColors.remove(0);
 			nbColors++;
 		}
 
-		if( !modify )
-		{
-		    nodes = g.getNodeIterator();
-		    
-		    while( nodes.hasNext() )
-		    {
-			nodes.next().removeAttribute( attributeName );
-		    }
+		if (!modify) {
+			nodes = g.getNodeIterator();
+
+			while (nodes.hasNext()) {
+				nodes.next().removeAttribute(attributeName);
+			}
 		}
 
 		result = nbColors;

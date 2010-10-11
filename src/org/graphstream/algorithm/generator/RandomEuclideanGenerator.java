@@ -75,9 +75,7 @@ import org.graphstream.stream.Pipe;
  * @complexity For the construction of a n nodes graph, the complexity is about
  *             O(n^2).
  */
-public class RandomEuclideanGenerator
-	extends BaseGenerator implements Pipe
-{
+public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 	/**
 	 * Used to generate node names.
 	 */
@@ -88,22 +86,21 @@ public class RandomEuclideanGenerator
 	 */
 	protected int dimension = 2;
 
-	protected HashMap<String,float[]> coords = new HashMap<String,float[]>();
-	
+	protected HashMap<String, float[]> coords = new HashMap<String, float[]>();
+
 	/**
 	 * The threshold that defines whether or not a link is created between to
 	 * nodes. Since the coordinate system is defined between 0 and 1, the
 	 * threshold has to be set between these two bounds.
 	 */
-	protected float threshold=0.1f;
-	
+	protected float threshold = 0.1f;
+
 	/**
 	 * New random Euclidean graph generator. By default no attributes are added
 	 * to nodes and edges. Dimension of the space is two.
 	 */
-	public RandomEuclideanGenerator( )
-	{
-		super( );
+	public RandomEuclideanGenerator() {
+		super();
 		initDimension(2);
 		enableKeepNodesId();
 	}
@@ -116,9 +113,8 @@ public class RandomEuclideanGenerator
 	 *            The dimension of the space for the graph. By default it is
 	 *            two.
 	 */
-	public RandomEuclideanGenerator( int dimension )
-	{
-		super( );
+	public RandomEuclideanGenerator(int dimension) {
+		super();
 		initDimension(dimension);
 		enableKeepNodesId();
 	}
@@ -137,10 +133,9 @@ public class RandomEuclideanGenerator
 	 *            If true edge, are directed and the direction is chosen at
 	 *            randomly.
 	 */
-	public RandomEuclideanGenerator( int dimension, boolean directed,
-			boolean randomlyDirectedEdges )
-	{
-		super( directed, randomlyDirectedEdges );
+	public RandomEuclideanGenerator(int dimension, boolean directed,
+			boolean randomlyDirectedEdges) {
+		super(directed, randomlyDirectedEdges);
 		initDimension(dimension);
 		enableKeepNodesId();
 	}
@@ -163,38 +158,31 @@ public class RandomEuclideanGenerator
 	 *            put an attribute by that name on each edge with a random
 	 *            numeric value.
 	 */
-	public RandomEuclideanGenerator( int dimension, boolean directed,
-			boolean randomlyDirectedEdges, String nodeAttribute, String edgeAttribute )
-	{
-		super( directed, randomlyDirectedEdges, nodeAttribute, edgeAttribute );
+	public RandomEuclideanGenerator(int dimension, boolean directed,
+			boolean randomlyDirectedEdges, String nodeAttribute,
+			String edgeAttribute) {
+		super(directed, randomlyDirectedEdges, nodeAttribute, edgeAttribute);
 		initDimension(dimension);
 		enableKeepNodesId();
 	}
-	
-	private void initDimension( int dimension )
-	{
+
+	private void initDimension(int dimension) {
 		this.dimension = dimension;
-		super.setNodeAttributesRange( 0f, 1f );
-		if( dimension > 0 )
-		{
-			if( dimension == 2 )
-			{
-				super.addNodeAttribute( "x" );
-				super.addNodeAttribute( "y" );
+		super.setNodeAttributesRange(0f, 1f);
+		if (dimension > 0) {
+			if (dimension == 2) {
+				super.addNodeAttribute("x");
+				super.addNodeAttribute("y");
+			} else if (dimension == 3) {
+				super.addNodeAttribute("x");
+				super.addNodeAttribute("y");
+				super.addNodeAttribute("z");
+			} else {
+				for (int i = 0; i < dimension; i++)
+					super.addNodeAttribute("x" + i);
 			}
-			else if( dimension == 3 )
-			{
-				super.addNodeAttribute( "x" );
-				super.addNodeAttribute( "y" );
-				super.addNodeAttribute( "z" );
-			}
-			else
-			{
-				for( int i = 0; i < dimension; i++ )
-					super.addNodeAttribute( "x" + i );
-			}
-		}
-		else System.err.println( "dimension has to be higher that zero" );
+		} else
+			System.err.println("dimension has to be higher that zero");
 
 	}
 
@@ -203,11 +191,10 @@ public class RandomEuclideanGenerator
 	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#begin()
 	 */
-	public void begin()
-	{
-		String id = Integer.toString( nodeNames++ );
+	public void begin() {
+		String id = Integer.toString(nodeNames++);
 
-		addNode( id );
+		addNode(id);
 	}
 
 	/**
@@ -215,28 +202,26 @@ public class RandomEuclideanGenerator
 	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
 	 */
-	public boolean nextEvents()
-	{
-		String id = Integer.toString( nodeNames++ );
+	public boolean nextEvents() {
+		String id = Integer.toString(nodeNames++);
 
-		addNode( id );
-		
-		for( String node : nodes )
-		{
-		    if( ! id.equals(node) && distance(id,node) < threshold)
-		    	addEdge( id + "-" + node , id, node );
+		addNode(id);
+
+		for (String node : nodes) {
+			if (!id.equals(node) && distance(id, node) < threshold)
+				addEdge(id + "-" + node, id, node);
 		}
-		
+
 		return true;
 	}
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#end()
 	 */
-	public void end()
-	{
-		
+	public void end() {
+
 	}
 
 	/**
@@ -248,59 +233,53 @@ public class RandomEuclideanGenerator
 	 *            second node
 	 * @return distance between n1 and n2
 	 */
-	private float distance( String n1, String n2 )
-	{
+	private float distance(String n1, String n2) {
 		float d = 0f;
-		
-		float [] p1 = coords.get(n1);
-		float [] p2 = coords.get(n2);
-		
-		if( dimension == 2 )
-		{
-			d = (float) Math.pow( p1[0] - p2[0], 2 ) +  (float) Math.pow( p1[1] - p2[1], 2 ); 
+
+		float[] p1 = coords.get(n1);
+		float[] p2 = coords.get(n2);
+
+		if (dimension == 2) {
+			d = (float) Math.pow(p1[0] - p2[0], 2)
+					+ (float) Math.pow(p1[1] - p2[1], 2);
+		} else if (dimension == 3) {
+			d = (float) Math.pow(p1[0] - p2[0], 2)
+					+ (float) Math.pow(p1[1] - p2[1], 2)
+					+ (float) Math.pow(p1[2] - p2[2], 2);
+		} else {
+			for (int i = 0; i < dimension; i++)
+				d += (float) Math.pow(p1[i] - p2[i], 2);
 		}
-		else if( dimension == 3 )
-		{
-			d = (float) Math.pow( p1[0] - p2[0], 2 ) +  (float) Math.pow( p1[1] - p2[1], 2 ) +  (float) Math.pow( p1[2] - p2[2], 2 );
-		}
-		else
-		{
-			for( int i = 0; i < dimension; i++ )
-				d += (float) Math.pow( p1[i] - p2[i], 2 );
-		}
-		
-		return (float) Math.sqrt( d );
+
+		return (float) Math.sqrt(d);
 	}
-	
+
 	/**
-	 * Set the threshold that defines whether or not a link is created between to
-	 * notes. Since the coordinate system is defined between 0 and 1, the
+	 * Set the threshold that defines whether or not a link is created between
+	 * to notes. Since the coordinate system is defined between 0 and 1, the
 	 * threshold has to be set between these two bounds.
-	 * @param threshold The defined threshold. 
+	 * 
+	 * @param threshold
+	 *            The defined threshold.
 	 */
-	public void setThreshold(float threshold)
-	{
-		if(threshold <= 1f && threshold >= 0f)
+	public void setThreshold(float threshold) {
+		if (threshold <= 1f && threshold >= 0f)
 			this.threshold = threshold;
 	}
-	
-	protected void nodeAttributeHandling( String nodeId, String key, Object val )
-	{
-		if( key != null && key.matches("x|y|z") && val instanceof Float )
-		{
-			int i = ( (int) key.charAt(0) ) - (int) 'x';
-			
-			if( i < dimension )
-			{
-				float [] p = coords.get(nodeId);
 
-				if( p == null )
-				{
-					p = new float [dimension];
-					coords.put(nodeId,p);
+	protected void nodeAttributeHandling(String nodeId, String key, Object val) {
+		if (key != null && key.matches("x|y|z") && val instanceof Float) {
+			int i = ((int) key.charAt(0)) - (int) 'x';
+
+			if (i < dimension) {
+				float[] p = coords.get(nodeId);
+
+				if (p == null) {
+					p = new float[dimension];
+					coords.put(nodeId, p);
 				}
 
-				p [((int)key.charAt(0))-(int)'x'] = (Float) val;
+				p[((int) key.charAt(0)) - (int) 'x'] = (Float) val;
 			}
 		}
 	}
@@ -331,12 +310,12 @@ public class RandomEuclideanGenerator
 
 	public void nodeAttributeAdded(String sourceId, long timeId, String nodeId,
 			String attribute, Object value) {
-		nodeAttributeHandling(nodeId,attribute,value);
+		nodeAttributeHandling(nodeId, attribute, value);
 	}
 
 	public void nodeAttributeChanged(String sourceId, long timeId,
 			String nodeId, String attribute, Object oldValue, Object newValue) {
-		nodeAttributeHandling(nodeId,attribute,newValue);
+		nodeAttributeHandling(nodeId, attribute, newValue);
 	}
 
 	public void nodeAttributeRemoved(String sourceId, long timeId,

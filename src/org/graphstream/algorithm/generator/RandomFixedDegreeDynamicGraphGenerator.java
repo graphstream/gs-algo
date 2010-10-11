@@ -85,14 +85,12 @@ package org.graphstream.algorithm.generator;
  * @author Fr&eacute;d&eacute;ric Guinand
  * @since 20080616
  */
-public class RandomFixedDegreeDynamicGraphGenerator
-	extends BaseGenerator
-{
+public class RandomFixedDegreeDynamicGraphGenerator extends BaseGenerator {
 	/**
 	 * Average number of vertices.
 	 */
 	protected int nbVertices;
-	
+
 	/**
 	 * Limit for the mean degree of nodes.
 	 */
@@ -108,12 +106,12 @@ public class RandomFixedDegreeDynamicGraphGenerator
 	 * Current step of the generator.
 	 */
 	protected int step = 1;
-	
+
 	/**
 	 * Influence the number of nodes created at each step.
 	 */
 	protected int deltaStep = 100;
-	
+
 	/**
 	 * Used to generate node ids.
 	 */
@@ -125,11 +123,10 @@ public class RandomFixedDegreeDynamicGraphGenerator
 	 * 
 	 * @see #RandomFixedDegreeDynamicGraphGenerator(int, double, double)
 	 */
-	public RandomFixedDegreeDynamicGraphGenerator()
-	{
-		this(50,5,0.1f);
+	public RandomFixedDegreeDynamicGraphGenerator() {
+		this(50, 5, 0.1f);
 	}
-	
+
 	/**
 	 * Create a new RandomFixedDegreeDynamicGraphGenerator generator.
 	 * 
@@ -140,39 +137,36 @@ public class RandomFixedDegreeDynamicGraphGenerator
 	 * @param nervousness
 	 *            The nervousness.
 	 */
-	public RandomFixedDegreeDynamicGraphGenerator( int nbVertices,
-			double meanDegreeLimit, double nervousness )
-	{
+	public RandomFixedDegreeDynamicGraphGenerator(int nbVertices,
+			double meanDegreeLimit, double nervousness) {
 		enableKeepNodesId();
 		enableKeepEdgesId();
-		
-		this.nbVertices      = nbVertices;
+
+		this.nbVertices = nbVertices;
 		this.meanDegreeLimit = meanDegreeLimit;
-		this.nervousness     = nervousness;
+		this.nervousness = nervousness;
 	}
-	
+
 	/**
 	 * This method computes the mean degree of the graph.
 	 */
-	public double meanDegree()
-	{
+	public double meanDegree() {
 		return 2.0 * edges.size() / (double) nodes.size();
 	}
-	
-	protected String getEdgeId( String src, String trg )
-	{
-		if( src.compareTo(trg) < 0 )
-			return String.format( "%s_%s", src, trg );
-		
-		return String.format( "%s_%s", trg, src );
+
+	protected String getEdgeId(String src, String trg) {
+		if (src.compareTo(trg) < 0)
+			return String.format("%s_%s", src, trg);
+
+		return String.format("%s_%s", trg, src);
 	}
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#begin()
 	 */
-	public void begin()
-	{
+	public void begin() {
 		step = 0;
 	}
 
@@ -182,70 +176,62 @@ public class RandomFixedDegreeDynamicGraphGenerator
 	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
 	 */
-	public boolean nextEvents()
-	{
+	public boolean nextEvents() {
 		int nbCreations, nbSuppressions, nbCreationsEdges;
 		String dead, source, dest;
-		
-		sendStepBegins(sourceId,step);
-		
-		nbSuppressions = (int) ( random.nextFloat() * ( nodes.size() * nervousness ) );
-		
-		for( int r = 1; r <= nbSuppressions; r++ )
-		{
+
+		sendStepBegins(sourceId, step);
+
+		nbSuppressions = (int) (random.nextFloat() * (nodes.size() * nervousness));
+
+		for (int r = 1; r <= nbSuppressions; r++) {
 			dead = nodes.get(random.nextInt(nodes.size()));
 			delNode(dead);
 		}
 
-		nbCreations = (int) ( random.nextFloat() * ( ( nbVertices - nodes.size() )
-		        * Math.log( step ) / Math.log( step + deltaStep ) ) );
-		
-		for( int c = 1; c <= nbCreations; c++ )
-		{
-			String nodeId = String.format( "%d", currentNodeId++ );
-			
+		nbCreations = (int) (random.nextFloat() * ((nbVertices - nodes.size())
+				* Math.log(step) / Math.log(step + deltaStep)));
+
+		for (int c = 1; c <= nbCreations; c++) {
+			String nodeId = String.format("%d", currentNodeId++);
+
 			addNode(nodeId);
 		}
 
 		double degreMoyen = meanDegree();
 
-		nbCreationsEdges = (int) ( random.nextFloat() * ( ( ( meanDegreeLimit - degreMoyen ) *
-				( nodes.size() / 2 ) ) * Math.log( step ) / Math.log( step + deltaStep ) ) );
-		
-		if( nodes.size() > 1 )
-		{
-			for( int c = 1; c <= nbCreationsEdges; c++ )
-			{
-				do
-				{
-					source 	= nodes.get(random.nextInt(nodes.size()));
-					dest 	= nodes.get(random.nextInt(nodes.size()));
-				}
-				while( source.equals(dest) );
+		nbCreationsEdges = (int) (random.nextFloat() * (((meanDegreeLimit - degreMoyen) * (nodes
+				.size() / 2)) * Math.log(step) / Math.log(step + deltaStep)));
 
-				String idEdge = getEdgeId( source, dest );
+		if (nodes.size() > 1) {
+			for (int c = 1; c <= nbCreationsEdges; c++) {
+				do {
+					source = nodes.get(random.nextInt(nodes.size()));
+					dest = nodes.get(random.nextInt(nodes.size()));
+				} while (source.equals(dest));
 
-				while( edges.contains(idEdge) || source.equals(dest) )
-				{
-					dest 	= nodes.get(random.nextInt(nodes.size()));
-					idEdge 	= getEdgeId( source, dest );
+				String idEdge = getEdgeId(source, dest);
+
+				while (edges.contains(idEdge) || source.equals(dest)) {
+					dest = nodes.get(random.nextInt(nodes.size()));
+					idEdge = getEdgeId(source, dest);
 				}
 
-				addEdge( idEdge, source, dest );
+				addEdge(idEdge, source, dest);
 			}
 		}
-		
+
 		step++;
-		
+
 		return false;
 	}
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#end()
 	 */
-	public void end()
-	{
-		
+	public void end() {
+
 	}
 }

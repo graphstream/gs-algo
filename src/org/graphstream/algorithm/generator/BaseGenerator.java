@@ -58,50 +58,46 @@ import org.graphstream.stream.SourceBase;
  * 
  * @since 2007
  */
-public abstract class BaseGenerator
-	extends SourceBase implements Generator
-{
+public abstract class BaseGenerator extends SourceBase implements Generator {
 	/**
 	 * Defines data which is stored when {@link #keepNodesId} is enabled.
 	 */
-	protected class NodeKeepData
-	{
+	protected class NodeKeepData {
 		/**
 		 * List of edge ids adjacent to the node.
 		 */
 		LinkedList<String> edges;
-		
+
 		/**
 		 * Remembers this edge id as an adjacent edge.
 		 * 
-		 * @param id id of the adjacent edge
+		 * @param id
+		 *            id of the adjacent edge
 		 */
-		void keepEdge( String id )
-		{
-			if( edges == null )
+		void keepEdge(String id) {
+			if (edges == null)
 				edges = new LinkedList<String>();
-			
-			if( ! edges.contains(id) )
+
+			if (!edges.contains(id))
 				edges.add(id);
 		}
-		
+
 		/**
 		 * Removes an edge id from adjacent edge list.
 		 * 
-		 * @param id id of the old adjacent edge
+		 * @param id
+		 *            id of the old adjacent edge
 		 */
-		void unkeepEdge( String id )
-		{
-			if( edges != null )
+		void unkeepEdge(String id) {
+			if (edges != null)
 				edges.remove(id);
 		}
 	}
-	
+
 	/**
 	 * Defines data which is stored when {@link #keepEdgesId} is enabled.
 	 */
-	protected class EdgeKeepData
-	{
+	protected class EdgeKeepData {
 		/**
 		 * Source and target node ids of the edge.
 		 */
@@ -115,9 +111,8 @@ public abstract class BaseGenerator
 		 * @param trg
 		 *            target node id
 		 */
-		EdgeKeepData( String src, String trg )
-		{
-			keepNodes(src,trg);
+		EdgeKeepData(String src, String trg) {
+			keepNodes(src, trg);
 		}
 
 		/**
@@ -128,65 +123,66 @@ public abstract class BaseGenerator
 		 * @param trg
 		 *            target node id
 		 */
-		void keepNodes( String src, String trg )
-		{
+		void keepNodes(String src, String trg) {
 			this.src = src;
 			this.trg = trg;
 		}
 	}
-	
-// Attributes
-	
+
+	// Attributes
+
 	/**
 	 * Are edges directed ?
 	 */
 	protected boolean directed = false;
-	
+
 	/**
 	 * If directed, choose the direction randomly?.
 	 */
 	protected boolean randomlyDirected = false;
-	
+
 	/**
-	 * List of attributes to put on nodes with a randomly chosen numerical value.
+	 * List of attributes to put on nodes with a randomly chosen numerical
+	 * value.
 	 */
 	protected ArrayList<String> nodeAttributes = new ArrayList<String>();
-	
+
 	/**
-	 * List of attributes to put on edges with a randomly chosen numerical value.
+	 * List of attributes to put on edges with a randomly chosen numerical
+	 * value.
 	 */
 	protected ArrayList<String> edgeAttributes = new ArrayList<String>();
-	
+
 	/**
 	 * If node attributes are added, in which range are the numbers chosen ?.
 	 */
 	protected float[] nodeAttributeRange = new float[2];
-	
+
 	/**
 	 * If edge attributes are added, in which range are the numbers chosen ?.
 	 */
 	protected float[] edgeAttributeRange = new float[2];
-	
+
 	/**
 	 * List of all generated nodes so far. Used to create edges toward all other
 	 * nodes at each step.
 	 */
 	protected ArrayList<String> nodes = new ArrayList<String>();
-	
+
 	/**
 	 * List of all generated edges.
 	 */
 	protected ArrayList<String> edges = new ArrayList<String>();
-	
+
 	/**
 	 * Data linked to nodes when {@link keepNodesId} is enabled.
 	 */
-	protected HashMap<String,NodeKeepData>	nodesData 	= new HashMap<String,NodeKeepData>();
-	
+	protected HashMap<String, NodeKeepData> nodesData = new HashMap<String, NodeKeepData>();
+
 	/**
 	 * Data linked to edges when {@link keepEdgesId} is enabled.
 	 */
-	protected HashMap<String,EdgeKeepData>	edgesData 	= new HashMap<String,EdgeKeepData>();
+	protected HashMap<String, EdgeKeepData> edgesData = new HashMap<String, EdgeKeepData>();
 
 	/**
 	 * If enabled, keep node ids and essential data. In some generator,
@@ -199,7 +195,7 @@ public abstract class BaseGenerator
 	 * algorithm needs to know what has been previously build.
 	 */
 	protected boolean keepEdgesId = false;
-	
+
 	/**
 	 * The random number generator.
 	 */
@@ -214,18 +210,17 @@ public abstract class BaseGenerator
 	 * Set the edge label attribute using the identifier?.
 	 */
 	protected boolean addEdgeLabels = false;
-	
-// Constructors
+
+	// Constructors
 
 	/**
 	 * New base graph generator. By default no attributes are added to nodes and
 	 * edges, and edges are not directed.
 	 */
-	public BaseGenerator()
-	{
-		this( false, false );
+	public BaseGenerator() {
+		this(false, false);
 	}
-	
+
 	/**
 	 * New base graph generator. By default no attributes are added to nodes and
 	 * edges. It is possible to make edge randomly directed.
@@ -236,17 +231,16 @@ public abstract class BaseGenerator
 	 *            If true edge, are directed and the direction is chosen
 	 *            randomly.
 	 */
-	public BaseGenerator( boolean directed, boolean randomlyDirectedEdges )
-	{
+	public BaseGenerator(boolean directed, boolean randomlyDirectedEdges) {
 		super("generator");
-		setDirectedEdges( directed, randomlyDirectedEdges );
-		
+		setDirectedEdges(directed, randomlyDirectedEdges);
+
 		nodeAttributeRange[0] = 0;
 		nodeAttributeRange[1] = 1;
 		edgeAttributeRange[0] = 0;
 		edgeAttributeRange[1] = 1;
 	}
-	
+
 	/**
 	 * New base graph generator.
 	 * 
@@ -262,62 +256,56 @@ public abstract class BaseGenerator
 	 *            put an attribute by that name on each edge with a random
 	 *            numeric value.
 	 */
-	public BaseGenerator( boolean directed, boolean randomlyDirectedEdges,
-			String nodeAttribute, String edgeAttribute )
-	{
-		this( directed, randomlyDirectedEdges );
+	public BaseGenerator(boolean directed, boolean randomlyDirectedEdges,
+			String nodeAttribute, String edgeAttribute) {
+		this(directed, randomlyDirectedEdges);
 
-		addNodeAttribute( nodeAttribute );
-		addEdgeAttribute( edgeAttribute );
+		addNodeAttribute(nodeAttribute);
+		addEdgeAttribute(edgeAttribute);
 	}
-	
-// Commands
-	
+
+	// Commands
+
 	/**
-	 * Enable storage of node data.
-	 * Id of nodes and adjacent edges will be stored.
+	 * Enable storage of node data. Id of nodes and adjacent edges will be
+	 * stored.
 	 */
-	protected void enableKeepNodesId()
-	{
+	protected void enableKeepNodesId() {
 		keepNodesId = true;
 	}
-	
+
 	/**
 	 * Disable storage of node data.
 	 */
-	protected void disableKeepNodesId()
-	{
+	protected void disableKeepNodesId() {
 		keepNodesId = false;
 	}
-	
+
 	/**
-	 * Enable storage of edge data.
-	 * Id of edges, source node id and target node id will be stored.
+	 * Enable storage of edge data. Id of edges, source node id and target node
+	 * id will be stored.
 	 */
-	protected void enableKeepEdgesId()
-	{
+	protected void enableKeepEdgesId() {
 		keepEdgesId = true;
 	}
-	
+
 	/**
 	 * Disable storage of edge data.
 	 */
-	protected void disableKeepEdgesId()
-	{
+	protected void disableKeepEdgesId() {
 		keepEdgesId = false;
 	}
-	
+
 	/**
 	 * Set the random seed used for random number generation.
 	 * 
 	 * @param seed
 	 *            The seed.
 	 */
-	public void setRandomSeed( long seed )
-	{
-		random.setSeed( seed );
+	public void setRandomSeed(long seed) {
+		random.setSeed(seed);
 	}
-	
+
 	/**
 	 * Allow to add label attributes on nodes. The label is the identifier of
 	 * the node.
@@ -325,11 +313,10 @@ public abstract class BaseGenerator
 	 * @param on
 	 *            If true labels are added.
 	 */
-	public void addNodeLabels( boolean on )
-	{
+	public void addNodeLabels(boolean on) {
 		addNodeLabels = on;
 	}
-	
+
 	/**
 	 * Allow to add label attributes on edges. The label is the identifier of
 	 * the edge.
@@ -337,11 +324,10 @@ public abstract class BaseGenerator
 	 * @param on
 	 *            If true labels are added.
 	 */
-	public void addEdgeLabels( boolean on )
-	{
+	public void addEdgeLabels(boolean on) {
 		addEdgeLabels = on;
 	}
-	
+
 	/**
 	 * Make each generated edge directed or not. If the new edge created are
 	 * directed, the direction is chosen randomly.
@@ -352,14 +338,13 @@ public abstract class BaseGenerator
 	 *            If true, not only edges are directed, but the direction is
 	 *            chosen randomly.
 	 */
-	public void setDirectedEdges( boolean directed, boolean randomly )
-	{
+	public void setDirectedEdges(boolean directed, boolean randomly) {
 		this.directed = directed;
-		
-		if( directed && randomly )
+
+		if (directed && randomly)
 			randomlyDirected = randomly;
 	}
-	
+
 	/**
 	 * Add this attribute on all nodes generated. This attribute will have a
 	 * numerical value chosen in a range that is by default [0-1].
@@ -369,11 +354,10 @@ public abstract class BaseGenerator
 	 * @see #setNodeAttributesRange(float, float)
 	 * @see #removeNodeAttribute(String)
 	 */
-	public void addNodeAttribute( String name )
-	{
-		nodeAttributes.add( name );
+	public void addNodeAttribute(String name) {
+		nodeAttributes.add(name);
 	}
-	
+
 	/**
 	 * Remove an automatic attribute for nodes.
 	 * 
@@ -381,14 +365,13 @@ public abstract class BaseGenerator
 	 *            The attribute name.
 	 * @see #addNodeAttribute(String)
 	 */
-	public void removeNodeAttribute( String name )
-	{
-		int pos = nodeAttributes.indexOf( name );
-		
-		if( pos >= 0 )
-			nodeAttributes.remove( pos );
+	public void removeNodeAttribute(String name) {
+		int pos = nodeAttributes.indexOf(name);
+
+		if (pos >= 0)
+			nodeAttributes.remove(pos);
 	}
-	
+
 	/**
 	 * Add this attribute on all edges generated. This attribute will have a
 	 * numerical value chosen in a range that is by default [0-1].
@@ -398,11 +381,10 @@ public abstract class BaseGenerator
 	 * @see #setEdgeAttributesRange(float, float)
 	 * @see #removeEdgeAttribute(String)
 	 */
-	public void addEdgeAttribute( String name )
-	{
-		edgeAttributes.add( name );
+	public void addEdgeAttribute(String name) {
+		edgeAttributes.add(name);
 	}
-	
+
 	/**
 	 * Remove an automatic attribute for edges.
 	 * 
@@ -410,34 +392,31 @@ public abstract class BaseGenerator
 	 *            The attribute name.
 	 * @see #addEdgeAttribute(String)
 	 */
-	public void removeEdgeAttribute( String name )
-	{
-		int pos = edgeAttributes.indexOf( name );
-		
-		if( pos >= 0 )
-			edgeAttributes.remove( pos );
+	public void removeEdgeAttribute(String name) {
+		int pos = edgeAttributes.indexOf(name);
+
+		if (pos >= 0)
+			edgeAttributes.remove(pos);
 	}
-	
+
 	/**
 	 * If node attributes are added automatically, choose in which range the
 	 * values are choosed.
 	 * 
 	 * @see #addNodeAttribute(String)
 	 */
-	public void setNodeAttributesRange( float low, float hi )
-	{
+	public void setNodeAttributesRange(float low, float hi) {
 		nodeAttributeRange[0] = low;
 		nodeAttributeRange[1] = hi;
 	}
-	
+
 	/**
 	 * If edge attributes are added automatically, choose in which range the
 	 * values are choosed.
 	 * 
 	 * @see #addEdgeAttribute(String)
 	 */
-	public void setEdgeAttributesRange( float low, float hi )
-	{
+	public void setEdgeAttributesRange(float low, float hi) {
 		edgeAttributeRange[0] = low;
 		edgeAttributeRange[1] = hi;
 	}
@@ -453,64 +432,61 @@ public abstract class BaseGenerator
 	 * @param y
 	 *            The node ordinate.
 	 */
-	protected void addNode( String id, float x, float y )
-	{
+	protected void addNode(String id, float x, float y) {
 		addNode(id);
-		sendNodeAttributeAdded(sourceId,id,"xy",new Double[] { new Double(x), new Double(y) });
+		sendNodeAttributeAdded(sourceId, id, "xy", new Double[] {
+				new Double(x), new Double(y) });
 	}
-	
+
 	/**
 	 * Add a node and put attributes on it if needed.
 	 * 
 	 * @param id
 	 *            The new node identifier.
 	 */
-	protected void addNode( String id )
-	{
-		sendNodeAdded(sourceId,id);
-		
-		if( addNodeLabels )
-			sendNodeAttributeAdded(sourceId,id,"label",id);
-		
+	protected void addNode(String id) {
+		sendNodeAdded(sourceId, id);
+
+		if (addNodeLabels)
+			sendNodeAttributeAdded(sourceId, id, "label", id);
+
 		float value;
-		
-		for( String attr: nodeAttributes )
-		{
-			value = ( random.nextFloat() * ( nodeAttributeRange[1] - nodeAttributeRange[0] ) ) + nodeAttributeRange[0];
-			sendNodeAttributeAdded(sourceId,id,attr,value);
+
+		for (String attr : nodeAttributes) {
+			value = (random.nextFloat() * (nodeAttributeRange[1] - nodeAttributeRange[0]))
+					+ nodeAttributeRange[0];
+			sendNodeAttributeAdded(sourceId, id, attr, value);
 		}
-		
-		if( keepNodesId )
-		{
+
+		if (keepNodesId) {
 			nodes.add(id);
-			nodesData.put(id,new NodeKeepData());
+			nodesData.put(id, new NodeKeepData());
 		}
 	}
-	
+
 	/**
 	 * Remove a node.
 	 * 
-	 * @param id id of the node to remove
+	 * @param id
+	 *            id of the node to remove
 	 */
-	protected void delNode( String id )
-	{
-		if( keepNodesId )
-		{
-			if( keepEdgesId )
-			{
+	protected void delNode(String id) {
+		if (keepNodesId) {
+			if (keepEdgesId) {
 				NodeKeepData nkd = nodesData.get(id);
-				
-				if( nkd.edges != null )
-					while( nkd.edges.size() > 0 ) delEdge(nkd.edges.peek());
+
+				if (nkd.edges != null)
+					while (nkd.edges.size() > 0)
+						delEdge(nkd.edges.peek());
 			}
-			
+
 			nodes.remove(id);
 			nodesData.remove(id);
 		}
-		
-		sendNodeRemoved( sourceId, id );
+
+		sendNodeRemoved(sourceId, id);
 	}
-	
+
 	/**
 	 * Add an edge, choosing randomly its orientation if needed and putting
 	 * attribute on it if needed.
@@ -522,59 +498,53 @@ public abstract class BaseGenerator
 	 *            The source node (can be inverted randomly with the target
 	 *            node).
 	 */
-	protected void addEdge( String id, String from, String to )
-	{
-		if( directed && randomlyDirected && ( random.nextFloat() > 0.5f ) )
-		{
+	protected void addEdge(String id, String from, String to) {
+		if (directed && randomlyDirected && (random.nextFloat() > 0.5f)) {
 			String tmp = from;
-			from       = to;
-			to         = tmp;
+			from = to;
+			to = tmp;
 		}
 
-		if( id == null )
+		if (id == null)
 			id = from + "_" + to;
-		
-		sendEdgeAdded(sourceId,id,from,to,directed);
-		
-		if( addEdgeLabels )
-			sendEdgeAttributeAdded(sourceId,id,"label",id);
-		
-		for( String attr: edgeAttributes )
-		{
-			float value = ( random.nextFloat() * ( edgeAttributeRange[1] - edgeAttributeRange[0] ) ) + edgeAttributeRange[0];
-			sendEdgeAttributeAdded(sourceId,id,attr,value);
+
+		sendEdgeAdded(sourceId, id, from, to, directed);
+
+		if (addEdgeLabels)
+			sendEdgeAttributeAdded(sourceId, id, "label", id);
+
+		for (String attr : edgeAttributes) {
+			float value = (random.nextFloat() * (edgeAttributeRange[1] - edgeAttributeRange[0]))
+					+ edgeAttributeRange[0];
+			sendEdgeAttributeAdded(sourceId, id, attr, value);
 		}
-		
-		if( keepEdgesId )
-		{
+
+		if (keepEdgesId) {
 			edges.add(id);
-			
-			if( keepNodesId )
-			{
-				edgesData.put(id,new EdgeKeepData(from,to));
+
+			if (keepNodesId) {
+				edgesData.put(id, new EdgeKeepData(from, to));
 				nodesData.get(from).keepEdge(id);
 				nodesData.get(to).keepEdge(id);
 			}
 		}
 	}
-	
+
 	/**
 	 * Remove an edge.
 	 * 
-	 * @param edgeId id of the edge to remove
+	 * @param edgeId
+	 *            id of the edge to remove
 	 */
-	protected void delEdge( String edgeId )
-	{
-		sendEdgeRemoved(sourceId,edgeId);
-		
-		if( keepEdgesId )
-		{
+	protected void delEdge(String edgeId) {
+		sendEdgeRemoved(sourceId, edgeId);
+
+		if (keepEdgesId) {
 			edges.remove(edgeId);
-			
-			if( keepNodesId )
-			{
+
+			if (keepNodesId) {
 				EdgeKeepData ekd = edgesData.get(edgeId);
-				
+
 				nodesData.get(ekd.src).unkeepEdge(edgeId);
 				nodesData.get(ekd.trg).unkeepEdge(edgeId);
 			}

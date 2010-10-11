@@ -56,8 +56,7 @@ import java.util.Random;
  * 
  * @since 20070117
  */
-public class DorogovtsevMendesGenerator extends BaseGenerator
-{	
+public class DorogovtsevMendesGenerator extends BaseGenerator {
 	/**
 	 * Used to generate node names.
 	 */
@@ -66,8 +65,7 @@ public class DorogovtsevMendesGenerator extends BaseGenerator
 	/**
 	 * Create a new generator with default random object.
 	 */
-	public DorogovtsevMendesGenerator()
-	{
+	public DorogovtsevMendesGenerator() {
 		keepEdgesId = true;
 	}
 
@@ -77,10 +75,9 @@ public class DorogovtsevMendesGenerator extends BaseGenerator
 	 * @param random
 	 *            The number generator to use.
 	 */
-	public DorogovtsevMendesGenerator( Random random )
-	{
+	public DorogovtsevMendesGenerator(Random random) {
 		this();
-		
+
 		this.random = random;
 	}
 
@@ -89,18 +86,21 @@ public class DorogovtsevMendesGenerator extends BaseGenerator
 	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#begin()
 	 */
-	public void begin()
-	{
-		this.random = this.random == null ? new Random( System.currentTimeMillis() ) : this.random;
-		
+	public void begin() {
+		this.random = this.random == null ? new Random(
+				System.currentTimeMillis()) : this.random;
+
 		addNode("0");
 		addNode("1");
 		addNode("2");
-		
-		addEdge("0-1","0","1"); edges.add("0-1");
-		addEdge("1-2","1","2"); edges.add("1-2");
-		addEdge("2-0","2","0"); edges.add("2-0");
-	
+
+		addEdge("0-1", "0", "1");
+		edges.add("0-1");
+		addEdge("1-2", "1", "2");
+		edges.add("1-2");
+		addEdge("2-0", "2", "0");
+		edges.add("2-0");
+
 		nodeNames = 3;
 	}
 
@@ -111,27 +111,26 @@ public class DorogovtsevMendesGenerator extends BaseGenerator
 	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
 	 */
-	public boolean nextEvents()
-	{
-		int    rand = random.nextInt( edges.size() );
-		String name = Integer.toString( nodeNames++ );
-		String edge = edges.get( rand );
-		String   n0 = edge.substring(0,edge.indexOf('-'));
-		String   n1 = edge.substring(edge.indexOf('-')+1);
+	public boolean nextEvents() {
+		int rand = random.nextInt(edges.size());
+		String name = Integer.toString(nodeNames++);
+		String edge = edges.get(rand);
+		String n0 = edge.substring(0, edge.indexOf('-'));
+		String n1 = edge.substring(edge.indexOf('-') + 1);
 
 		addNode(name);
 
-		addEdge( n0 + "-" + name, n0, name );
-		addEdge( n1 + "-" + name, n1, name );
-		
+		addEdge(n0 + "-" + name, n0, name);
+		addEdge(n1 + "-" + name, n1, name);
+
 		return true;
 	}
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#end()
 	 */
-	public void end()
-	{
+	public void end() {
 	}
 }

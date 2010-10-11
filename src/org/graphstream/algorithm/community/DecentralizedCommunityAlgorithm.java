@@ -48,12 +48,12 @@ public abstract class DecentralizedCommunityAlgorithm implements
 
 	/**
 	 * Name of the attribute marking the communities. Default is "community".
-	 * This is prefixed by the algorithm class and memory location to make this unique
-	 * for each instance of the algorithm.
+	 * This is prefixed by the algorithm class and memory location to make this
+	 * unique for each instance of the algorithm.
 	 */
 	protected String marker;
 	protected String nonUniqueMarker;
-	
+
 	/**
 	 * Set to false after {@link #compute()}, unless static mode is set.
 	 */
@@ -129,7 +129,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 * 
 	 * @param graph
 	 */
-	@Override
+//	@Override
 	public void init(Graph graph) {
 		/*
 		 * Set the marker to a default value unless set when instantiating the
@@ -146,7 +146,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 			rng = new Random();
 	}
 
-	@Override
+//	@Override
 	public void terminate() {
 	}
 
@@ -169,8 +169,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	public void setMarker(String marker) {
 		if (marker == null) {
 			this.nonUniqueMarker = "community";
-		}
-		else {
+		} else {
 			this.nonUniqueMarker = marker;
 		}
 		this.marker = this.toString() + "." + nonUniqueMarker;
@@ -212,7 +211,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 * @complexity N times the complexity of the computeNode() function, where N
 	 *             is the number of nodes in the network.
 	 */
-	@Override
+//	@Override
 	public void compute() {
 		/*
 		 * This simply calls the computeNode method for all nodes in the graph.
@@ -256,8 +255,10 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 * @param node
 	 */
 	protected void updateDisplayClass(Node node) {
-		node.setAttribute("ui.class", nonUniqueMarker 
-				+ "_" + ((Community)node.getAttribute(marker)).getId());
+		node.setAttribute(
+				"ui.class",
+				nonUniqueMarker + "_"
+						+ ((Community) node.getAttribute(marker)).getId());
 	}
 
 	public void attributeChanged(Element element, String attribute,

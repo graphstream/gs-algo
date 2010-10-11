@@ -25,26 +25,28 @@ package org.graphstream.algorithm;
 import org.graphstream.graph.*;
 
 /**
- * This interface defines algorithms which can be run on a graph.
- * Such algorithms are divided in two step :
+ * This interface defines algorithms which can be run on a graph. Such
+ * algorithms are divided in two step :
  * <ol>
  * <li>an initialization step</li>
  * <li>a computing step</li>
  * </ol>
  * 
- * Complexity of algorithms can be specify in the documentation with the
- * help of the "@complexity" tag.
+ * Complexity of algorithms can be specify in the documentation with the help of
+ * the "@complexity" tag.
  */
-public interface Algorithm
-{
+public interface Algorithm {
 	/**
 	 * Initialization of the algorithm.
-	 * @param graph The graph this algorithm is using.
+	 * 
+	 * @param graph
+	 *            The graph this algorithm is using.
 	 */
-	void init( Graph graph );
+	void init(Graph graph);
 
 	/**
 	 * Launch the algorithm on the previously specified graph.
+	 * 
 	 * @see #init(Graph)
 	 */
 	void compute();
