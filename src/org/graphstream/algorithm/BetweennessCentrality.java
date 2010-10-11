@@ -41,6 +41,8 @@ import org.graphstream.graph.Node;
  * 
  * This algorithm does not accept multi-graphs (p-graphs with p>1).
  * 
+ * This algorithm does not take into account edge direction yet.
+ * 
  * By default the algorithm performs on a graph considered as not weighted with
  * complexity O(nm). You can specify that the graph edges contain weights in
  * which case the algorithm complexity is O(nm + n^2 log n). By default the
@@ -75,6 +77,8 @@ public class BetweennessCentrality implements Algorithm {
 	protected boolean unweighted = true;
 
 	protected Graph graph;
+
+	protected Progress progress = null;
 
 	// Construction
 
@@ -175,6 +179,15 @@ public class BetweennessCentrality implements Algorithm {
 	public void setCentralityAttributeName(String centralityAttributeName) {
 		this.centralityAttributeName = centralityAttributeName;
 	}
+	
+	/**
+	 * Specify an interface to call in order to indicate the algorithm progress.
+	 * Pass null to remove the progress indicator. The progress indicator will be
+	 * called regularly to indicate the computation progress.
+	 */
+	public void registerProgressIndicator(Progress progress) {
+		this.progress = progress;
+	}
 
 	/**
 	 * Setup the algorithm to work on the given graph.
@@ -202,6 +215,9 @@ public class BetweennessCentrality implements Algorithm {
 		init(graph);
 		initAllNodes(graph);
 
+		float n = graph.getNodeCount();
+		float i = 0;
+
 		for (Node s : graph) {
 			PriorityQueue<Node> S = null;
 
@@ -223,6 +239,11 @@ public class BetweennessCentrality implements Algorithm {
 					setCentrality(w, centrality(w) + delta(w));
 				}
 			}
+
+			if (progress != null)
+				progress.progress(i / n);
+
+			i++;
 		}
 	}
 
@@ -295,7 +316,7 @@ public class BetweennessCentrality implements Algorithm {
 
 		while (!Q.isEmpty()) {
 			Node u = Q.poll();
-			
+
 			if (distance(u) < 0.0) { // XXX Can happen ??? XXX
 				Q.clear();
 				throw new RuntimeException("negative distance ??");
@@ -306,7 +327,7 @@ public class BetweennessCentrality implements Algorithm {
 
 				while (k.hasNext()) {
 					Node v = k.next();
-			//		if( ! S.contains(v) ) {
+					// if( ! S.contains(v) ) {
 					double alt = distance(u) + weight(u, v);
 
 					if (alt < distance(v)) {
@@ -324,14 +345,14 @@ public class BetweennessCentrality implements Algorithm {
 						setSigma(v, sigma(v) + sigma(u));
 						addToPredecessorsOf(v, u);
 					}
-		//		}
+					// }
 				}
 			}
 		}
 
 		return S;
 	}
-	
+
 	protected double sigma(Node node) {
 		return node.getNumber(sigmaAttributeName);
 	}
@@ -447,5 +468,9 @@ public class BetweennessCentrality implements Algorithm {
 			else
 				return 0;
 		}
+	}
+
+	public interface Progress {
+		void progress(float percent);
 	}
 }
