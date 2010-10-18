@@ -224,7 +224,7 @@ public class BetweennessCentrality implements Algorithm {
 			if (unweighted)
 				S = simpleExplore(s, graph);
 			else
-				S = dijkstraExplore(s, graph);
+				S = dijkstraExplore2(s, graph);
 
 			// The really new things in the Brandes algorithm are here:
 
@@ -237,7 +237,7 @@ public class BetweennessCentrality implements Algorithm {
 				}
 				if (w != s) {
 					setCentrality(w, centrality(w) + delta(w));
-				}
+				} 
 			}
 
 			if (progress != null)
@@ -327,15 +327,13 @@ public class BetweennessCentrality implements Algorithm {
 
 				while (k.hasNext()) {
 					Node v = k.next();
-					// if( ! S.contains(v) ) {
 					double alt = distance(u) + weight(u, v);
-
+					
 					if (alt < distance(v)) {
 						if (distance(v) == INFINITY) {
 							setDistance(v, alt);
 							Q.add(v);
-							setSigma(v, sigma(v) + sigma(u)); // sigma(v)==0
-																// always ?? XXX
+							setSigma(v, sigma(v) + sigma(u)); // XXX sigma(v)==0, always ?? XXX
 						} else {
 							setDistance(v, alt);
 							setSigma(v, sigma(u));
@@ -345,7 +343,53 @@ public class BetweennessCentrality implements Algorithm {
 						setSigma(v, sigma(v) + sigma(u));
 						addToPredecessorsOf(v, u);
 					}
-					// }
+				}
+			}
+		}
+
+		return S;
+	}
+	
+	/** The implementation of the Brandes paper. */
+	protected PriorityQueue<Node> dijkstraExplore2(Node source, Graph graph) {
+		PriorityQueue<Node> S = new PriorityQueue<Node>(graph.getNodeCount(),
+				new BrandesNodeComparatorLargerFirst());
+		PriorityQueue<Node> Q = new PriorityQueue<Node>(graph.getNodeCount(),
+				new BrandesNodeComparatorSmallerFirst());
+
+		setupAllNodes(graph);
+		setDistance(source, 0.0);
+		setSigma(source, 1.0);
+		Q.add(source);
+
+		while (!Q.isEmpty()) {
+			Node v = Q.poll();
+
+			if (distance(v) < 0.0) { // XXX Can happen ??? XXX
+				Q.clear();
+				throw new RuntimeException("negative distance ??");
+			} else {
+				S.add(v);
+
+				Iterator<? extends Node> k = v.getNeighborNodeIterator();
+
+				while (k.hasNext()) {
+					Node w = k.next();
+					double alt = distance(v) + weight(v, w);
+					double dw = distance(w);
+
+					if (alt < dw) {
+						setDistance(w, alt);
+						if(dw == INFINITY) {
+							Q.add(w);
+						}
+						setSigma(w, 0.0);
+						clearPredecessorsOf(w);
+					}
+					if(distance(w)==alt) {
+						setSigma(w, sigma(w)+sigma(v));
+						addToPredecessorsOf(w, v);
+					}
 				}
 			}
 		}
@@ -422,19 +466,29 @@ public class BetweennessCentrality implements Algorithm {
 
 		preds.add(predecessor);
 	}
+	
+	protected void clearPredecessorsOf(Node node) {
+		HashSet<Node> set = new HashSet<Node>();
+		node.setAttribute(predAttributeName, set);
+	}
 
 	protected void initAllNodes(Graph graph) {
 		for (Node node : graph) {
-			node.addAttribute(centralityAttributeName, 0);
+			setCentrality(node, 0.0);
+			//node.addAttribute(centralityAttributeName, 0.0);
 		}
 	}
 
 	protected void setupAllNodes(Graph graph) {
 		for (Node node : graph) {
-			node.addAttribute(predAttributeName, new HashSet<Node>());
-			node.addAttribute(sigmaAttributeName, 0.0);
-			node.addAttribute(distAttributeName, INFINITY);
-			node.addAttribute(deltaAttributeName, 0.0);
+			clearPredecessorsOf(node);
+			setSigma(node, 0.0);
+			setDistance(node, INFINITY);
+			setDelta(node, 0.0);
+//			node.addAttribute(predAttributeName, new HashSet<Node>());
+//			node.addAttribute(sigmaAttributeName, 0.0);
+//			node.addAttribute(distAttributeName, INFINITY);
+//			node.addAttribute(deltaAttributeName, 0.0);
 		}
 	}
 
