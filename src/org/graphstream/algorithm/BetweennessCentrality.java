@@ -39,23 +39,60 @@ import org.graphstream.graph.Node;
  * This algorithm, by default, stores the centrality values for each edge inside
  * the "Cb" attribute. You can change this attribute name at construction time.
  * 
- * This algorithm does not accept multi-graphs (p-graphs with p>1).
+ * This algorithm does not accept multi-graphs (p-graphs with p>1) yet.
  * 
  * This algorithm does not take into account edge direction yet.
  * 
  * By default the algorithm performs on a graph considered as not weighted with
  * complexity O(nm). You can specify that the graph edges contain weights in
  * which case the algorithm complexity is O(nm + n^2 log n). By default the
- * weight attribute name is "weight". You can change this using the dedicated
- * constructor or the {@link #setWeightAttributeName(String)} method.
+ * weight attribute name is "weight", you can activate the weights using
+ * {@link #setWeighted()}. You can change the weight attribute name using the
+ * dedicated constructor or the {@link #setWeightAttributeName(String)} method.
+ * This method implicitly enable weights in the computation. Use
+ * {@link #setUnweighted()} to disable weights.
  * 
  * The result of the computation is stored on each node inside the "Cb"
  * attribute. You can change the name of this attribute using the dedicated
  * constructor or the {@link #setCentralityAttributeName(String)} method.
  * 
+ * As the computing of centrality can take a lot of time, you can provide a
+ * progress 'callback' to get notified each time the algorithm finished
+ * processing a node (however the centrality values are usable only when the
+ * algorithm finished). See the {@link #registerProgressIndicator(Progress)}
+ * method.
+ * 
  * This is based on the algorithm described in "A Faster Algorithm for
  * Betweenness Centrality", Ulrik Brandes, Journal of Mathematical Sociology,
- * 2001 (available on Citeseer).
+ * 2001:
+ * <ul>
+ * <li>title = "A Faster Algorithm for Betweenness Centrality",</li>
+ * <li>author = "Ulrik Brandes",</li>
+ * <li>journal = "Journal of Mathematical Sociology",</li>
+ * <li>year = "2001",</li>
+ * <li>volume = "25",</li>
+ * <li>number = "2",</li>
+ * <li>pages = "163 - 177",</li>
+ * <li>doi = "DOI: 10.1080/0022250X.2001.9990249"</li>
+ * </ul>
+ * 
+ * And in
+ * "On variants of shortest-path betweenness centrality and their generic computation"
+ * , of the same author, 2008 :
+ * <ul>
+ * <li>title =
+ * "On variants of shortest-path betweenness centrality and their generic computation"
+ * ,</li>
+ * <li>author = "Ulrik Brandes",</li>
+ * <li>journal = "Social Networks",</li>
+ * <li>volume = "30",</li>
+ * <li>number = "2",</li>
+ * <li>pages = "136 - 145",</li>
+ * <li>year = "2008",</li>
+ * <li>note = "",</li>
+ * <li>issn = "0378-8733",</li>
+ * <li>doi = "DOI: 10.1016/j.socnet.2007.11.001",</li>
+ * </ul>
  */
 public class BetweennessCentrality implements Algorithm {
 	// Attribute
@@ -88,6 +125,7 @@ public class BetweennessCentrality implements Algorithm {
 	 * on each node.
 	 */
 	public BetweennessCentrality() {
+		unweighted = true;
 	}
 
 	/**
@@ -103,19 +141,6 @@ public class BetweennessCentrality implements Algorithm {
 	public BetweennessCentrality(String centralityAttributeName) {
 		this.centralityAttributeName = centralityAttributeName;
 		this.unweighted = true;
-	}
-
-	/**
-	 * New centrality algorithm that will perform on the graph using the edges
-	 * weights to compute the shortest paths if <code>weighted</code> is true.
-	 * The weights must be stored in an attribute named "weight". If there are
-	 * no weights, the edge is considered to have weight one.
-	 * 
-	 * @param weighted
-	 *            If true the graph is considered weighted.
-	 */
-	public BetweennessCentrality(boolean weighted) {
-		this.unweighted = !weighted;
 	}
 
 	/**
@@ -166,6 +191,16 @@ public class BetweennessCentrality implements Algorithm {
 	}
 
 	/**
+	 * Consider the edges to have a weight. By default the weight is stored in a
+	 * "weight" attribute. You can change this attribute using
+	 * {@link #setWeightAttributeName(String)}. If an edge has no weight the
+	 * value 1.0 is used.
+	 */
+	public void setWeighted() {
+		unweighted = false;
+	}
+
+	/**
 	 * Consider all the edges to have the weight.
 	 */
 	public void setUnweighted() {
@@ -179,11 +214,11 @@ public class BetweennessCentrality implements Algorithm {
 	public void setCentralityAttributeName(String centralityAttributeName) {
 		this.centralityAttributeName = centralityAttributeName;
 	}
-	
+
 	/**
 	 * Specify an interface to call in order to indicate the algorithm progress.
-	 * Pass null to remove the progress indicator. The progress indicator will be
-	 * called regularly to indicate the computation progress.
+	 * Pass null to remove the progress indicator. The progress indicator will
+	 * be called regularly to indicate the computation progress.
 	 */
 	public void registerProgressIndicator(Progress progress) {
 		this.progress = progress;
@@ -237,7 +272,7 @@ public class BetweennessCentrality implements Algorithm {
 				}
 				if (w != s) {
 					setCentrality(w, centrality(w) + delta(w));
-				} 
+				}
 			}
 
 			if (progress != null)
@@ -270,16 +305,16 @@ public class BetweennessCentrality implements Algorithm {
 
 		while (!Q.isEmpty()) {
 			Node v = Q.removeFirst();
-			S.add(v);
 
+			S.add(v);
 			Iterator<? extends Node> ww = v.getNeighborNodeIterator();
 
 			while (ww.hasNext()) {
 				Node w = ww.next();
 
 				if (distance(w) == INFINITY) {
-					Q.add(w);
 					setDistance(w, distance(v) + 1);
+					Q.add(w);
 				}
 
 				if (distance(w) == (distance(v) + 1.0)) {
@@ -328,14 +363,20 @@ public class BetweennessCentrality implements Algorithm {
 				while (k.hasNext()) {
 					Node v = k.next();
 					double alt = distance(u) + weight(u, v);
-					
+
 					if (alt < distance(v)) {
 						if (distance(v) == INFINITY) {
 							setDistance(v, alt);
+							updatePriority(S, v);
+							updatePriority(Q, v);
 							Q.add(v);
-							setSigma(v, sigma(v) + sigma(u)); // XXX sigma(v)==0, always ?? XXX
+							setSigma(v, sigma(v) + sigma(u)); // XXX
+																// sigma(v)==0,
+																// always ?? XXX
 						} else {
 							setDistance(v, alt);
+							updatePriority(S, v);
+							updatePriority(Q, v);
 							setSigma(v, sigma(u));
 						}
 						replacePredecessorsOf(v, u);
@@ -349,8 +390,24 @@ public class BetweennessCentrality implements Algorithm {
 
 		return S;
 	}
-	
-	/** The implementation of the Brandes paper. */
+
+	/**
+	 * The implementation of the Brandes paper.
+	 * 
+	 * <ul>
+	 * <li>title =
+	 * "On variants of shortest-path betweenness centrality and their generic computation"
+	 * ,</li>
+	 * <li>author = "Ulrik Brandes",</li>
+	 * <li>journal = "Social Networks",</li>
+	 * <li>volume = "30",</li>
+	 * <li>number = "2",</li>
+	 * <li>pages = "136 - 145",</li>
+	 * <li>year = "2008",</li>
+	 * <li>note = "",</li>
+	 * <li>issn = "0378-8733",</li>
+	 * <li>doi = "DOI: 10.1016/j.socnet.2007.11.001",</li> </li>
+	 */
 	protected PriorityQueue<Node> dijkstraExplore2(Node source, Graph graph) {
 		PriorityQueue<Node> S = new PriorityQueue<Node>(graph.getNodeCount(),
 				new BrandesNodeComparatorLargerFirst());
@@ -365,31 +422,28 @@ public class BetweennessCentrality implements Algorithm {
 		while (!Q.isEmpty()) {
 			Node v = Q.poll();
 
-			if (distance(v) < 0.0) { // XXX Can happen ??? XXX
-				Q.clear();
-				throw new RuntimeException("negative distance ??");
-			} else {
-				S.add(v);
+			S.add(v);
 
-				Iterator<? extends Node> k = v.getNeighborNodeIterator();
+			Iterator<? extends Node> k = v.getNeighborNodeIterator();
 
-				while (k.hasNext()) {
-					Node w = k.next();
-					double alt = distance(v) + weight(v, w);
-					double dw = distance(w);
+			while (k.hasNext()) {
+				Node w = k.next();
+				double alt = distance(v) + weight(v, w);
+				double dw = distance(w);
 
-					if (alt < dw) {
-						setDistance(w, alt);
-						if(dw == INFINITY) {
-							Q.add(w);
-						}
-						setSigma(w, 0.0);
-						clearPredecessorsOf(w);
+				if (alt < dw) {
+					setDistance(w, alt);
+					updatePriority(S, w);
+					updatePriority(Q, w);
+					if (dw == INFINITY) {
+						Q.add(w);
 					}
-					if(distance(w)==alt) {
-						setSigma(w, sigma(w)+sigma(v));
-						addToPredecessorsOf(w, v);
-					}
+					setSigma(w, 0.0);
+					clearPredecessorsOf(w);
+				}
+				if (distance(w) == alt) {
+					setSigma(w, sigma(w) + sigma(v));
+					addToPredecessorsOf(w, v);
 				}
 			}
 		}
@@ -397,50 +451,153 @@ public class BetweennessCentrality implements Algorithm {
 		return S;
 	}
 
+	/**
+	 * Update the given priority queue if the given node changed its priority
+	 * (here distance) and if the node is already part of the queue.
+	 * 
+	 * @param Q
+	 *            The queue.
+	 * @param node
+	 *            The node.
+	 */
+	protected void updatePriority(PriorityQueue<Node> Q, Node node) {
+		if (Q.contains(node)) {
+			Q.remove(node);
+			Q.add(node);
+		}
+	}
+
+	/**
+	 * The sigma value of the given node.
+	 * 
+	 * @param node
+	 *            Extract the sigma value of this node.
+	 * @return The sigma value.
+	 */
 	protected double sigma(Node node) {
 		return node.getNumber(sigmaAttributeName);
 	}
 
+	/**
+	 * The distance value of the given node.
+	 * 
+	 * @param node
+	 *            Extract the distance value of this node.
+	 * @return The distance value.
+	 */
 	protected double distance(Node node) {
 		return node.getNumber(distAttributeName);
 	}
 
+	/**
+	 * The delta value of the given node.
+	 * 
+	 * @param node
+	 *            Extract the delta value of this node.
+	 * @return The delta value.
+	 */
 	protected double delta(Node node) {
 		return node.getNumber(deltaAttributeName);
 	}
 
+	/**
+	 * The centrality value of the given node.
+	 * 
+	 * @param node
+	 *            Extract the centrality of this node.
+	 * @return The centrality value.
+	 */
 	public double centrality(Node node) {
 		return node.getNumber(centralityAttributeName);
 	}
 
+	/**
+	 * List of predecessors of the given node.
+	 * 
+	 * @param node
+	 *            Extract the predecessors of this node.
+	 * @return The list of predecessors.
+	 */
 	@SuppressWarnings("all")
 	protected Set<Node> predecessorsOf(Node node) {
 		return (HashSet<Node>) node.getAttribute(predAttributeName);
 	}
 
+	/**
+	 * Set the sigma value of the given node.
+	 * 
+	 * @param node
+	 *            The node to modify.
+	 * @param sigma
+	 *            The sigma value to store on the node.
+	 */
 	protected void setSigma(Node node, double sigma) {
 		node.setAttribute(sigmaAttributeName, sigma);
 	}
 
+	/**
+	 * Set the distance value of the given node.
+	 * 
+	 * @param node
+	 *            The node to modify.
+	 * @param distance
+	 *            The delta value to store on the node.
+	 */
 	protected void setDistance(Node node, double distance) {
 		node.setAttribute(distAttributeName, distance);
 	}
 
+	/**
+	 * Set the delta value of the given node.
+	 * 
+	 * @param node
+	 *            The node to modify.
+	 * @param delta
+	 *            The delta value to store on the node.
+	 */
 	protected void setDelta(Node node, double delta) {
 		node.setAttribute(deltaAttributeName, delta);
 	}
 
+	/**
+	 * Set the centrality of the given node.
+	 * 
+	 * @param node
+	 *            The node to modify.
+	 * @param centrality
+	 *            The centrality to store on the node.
+	 */
 	public void setCentrality(Node node, double centrality) {
 		node.setAttribute(centralityAttributeName, centrality);
 	}
 
+	/**
+	 * Set the weight of the edge between 'from' and 'to'.
+	 * 
+	 * @param from
+	 *            The source node.
+	 * @param to
+	 *            The target node.
+	 * @param weight
+	 *            The weight to store on the edge between 'from' and 'to'.
+	 */
 	public void setWeight(Node from, Node to, double weight) {
-		from.getEdgeToward(to.getId())
-				.setAttribute(weightAttributeName, weight);
+		if (from.hasEdgeBetween(to.getId()))
+			from.getEdgeBetween(to.getId()).setAttribute(weightAttributeName,
+					weight);
 	}
 
+	/**
+	 * The weight of the edge between 'from' and 'to'.
+	 * 
+	 * @param from
+	 *            The origin node.
+	 * @param to
+	 *            The target node.
+	 * @return The weight on the edge between 'form' and 'to'.
+	 */
 	public double weight(Node from, Node to) {
-		Edge edge = from.getEdgeToward(to.getId());
+		Edge edge = from.getEdgeBetween(to.getId());
 
 		if (edge != null) {
 			if (edge.hasAttribute(weightAttributeName))
@@ -452,6 +609,15 @@ public class BetweennessCentrality implements Algorithm {
 		}
 	}
 
+	/**
+	 * Remove all predecessors of the given node and then add it a first
+	 * predecessor.
+	 * 
+	 * @param node
+	 *            The node to modify.
+	 * @param predecessor
+	 *            The predecessor to add.
+	 */
 	protected void replacePredecessorsOf(Node node, Node predecessor) {
 		HashSet<Node> set = new HashSet<Node>();
 
@@ -459,6 +625,14 @@ public class BetweennessCentrality implements Algorithm {
 		node.setAttribute(predAttributeName, set);
 	}
 
+	/**
+	 * Add a node to the predecessors of another.
+	 * 
+	 * @param node
+	 *            Modify the predecessors of this node.
+	 * @param predecessor
+	 *            The predecessor to add.
+	 */
 	@SuppressWarnings("all")
 	protected void addToPredecessorsOf(Node node, Node predecessor) {
 		HashSet<Node> preds = (HashSet<Node>) node
@@ -466,32 +640,48 @@ public class BetweennessCentrality implements Algorithm {
 
 		preds.add(predecessor);
 	}
-	
+
+	/**
+	 * Remove all predecessors of the given node.
+	 * 
+	 * @param node
+	 *            Remove all predecessors of this node.
+	 */
 	protected void clearPredecessorsOf(Node node) {
 		HashSet<Node> set = new HashSet<Node>();
 		node.setAttribute(predAttributeName, set);
 	}
 
+	/**
+	 * Set a default centrality of 0 to all nodes.
+	 * 
+	 * @param graph
+	 *            The graph to modify.
+	 */
 	protected void initAllNodes(Graph graph) {
 		for (Node node : graph) {
 			setCentrality(node, 0.0);
-			//node.addAttribute(centralityAttributeName, 0.0);
 		}
 	}
 
+	/**
+	 * Add a default value for attributes used during computation.
+	 * 
+	 * @param graph
+	 *            The graph to modify.
+	 */
 	protected void setupAllNodes(Graph graph) {
 		for (Node node : graph) {
 			clearPredecessorsOf(node);
 			setSigma(node, 0.0);
 			setDistance(node, INFINITY);
 			setDelta(node, 0.0);
-//			node.addAttribute(predAttributeName, new HashSet<Node>());
-//			node.addAttribute(sigmaAttributeName, 0.0);
-//			node.addAttribute(distAttributeName, INFINITY);
-//			node.addAttribute(deltaAttributeName, 0.0);
 		}
 	}
 
+	/**
+	 * Increasing comparator used for priority queues.
+	 */
 	protected class BrandesNodeComparatorLargerFirst implements
 			Comparator<Node> {
 		public int compare(Node x, Node y) {
@@ -503,11 +693,14 @@ public class BetweennessCentrality implements Algorithm {
 				return -1;
 			else if (xx < yy)
 				return 1;
-			else
-				return 0;
+
+			return 0;
 		}
 	}
 
+	/**
+	 * Decreasing comparator used for priority queues.
+	 */
 	protected class BrandesNodeComparatorSmallerFirst implements
 			Comparator<Node> {
 		public int compare(Node x, Node y) {
@@ -519,12 +712,21 @@ public class BetweennessCentrality implements Algorithm {
 				return 1;
 			else if (xx < yy)
 				return -1;
-			else
-				return 0;
+
+			return 0;
 		}
 	}
 
+	/**
+	 * Interface allowing to be notified of the algorithm progress.
+	 */
 	public interface Progress {
+		/**
+		 * Progress of the algorithm.
+		 * 
+		 * @param percent
+		 *            a value between 0 and 1, 0 meaning 0% and 1 meaning 100%.
+		 */
 		void progress(float percent);
 	}
 }
