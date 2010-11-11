@@ -275,6 +275,7 @@ public class Kruskal extends AbstractSpanningTree {
 			return getWeight(e1).compareTo(getWeight(e2));
 		}
 
+		@Override
 		public boolean equals(Object o) {
 			return o instanceof WeightEdgeComparator;
 		}

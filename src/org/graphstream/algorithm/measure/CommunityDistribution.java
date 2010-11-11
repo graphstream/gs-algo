@@ -188,6 +188,7 @@ public class CommunityDistribution extends CommunityMeasure {
 	 * 
 	 * @return a String containing all computed distribution information.
 	 */
+	@Override
 	public String toString() {
 		compute();
 		return (int) M + " " + avgSize + " " + stdevSize + " "

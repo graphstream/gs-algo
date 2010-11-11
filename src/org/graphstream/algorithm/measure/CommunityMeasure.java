@@ -160,6 +160,7 @@ public abstract class CommunityMeasure extends SinkAdapter implements
 	 * @see org.graphstream.stream.Sink#nodeAdded(java.lang.String, long,
 	 * java.lang.String)
 	 */
+	@Override
 	public void nodeAdded(String graphId, long timeId, String nodeId) {
 		Node n = graph.getNode(nodeId);
 		assignNode(nodeId, n.getAttribute(marker), communities);
@@ -171,6 +172,7 @@ public abstract class CommunityMeasure extends SinkAdapter implements
 	 * @see org.graphstream.stream.Sink#nodeRemoved(java.lang.String, long,
 	 * java.lang.String)
 	 */
+	@Override
 	public void nodeRemoved(String graphId, long timeId, String nodeId) {
 		Node n = graph.getNode(nodeId);
 		unassignNode(nodeId, n.getAttribute(marker), communities);
@@ -182,6 +184,7 @@ public abstract class CommunityMeasure extends SinkAdapter implements
 	 * @see org.graphstream.stream.Sink#edgeAdded(java.lang.String, long,
 	 * java.lang.String, java.lang.String, java.lang.String, boolean)
 	 */
+	@Override
 	public void edgeAdded(String graphId, long timeId, String edgeId,
 			String fromNodeId, String toNodeId, boolean directed) {
 		graphChanged = true;
@@ -193,6 +196,7 @@ public abstract class CommunityMeasure extends SinkAdapter implements
 	 * @see org.graphstream.stream.Sink#edgeRemoved(java.lang.String, long,
 	 * java.lang.String)
 	 */
+	@Override
 	public void edgeRemoved(String graphId, long timeId, String edgeId) {
 		graphChanged = true;
 	}
@@ -202,6 +206,7 @@ public abstract class CommunityMeasure extends SinkAdapter implements
 	 * 
 	 * @see org.graphstream.stream.Sink#graphCleared(java.lang.String, long)
 	 */
+	@Override
 	public void graphCleared(String graphId, long timeId) {
 		graphChanged = true;
 	}
@@ -212,6 +217,7 @@ public abstract class CommunityMeasure extends SinkAdapter implements
 	 * @see org.graphstream.stream.Sink#nodeAttributeAdded(java.lang.String,
 	 * long, java.lang.String, java.lang.String, java.lang.Object)
 	 */
+	@Override
 	public void nodeAttributeAdded(String graphId, long timeId, String nodeId,
 			String attribute, Object value) {
 		nodeAttributeChanged(graphId, timeId, nodeId, attribute, null, value);
@@ -224,6 +230,7 @@ public abstract class CommunityMeasure extends SinkAdapter implements
 	 * long, java.lang.String, java.lang.String, java.lang.Object,
 	 * java.lang.Object)
 	 */
+	@Override
 	public void nodeAttributeChanged(String graphId, long timeId,
 			String nodeId, String attribute, Object oldValue, Object newValue) {
 		if (attribute.equals(marker) && oldValue != newValue) {
@@ -269,11 +276,11 @@ public abstract class CommunityMeasure extends SinkAdapter implements
 	 * @param oldValue
 	 * @param assignment
 	 */
-	protected void unassignNode(String nodeId, Object oldVlaue,
+	protected void unassignNode(String nodeId, Object oldValue,
 			HashMap<Object, HashSet<Node>> assignment) {
 		Node node = graph.getNode(nodeId);
 		if (node != null) {
-			Object communityKey = oldVlaue;
+			Object communityKey = oldValue;
 
 			if (communityKey == null)
 				communityKey = "NULL_COMMUNITY";

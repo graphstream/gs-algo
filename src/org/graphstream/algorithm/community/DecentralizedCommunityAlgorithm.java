@@ -25,7 +25,6 @@
  */
 package org.graphstream.algorithm.community;
 
-import java.awt.Color;
 import java.util.*;
 
 import org.graphstream.algorithm.DynamicAlgorithm;
@@ -124,7 +123,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 * attribute.
 	 * 
 	 * By default an uncontrolled random number generator will be used. For sake
-	 * of reproducibility, use the {@link #setRandom()} function to use a
+	 * of reproducibility, use the {@link #setRandom(Random)} function to use a
 	 * controlled random number generator with this algorithm.
 	 * 
 	 * @param graph

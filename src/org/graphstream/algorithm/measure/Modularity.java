@@ -95,6 +95,7 @@ public class Modularity extends CommunityMeasure {
 	/**
 	 * @complexity O(n+m!+m!k)
 	 */
+	@Override
 	public void compute() {
 
 		if (graphChanged) {

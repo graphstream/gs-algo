@@ -423,11 +423,19 @@ public class Dijkstra implements Algorithm {
 						val = 1.0;
 					} else {
 						if (element == Element.edge) {
-							val = ((Number) runningEdge.getAttribute(attribute))
+							if (runningEdge.hasAttribute(attribute)) {
+								val = ((Number) runningEdge.getAttribute(attribute))
 									.doubleValue();
+							} else {
+								val = 1.0;
+							}
 						} else {
-							val = ((Number) neighborNode
+							if (neighborNode.hasAttribute(attribute)) {
+								val = ((Number) neighborNode
 									.getAttribute(attribute)).doubleValue();
+							} else {
+								val = 1.0;
+							}
 						}
 					}
 					if (val < 0) {

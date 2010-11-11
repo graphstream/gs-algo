@@ -111,7 +111,7 @@ public class EpidemicCommunityAlgorithm extends DecentralizedCommunityAlgorithm 
 	 * Compute the scores for all relevant communities for the selected node
 	 * using epidemic label propagation paradigm.
 	 * 
-	 * @param node
+	 * @param u
 	 *            The node for which the scores computation is performed
 	 * @complexity O(DELTA) where DELTA is is the average node degree in the
 	 *             network
