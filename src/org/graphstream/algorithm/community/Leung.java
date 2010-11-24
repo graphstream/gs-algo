@@ -219,11 +219,12 @@ public class Leung extends EpidemicCommunityAlgorithm {
 	 * Compute the scores for all relevant communities for the selected node
 	 * using Leung algorithm.
 	 * 
-	 * @param node
+	 * @param u
 	 *            The node for which the scores computation is performed
 	 * @complexity O(DELTA) where DELTA is is the average node degree in the
 	 *             network
 	 */
+	@Override
 	protected void communityScores(Node u) {
 		/*
 		 * Reset the scores for each communities

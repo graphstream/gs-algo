@@ -396,6 +396,7 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * @see org.graphstream.stream.SinkAdapter#edgeAdded(java.lang.String, long,
 	 * java.lang.String, java.lang.String, java.lang.String, boolean)
 	 */
+	@Override
 	public void edgeAdded(String graphId, long timeId, String edgeId,
 			String fromNodeId, String toNodeId, boolean directed) {
 		if (!started && graph != null) {
@@ -424,6 +425,7 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * @see org.graphstream.stream.SinkAdapter#nodeAdded(java.lang.String, long,
 	 * java.lang.String)
 	 */
+	@Override
 	public void nodeAdded(String graphId, long timeId, String nodeId) {
 		if (!started && graph != null) {
 			compute();
@@ -447,6 +449,7 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * @see org.graphstream.stream.SinkAdapter#edgeRemoved(java.lang.String,
 	 * long, java.lang.String)
 	 */
+	@Override
 	public void edgeRemoved(String graphId, long timeId, String edgeId) {
 		if (!started && graph != null) {
 			compute();
@@ -477,6 +480,7 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * @see org.graphstream.stream.SinkAdapter#nodeRemoved(java.lang.String,
 	 * long, java.lang.String)
 	 */
+	@Override
 	public void nodeRemoved(String graphId, long timeId, String nodeId) {
 		if (!started && graph != null) {
 			compute();
@@ -498,6 +502,7 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * @see org.graphstream.stream.SinkAdapter#graphCleared(java.lang.String,
 	 * long)
 	 */
+	@Override
 	public void graphCleared(String graphId, long timeId) {
 		terminate();
 	}
@@ -509,6 +514,7 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * org.graphstream.stream.SinkAdapter#edgeAttributeAdded(java.lang.String,
 	 * long, java.lang.String, java.lang.String, java.lang.Object)
 	 */
+	@Override
 	public void edgeAttributeAdded(String graphId, long timeId, String edgeId,
 			String attribute, Object value) {
 		if (cutAttribute != null && attribute.equals(cutAttribute)) {
@@ -540,6 +546,7 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * org.graphstream.stream.SinkAdapter#edgeAttributeRemoved(java.lang.String,
 	 * long, java.lang.String, java.lang.String)
 	 */
+	@Override
 	public void edgeAttributeRemoved(String graphId, long timeId,
 			String edgeId, String attribute) {
 		if (cutAttribute != null && attribute.equals(cutAttribute)) {

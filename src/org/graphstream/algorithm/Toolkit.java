@@ -401,7 +401,7 @@ public class Toolkit {
 		for (Edge edge : node.getLeavingEdgeSet()) {
 			if (r == i)
 				return edge;
-			i++;
+			i += 1;
 		}
 
 		return null;
@@ -586,7 +586,7 @@ public class Toolkit {
 	 * This method is an utility method that call:
 	 * <ul>
 	 * <li>{@link #communities(Graph,String)}</li>
-	 * <li>{@link #modularityMatrix(Graph,HashMapn,weigthMarker)}</li>
+	 * <li>{@link #modularityMatrix(Graph,HashMap,String)}</li>
 	 * <li>{@link #modularity(float[][])}</li>
 	 * </ul>
 	 * in order to produce the modularity value.

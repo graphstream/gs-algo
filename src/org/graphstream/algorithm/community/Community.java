@@ -85,6 +85,7 @@ public class Community implements Comparable<Community> {
 	/**
 	 * Stringification method for Community object.
 	 */
+	@Override
 	public String toString() {
 		return getId();
 	}

@@ -35,7 +35,7 @@ import org.graphstream.stream.SinkAdapter;
  * 
  * <p>
  * This class defines algorithms that compute all shortest paths lengths between
- * all pair of nodes in a given graph. This algorithm uses the Floyd-Warshal
+ * all pair of nodes in a given graph. This algorithm uses the Floyd-Warshall
  * algorithm, that effectively runs in O(n^3). This may seems a very large
  * complexity, however this algorithm may perform better than running several
  * Dijkstra on all node pairs of the graph when the graph becomes dense.
@@ -101,6 +101,8 @@ public class APSP extends SinkAdapter implements Algorithm {
 	 * This attribute must contain a descendant of Number.
 	 */
 	protected String weightAttributeName;
+	
+	protected Progress progress = null;
 
 	// Construction
 
@@ -181,6 +183,15 @@ public class APSP extends SinkAdapter implements Algorithm {
 	}
 
 	/**
+	 * Specify an interface to call in order to indicate the algorithm progress.
+	 * Pass null to remove the progress indicator. The progress indicator will
+	 * be called regularly to indicate the computation progress.
+	 */
+	public void registerProgressIndicator(Progress progress) {
+		this.progress = progress;
+	}
+
+	/**
 	 * Choose the name of the attribute used to retrieve edge weights. Edge
 	 * weights attribute must contain a value that inherit Number.
 	 * 
@@ -229,9 +240,12 @@ public class APSP extends SinkAdapter implements Algorithm {
 				nodeList.add(node);
 			}
 
-			// The Floyd-Warshal algorithm. You can easily see it is in O(n^3)..
+			// The Floyd-Warshall algorithm. You can easily see it is in O(n^3)..
 
 			int z = 0;
+			float prog = 0;
+			float max  = nodeList.size();
+			max *= max;
 
 			for (Node k : nodeList) {
 				for (Node i : nodeList) {
@@ -242,18 +256,10 @@ public class APSP extends SinkAdapter implements Algorithm {
 								APSPInfo.ATTRIBUTE_NAME, APSPInfo.class);
 						APSPInfo K = (APSPInfo) k.getAttribute(
 								APSPInfo.ATTRIBUTE_NAME, APSPInfo.class);
-						float Dij = I.getLengthTo(J.source.getId()); // Distance
-																		// between
-																		// i and
-																		// j.
-						float Dik = I.getLengthTo(K.source.getId()); // Distance
-																		// between
-																		// i and
-																		// k.
-						float Dkj = K.getLengthTo(J.source.getId()); // Distance
-																		// between
-																		// k and
-																		// j.
+
+						float Dij = I.getLengthTo(J.source.getId());
+						float Dik = I.getLengthTo(K.source.getId());
+						float Dkj = K.getLengthTo(J.source.getId());
 
 						// Take into account non-existing paths.
 
@@ -269,6 +275,11 @@ public class APSP extends SinkAdapter implements Algorithm {
 							}
 						}
 					}
+					
+					if (progress != null)
+						progress.progress(prog / max);
+					
+					prog += 1;
 				}
 
 				z++;
@@ -527,27 +538,33 @@ public class APSP extends SinkAdapter implements Algorithm {
 
 	// Sink implementation
 
+	@Override
 	public void nodeAdded(String graphId, long timeId, String nodeId) {
 		graphChanged = true;
 	}
 
+	@Override
 	public void nodeRemoved(String graphId, long timeId, String nodeId) {
 		graphChanged = true;
 	}
 
+	@Override
 	public void edgeAdded(String graphId, long timeId, String edgeId,
 			String fromNodeId, String toNodeId, boolean directed) {
 		graphChanged = true;
 	}
 
+	@Override
 	public void edgeRemoved(String graphId, long timeId, String edgeId) {
 		graphChanged = true;
 	}
 
+	@Override
 	public void graphCleared(String graphId, long timeId) {
 		graphChanged = true;
 	}
 
+	@Override
 	public void edgeAttributeAdded(String graphId, long timeId, String edgeId,
 			String attribute, Object value) {
 		if (attribute.equals(weightAttributeName)) {
@@ -555,10 +572,24 @@ public class APSP extends SinkAdapter implements Algorithm {
 		}
 	}
 
+	@Override
 	public void edgeAttributeChanged(String graphId, long timeId,
 			String edgeId, String attribute, Object oldValue, Object value) {
 		if (attribute.equals(weightAttributeName)) {
 			graphChanged = true;
 		}
+	}
+
+	/**
+	 * Interface allowing to be notified of the algorithm progress.
+	 */
+	public interface Progress {
+		/**
+		 * Progress of the algorithm.
+		 * 
+		 * @param percent
+		 *            a value between 0 and 1, 0 meaning 0% and 1 meaning 100%.
+		 */
+		void progress(float percent);
 	}
 }

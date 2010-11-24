@@ -34,7 +34,6 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.DefaultGraph;
 
 import static java.lang.Math.min;
-import static java.lang.Math.max;
 import static java.lang.Math.pow;
 import static java.lang.Math.atan;
 

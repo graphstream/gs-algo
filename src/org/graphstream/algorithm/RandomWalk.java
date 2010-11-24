@@ -551,6 +551,7 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 
 	// Graph listener
 
+	@Override
 	public void edgeAdded(String graphId, long timeId, String edgeId,
 			String fromNodeId, String toNodeId, boolean directed) {
 		Edge edge = graph.getEdge(edgeId);
@@ -559,6 +560,7 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 			edge.addAttribute(passesAttribute, 0.0);
 	}
 
+	@Override
 	public void nodeAdded(String graphId, long timeId, String nodeId) {
 		Node node = graph.getNode(nodeId);
 

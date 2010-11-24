@@ -175,12 +175,12 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	protected ArrayList<String> edges = new ArrayList<String>();
 
 	/**
-	 * Data linked to nodes when {@link keepNodesId} is enabled.
+	 * Data linked to nodes when {@link #keepNodesId} is enabled.
 	 */
 	protected HashMap<String, NodeKeepData> nodesData = new HashMap<String, NodeKeepData>();
 
 	/**
-	 * Data linked to edges when {@link keepEdgesId} is enabled.
+	 * Data linked to edges when {@link #keepEdgesId} is enabled.
 	 */
 	protected HashMap<String, EdgeKeepData> edgesData = new HashMap<String, EdgeKeepData>();
 
