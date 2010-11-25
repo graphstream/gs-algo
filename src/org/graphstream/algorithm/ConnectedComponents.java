@@ -22,9 +22,11 @@
  */
 package org.graphstream.algorithm;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -165,7 +167,7 @@ public class ConnectedComponents extends SinkAdapter implements
 	 */
 	public ConnectedComponents(Graph graph) {
 		ids.add(""); // The dummy first identifier (since zero is a special
-						// value).
+		// value).
 
 		init(graph);
 
@@ -173,6 +175,47 @@ public class ConnectedComponents extends SinkAdapter implements
 	}
 
 	/**
+	 * Computes a list of nodes that belong to the biggest connected component.
+	 * 
+	 * @return nodes of the biggest CC.
+	 */
+	public List<Node> getGiantComponent() {
+		if (!started) {
+			compute();
+		}
+		ArrayList<Integer> amount = new ArrayList<Integer>(ids.size());
+		for (int i = 0; i < ids.size(); i++) {
+			amount.add(0);
+		}
+		for (Node n : graph.getNodeSet()) {
+			Integer id = connectedComponentsMap.get(n);
+			if (id != null) {
+				amount.set(id, amount.get(id) + 1);
+			}
+		}
+		int max = -1;
+		int maxIndex = -1;
+		for (int i = 0; i < amount.size(); i++) {
+			Integer val = amount.get(i);
+			if (val != null && max < val) {
+				max = amount.get(i);
+				maxIndex = i;
+			}
+		}
+		if (maxIndex != -1) {
+			ArrayList<Node> giant = new ArrayList<Node>();
+			for (Node n : graph.getNodeSet()) {
+				if (connectedComponentsMap.get(n) == maxIndex) {
+					giant.add(n);
+				}
+			}
+			return giant;
+		} else
+			return null;
+	}
+
+	/**
+	 * 
 	 * Ask the algorithm for the number of connected components.
 	 */
 	public int getConnectedComponentsCount() {
@@ -294,7 +337,7 @@ public class ConnectedComponents extends SinkAdapter implements
 
 		ids.clear();
 		ids.add(""); // The dummy first identifier (since zero is a special
-						// value).
+		// value).
 
 		Iterator<? extends Node> nodes = graph.getNodeIterator();
 
