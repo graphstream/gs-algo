@@ -131,6 +131,21 @@ public class Dijkstra implements Algorithm {
 	}
 
 	/**
+	 * @return the parentEdgesString
+	 */
+	public String getParentEdgesString() {
+		return parentEdgesString;
+	}
+
+	/**
+	 * @param parentEdgesString
+	 *            the parentEdgesString to set
+	 */
+	public void setParentEdgesString(String parentEdgesString) {
+		this.parentEdgesString = parentEdgesString;
+	}
+
+	/**
 	 * Set the id of the source node which will be used on the computation.
 	 * 
 	 * @param sourceNodeId
@@ -172,6 +187,47 @@ public class Dijkstra implements Algorithm {
 	 */
 	@SuppressWarnings("unchecked")
 	public Path getShortestPath(Node target) {
+		Path p = new Path();
+		if (target == source) {
+			return p;
+		}
+		boolean noPath = false;
+		Node v = target;
+		while (v != source && !noPath) {
+			ArrayList<? extends Edge> list = (ArrayList<? extends Edge>) v
+					.getAttribute(parentEdgesString);
+			if (list == null) {
+				noPath = true;
+			} else {
+				Edge parentEdge = list.get(0);
+
+				// --- DEBUG ---
+				// if( parentEdge == null )
+				// {
+				// System.out.println( "parentEdge is null, v=" + v.toString() +
+				// " source=" + source.toString() );
+				// }
+
+				p.add(v, parentEdge);
+				v = parentEdge.getOpposite(v);
+			}
+		}
+		return p;
+	}
+
+	/**
+	 * Static method to get shortest paths from a graph already computed
+	 * Dijkstra, who's nodes and edges have "parentEdge" attribute set.
+	 * 
+	 * @see #getParentEdgesString()
+	 * @param parentEdgesString
+	 * @param source
+	 * @param target
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public static Path getShortestPath(String parentEdgesString, Node source,
+			Node target) {
 		Path p = new Path();
 		if (target == source) {
 			return p;
@@ -424,28 +480,26 @@ public class Dijkstra implements Algorithm {
 					} else {
 						if (element == Element.edge) {
 							if (runningEdge.hasAttribute(attribute)) {
-								val = ((Number) runningEdge.getAttribute(attribute))
-									.doubleValue();
+								val = ((Number) runningEdge
+										.getAttribute(attribute)).doubleValue();
 							} else {
 								val = 1.0;
 							}
 						} else {
 							if (neighborNode.hasAttribute(attribute)) {
 								val = ((Number) neighborNode
-									.getAttribute(attribute)).doubleValue();
+										.getAttribute(attribute)).doubleValue();
 							} else {
 								val = 1.0;
 							}
 						}
 					}
 					if (val < 0) {
-						throw new NumberFormatException(
-								"Attribute \""
-										+ attribute
-										+ "\" has a negative value on element "
-										+ (element == Element.edge ? runningEdge
-												.toString() : neighborNode
-												.toString()));
+						throw new NumberFormatException("Attribute \""
+								+ attribute
+								+ "\" has a negative value on element "
+								+ (element == Element.edge ? runningEdge
+										.toString() : neighborNode.toString()));
 					}
 					dist = (distances.get(runningNode) + val);
 					len = (int) (length.get(runningNode) + 1);
