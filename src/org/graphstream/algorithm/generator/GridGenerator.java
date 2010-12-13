@@ -177,6 +177,7 @@ public class GridGenerator extends BaseGenerator {
 	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#end()
 	 */
+	@Override
 	public void end() {
 		if (tore) {
 			if (currentSize > 0) {
@@ -220,6 +221,8 @@ public class GridGenerator extends BaseGenerator {
 				}
 			}
 		}
+		
+		super.end();
 	}
 
 	protected String nodeName(int x, int y) {

@@ -463,8 +463,9 @@ public class PointsOfInterestGenerator extends BaseGenerator {
 	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#end()
 	 */
+	@Override
 	public void end() {
-		// Nothing to do
+		super.end();
 	}
 
 	protected void addPointOfInterest() {

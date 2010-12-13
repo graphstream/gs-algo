@@ -220,8 +220,9 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#end()
 	 */
+	@Override
 	public void end() {
-
+		super.end();
 	}
 
 	/**

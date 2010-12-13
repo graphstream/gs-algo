@@ -137,9 +137,11 @@ public class PreferentialAttachmentGenerator extends BaseGenerator {
 	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#end()
 	 */
+	@Override
 	public void end() {
 		degrees.clear();
 		degrees = null;
 		degreeMax = 0;
+		super.end();
 	}
 }

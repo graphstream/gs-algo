@@ -267,6 +267,18 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	// Commands
 
 	/**
+	 * End the graph generation by finalizing it. Once the {@link #nextEvents()}
+	 * method returned false (or even if you stop before), this method must be
+	 * called to finish the graph.
+	 * 
+	 * In addition, BaseGenerator adds a "clear" operations that removes all the
+	 * kept edges and nodes identifiers and the associated data.
+	 */
+	public void end() {
+		clearKeptData();
+	}
+	
+	/**
 	 * Enable storage of node data. Id of nodes and adjacent edges will be
 	 * stored.
 	 */
@@ -549,5 +561,18 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 				nodesData.get(ekd.trg).unkeepEdge(edgeId);
 			}
 		}
+	}
+	
+	/**
+	 * Clear all the kept edge and node as well as the associated data. 
+	 * 
+	 * This method is called in {@link #end()} to ensure the next generation will start freshly
+	 * anew.
+	 */
+	protected void clearKeptData() {
+		nodes.clear();
+		edges.clear();
+		nodesData.clear();
+		edgesData.clear();
 	}
 }
