@@ -117,5 +117,7 @@ public class Eccentricity implements Algorithm {
 		for (Node node : graph.getEachNode())
 			node.setAttribute(eccentricityAttribute, eccentricity
 					.contains(node) ? isInEccentricity : isNotInEccentricity);
+		
+		eccentricity.clear();
 	}
 }
