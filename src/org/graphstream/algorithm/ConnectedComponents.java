@@ -177,7 +177,8 @@ public class ConnectedComponents extends SinkAdapter implements
 		ids.add(""); // The dummy first identifier (since zero is a special
 		// value).
 
-		init(graph);
+		if (graph != null)
+			init(graph);
 
 		connectedComponentsMap = new HashMap<Node, Integer>();
 	}
