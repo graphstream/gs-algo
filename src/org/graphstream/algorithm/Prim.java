@@ -175,7 +175,42 @@ public class Prim extends AbstractSpanningTree {
 		Collections.sort(epool, cmp);
 
 		while (pool.size() < graph.getNodeCount()) {
+
+			if (epool.size() == 0) {
+				//
+				// This case is triggered is there are several connected
+				// components in the graph. A node which has not been used
+				// is selected to continue the process.
+				//
+				Iterator<? extends Node> nodes = this.graph.getNodeIterator();
+				Node toAdd = null;
+
+				while (toAdd == null && nodes.hasNext()) {
+					toAdd = nodes.next();
+
+					if (pool.contains(toAdd.getId()))
+						toAdd = null;
+
+					if (toAdd != null && toAdd.getDegree() == 0) {
+						pool.add(toAdd);
+						toAdd = null;
+					}
+				}
+
+				if (toAdd != null) {
+					pool.add(toAdd);
+
+					iteE = toAdd.getLeavingEdgeIterator();
+					while (iteE.hasNext()) {
+						epool.add(iteE.next());
+					}
+				}
+			}
+
 			e = epool.poll();
+
+			if (e == null)
+				throw new NullPointerException();
 
 			current = null;
 
