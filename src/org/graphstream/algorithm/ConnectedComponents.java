@@ -198,7 +198,7 @@ public class ConnectedComponents extends SinkAdapter implements
 		if (!started) {
 			compute();
 		}
-		
+
 		// Get the biggest component
 		int maxSize = Integer.MIN_VALUE;
 		int maxIndex = -1;
@@ -208,7 +208,7 @@ public class ConnectedComponents extends SinkAdapter implements
 				maxIndex = c;
 			}
 		}
-		
+
 		// Get the list of nodes within this component
 		if (maxIndex != -1) {
 			ArrayList<Node> giant = new ArrayList<Node>();
@@ -218,8 +218,7 @@ public class ConnectedComponents extends SinkAdapter implements
 				}
 			}
 			return giant;
-		}
-		else {
+		} else {
 			return null;
 		}
 	}
@@ -231,26 +230,50 @@ public class ConnectedComponents extends SinkAdapter implements
 	public int getConnectedComponentsCount() {
 		return getConnectedComponentsCount(1);
 	}
-	
+
 	/**
-	 * Ask the algorithm for the number of connected components whose size
-	 * is equal to or greater than the specified threshold
+	 * Ask the algorithm for the number of connected components whose size is
+	 * equal to or greater than the specified threshold.
 	 * 
-	 * @param threshold Minimum size for the connected component to be specified
+	 * @param sizeThreshold
+	 *            Minimum size for the connected component to be considered
 	 */
-	protected int getConnectedComponentsCount(int threshold) {
+	public int getConnectedComponentsCount(int sizeThreshold) {
+		return getConnectedComponentsCount(sizeThreshold, 0);
+	}
+
+	/**
+	 * Ask the algorithm for the number of connected components whose size is
+	 * equal to or greater than the specified threshold and lesser than the
+	 * specified ceiling.
+	 * 
+	 * @param sizeThreshold
+	 *            Minimum size for the connected component to be considered
+	 * @param sizeCeiling
+	 *            Maximum size for the connected component to be considered (use
+	 *            0 or lower values to ignore the ceiling)
+	 */
+	protected int getConnectedComponentsCount(int sizeThreshold, int sizeCeiling) {
 		if (!started) {
 			compute();
 		}
-		
-		if (threshold <= 1) {
+
+		// Simplest case : threshold is lesser than or equal to 1 and
+		// no ceiling is specified, we return all the counted components
+		if (sizeThreshold <= 1 && sizeCeiling <= 0) {
 			return connectedComponents;
 		}
+
+		// Otherwise, parse the connected components size map to consider only
+		// the components whose size is in [sizeThreshold ; sizeCeiling [
 		else {
 			int count = 0;
 			for (Integer c : connectedComponentsSize.keySet()) {
-				if (connectedComponentsSize.get(c) >= threshold)
+				if (connectedComponentsSize.get(c) >= sizeThreshold
+						&& (sizeCeiling <= 0 ||
+							connectedComponentsSize.get(c) < sizeCeiling)) {
 					count++;
+				}
 			}
 			return count;
 		}
@@ -425,6 +448,7 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * @param exception
 	 *            An optional edge that may not be considered (useful when
 	 *            receiving a {@link #edgeRemoved(String, long, String)} event.
+	 * @return size The size (number of elements) of the connected component
 	 */
 	private int computeConnectedComponent(Node v, int id, Edge exception) {
 		int size = 0;
@@ -571,9 +595,7 @@ public class ConnectedComponents extends SinkAdapter implements
 					// we need to get the size of each of them
 					connectedComponentsSize.put(id, newSize);
 					connectedComponentsSize.remove(oldId);
-					connectedComponentsSize.put(
-							connectedComponentsMap.get(edge.getNode1()),
-							oldSize - newSize);
+					connectedComponentsSize.put(oldId, oldSize - newSize);
 
 				} else {
 					removeIdentifier(oldId);
@@ -649,9 +671,8 @@ public class ConnectedComponents extends SinkAdapter implements
 
 			// Get the size of the "old" component
 			int oldSize = connectedComponentsSize.get(oldId);
-			int newSize = computeConnectedComponent(edge.getNode0(), id,
-					edge);
-			
+			int newSize = computeConnectedComponent(edge.getNode0(), id, edge);
+
 			if (!connectedComponentsMap.get(edge.getNode0()).equals(
 					connectedComponentsMap.get(edge.getNode1()))) {
 				connectedComponents++;
@@ -659,10 +680,7 @@ public class ConnectedComponents extends SinkAdapter implements
 				// Two new connected components are created
 				// we need to get the size of each of them
 				connectedComponentsSize.put(id, newSize);
-				connectedComponentsSize.remove(oldId);
-				connectedComponentsSize.put(
-						connectedComponentsMap.get(edge.getNode1()),
-						oldSize - newSize);
+				connectedComponentsSize.put(oldId, oldSize - newSize);
 
 			} else {
 				removeIdentifier(oldId);
