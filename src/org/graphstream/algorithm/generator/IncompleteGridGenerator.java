@@ -30,6 +30,8 @@
  */
 package org.graphstream.algorithm.generator;
 
+import java.util.HashSet;
+
 /**
  * A grid generator with holes.
  * 
@@ -65,6 +67,12 @@ public class IncompleteGridGenerator extends BaseGenerator {
 	 * Connect nodes diagonally.
 	 */
 	protected boolean cross = true;
+
+	/**
+	 * Id of nodes that were connected to a deleted node. These nodes can not be
+	 * deleted. This ensure to produce a connected graph.
+	 */
+	protected HashSet<String> unbreakable = new HashSet<String>();
 
 	/**
 	 * New generator.
@@ -126,6 +134,8 @@ public class IncompleteGridGenerator extends BaseGenerator {
 
 			if (nodes.contains(neigh))
 				addEdge(getEdgeId(nodeId, neigh), nodeId, neigh);
+			else
+				unbreakable.add(nodeId);
 		}
 
 		if (x < currentWidth - 1) {
@@ -133,6 +143,8 @@ public class IncompleteGridGenerator extends BaseGenerator {
 
 			if (nodes.contains(neigh))
 				addEdge(getEdgeId(nodeId, neigh), nodeId, neigh);
+			else
+				unbreakable.add(nodeId);
 		}
 
 		if (y > 0) {
@@ -140,6 +152,8 @@ public class IncompleteGridGenerator extends BaseGenerator {
 
 			if (nodes.contains(neigh))
 				addEdge(getEdgeId(nodeId, neigh), nodeId, neigh);
+			else
+				unbreakable.add(nodeId);
 		}
 
 		if (y < currentHeight - 1) {
@@ -147,39 +161,53 @@ public class IncompleteGridGenerator extends BaseGenerator {
 
 			if (nodes.contains(neigh))
 				addEdge(getEdgeId(nodeId, neigh), nodeId, neigh);
+			else
+				unbreakable.add(nodeId);
 		}
 
-		if (cross) {
-			if (x > 0) {
-				if (y > 0) {
-					neigh = getNodeId(x - 1, y - 1);
+		// Cross
+		
+		if (x > 0) {
+			if (y > 0) {
+				neigh = getNodeId(x - 1, y - 1);
 
-					if (nodes.contains(neigh))
+				if (nodes.contains(neigh)) {
+					if (cross)
 						addEdge(getEdgeId(nodeId, neigh), nodeId, neigh);
-				}
-
-				if (y < currentHeight - 1) {
-					neigh = getNodeId(x - 1, y + 1);
-
-					if (nodes.contains(neigh))
-						addEdge(getEdgeId(nodeId, neigh), nodeId, neigh);
-				}
+				} else
+					unbreakable.add(nodeId);
 			}
 
-			if (x < currentWidth - 1) {
-				if (y > 0) {
-					neigh = getNodeId(x + 1, y - 1);
+			if (y < currentHeight - 1) {
+				neigh = getNodeId(x - 1, y + 1);
 
-					if (nodes.contains(neigh))
+				if (nodes.contains(neigh)) {
+					if (cross)
 						addEdge(getEdgeId(nodeId, neigh), nodeId, neigh);
-				}
+				} else
+					unbreakable.add(nodeId);
+			}
+		}
 
-				if (y < currentHeight - 1) {
-					neigh = getNodeId(x + 1, y + 1);
+		if (x < currentWidth - 1) {
+			if (y > 0) {
+				neigh = getNodeId(x + 1, y - 1);
 
-					if (nodes.contains(neigh))
+				if (nodes.contains(neigh)) {
+					if (cross)
 						addEdge(getEdgeId(nodeId, neigh), nodeId, neigh);
-				}
+				} else
+					unbreakable.add(nodeId);
+			}
+
+			if (y < currentHeight - 1) {
+				neigh = getNodeId(x + 1, y + 1);
+
+				if (nodes.contains(neigh)) {
+					if (cross)
+						addEdge(getEdgeId(nodeId, neigh), nodeId, neigh);
+				} else
+					unbreakable.add(nodeId);
 			}
 		}
 	}
@@ -294,22 +322,54 @@ public class IncompleteGridGenerator extends BaseGenerator {
 
 		for (int k = 0; k < holesPerStep; k++) {
 			if (random.nextFloat() < holeProbability) {
-				int x1, y1;
+				int x1, y1, t;
 				int sizeX, sizeY;
+
+				t = 0;
 
 				do {
 					x1 = random.nextInt(currentWidth);
 					y1 = random.nextInt(currentHeight);
-				} while (!nodes.contains(getNodeId(x1, y1)));
+					t++;
+				} while ((!nodes.contains(getNodeId(x1, y1)) || unbreakable
+						.contains(getNodeId(x1, y1))) && t < nodes.size());
+
+				if (t >= nodes.size())
+					continue;
 
 				sizeX = random.nextInt(holeMaxSize);
 				sizeY = random.nextInt(holeMaxSize - sizeX);
 
 				for (int i = 0; i < sizeX; i++)
 					for (int j = 0; j < sizeY; j++) {
-						if (nodes.contains(getNodeId(x1 + i, y1 + j))) {
+						String id = getNodeId(x1 + i, y1 + j);
+						if (nodes.contains(id) && !unbreakable.contains(id)) {
 							disconnectNode(x1 + i, y1 + j);
 							delNode(getNodeId(x1 + i, y1 + j));
+
+							if (j == 0 && y1 > 0)
+								unbreakable.add(getNodeId(x1 + i, y1 - 1));
+							if (j == sizeY - 1 && y1 + sizeY < currentHeight)
+								unbreakable.add(getNodeId(x1 + i, y1 + sizeY));
+
+							if (i == 0 && x1 > 0)
+								unbreakable.add(getNodeId(x1 - 1, y1 + j));
+							if (i == sizeX - 1 && x1 + sizeX < currentWidth)
+								unbreakable.add(getNodeId(x1 + sizeX, y1 + j));
+
+							if (i == 0 && x1 > 0 && j == 0 && y1 > 0)
+								unbreakable.add(getNodeId(x1 - 1, y1 - 1));
+							if (i == sizeX - 1 && x1 + sizeX < currentWidth
+									&& j == sizeY - 1
+									&& y1 + sizeY < currentHeight)
+								unbreakable.add(getNodeId(x1 + sizeX, y1
+										+ sizeY));
+							if (i == 0 && x1 > 0 && j == sizeY - 1
+									&& y1 + sizeY < currentHeight)
+								unbreakable.add(getNodeId(x1 - 1, y1 + sizeY));
+							if (i == sizeX - 1 && x1 + sizeX < currentWidth
+									&& j == 0 && y1 > 0)
+								unbreakable.add(getNodeId(x1 + sizeX, y1 - 1));
 						}
 					}
 			}
