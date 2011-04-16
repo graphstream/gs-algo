@@ -512,7 +512,7 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	public class TabuTimedEntity extends TabuEntity {
 		protected static final float SPEED = 1000;
 
-		protected float crossing = 0;
+		protected double crossing = 0;
 
 		public TabuTimedEntity(Node start) {
 			super(start);

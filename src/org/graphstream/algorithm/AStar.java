@@ -371,9 +371,9 @@ public class AStar implements Algorithm {
 				while (nexts.hasNext()) {
 					Edge edge = nexts.next();
 					Node next = edge.getOpposite(current.node);
-					float h = costs.heuristic(next, targetNode);
-					float g = current.g + costs.cost(current.node, edge, next);
-					float f = g + h;
+					double h = costs.heuristic(next, targetNode);
+					double g = current.g + costs.cost(current.node, edge, next);
+					double f = g + h;
 
 					// If the node is already in open with a better rank, we
 					// skip it.
@@ -408,7 +408,7 @@ public class AStar implements Algorithm {
 		// The problem is that we use open has a hash to ensure
 		// a node we will add to to open is not yet in it.
 
-		float min = Float.MAX_VALUE;
+		double min = Float.MAX_VALUE;
 		AStarNode theChosenOne = null;
 
 		for (AStarNode node : open.values()) {
@@ -437,7 +437,7 @@ public class AStar implements Algorithm {
 		 *            The target node.
 		 * @return The estimated cost between a node and a target node.
 		 */
-		float heuristic(Node node, Node target);
+		double heuristic(Node node, Node target);
 
 		/**
 		 * Cost of displacement from parent to next. The next node must be
@@ -453,7 +453,7 @@ public class AStar implements Algorithm {
 		 * @return The real cost of moving from parent to next, or -1 is next is
 		 *         not directly connected to parent by an edge.
 		 */
-		float cost(Node parent, Edge from, Node next);
+		double cost(Node parent, Edge from, Node next);
 	}
 
 	/**
@@ -499,7 +499,7 @@ public class AStar implements Algorithm {
 		 * 
 		 * @return The estimation.
 		 */
-		public float heuristic(Node node, Node target) {
+		public double heuristic(Node node, Node target) {
 			return 0;
 		}
 
@@ -515,11 +515,11 @@ public class AStar implements Algorithm {
 		 *            The node we go to.
 		 * @return The movement cost.
 		 */
-		public float cost(Node parent, Edge edge, Node next) {
+		public double cost(Node parent, Edge edge, Node next) {
 			// Edge choice = parent.getEdgeToward( next.getId() );
 
 			if (edge != null && edge.hasNumber(weightAttribute))
-				return ((Number) edge.getNumber(weightAttribute)).floatValue();
+				return ((Number) edge.getNumber(weightAttribute)).doubleValue();
 
 			return 1;
 		}
@@ -537,19 +537,19 @@ public class AStar implements Algorithm {
 	 * account.
 	 */
 	public static class DistanceCosts implements AStar.Costs {
-		public float heuristic(Node node, Node target) {
-			float xy1[] = nodePosition(node);
-			float xy2[] = nodePosition(target);
+		public double heuristic(Node node, Node target) {
+			double xy1[] = nodePosition(node);
+			double xy2[] = nodePosition(target);
 
-			float x = xy2[0] - xy1[0];
-			float y = xy2[1] - xy1[1];
-			float z = (xy1.length > 2 && xy2.length > 2) ? (xy2[2] - xy1[2])
+			double x = xy2[0] - xy1[0];
+			double y = xy2[1] - xy1[1];
+			double z = (xy1.length > 2 && xy2.length > 2) ? (xy2[2] - xy1[2])
 					: 0;
 
-			return (float) Math.sqrt((x * x) + (y * y) + (z * z));
+			return Math.sqrt((x * x) + (y * y) + (z * z));
 		}
 
-		public float cost(Node parent, Edge edge, Node next) {
+		public double cost(Node parent, Edge edge, Node next) {
 			return edgeLength(edge);// parent.getEdgeToward( next.getId() ) );
 		}
 	}
@@ -590,17 +590,17 @@ public class AStar implements Algorithm {
 		/**
 		 * Cost from the source node to this one.
 		 */
-		public float g;
+		public double g;
 
 		/**
 		 * Estimated cost from this node to the destination.
 		 */
-		public float h;
+		public double h;
 
 		/**
 		 * Sum of g and h.
 		 */
-		public float rank;
+		public double rank;
 
 		/**
 		 * New A* node.
@@ -617,8 +617,8 @@ public class AStar implements Algorithm {
 		 * @param h
 		 *            The estimated cost from this node to the target.
 		 */
-		public AStarNode(Node node, Edge edge, AStarNode parent, float g,
-				float h) {
+		public AStarNode(Node node, Edge edge, AStarNode parent, double g,
+				double h) {
 			this.node = node;
 			this.edge = edge;
 			this.parent = parent;

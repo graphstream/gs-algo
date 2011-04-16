@@ -76,7 +76,7 @@ public abstract class CommunityMeasure extends SinkAdapter implements
 	/**
 	 * Last value computed.
 	 */
-	protected float M;
+	protected double M;
 
 	/**
 	 * New measure algorithm with a given marker for communities.
@@ -105,7 +105,7 @@ public abstract class CommunityMeasure extends SinkAdapter implements
 	 * @complexity O(1)
 	 * @return The last computed measure.
 	 */
-	public float getLastComputedValue() {
+	public double getLastComputedValue() {
 		return M;
 	}
 
@@ -115,7 +115,7 @@ public abstract class CommunityMeasure extends SinkAdapter implements
 	 * @complexity Depends on the actual measure
 	 * @return The current measure.
 	 */
-	public float getMeasure() {
+	public double getMeasure() {
 		compute();
 		return M;
 	}

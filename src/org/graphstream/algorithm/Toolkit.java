@@ -108,7 +108,7 @@ public class Toolkit {
 	 * @return The average degree of the graph.
 	 * @complexity O(1).
 	 */
-	public static float averageDegree(Graph graph) {
+	public static double averageDegree(Graph graph) {
 		float m = graph.getEdgeCount() * 2;
 		float n = graph.getNodeCount();
 
@@ -125,7 +125,7 @@ public class Toolkit {
 	 * @return The density of the graph.
 	 * @complexity O(1)
 	 */
-	public static float density(Graph graph) {
+	public static double density(Graph graph) {
 		float m = (float) graph.getEdgeCount();
 		float n = (float) graph.getNodeCount();
 
@@ -141,16 +141,16 @@ public class Toolkit {
 	 * @return The degree average deviation.
 	 * @complexity O(n) where n is the number of nodes.
 	 */
-	public static float degreeAverageDeviation(Graph graph) {
-		float average = averageDegree(graph);
-		float sum = 0;
+	public static double degreeAverageDeviation(Graph graph) {
+		double average = averageDegree(graph);
+		double sum = 0;
 
 		for (Node node : graph) {
-			float d = node.getDegree() - average;
+			double d = node.getDegree() - average;
 			sum += d * d;
 		}
 
-		return (float) Math.sqrt(sum / (float) graph.getNodeCount());
+		return Math.sqrt(sum / graph.getNodeCount());
 	}
 
 	/**
@@ -468,7 +468,7 @@ public class Toolkit {
 	 * @complexity O(m!k) with m the number of communities and k the average
 	 *             number of nodes per community.
 	 */
-	public static float[][] modularityMatrix(Graph graph,
+	public static double[][] modularityMatrix(Graph graph,
 			HashMap<Object, HashSet<Node>> communities) {
 		return modularityMatrix(graph, communities, null);
 	}
@@ -488,10 +488,10 @@ public class Toolkit {
 	 * @complexity O(m!k) with m the number of communities and k the average
 	 *             number of nodes per community.
 	 */
-	public static float[][] modularityMatrix(Graph graph,
+	public static double[][] modularityMatrix(Graph graph,
 			HashMap<Object, HashSet<Node>> communities, String weightMarker) {
 
-		float edgeCount = 0;
+		double edgeCount = 0;
 		if (weightMarker == null) {
 			edgeCount = graph.getEdgeCount();
 		} else {
@@ -504,7 +504,7 @@ public class Toolkit {
 
 		int communityCount = communities.size();
 
-		float E[][] = new float[communityCount][];
+		double E[][] = new double[communityCount][];
 		Object keys[] = new Object[communityCount];
 
 		int k = 0;
@@ -513,7 +513,7 @@ public class Toolkit {
 			keys[k++] = key;
 
 		for (int i = 0; i < communityCount; ++i)
-			E[i] = new float[communityCount];
+			E[i] = new double[communityCount];
 
 		for (int y = 0; y < communityCount; ++y) {
 			for (int x = y; x < communityCount; ++x) {
@@ -540,9 +540,9 @@ public class Toolkit {
 	 * @return The modularity of the graph.
 	 * @complexity O(m!) with m the number of communities.
 	 */
-	public static float modularity(float[][] E) {
-		float sumE = 0, Tr = 0;
-		float communityCount = E.length;
+	public static double modularity(double[][] E) {
+		double sumE = 0, Tr = 0;
+		double communityCount = E.length;
 
 		for (int y = 0; y < communityCount; ++y) {
 			for (int x = y; x < communityCount; ++x) {
@@ -579,7 +579,7 @@ public class Toolkit {
 	 *             communities.
 	 * @see org.graphstream.algorithm.measure.Modularity
 	 */
-	public static float modularity(Graph graph, String marker) {
+	public static double modularity(Graph graph, String marker) {
 		return modularity(modularityMatrix(graph, communities(graph, marker)));
 	}
 
@@ -609,7 +609,7 @@ public class Toolkit {
 	 *             communities.
 	 * @see org.graphstream.algorithm.measure.Modularity
 	 */
-	public static float modularity(Graph graph, String marker,
+	public static double modularity(Graph graph, String marker,
 			String weightMarker) {
 		return modularity(modularityMatrix(graph, communities(graph, marker),
 				weightMarker));
@@ -625,7 +625,7 @@ public class Toolkit {
 	 *            The second community.
 	 * @return The number of edges between the two communities.
 	 */
-	protected static float modularityCountEdges(HashSet<Node> community,
+	protected static double modularityCountEdges(HashSet<Node> community,
 			HashSet<Node> otherCommunity) {
 		return modularityCountEdges(community, otherCommunity, null);
 	}
@@ -642,7 +642,7 @@ public class Toolkit {
 	 *            The marker used to store the weight of each edge
 	 * @return The number of edges between the two communities.
 	 */
-	protected static float modularityCountEdges(HashSet<Node> community,
+	protected static double modularityCountEdges(HashSet<Node> community,
 			HashSet<Node> otherCommunity, String weightMarker) {
 		HashSet<Edge> marked = new HashSet<Edge>();
 
@@ -703,7 +703,7 @@ public class Toolkit {
 	 *         position of the node, or null if the node is not part of the
 	 *         graph.
 	 */
-	public static float[] nodePosition(Graph graph, String id) {
+	public static double[] nodePosition(Graph graph, String id) {
 		Node node = graph.getNode(id);
 
 		if (node != null)
@@ -721,8 +721,8 @@ public class Toolkit {
 	 * @return A newly allocated array of three floats containing the (x,y,z)
 	 *         position of the node.
 	 */
-	public static float[] nodePosition(Node node) {
-		float xyz[] = new float[3];
+	public static double[] nodePosition(Node node) {
+		double xyz[] = new double[3];
 
 		nodePosition(node, xyz);
 
@@ -741,7 +741,7 @@ public class Toolkit {
 	 * @throws RuntimeException
 	 *             If the node with the given identifier does not exist.
 	 */
-	public static void nodePosition(Graph graph, String id, float xyz[]) {
+	public static void nodePosition(Graph graph, String id, double xyz[]) {
 		Node node = graph.getNode(id);
 
 		if (node != null)
@@ -759,7 +759,7 @@ public class Toolkit {
 	 * @param xyz
 	 *            An array of at least three cells.
 	 */
-	public static void nodePosition(Node node, float xyz[]) {
+	public static void nodePosition(Node node, double xyz[]) {
 		if (xyz.length < 3)
 			return;
 
@@ -802,7 +802,7 @@ public class Toolkit {
 	 * @throws RuntimeException
 	 *             If the edge cannot be found.
 	 */
-	public static float edgeLength(Graph graph, String id) {
+	public static double edgeLength(Graph graph, String id) {
 		Edge edge = graph.getEdge(id);
 
 		if (edge != null)
@@ -818,9 +818,9 @@ public class Toolkit {
 	 * @param edge
 	 * @return The edge length or -1 if the nodes of the edge have no positions.
 	 */
-	public static float edgeLength(Edge edge) {
-		float xyz0[] = nodePosition(edge.getNode0());
-		float xyz1[] = nodePosition(edge.getNode1());
+	public static double edgeLength(Edge edge) {
+		double xyz0[] = nodePosition(edge.getNode0());
+		double xyz1[] = nodePosition(edge.getNode1());
 
 		if (xyz0 == null || xyz1 == null)
 			return -1;
@@ -829,7 +829,7 @@ public class Toolkit {
 		xyz0[1] = xyz1[1] - xyz0[1];
 		xyz0[2] = xyz1[2] - xyz0[2];
 
-		return (float) Math.sqrt(xyz0[0] * xyz0[0] + xyz0[1] * xyz0[1]
+		return Math.sqrt(xyz0[0] * xyz0[0] + xyz0[1] * xyz0[1]
 				+ xyz0[2] * xyz0[2]);
 	}
 }
