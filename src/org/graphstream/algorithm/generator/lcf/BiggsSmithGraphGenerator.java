@@ -59,7 +59,7 @@ public class BiggsSmithGraphGenerator extends LCFGenerator {
 			-18, 25, 38, 31, -25, 24, -46, -14, 28, 11, 21, 35, -39, 43, 36,
 			-38, 14, 50, 43, 36, -11, -36, -24, 45, 8, 19, -25, 38, 20, -24,
 			-14, -21, -8, 44, -31, -38, -28, 37);
-
+	
 	public BiggsSmithGraphGenerator() {
 		super(BIGGS_SMITH_GRAPH_LCF, 102, false);
 	}

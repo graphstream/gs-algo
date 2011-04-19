@@ -32,11 +32,6 @@ package org.graphstream.algorithm.generator;
 
 import java.util.HashSet;
 
-import org.graphstream.algorithm.generator.lcf.Balaban10CageGraphGenerator;
-import org.graphstream.algorithm.generator.lcf.BiggsSmithGraphGenerator;
-import org.graphstream.algorithm.generator.lcf.NauruGraphGenerator;
-import org.graphstream.graph.implementations.DefaultGraph;
-
 /**
  * Build a graph using a lcf notation.
  * 
@@ -162,14 +157,5 @@ public class LCFGenerator extends BaseGenerator {
 		}
 
 		return String.format("%03d_%03d", i1, i2);
-	}
-
-	public static void main(String... args) throws Exception {
-		DefaultGraph g = new DefaultGraph("g");
-		LCFGenerator gen = new BiggsSmithGraphGenerator();
-
-		gen.addSink(g);
-		g.display(false);
-		gen.begin();
 	}
 }
