@@ -111,25 +111,24 @@ public class PreferentialAttachmentGenerator extends BaseGenerator {
 		addNode(id);
 		degrees.add(0);
 
-		// Compute the attachment probability of each previouly added node
+		// Compute the attachment probability of each previously added node
 
 		int sumDeg = edgesCount * 2;
-		sumDeg = sumDeg > 0 ? sumDeg : 1;
 
 		// Choose the node to attach to.
 
 		double sumProba = 0;
-		double rnd = Math.random();
+		double rnd = random.nextDouble();
 		int otherIdx = -1;
 
 		for(int i = 0; i < index; ++i) {
-			double proba = degrees.get(i) / ((double) sumDeg);
+			double proba = sumDeg == 0 ? 1 : degrees.get(i) / ((double) sumDeg);
 
 			sumProba += proba;
 
 			if (sumProba > rnd) {
 				otherIdx = i;
-				break;
+				i = index;// Stop the loop.
 			}
 		}
 
