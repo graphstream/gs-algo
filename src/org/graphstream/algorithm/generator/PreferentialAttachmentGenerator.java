@@ -33,18 +33,30 @@ package org.graphstream.algorithm.generator;
 import java.util.ArrayList;
 
 /**
- * Scale-free graph (tree) generator using the preferential attachement rule.
+ * Scale-free graph (tree) generator using the preferential attachment rule
+ * as defined in the Barabási-Albert model.
  * 
  * <p>
  * This is a very simple graph generator that generates a tree using the
- * preferential attachement rule: nodes are generated one by one, and each time
- * attached by an edge to another node that has more chance to choosed if it
- * already has lots of nodes attached to it.
+ * preferential attachment rule defined in the Barabási-Albert model: nodes
+ * are generated one by one, and each time attached by an edge to another
+ * node that has more chance to chosen if it already has lots of nodes
+ * attached to it.
  * </p>
  * 
  * <p>
  * The more this generator is iterated, the more nodes are generated. It can
  * therefore generate trees of any size.
+ * </p>
+ * 
+ * <p>This is taken from the paper :
+ * 	<ul>
+ *      <li>Emergence of scaling in random networks</li>
+ * 		<li>Albert-László Barabási & Réka Albert</li>
+ *      <li>Science 286: 509–512</li>
+ *      <li>October 1999</li>
+ *      <li>doi:10.1126/science.286.5439.509.</li>
+ *  </ul>
  * </p>
  * 
  * @since 20061128
@@ -102,16 +114,16 @@ public class PreferentialAttachmentGenerator extends BaseGenerator {
 		// Compute the attachment probability of each previouly added node
 
 		int sumDeg = edgesCount * 2;
+		sumDeg = sumDeg > 0 ? sumDeg : 1;
 
 		// Choose the node to attach to.
 
-		float sumProba = 0;
-		float rnd = (float) Math.random();
+		double sumProba = 0;
+		double rnd = Math.random();
 		int otherIdx = -1;
 
-		for (int i = 0; i < index; ++i) {
-			float proba = sumDeg == 0 ? 1 : ((float) degrees.get(i))
-					/ ((float) sumDeg);
+		for(int i = 0; i < index; ++i) {
+			double proba = degrees.get(i) / ((double) sumDeg);
 
 			sumProba += proba;
 
