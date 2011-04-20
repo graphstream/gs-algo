@@ -68,7 +68,32 @@ public class LobsterGenerator extends BaseGenerator {
 	 * Main constructor to a Lobster generator.
 	 */
 	public LobsterGenerator() {
-		nodes = new LinkedList<Data>();
+		this(2, -1);
+	}
+
+	/**
+	 * Constructor allowing to customize maximum distance to the root path and
+	 * maximum degree of nodes.
+	 * 
+	 * @param maxDistance
+	 *            max distance to root path
+	 * @param maxDegree
+	 *            max degree of nodes
+	 */
+	public LobsterGenerator(int maxDistance, int maxDegree) {
+		this.maxDistance = maxDistance;
+		this.maxDegree = maxDegree;
+		this.nodes = new LinkedList<Data>();
+	}
+
+	/**
+	 * Constructor allowing to customize maximum distance to the root path.
+	 * 
+	 * @param maxDistance
+	 *            max distance to root path
+	 */
+	public LobsterGenerator(int maxDistance) {
+		this(maxDistance, -1);
 	}
 
 	/*
@@ -92,7 +117,7 @@ public class LobsterGenerator extends BaseGenerator {
 		do {
 			connectTo = nodes.get(random.nextInt(nodes.size()));
 		} while (connectTo.distance >= maxDistance
-				|| connectTo.degree() >= maxDegree);
+				|| (maxDegree > 0 && connectTo.degree() >= maxDegree));
 
 		Data newData = null;
 
