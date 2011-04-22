@@ -567,7 +567,7 @@ public class Toolkit {
 	 * <ul>
 	 * <li>{@link #communities(Graph,String)}</li>
 	 * <li>{@link #modularityMatrix(Graph,HashMap)}</li>
-	 * <li>{@link #modularity(float[][])}</li>
+	 * <li>{@link #modularity(double[][])}</li>
 	 * </ul>
 	 * in order to produce the modularity value.
 	 * 
@@ -595,7 +595,7 @@ public class Toolkit {
 	 * <ul>
 	 * <li>{@link #communities(Graph,String)}</li>
 	 * <li>{@link #modularityMatrix(Graph,HashMap,String)}</li>
-	 * <li>{@link #modularity(float[][])}</li>
+	 * <li>{@link #modularity(double[][])}</li>
 	 * </ul>
 	 * in order to produce the modularity value.
 	 * 
@@ -751,7 +751,7 @@ public class Toolkit {
 	}
 
 	/**
-	 * Like {@link #nodePosition(Graph,String,float[])} but use an existing node
+	 * Like {@link #nodePosition(Graph,String,double[])} but use an existing node
 	 * as argument.
 	 * 
 	 * @param node
@@ -831,5 +831,71 @@ public class Toolkit {
 
 		return Math.sqrt(xyz0[0] * xyz0[0] + xyz0[1] * xyz0[1]
 				+ xyz0[2] * xyz0[2]);
+	}
+	
+	/**
+	 * Compute the diameter of the graph.
+	 * 
+	 * <p>
+	 * The diameter of the graph is the largest of all the shortest paths from any node to
+	 * any other node.
+	 * </p>
+	 * 
+	 * <p>
+	 * Note that this operation can be quite costly, the algorithm used to compute all shortest
+	 * paths is the Floyd-Warshall algorithm whose complexity is at worst of O(n^3).
+	 * </p>
+	 * 
+	 * <p>The returned diameter is not an integer since some graphs have non-integer weights
+	 * on edges.</p>
+	 *
+	 * @param graph
+	 * 			The graph to use.
+	 * @return The diameter.
+	 */
+	public static double diameter(Graph graph) {
+		return diameter(graph, "weight", false);
+	}
+	
+	/**
+	 * Compute the diameter of the graph.
+	 * 
+	 * <p>
+	 * The diameter of the graph is the largest of all the shortest paths from any node to
+	 * any other node.
+	 * </p>
+	 * 
+	 * <p>
+	 * Note that this operation can be quite costly, the algorithm used to compute all shortest
+	 * paths is the Floyd-Warshall algorithm whose complexity is at worst of O(n^3).
+	 * </p>
+	 * 
+	 * <p>The returned diameter is not an integer since some graphs have non-integer weights
+	 * on edges.</p>
+	 *
+	 * @param graph
+	 * 	 		The graph to use.
+	 * @param weightAttributeName
+	 * 			The name used to store weights on the edges (must be a Number).
+	 * @param directed Does
+	 * 			The edge direction should be considered ?.
+	 * @return The diameter.
+	 */
+	public static double diameter(Graph graph, String weightAttributeName, boolean directed) {
+		double diameter = Double.MIN_VALUE;
+		APSP apsp = new APSP(graph, weightAttributeName, directed);
+		
+		apsp.compute();
+		
+		for(Node node:graph) {
+			APSP.APSPInfo info = (APSP.APSPInfo) node.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
+			
+			for(APSP.TargetPath path: info.targets.values()) {
+				if(path.distance > diameter)
+					diameter = path.distance;
+			}
+		}
+		
+		return diameter;
 	}
 }

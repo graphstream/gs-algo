@@ -99,7 +99,7 @@ public class Centroid implements Algorithm {
 
 			for (Node other : graph.getEachNode()) {
 				if (node != other) {
-					float d = info.getLengthTo(other.getId());
+					double d = info.getLengthTo(other.getId());
 
 					if (d < 0)
 						System.err
