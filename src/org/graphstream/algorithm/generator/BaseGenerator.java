@@ -452,7 +452,7 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	 * @param y
 	 *            The node ordinate.
 	 */
-	protected void addNode(String id, float x, float y) {
+	protected void addNode(String id, double x, double y) {
 		addNode(id);
 		sendNodeAttributeAdded(sourceId, id, "xy", new Double[] {
 				new Double(x), new Double(y) });
