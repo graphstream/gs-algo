@@ -271,13 +271,16 @@ public class Toolkit {
 	 */
 	public static Node randomNode(Graph graph, Random random) {
 		int n = graph.getNodeCount();
-		int r = random.nextInt(n);
-		int i = 0;
+		
+		if(n > 0) {
+			int r = random.nextInt(n);
+			int i = 0;
 
-		for (Node node : graph) {
-			if (r == i)
-				return node;
-			i++;
+			for (Node node : graph) {
+				if (r == i)
+					return node;
+				i++;
+			}
 		}
 
 		return null;
@@ -303,13 +306,16 @@ public class Toolkit {
 	 */
 	public static Edge randomEdge(Graph graph, Random random) {
 		int n = graph.getEdgeCount();
-		int r = random.nextInt(n);
-		int i = 0;
+		
+		if(n > 0) {
+			int r = random.nextInt(n);
+			int i = 0;
 
-		for (Edge edge : graph.getEachEdge()) {
-			if (r == i)
-				return edge;
-			i++;
+			for (Edge edge : graph.getEachEdge()) {
+				if (r == i)
+					return edge;
+				i++;
+			}
 		}
 
 		return null;
@@ -357,13 +363,16 @@ public class Toolkit {
 	 */
 	public static Edge randomEdge(Node node, Random random) {
 		int n = node.getDegree();
-		int r = random.nextInt(n);
-		int i = 0;
+		
+		if (n > 0) {
+			int r = random.nextInt(n);
+			int i = 0;
 
-		for (Edge edge : node.getEdgeSet()) {
-			if (r == i)
-				return edge;
-			i++;
+			for (Edge edge : node.getEdgeSet()) {
+				if (r == i)
+					return edge;
+				i++;
+			}
 		}
 
 		return null;
@@ -380,13 +389,16 @@ public class Toolkit {
 	 */
 	public static Edge randomInEdge(Node node, Random random) {
 		int n = node.getInDegree();
-		int r = random.nextInt(n);
-		int i = 0;
+		
+		if(n > 0) {
+			int r = random.nextInt(n);
+			int i = 0;
 
-		for (Edge edge : node.getEnteringEdgeSet()) {
-			if (r == i)
-				return edge;
-			i++;
+			for (Edge edge : node.getEnteringEdgeSet()) {
+				if (r == i)
+					return edge;
+				i++;
+			}
 		}
 
 		return null;
@@ -403,13 +415,16 @@ public class Toolkit {
 	 */
 	public static Edge randomOutEdge(Node node, Random random) {
 		int n = node.getOutDegree();
-		int r = random.nextInt(n);
-		int i = 0;
+		
+		if (n > 0) {
+			int r = random.nextInt(n);
+			int i = 0;
 
-		for (Edge edge : node.getLeavingEdgeSet()) {
-			if (r == i)
-				return edge;
-			i += 1;
+			for (Edge edge : node.getLeavingEdgeSet()) {
+				if (r == i)
+					return edge;
+				i += 1;
+			}
 		}
 
 		return null;
