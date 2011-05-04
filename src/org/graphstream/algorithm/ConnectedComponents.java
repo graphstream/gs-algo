@@ -478,7 +478,6 @@ public class ConnectedComponents extends SinkAdapter implements
 						if (connectedComponentsMap.get(n2) != id) {
 							open.add(n2);
 							connectedComponentsMap.put(n2, id);
-							size++;
 							markNode(n2, id); /* useless */
 						}
 						// Also work with (but slower):
