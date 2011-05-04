@@ -186,7 +186,7 @@ public class ConnectedComponents extends SinkAdapter implements
 		if (graph != null)
 			init(graph);
 
-		connectedComponentsMap = new HashMap<Node, Integer>();
+		
 	}
 
 	/**
@@ -208,7 +208,6 @@ public class ConnectedComponents extends SinkAdapter implements
 				maxIndex = c;
 			}
 		}
-
 		// Get the list of nodes within this component
 		if (maxIndex != -1) {
 			ArrayList<Node> giant = new ArrayList<Node>();
@@ -253,7 +252,7 @@ public class ConnectedComponents extends SinkAdapter implements
 	 *            Maximum size for the connected component to be considered (use
 	 *            0 or lower values to ignore the ceiling)
 	 */
-	protected int getConnectedComponentsCount(int sizeThreshold, int sizeCeiling) {
+	public int getConnectedComponentsCount(int sizeThreshold, int sizeCeiling) {
 		if (!started) {
 			compute();
 		}
@@ -392,6 +391,8 @@ public class ConnectedComponents extends SinkAdapter implements
 		ids.add(""); // The dummy first identifier (since zero is a special
 		// value).
 
+		connectedComponentsMap = new HashMap<Node, Integer>();
+		
 		// Initialize the size count structure
 		connectedComponentsSize = new HashMap<Integer, Integer>();
 
