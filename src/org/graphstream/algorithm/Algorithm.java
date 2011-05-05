@@ -30,22 +30,75 @@
  */
 package org.graphstream.algorithm;
 
-import org.graphstream.graph.*;
+import org.graphstream.graph.Graph;
 
 /**
- * This interface defines algorithms which can be run on a graph. Such
- * algorithms are divided in two step :
- * <ol>
- * <li>an initialization step</li>
- * <li>a computing step</li>
- * </ol>
+ * Algorithms are used to compute properties on graphs or graph elements. These
+ * properties could be a measure, color, spanning tree, etc... Algorithms are
+ * divided into two steps :
  * 
+ * <ol>
+ * <li>initialization, that initialize or reset the algorithm ;</li>
+ * <li>computation, that computes a property or updates a previous result.</li>
+ * </ol>
+ * <p>
+ * Algorithm interface aims to define algorithms that do no handle dynamics of
+ * the graph, whereas algorithms implementing the
+ * {@link org.graphstream.algorithm.DynamicAlgorithm} interface (an extended
+ * version of Algorithm) are able to handle this dynamics.
+ * </p>
+ * <p>
+ * This following is an example of an algorithm that computes max, min and
+ * average degrees of a graph:
+ * </p>
+ * <pre>
+ * public class DegreesAlgorithm implements Algorithm {
+ * 		Graph theGraph;
+ * 		int minDegree, maxDegree, avgDegree;
+ * 
+ * 		public void init(Graph graph) {
+ * 			theGraph = graph; 
+ * 		}
+ * 
+ * 		public void compute() {
+ * 			avgDegree = 0;
+ * 			minDegree = Integer.MAX_VALUE;
+ * 			maxDegree = 0;
+ * 
+ * 			for(Node n : theGraph.getEachNode() ) {
+ * 				int deg = n.getDegree();
+ * 
+ * 				minDegree = Math.min(minDegree, d);
+ * 				maxDegree = Math.max(maxDegree, d);
+ * 				avgDegree += d;
+ * 			}
+ * 
+ * 			avgDegree /= theGraph.getNodeCount();
+ * 		}
+ * 
+ * 		public int getMaxDegree() {
+ * 			return maxDegree;
+ * 		}
+ * 
+ * 		public int getMinDegree() {
+ * 			return minDegree;
+ * 		}
+ * 
+ * 		public int getAverageDegree() {
+ * 			return avgDegree;
+ * 		}
+ * }
+ * </pre>
+ * <p>
  * Complexity of algorithms can be specify in the documentation with the help of
  * the "@complexity" tag.
+ * </p>
  */
 public interface Algorithm {
 	/**
-	 * Initialization of the algorithm.
+	 * Initialization of the algorithm. This method has to be called before the
+	 * {@link #compute()} method to initialize or reset the algorithm according
+	 * to the new given graph.
 	 * 
 	 * @param graph
 	 *            The graph this algorithm is using.
@@ -53,7 +106,8 @@ public interface Algorithm {
 	void init(Graph graph);
 
 	/**
-	 * Launch the algorithm on the previously specified graph.
+	 * Run the algorithm. The {@link #init(Graph)} method has to be called
+	 * before computing.
 	 * 
 	 * @see #init(Graph)
 	 */
