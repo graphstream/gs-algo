@@ -83,7 +83,8 @@ import org.graphstream.stream.SinkAdapter;
  * one edge, one "pass-by" node. As all shortest path that is made of more than
  * one edge is necessarily made of two other shortest paths, it is easy to
  * reconstruct a shortest path between two arbitrary nodes knowing only a
- * pass-by node.
+ * pass-by node. This approach still stores a lot of data on the graph, however
+ * far less than if we stored complete paths.
  * </p>
  */
 public class APSP extends SinkAdapter implements Algorithm {
@@ -251,8 +252,8 @@ public class APSP extends SinkAdapter implements Algorithm {
 			// The Floyd-Warshall algorithm. You can easily see it is in O(n^3)..
 
 			int z = 0;
-			float prog = 0;
-			float max  = nodeList.size();
+			double prog = 0;
+			double max  = nodeList.size();
 			max *= max;
 
 			for (Node k : nodeList) {
@@ -265,14 +266,14 @@ public class APSP extends SinkAdapter implements Algorithm {
 						APSPInfo K = (APSPInfo) k.getAttribute(
 								APSPInfo.ATTRIBUTE_NAME, APSPInfo.class);
 
-						float Dij = I.getLengthTo(J.source.getId());
-						float Dik = I.getLengthTo(K.source.getId());
-						float Dkj = K.getLengthTo(J.source.getId());
+						double Dij = I.getLengthTo(J.source.getId());
+						double Dik = I.getLengthTo(K.source.getId());
+						double Dkj = K.getLengthTo(J.source.getId());
 
 						// Take into account non-existing paths.
 
 						if (Dik >= 0 && Dkj >= 0) {
-							float sum = Dik + Dkj;
+							double sum = Dik + Dkj;
 
 							if (Dij >= 0) {
 								if (sum < Dij) {
@@ -291,7 +292,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 				}
 
 				z++;
-				// System.err.printf( "%3.2f%%%n", (z/((float)n))*100 );
+				// System.err.printf( "%3.2f%%%n", (z/((double)n))*100 );
 			}
 		}
 
@@ -313,14 +314,16 @@ public class APSP extends SinkAdapter implements Algorithm {
 		/**
 		 * Maximum number of hops to attain another node in the graph from the
 		 * "from" node.
+		 * XXX this is the maximum value seen during compute not the maximum shortest path XXX
 		 */
-		public float maxLength;
+		public double maxLength = Double.MIN_VALUE;
 
 		/**
 		 * Minimum number of hops to attain another node in the graph from the
 		 * "from" node.
+		 * XXX this is the minimum value seen during compute not the minimum shortest path XXX
 		 */
-		public float minLength;
+		public double minLength = Double.MAX_VALUE;
 
 		/**
 		 * Shortest paths toward all other accessible nodes.
@@ -340,7 +343,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 		 *            If false, the edge orientation is not taken into account.
 		 */
 		public APSPInfo(Node node, String weightAttributeName, boolean directed) {
-			float weight = 1;
+			double weight = 1;
 			Iterable<? extends Edge> edges = node.getLeavingEdgeSet();
 
 			source = node;
@@ -352,7 +355,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 				Node other = edge.getOpposite(node);
 
 				if (edge.hasAttribute(weightAttributeName))
-					weight = (float) edge.getNumber(weightAttributeName);
+					weight = edge.getNumber(weightAttributeName);
 
 				targets.put(other.getId(), new TargetPath(other, weight, null));
 			}
@@ -376,7 +379,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 		 * @return The distance or -1 if no path is stored yet between the two
 		 *         nodes.
 		 */
-		public float getLengthTo(String other) {
+		public double getLengthTo(String other) {
 			if (targets.containsKey(other))
 				return targets.get(other).distance;
 
@@ -388,7 +391,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 		 * 
 		 * @return A distance.
 		 */
-		public float getMinimumLength() {
+		public double getMinimumLength() {
 			return minLength;
 		}
 
@@ -397,7 +400,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 		 * 
 		 * @return A distance.
 		 */
-		public float getMaximumLength() {
+		public double getMaximumLength() {
 			return maxLength;
 		}
 
@@ -410,7 +413,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 		 * @param length
 		 *            The new minimum path lengths between these nodes.
 		 */
-		public void setLengthTo(APSPInfo other, float length, APSPInfo passBy) {
+		public void setLengthTo(APSPInfo other, double length, APSPInfo passBy) {
 			targets.put(other.source.getId(), new TargetPath(other.source,
 					length, passBy));
 
@@ -473,12 +476,9 @@ public class APSP extends SinkAdapter implements Algorithm {
 				// We build paths between A and X and between X and B.
 
 				TargetPath path1 = source.targets.get(path.passBy.source
-						.getId()); // path from A -> X
-				TargetPath path2 = path.passBy.targets.get(path.target.getId()); // path
-																					// from
-																					// X
-																					// ->
-																					// B
+						.getId());	// path from A -> X
+				TargetPath path2 = path.passBy.targets.get(path.target.getId());
+									// path from X -> B
 
 				// Now we recurse the path expansion.
 
@@ -516,9 +516,6 @@ public class APSP extends SinkAdapter implements Algorithm {
 	 * always made of the sum of two shortest paths, and knowing only one
 	 * "pass-by" node in the shortest path, it is possible to rebuild it).
 	 * </p>
-	 * 
-	 * @author Antoine Dutot
-	 * @since 2007
 	 */
 	public static class TargetPath {
 		/**
@@ -529,7 +526,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 		/**
 		 * The distance to this other node.
 		 */
-		public float distance;
+		public double distance;
 
 		/**
 		 * An intermediary other node on the minimum path to the other node.
@@ -537,7 +534,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 		 */
 		public APSPInfo passBy;
 
-		public TargetPath(Node other, float distance, APSPInfo passBy) {
+		public TargetPath(Node other, double distance, APSPInfo passBy) {
 			this.target = other;
 			this.distance = distance;
 			this.passBy = passBy;
@@ -598,6 +595,6 @@ public class APSP extends SinkAdapter implements Algorithm {
 		 * @param percent
 		 *            a value between 0 and 1, 0 meaning 0% and 1 meaning 100%.
 		 */
-		void progress(float percent);
+		void progress(double percent);
 	}
 }

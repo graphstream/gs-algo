@@ -100,6 +100,9 @@ public class PreferentialAttachmentGenerator extends BaseGenerator {
 	/**
 	 * Step of the generator. Add a node and try to connect it with some others.
 	 * 
+	 * The complexity of this method is O(n) with n the number of nodes actually
+	 * in the graph.
+	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
 	 */
 	public boolean nextEvents() {

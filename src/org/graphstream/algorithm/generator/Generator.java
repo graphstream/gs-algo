@@ -36,15 +36,29 @@ import org.graphstream.stream.Source;
  * Graph generator.
  * 
  * <p>
- * A graph generator is an object that takes a graph as argument and
- * continuously create and evolve it. Some generators define an end to the
- * generation process, others may continue endlessly.
+ * A graph generator is an object that can send graph events to create a
+ * new graph from an internal description. Some generators will create a
+ * static predefined graph, others will be able to continuously evolve
+ * Indeed some generators define an end to the generation process, others
+ * may continue endlessly.
  * </p>
  * 
  * <p>
- * Generator are very similar to graph readers excepted they have a direct
- * access to the graph. They can be used instead of readers each time the
- * reading process needs to have a read access to the graph.
+ * Each generator, in addition of being a source of events, provide only
+ * three methods:
+ * <ul>
+ * 		<li>One to start the generation process {@link #begin()}.
+ * 		For static generators this often generate a whole graph, for dynamic
+ * 		generators this only initialise a base graph.</li>
+ * 		<li>One to end the generation process {@link #end()}. This method
+ * 		must ALWAYS be called when finished with the generator.</li>
+ * 		<li>One to generate more dynamic events {@link #nextEvents()}.
+ * 		This method will, as its name suggests, generate more dynamic
+ * 		events making the graph evolve. You can call it (repeatedly) only
+ * 		between a call to {@link #begin()} and to {@link #end()}. This
+ * 		method returns a boolean that may indicate that no more events
+ * 		can be generated.</li>
+ * </ul>
  * </p>
  */
 public interface Generator extends Source {

@@ -89,11 +89,11 @@ public class Eccentricity implements Algorithm {
 	 * @see org.graphstream.algorithm.Algorithm#compute()
 	 */
 	public void compute() {
-		float min = Float.MAX_VALUE;
+		double min = Double.MAX_VALUE;
 		HashSet<Node> eccentricity = new HashSet<Node>();
 
 		for (Node node : graph.getEachNode()) {
-			float m = Float.MIN_VALUE;
+			double m = Double.MIN_VALUE;
 			APSP.APSPInfo info = node.getAttribute(apspInfoAttribute);
 
 			if (info == null)
@@ -102,7 +102,7 @@ public class Eccentricity implements Algorithm {
 
 			for (Node other : graph.getEachNode()) {
 				if (node != other) {
-					float d = info.getLengthTo(other.getId());
+					double d = info.getLengthTo(other.getId());
 
 					if (d < 0)
 						System.err

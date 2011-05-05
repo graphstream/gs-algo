@@ -131,6 +131,10 @@ public class BarabasiAlbertGenerator extends BaseGenerator {
 	 * The number of links is randomly chosen between 1 and the maximum number of
 	 * links per step specified in {@link #setMaxLinksPerStep(int)}.
 	 * 
+	 * The complexity of this method is O(n) with n the number of nodes if the
+	 * number of edges created per new node is 1, else it is O(nm) with m
+	 * the number of edges generated per node.
+	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
 	 */
 	public boolean nextEvents() {
