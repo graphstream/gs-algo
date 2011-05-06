@@ -47,21 +47,49 @@ import org.graphstream.graph.Path;
  * href="http://en.wikipedia.org/wiki/Dijkstra%27s_algorithm">Wikipedia</a>).
  * </p>
  * <p>
- * This length can be the absolute length of the path ( a path with 3 edges has
- * a length of 3), it can also be computed considering other constraints
- * situated on the edges or on the nodes.
+ * This length can be the absolute length of the path (a path with 3 edges has a
+ * length of 3), it can also be computed considering other constraints situated
+ * on the edges or on the nodes.
  * </p>
  * <p>
  * Note that Dijkstra's algorithm only computes with non-negative values.
  * </p>
- * <p>
  * 
- * @complexity O(n^2 + m) with n the number of nodes and m the number of edges.
+ * <h2>Usage</h2>
+ * <p>
+ * The classical usage of this class takes place in 4 steps.
+ * </p>
+ * <ol>
+ * <li>Definition of a Dijkstra instance with parameters needed for the
+ * initialization.</li>
+ * <li>Initialization of the algorithm with a graph through the
+ * {@link #init(Graph)} method from the
+ * {@link org.graphstream.algorithm.Algorithm} interface.</li>
+ * <li>Computation of the shortest path tree with the {@link #compute()} method
+ * from the {@link org.graphstream.algorithm.Algorithm} interface</li>
+ * <li>Retrieving of shortest paths for given destinations with the
+ * {@link #getShortestPath(Node)} method for instance.</li>
+ * </ol>
+ * <p>
+ * The creation of the Dijkstra instance is done with the
+ * {@link #Dijkstra(Element, String, String)} constructor by giving 3
+ * parameters:
+ * </p>
+ * <ul>
+ * <li>First, the type of element selected for the computing of shortest
+ * paths (node or edge from {@link org.graphstream.algorithm.Dijkstra.Element}).</li>
+ * <li>Second, the key string of the attribute used for the weight computation.</li>
+ * <li>The third parameter is the id of the source node the shortest tree will
+ * be constructed for.</li>
+ * </ul>
+ * 
+ * @complexity O(n log(n) + m) with n the number of nodes and m the number of edges.
  * 
  * @author Antoine Dutot
  * @author Yoann Pigné
  */
 public class Dijkstra implements Algorithm {
+
 	/**
 	 * Graph being used on computation.
 	 */
@@ -81,7 +109,7 @@ public class Dijkstra implements Algorithm {
 	 * object-level unique string that identifies tags of this instance on a
 	 * graph.
 	 */
-	protected String parentEdgesString;
+	protected String identifier;
 
 	/**
 	 * Distances depending on the observed attribute.
@@ -129,7 +157,7 @@ public class Dijkstra implements Algorithm {
 	 *            Id of the root node of the shortest path tree.
 	 */
 	public Dijkstra(Element element, String attribute, String sourceNodeId) {
-		this.parentEdgesString = this.toString() + "/ParentEdges";
+		this.identifier = this.toString() + "/identifier";
 		this.distances = new Hashtable<Node, Double>();
 		this.length = new Hashtable<Node, Double>();
 
@@ -139,18 +167,39 @@ public class Dijkstra implements Algorithm {
 	}
 
 	/**
-	 * @return the parentEdgesString
+	 * The Identifier is a string which is used to mark the graph with the
+	 * computed Dijkstra's shortest tree.
+	 * 
+	 * This string is the key of the attribute that the algorithm sets in the
+	 * elements of the graph. The main advantage of this identifier is that once
+	 * Dijkstra is computed on a graph for one given source, it is then only
+	 * necessary to browse the graph according to this identifier; the Dijkstra
+	 * instance is no longer necessary since all the useful information is
+	 * already in the graph.
+	 * 
+	 * <b>Warning:</b> If multiple instances of Dijkstra are run on the same
+	 * graph (with different sources or different wait values) identifiers have
+	 * to be unique! By default the identified is set to be unique.
+	 * 
+	 * @see #getShortestPath(String,Node,Node)
+	 * 
+	 * @return the unique identifier of this instance of Dijkstra.
 	 */
-	public String getParentEdgesString() {
-		return parentEdgesString;
+	public String getIdentifier() {
+		return identifier;
 	}
 
 	/**
-	 * @param parentEdgesString
-	 *            the parentEdgesString to set
+	 * Set the unique identifier for this instance of Dijkstra.
+	 * 
+	 * @see #getIdentifier()
+	 * @see #getShortestPath(String,Node,Node)
+	 * 
+	 * @param identifier
+	 *            the unique identifier to set
 	 */
-	public void setParentEdgesString(String parentEdgesString) {
-		this.parentEdgesString = parentEdgesString;
+	public void setIdentifier(String identifier) {
+		this.identifier = identifier;
 	}
 
 	/**
@@ -169,7 +218,7 @@ public class Dijkstra implements Algorithm {
 			return;
 		}
 		ArrayList<Edge> list = (ArrayList<Edge>) v
-				.getAttribute(parentEdgesString);
+				.getAttribute(identifier);
 		if (list == null) {
 			// System.err.println( "The list of parent Edges  is null, v=" +
 			// v.toString() + " source=" + source.toString() );
@@ -203,19 +252,11 @@ public class Dijkstra implements Algorithm {
 		Node v = target;
 		while (v != source && !noPath) {
 			ArrayList<? extends Edge> list = (ArrayList<? extends Edge>) v
-					.getAttribute(parentEdgesString);
+					.getAttribute(identifier);
 			if (list == null) {
 				noPath = true;
 			} else {
 				Edge parentEdge = list.get(0);
-
-				// --- DEBUG ---
-				// if( parentEdge == null )
-				// {
-				// System.out.println( "parentEdge is null, v=" + v.toString() +
-				// " source=" + source.toString() );
-				// }
-
 				p.add(v, parentEdge);
 				v = parentEdge.getOpposite(v);
 			}
@@ -224,17 +265,39 @@ public class Dijkstra implements Algorithm {
 	}
 
 	/**
-	 * Static method to get shortest paths from a graph already computed
-	 * Dijkstra, who's nodes and edges have "parentEdge" attribute set.
+	 * A Static method to get shortest paths from a graph already computed with
+	 * Dijkstra.
 	 * 
-	 * @see #getParentEdgesString()
-	 * @param parentEdgesString
+	 * This means that given nodes (source and target) should belong to a graph
+	 * that contains attributes with the given <code>identifier</code> as a key.
+	 * 
+	 * <h2>What is this method useful for?</h2>
+	 * 
+	 * It allows to get rid of the Dijkstra instances once computed. Since all
+	 * the useful information to retrieve a shortest path is stored in the
+	 * graph, a Dijkstra instance is not necessary. You will use this method if
+	 * you are computing a lot of instances of Dijkstra in a raw and want to
+	 * lower the memory consumption.
+	 * 
+	 * 
+	 * @see #getIdentifier()
+	 * 
+	 * @param identifier
+	 *            The unique string used to identify attributes that represent
+	 *            the solution of a Dijkstra computation (a shortest tree rooted
+	 *            in the source node).
 	 * @param source
+	 *            The source node for what a Dijkstra object as already been
+	 *            initialized.
 	 * @param target
-	 * @return
+	 *            The Target node to be sought in the graph according the given
+	 *            identifier.
+	 * @return a shortest path linking the source to the target. The returned
+	 *         path can be empty, if the no path can link the source and the
+	 *         target.
 	 */
 	@SuppressWarnings("unchecked")
-	public static Path getShortestPath(String parentEdgesString, Node source,
+	public static Path getShortestPath(String identifier, Node source,
 			Node target) {
 		Path p = new Path();
 		if (target == source) {
@@ -244,19 +307,11 @@ public class Dijkstra implements Algorithm {
 		Node v = target;
 		while (v != source && !noPath) {
 			ArrayList<? extends Edge> list = (ArrayList<? extends Edge>) v
-					.getAttribute(parentEdgesString);
+					.getAttribute(identifier);
 			if (list == null) {
 				noPath = true;
 			} else {
 				Edge parentEdge = list.get(0);
-
-				// --- DEBUG ---
-				// if( parentEdge == null )
-				// {
-				// System.out.println( "parentEdge is null, v=" + v.toString() +
-				// " source=" + source.toString() );
-				// }
-
 				p.add(v, parentEdge);
 				v = parentEdge.getOpposite(v);
 			}
@@ -265,10 +320,10 @@ public class Dijkstra implements Algorithm {
 	}
 
 	/**
-	 * Returns the weight of the shortest path tree : The of of the distance of
-	 * all the nodes.
+	 * Returns the weight of the shortest path tree : The sum of the weight of
+	 * all the elements (nodes of edges, depending on the initialization).
 	 * 
-	 * @return the sum of the distances.
+	 * @return the sum of the weights of the all shortest path tree.
 	 */
 	public double treeWeight() {
 		double weight = 0;
@@ -290,7 +345,7 @@ public class Dijkstra implements Algorithm {
 		while (it.hasNext()) {
 			Node n = it.next();
 			ArrayList<Edge> list = (ArrayList<Edge>) n
-					.getAttribute(parentEdgesString);
+					.getAttribute(identifier);
 			if (list != null)
 				treeEdges.addAll(list);
 		}
@@ -299,10 +354,12 @@ public class Dijkstra implements Algorithm {
 	}
 
 	/**
+	 * This method tries to construct <b>ALL</b> the possible paths form the source to
+	 * <code>end</code>.
+	 * 
 	 * <h2 style="color:#F16454;" >WARNING</h2>
 	 * <p style="background-color:#F1C4C4; color:black;">
-	 * This method tries to construct ALL the possible paths form the source to
-	 * <code>end</code>. This may result in a huge number of paths, you may even
+	 *  This may result in a huge number of paths, you may even
 	 * crash the VM because of memory consumption.
 	 * </p>
 	 * 
@@ -313,32 +370,32 @@ public class Dijkstra implements Algorithm {
 	 *         <code>end</code> is not in the same connected component as the
 	 *         source node.
 	 */
-	public List<Path> getPathSetShortestPaths(Node end) {
+	public List<Path> getAllShortestPaths(Node end) {
 		ArrayList<Path> paths = new ArrayList<Path>();
-		pathSetShortestPath_facilitate(end, new Path(), paths);
+		allShortestPath_facilitate(end, new Path(), paths);
 		return paths;
 	}
 
 	@SuppressWarnings("unchecked")
-	private void pathSetShortestPath_facilitate(Node current, Path path,
+	private void allShortestPath_facilitate(Node current, Path path,
 			List<Path> paths) {
 		if (current != source) {
 			Node next = null;
 			ArrayList<? extends Edge> parentEdges = (ArrayList<? extends Edge>) current
-					.getAttribute(parentEdgesString);
+					.getAttribute(identifier);
 			while (current != source && parentEdges.size() == 1) {
 				Edge e = parentEdges.get(0);
 				next = e.getOpposite(current);
 				path.add(current, e);
 				current = next;
 				parentEdges = (ArrayList<? extends Edge>) current
-						.getAttribute(parentEdgesString);
+						.getAttribute(identifier);
 			}
 			if (current != source) {
 				for (Edge e : parentEdges) {
 					Path p = path.getACopy();
 					p.add(current, e);
-					pathSetShortestPath_facilitate(e.getOpposite(current), p,
+					allShortestPath_facilitate(e.getOpposite(current), p,
 							paths);
 
 				}
@@ -374,7 +431,7 @@ public class Dijkstra implements Algorithm {
 	 *            in the constructor.
 	 * @return The set of edges that belong the the solution. Returns an empty
 	 *         list if the target node is not in the same connected component as
-	 *         the source node. Returns null if target is the same � the source
+	 *         the source node. Returns null if target is the same as the source
 	 *         node.
 	 */
 	public List<Edge> getEdgeSetShortestPaths(Node target) {
@@ -472,7 +529,7 @@ public class Dijkstra implements Algorithm {
 		// initialization
 
 		for (Node v : graph) {
-			v.removeAttribute(parentEdgesString);
+			v.removeAttribute(identifier);
 		}
 
 		while (!priorityList.isEmpty()) {
@@ -516,12 +573,12 @@ public class Dijkstra implements Algorithm {
 						if (dist <= distances.get(neighborNode)) {
 							if (dist == distances.get(neighborNode)) {
 								((ArrayList<Edge>) neighborNode
-										.getAttribute(parentEdgesString))
+										.getAttribute(identifier))
 										.add(runningEdge);
 							} else {
 								ArrayList<Edge> parentEdges = new ArrayList<Edge>();
 								parentEdges.add(runningEdge);
-								neighborNode.addAttribute(parentEdgesString,
+								neighborNode.addAttribute(identifier,
 										parentEdges);
 
 								distances.put(neighborNode, dist);
@@ -539,7 +596,7 @@ public class Dijkstra implements Algorithm {
 						length.put(neighborNode, len);
 						ArrayList<Edge> parentEdges = new ArrayList<Edge>();
 						parentEdges.add(runningEdge);
-						neighborNode.addAttribute(parentEdgesString,
+						neighborNode.addAttribute(identifier,
 								parentEdges);
 
 					}

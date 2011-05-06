@@ -91,16 +91,14 @@ import org.util.set.FixedArrayList;
  * <h2>Additional features</h2>
  * 
  * 
- * <h3>Threshold</h3>
+ * <h3>Threshold and Ceiling</h3>
  * <p>
- * This algorithm allows to consider some edges as non existent by marking them
- * with a specific attribute. Use the {@link #setCutAttribute(String)} to
- * specify the name of the attribute that, if present on an edge (whatever be
- * its value, excepted null, naturally), will make it invisible to the
- * algorithm. This allows to create connected components without really
- * modifying the graph. The name of the attribute is given to the
- * {@link #setCutAttribute(String)} method. The value of the attribute can be
- * chosen arbitrarily, but cannot be null.
+ * It is possible to get rid of connected components belong a size threshold
+ * when counting the overall number of connected components. It is also possible
+ * to define a ceiling size for the connected component. Above that size
+ * ceiling, connected components will not be counted. Use the
+ * {@link #getConnectedComponentsCount(int)} or
+ * {@link #getConnectedComponentsCount(int, int)} methods.
  * </p>
  * 
  * <h3>Components Identifiers</h3>
