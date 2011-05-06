@@ -124,7 +124,7 @@ import org.util.set.FixedArrayList;
  * be invisible (as if the edge did not exist). In other words if an edge is
  * given such a cut attribute, it will be ignored by the algorithm when
  * counting. You can enable (or disable by passing null) the cut attribute by
- * specifying it with the {@link setCutAttribute(String)} method, and by giving
+ * specifying it with the {@link #setCutAttribute(String)} method, and by giving
  * the special edges the same attribute.
  * </p>
  * <p>
