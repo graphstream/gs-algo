@@ -629,13 +629,22 @@ public class ConnectedComponents extends SinkAdapter implements
 
 				if (!(connectedComponentsMap.get(edge.getNode0())
 						.equals(connectedComponentsMap.get(edge.getNode1())))) {
-					connectedComponents++;
 
 					// Two new connected components are created
 					// we need to get the size of each of them
-					connectedComponentsSize.put(id, newSize);
-					connectedComponentsSize.remove(oldId);
-					connectedComponentsSize.put(oldId, oldSize - newSize);
+					if (newSize > 0) {
+						connectedComponentsSize.put(id, newSize);
+						connectedComponents++;
+					}
+					
+					if (oldSize - newSize > 0) {
+						connectedComponentsSize.put(oldId, oldSize - newSize);
+						
+					}
+					else {
+						connectedComponentsSize.remove(oldId);
+						connectedComponents--;
+					}
 
 				} else {
 					removeIdentifier(oldId);
@@ -715,12 +724,22 @@ public class ConnectedComponents extends SinkAdapter implements
 
 			if (!connectedComponentsMap.get(edge.getNode0()).equals(
 					connectedComponentsMap.get(edge.getNode1()))) {
-				connectedComponents++;
-
+				
 				// Two new connected components are created
 				// we need to get the size of each of them
-				connectedComponentsSize.put(id, newSize);
-				connectedComponentsSize.put(oldId, oldSize - newSize);
+				if (newSize > 0) {
+					connectedComponentsSize.put(id, newSize);
+					connectedComponents++;
+				}
+				
+				if (oldSize - newSize > 0) {
+					connectedComponentsSize.put(oldId, oldSize - newSize);
+					
+				}
+				else {
+					connectedComponentsSize.remove(oldId);
+					connectedComponents--;
+				}
 
 			} else {
 				removeIdentifier(oldId);
