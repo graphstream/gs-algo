@@ -62,8 +62,8 @@ import java.util.Random;
  * therefore generate trees of any size.
  * </p>
  * 
- * S. N. Dorogovtsev and J. F. F. Mendes, "Evolution of networks", in Adv. Phys,
- * 2002, 1079--1187
+ * @reference S. N. Dorogovtsev and J. F. F. Mendes, "Evolution of networks", in
+ *            Adv. Phys, 2002, 1079--1187
  * 
  * @since 20070117
  */
