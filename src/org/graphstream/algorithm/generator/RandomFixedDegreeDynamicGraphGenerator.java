@@ -90,7 +90,7 @@ package org.graphstream.algorithm.generator;
  * other properties), just by adding some constraints/characteristics on each
  * node?
  * 
- * @author Fr&eacute;d&eacute;ric Guinand
+ * @author Frédéric Guinand
  * @since 20080616
  */
 public class RandomFixedDegreeDynamicGraphGenerator extends BaseGenerator {
