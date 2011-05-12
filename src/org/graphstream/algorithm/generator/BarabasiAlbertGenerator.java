@@ -1,6 +1,7 @@
 package org.graphstream.algorithm.generator;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 /**
  * Scale-free graph generator using the preferential attachment rule as defined
@@ -44,63 +45,74 @@ public class BarabasiAlbertGenerator extends BaseGenerator {
 	 * Number of edges.
 	 */
 	protected int edgesCount = 0;
-	
+
 	/**
 	 * The maximum number of links created when a new node is added.
 	 */
 	protected int maxLinksPerStep = 1;
-	
+
 	/**
 	 * Does the generator generates exactly {@link #maxLinksPerStep}.
 	 */
 	protected boolean exactlyMaxLinksPerStep = false;
-	
+
 	/**
 	 * New generator.
 	 */
 	public BarabasiAlbertGenerator() {
 		this(1, false);
 	}
-	
+
 	public BarabasiAlbertGenerator(int maxLinksPerStep) {
 		this(maxLinksPerStep, false);
 	}
-	
-	public BarabasiAlbertGenerator(int maxLinksPerStep, boolean exactlyMaxLinksPerStep) {
-		this.directed               = false;
-		this.maxLinksPerStep        = maxLinksPerStep;
+
+	public BarabasiAlbertGenerator(int maxLinksPerStep,
+			boolean exactlyMaxLinksPerStep) {
+		this.directed = false;
+		this.maxLinksPerStep = maxLinksPerStep;
 		this.exactlyMaxLinksPerStep = exactlyMaxLinksPerStep;
 	}
 
 	/**
 	 * Maximum number of edges created when a new node is added.
+	 * 
 	 * @return The maximum number of links per step.
 	 */
 	public int getMaxLinksPerStep() {
 		return maxLinksPerStep;
 	}
-	
+
 	/**
-	 * True if the generator produce exactly {@link #getMaxLinksPerStep()}, else it produce
-	 * a random number of links ranging between 1 and {@link #getMaxLinksPerStep()}.
-	 * @return Does the generator generates exactly {@link #getMaxLinksPerStep()}.
+	 * True if the generator produce exactly {@link #getMaxLinksPerStep()}, else
+	 * it produce a random number of links ranging between 1 and
+	 * {@link #getMaxLinksPerStep()}.
+	 * 
+	 * @return Does the generator generates exactly
+	 *         {@link #getMaxLinksPerStep()}.
 	 */
 	public boolean produceExactlyMaxLinkPerStep() {
 		return exactlyMaxLinksPerStep;
 	}
-	
+
 	/**
 	 * Set how many edge (maximum) to create for each new node added.
-	 * @param max The new maximum, it must be strictly greater than zero.
+	 * 
+	 * @param max
+	 *            The new maximum, it must be strictly greater than zero.
 	 */
 	public void setMaxLinksPerStep(int max) {
-		maxLinksPerStep = max>0 ? max : 1;
+		maxLinksPerStep = max > 0 ? max : 1;
 	}
-	
+
 	/**
-	 * Set if the generator produce exactly {@link #getMaxLinksPerStep()} (true), else it produce
-	 * a random number of links ranging between 1 and {@link #getMaxLinksPerStep()} (false).
-	 * @param on Does the generator generates exactly {@link #getMaxLinksPerStep()}.
+	 * Set if the generator produce exactly {@link #getMaxLinksPerStep()}
+	 * (true), else it produce a random number of links ranging between 1 and
+	 * {@link #getMaxLinksPerStep()} (false).
+	 * 
+	 * @param on
+	 *            Does the generator generates exactly
+	 *            {@link #getMaxLinksPerStep()}.
 	 */
 	public void setExactlyMaxLinksPerStep(boolean on) {
 		exactlyMaxLinksPerStep = on;
@@ -122,32 +134,39 @@ public class BarabasiAlbertGenerator extends BaseGenerator {
 	/**
 	 * Step of the generator. Add a node and try to connect it with some others.
 	 * 
-	 * The number of links is randomly chosen between 1 and the maximum number of
-	 * links per step specified in {@link #setMaxLinksPerStep(int)}.
+	 * The number of links is randomly chosen between 1 and the maximum number
+	 * of links per step specified in {@link #setMaxLinksPerStep(int)}.
 	 * 
 	 * The complexity of this method is O(n) with n the number of nodes if the
-	 * number of edges created per new node is 1, else it is O(nm) with m
-	 * the number of edges generated per node.
+	 * number of edges created per new node is 1, else it is O(nm) with m the
+	 * number of edges generated per node.
 	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
 	 */
 	public boolean nextEvents() {
 		// Generate a new node.
 
-		int    index = degrees.size();
-		String id    = Integer.toString(index);
-		int    n     = maxLinksPerStep;
+		int index = degrees.size();
+		String id = Integer.toString(index);
+		int n = maxLinksPerStep;
 
 		addNode(id);
 		degrees.add(0);
-		
-		if(! exactlyMaxLinksPerStep)
+
+		if (!exactlyMaxLinksPerStep)
 			n = random.nextInt(n) + 1;
-		
+
+		n = Math.min(n, degrees.size() - 1);
+
 		// Choose the nodes to attach to.
 
-		for(int i=0; i<n; i++) {
-			attachToOtherNode(i, index, id, chooseAnotherNode(index));
+		LinkedList<Integer> notIn = new LinkedList<Integer>();
+
+		for (int i = 0; i < n; i++) {
+			int otherIdx = chooseAnotherNode(index, notIn);
+			attachToOtherNode(i, index, id, otherIdx);
+
+			notIn.add(otherIdx);
 		}
 
 		// It is always possible to add an element.
@@ -156,18 +175,25 @@ public class BarabasiAlbertGenerator extends BaseGenerator {
 	}
 
 	/**
-	 * Randomly choose a node to attach to, the node is chosen 
+	 * Randomly choose a node to attach to, the node is chosen
+	 * 
 	 * @param index
 	 * @return
 	 */
-	protected int chooseAnotherNode(int index) {
-		int    sumDeg   = (edgesCount-degrees.get(index)) * 2;
+	protected int chooseAnotherNode(int index, LinkedList<Integer> notIn) {
+		int sumDeg = (edgesCount - degrees.get(index)) * 2;
 		double sumProba = 0;
-		double rnd      = random.nextDouble();
-		int    otherIdx = -1;
+		double rnd = random.nextDouble();
+		int otherIdx = -1;
 
-		for(int i = 0; i < index; ++i) {
+		for (int i = 0; i < notIn.size(); i++)
+			sumDeg -= degrees.get(notIn.get(i));
+
+		for (int i = 0; i < index; ++i) {
 			double proba = sumDeg == 0 ? 1 : degrees.get(i) / ((double) sumDeg);
+
+			if (notIn.contains(i))
+				continue;
 
 			sumProba += proba;
 
@@ -176,7 +202,7 @@ public class BarabasiAlbertGenerator extends BaseGenerator {
 				break;
 			}
 		}
-		
+
 		return otherIdx;
 	}
 
@@ -193,7 +219,7 @@ public class BarabasiAlbertGenerator extends BaseGenerator {
 			System.err.printf("PreferentialAttachmentGenerator: *** Aieuu!%n");
 		}
 	}
-	
+
 	/**
 	 * Clean degrees.
 	 * 
