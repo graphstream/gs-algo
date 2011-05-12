@@ -31,21 +31,72 @@
 package org.graphstream.algorithm;
 
 /**
- * Base for algorithms that can compute and maintain a property on a dynamic
- * graph, during its evolution.
+ * Defines algorithms able to handle dynamics of a graph. This is an extension
+ * of the {@link org.graphstream.algorithm.Algorithm} so dynamic algorithms are
+ * composed of an initialization step followed by several computation steps. A
+ * last step, specific to dynamic algorithms, marks the termination of the
+ * algorithm and has to be used to close the computation.
  * 
- * <p>
- * This is the same as the {@link org.graphstream.algorithm.Algorithm}
- * interface, with the addition of methods to make the algorithm dynamic. The
- * algorithm begins with a call to the
- * {@link #init(org.graphstream.graph.Graph)} method and ends with a call to the
- * {@link #terminate()} method. In between, the user must call
- * {@link #compute()} in a loop, as long as the graph evolves.
- * </p>
+ * The following example computes the amount of apparitions of each node and the
+ * average value of apparitions for nodes :
+ * 
+ * <pre>
+ * public class ApparitionAlgorithm extends SinkAdapter implements
+ * 		DynamicAlgorithm {
+ * 
+ * 	Graph theGraph;
+ * 	HashMap&lt;String, Integer&gt; apparitions;
+ * 	double avg;
+ * 
+ * 	public void init(Graph graph) {
+ * 		theGraph = graph;
+ * 		avg = 0;
+ * 		graph.addSink(this);
+ * 	}
+ * 
+ * 	public void compute() {
+ * 		avg = 0;
+ * 
+ * 		for (int a : apparitions.values())
+ * 			avg += a;
+ * 
+ * 		avg /= apparitions.size();
+ * 	}
+ * 
+ * 	public void terminate() {
+ * 		graph.removeSink(this);
+ * 	}
+ * 
+ * 	public double getAverageApparitions() {
+ * 		return avg;
+ * 	}
+ * 
+ * 	public int getApparitions(String nodeId) {
+ * 		return apparitions.get(nodeId);
+ * 	}
+ * 
+ * 	public void nodeAdded(String sourceId, long timeId, String nodeId) {
+ * 		int a = 0;
+ * 
+ * 		if (apparitions.containsKey(nodeId))
+ * 			a = apparitions.get(nodeId);
+ * 
+ * 		apparitions.put(nodeId, a + 1);
+ * 	}
+ * 
+ * 	public void stepBegins(String sourceId, long timeId, double step) {
+ * 		compute();
+ * 	}
+ * }
+ * </pre>
+ * 
+ * Note that in the example, the #terminate() method is used to remove the link
+ * between graph and the algorithm. The computation here is done at every step
+ * but can be done anywhere else, according to the algorithm requirements.
  */
 public interface DynamicAlgorithm extends Algorithm {
 	/**
-	 * End the dynamic algorithm.
+	 * Terminate the dynamic algorithm.
 	 * 
 	 * @see #init(org.graphstream.graph.Graph)
 	 */
