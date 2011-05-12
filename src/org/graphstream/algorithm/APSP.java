@@ -42,23 +42,148 @@ import org.graphstream.stream.SinkAdapter;
  * All-pair shortest paths lengths.
  * 
  * <p>
- * This class defines algorithms that compute all shortest paths lengths between
- * all pair of nodes in a given graph. This algorithm uses the Floyd-Warshall
- * algorithm, that effectively runs in O(n^3). This may seems a very large
- * complexity, however this algorithm may perform better than running several
- * Dijkstra on all node pairs of the graph when the graph becomes dense.
+ * This class implements the Floyd-Warshall all pair shortest path algorithm
+ * where the shortest path from any node to any destination in a given weighted
+ * graph (with positive or negative edge weights) is performed.
  * </p>
+ * <p>
+ * The computational complexity is O(n^3), this may seems a very large, however
+ * this algorithm may perform better than running several Dijkstra on all node
+ * pairs of the graph (that would be of complexity O(n^2 log(n))) when the graph
+ * becomes dense.
+ * </p>
+ * <p>
+ * Note that all the possible paths are not explicitly computed and stored.
+ * Instead, the weight is computed and a data structure similar to network
+ * routing tables is created directly on the graph. This allows a linear
+ * reconstruction of the wanted paths, on demand, minimizing the memory
+ * consumption.
+ * </p>
+ * <p>
+ * For each node of the graph, a {@link org.graphstream.algorithm.APSP.APSPInfo} attribute is stored. The name of
+ * this attribute is {@link org.graphstream.algorithm.APSP.APSPInfo#ATTRIBUTE_NAME}.
+ * </p>
+ * <h2>Usage</h2>
+ * <p>
+ * The implementation of this algorithm is made with two main classes that
+ * reflect the two main steps of the algorithm that are:
+ * </p>
+ * <ol>
+ * <li>compute pairwise weights for all nodes;</li>
+ * <li>retrieve actual paths from some given sources to some given destinations.
+ * </li>
+ * </ol>
  * 
  * <p>
- * Note that as is, this algorithm does not store the paths it only stores the
- * lengths of the minimum paths (however there is an option that allows to
- * reconstruct paths in linear time, taking advantage of the fact we computed
- * all the shortest paths). The storage is made directly in the graph. For each
- * node of the graph, a {@link org.graphstream.algorithm.APSP.APSPInfo}
- * attribute is stored. The name of this attribute is
- * {@link org.graphstream.algorithm.APSP.APSPInfo#ATTRIBUTE_NAME}.
+ * For the first step (the real shortest path computation) you need to create an
+ * APSP object with 3 parameters:
  * </p>
  * 
+ * <ul>
+ * <li>a reference to the graph to be computed;</li>
+ * <li>a string that indicates the name of the attribute to consider for the
+ * weighting;</li>
+ * <li>a boolean that indicates whether the computation considers edges
+ * direction or not.</li>
+ * </ul>
+ * 
+ * <p>
+ * Those 3 parameters can be set in a ran in the constructor
+ * {@link #APSP(Graph,String,boolean)} or by using separated setters (see example
+ * below).
+ * </p>
+ * <p>
+ * Then the actual computation takes place by calling the {@link #compute()} method
+ * which is implemented from the "Algorithm" interface. This method actually
+ * does the computation.
+ * </p>
+ * <p>
+ * Secondly, when the weights are computed, one can retrieve paths with the help
+ * of another class: "APSPInfo". Such object are stored in each node and hold
+ * routing tables that can help rebuild shortest paths.
+ * </p>
+ * <p>
+ * Retrieving an "APSPInfo" instance from a node is done for instance for a
+ * node of id "F", like this::
+ * </p>
+ * 
+ * <pre>
+ * APSPInfo info = graph.getNode("F").getAttribute(APSPInfo.ATTRIBUTE_NAME);
+ * </pre>
+ * <p>
+ * then the shortest path from a "F" to another node (say "A") is given by::
+ * </p>
+ * 
+ * <pre>
+ * info.getShortestPathTo("A")
+ * 
+ * 
+ * 
+ * <h2>Example</h2>
+ * 
+ * <pre>
+ * import java.io.ByteArrayInputStream;
+ * import java.io.IOException;
+ * 
+ * import org.graphstream.algorithm.APSP;
+ * import org.graphstream.algorithm.APSP.APSPInfo;
+ * import org.graphstream.graph.Graph;
+ * import org.graphstream.graph.implementations.DefaultGraph;
+ * import org.graphstream.stream.file.FileSourceDGS;
+ * 
+ * public class APSPTest {
+ * 
+ * //     B-(1)-C
+ * //    /       \
+ * //  (1)       (10)
+ * //  /           \
+ * // A             F
+ * //  \           /
+ * //  (1)       (1)
+ * //    \       /
+ * //     D-(1)-E
+ * 
+ * public class DijkstraTest {
+ * 	static String my_graph = "DGS004\n" 
+ * 			+ "my 0 0\n" 
+ * 			+ "an A \n" 
+ * 			+ "an B \n"
+ * 			+ "an C \n" 
+ * 			+ "an D \n" 
+ * 			+ "an E \n" 
+ * 			+ "an F \n"
+ * 			+ "ae AB A B weight:1 \n" 
+ * 			+ "ae AD A D weight:1 \n"
+ * 			+ "ae BC B C weight:1 \n" 
+ * 			+ "ae CF C F weight:10 \n"
+ * 			+ "ae DE D E weight:1 \n" 
+ * 			+ "ae EF E F weight:1 \n";
+ * 
+ * 	public static void main(String[] args) throws IOException {
+ * 		Graph graph = new DefaultGraph("APSP Test");
+ * 		ByteArrayInputStream bs = new ByteArrayInputStream(my_graph.getBytes());
+ * 
+ * 		FileSourceDGS source = new FileSourceDGS();
+ * 		source.addSink(graph);
+ * 		source.readAll(bs);
+ * 
+ * 		APSP apsp = new APSP();
+ * 		apsp.init(graph); // registering apsp as a sink for the graph
+ * 		apsp.setDirected(false); // undirected graph
+ * 		apsp.setWeightAttributeName("weight"); // ensure that the attribute name
+ * 												// used is "weight"
+ * 		apsp.compute(); // the method that actually computes shortest paths
+ * 
+ * 		APSPInfo info = graph.getNode("F")
+ * 				.getAttribute(APSPInfo.ATTRIBUTE_NAME);
+ * 		System.out.println(info.getShortestPathTo("A"));
+ * 	}
+ * }
+ * </pre>
+ * 
+ * <h2>Other Features</h2>
+ * 
+ * <h3>Digraphs</h3>
  * <p>
  * This algorithm can use directed graphs and only compute paths according to
  * this direction. You can choose to ignore edge orientation by calling
@@ -66,6 +191,8 @@ import org.graphstream.stream.SinkAdapter;
  * appropriate constructor).
  * </p>
  * 
+ * 
+ * <h2>Shortest Paths with weighted edges</2>
  * <p>
  * You can also specify that edges have "weights" or "importance" that value
  * them. You store these values as attributes on the edges. The default name for
@@ -75,17 +202,30 @@ import org.graphstream.stream.SinkAdapter;
  * java.lang.Number.
  * </p>
  * 
+ * <h2>How shortest paths are stored in the graph?</h2>
  * <p>
- * How to rebuild the shortest path without storing them: we use the fact that
- * we compute ALL the shortest paths between ALL pairs of nodes. Therefore
- * instead of storing in each node the complete shortest path toward each other
- * node, we only store the target node name and if the path is made of more than
- * one edge, one "pass-by" node. As all shortest path that is made of more than
- * one edge is necessarily made of two other shortest paths, it is easy to
- * reconstruct a shortest path between two arbitrary nodes knowing only a
- * pass-by node. This approach still stores a lot of data on the graph, however
- * far less than if we stored complete paths.
+ * All the shortest paths are not literally stored in the graph because it would
+ * require to much memory to do so. Instead, only useful data, allowing the fast
+ * reconstruction of any path, is stored. The storage approach is alike network
+ * routing tables where each node maintains a list of all possible targets
+ * linked with the next hop neighbor to go through.
  * </p>
+ * <p>
+ * Technically, on each node, for each target, we only store the target node
+ * name and if the path is made of more than one edge, one "pass-by" node. As
+ * all shortest path that is made of more than one edge is necessarily made of
+ * two other shortest paths, it is easy to reconstruct a shortest path between
+ * two arbitrary nodes knowing only a pass-by node. This approach still stores a
+ * lot of data on the graph, however far less than if we stored complete paths.
+ * </p>
+ * 
+ * @complexity O(n^3) with n the number of nodes.
+ * 
+ * @reference Floyd, Robert W. "Algorithm 97: Shortest Path". Communications of
+ *            the ACM 5 (6): 345. doi:10.1145/367766.368168. 1962.
+ * @reference Warshall, Stephen. "A theorem on Boolean matrices". Journal of the
+ *            ACM 9 (1): 11–12. doi:10.1145/321105.321107. 1962.
+ * 
  */
 public class APSP extends SinkAdapter implements Algorithm {
 	// Attribute
@@ -98,7 +238,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 	/**
 	 * Does the graph changed between two calls to {@link #compute()}?.
 	 */
-	protected boolean graphChanged = true;
+	protected boolean graphChanged = false;
 
 	/**
 	 * If false, do not take edge orientation into account.
@@ -219,10 +359,11 @@ public class APSP extends SinkAdapter implements Algorithm {
 			this.graph.removeSink(this);
 
 		this.graph = graph;
-		graphChanged = true;
 
-		if (this.graph != null)
+		if (this.graph != null){
+			graphChanged = true;
 			this.graph.addSink(this);
+		}
 	}
 
 	/**
