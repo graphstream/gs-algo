@@ -46,7 +46,7 @@ import org.graphstream.stream.Pipe;
 import org.graphstream.ui.swingViewer.Viewer;
 
 import org.junit.Test;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestGenerator {
 	@Test
@@ -87,15 +87,17 @@ public class TestGenerator {
 		testGenerator(new DorogovtsevMendesGenerator(),
 				"DorogovtsevMendesGenerator", 100);
 	}
-	
+
 	@Test
 	public void testBarabasiAlbertGenerator() {
-		testGenerator(new BarabasiAlbertGenerator(3), "Barabasi-Albert Generator (3)", 100);
+		testGenerator(new BarabasiAlbertGenerator(3),
+				"Barabasi-Albert Generator (3)", 100);
 	}
-	
+
 	@Test
 	public void testBarabasiAlbertGenerator2() {
-		testGenerator(new BarabasiAlbertGenerator(3, true), "Barabasi-Albert Generator (3, true)", 100);
+		testGenerator(new BarabasiAlbertGenerator(3, true),
+				"Barabasi-Albert Generator (3, true)", 100);
 	}
 
 	protected void testGenerator(Generator gen, String name, int size) {
@@ -117,9 +119,11 @@ public class TestGenerator {
 
 		gen.end();
 
-		assertEquals(JOptionPane.showConfirmDialog(null, String.format(
+		int r = JOptionPane.showConfirmDialog(null, String.format(
 				"%s with %d iterations. Is it correct ?", name, size), name,
-				JOptionPane.YES_NO_OPTION), JOptionPane.YES_OPTION);
+				JOptionPane.YES_NO_OPTION);
+		
+		assertTrue(r == JOptionPane.YES_OPTION);
 
 		gvr.close();
 	}
