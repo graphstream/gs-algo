@@ -50,14 +50,14 @@ import org.graphstream.stream.Source;
  * 		<li>One to start the generation process {@link #begin()}.
  * 		For static generators this often generate a whole graph, for dynamic
  * 		generators this only initialise a base graph.</li>
- * 		<li>One to end the generation process {@link #end()}. This method
- * 		must ALWAYS be called when finished with the generator.</li>
  * 		<li>One to generate more dynamic events {@link #nextEvents()}.
  * 		This method will, as its name suggests, generate more dynamic
  * 		events making the graph evolve. You can call it (repeatedly) only
  * 		between a call to {@link #begin()} and to {@link #end()}. This
  * 		method returns a boolean that may indicate that no more events
  * 		can be generated.</li>
+ * 		<li>One to end the generation process {@link #end()}. This method
+ * 		must ALWAYS be called when finished with the generator.</li>
  * </ul>
  * </p>
  */

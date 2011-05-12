@@ -35,15 +35,21 @@ import org.graphstream.algorithm.generator.LCFGenerator;
 /**
  * Build a utility graph.
  * 
- * Nodes : 6
- * LCF   : [3]^6
+ * <dl>
+ * <dt>Nodes</dt><dd>6</dd>
+ * <dt>LCF</dt><dd>[3]^6</dd>
+ * </dl>
+ * 
+ * @reference Weisstein, Eric W. "Utility Graph." From MathWorld--A Wolfram Web
+ *            Resource. http://mathworld.wolfram.com/UtilityGraph.html
+ * 
  */
 public class UtilityGraphGenerator extends LCFGenerator {
 	/**
 	 * LCF notation of a utility graph. [3]^6
 	 */
 	public static final LCF UTILITY_LCF = new LCF(6, 3);
-	
+
 	public UtilityGraphGenerator() {
 		super(UTILITY_LCF, 6, false);
 	}

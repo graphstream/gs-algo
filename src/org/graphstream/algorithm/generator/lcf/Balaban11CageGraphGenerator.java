@@ -47,6 +47,11 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * 37, -17, 10, -10, -45, -34, 17, -26, 27, -21, 46, 53, -10, 29, -50, 35, 15,
  * -47, -29, -41, 26, 33, 55, -17, 42, -26, -36, 16]</dd>
  * </dl>
+ * 
+ * @reference A. T. Balaban, Trivalent Graphs of Girth Nine and Eleven and
+ *            Relationships Among the Cages, Rev. Roumaine Math., 18, 1033-1043,
+ *            1973
+ * 
  */
 public class Balaban11CageGraphGenerator extends LCFGenerator {
 	/**

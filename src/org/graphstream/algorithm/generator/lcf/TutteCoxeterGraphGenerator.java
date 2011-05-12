@@ -41,6 +41,10 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * <dt>LCF</dt>
  * <dd>[-13,-9,7,-7,9,13]^5</dd>
  * </dl>
+ * 
+ * @reference Tutte, W. T. (1947). "A family of cubical graphs". Proc. Cambridge
+ *            Philos. Soc. 43: 459–474. doi:10.1017/S0305004100023720
+ * 
  */
 public class TutteCoxeterGraphGenerator extends LCFGenerator {
 	/**

@@ -41,6 +41,10 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * <dt>LCF</dt>
  * <dd>[5, -5]^7</dd>
  * </dl>
+ * 
+ * @reference Heawood, P. J. (1890). "Map colouring theorems". Quarterly J.
+ *            Math. Oxford Ser. 24: 322–339.
+ * 
  */
 public class HeawoodGraphGenerator extends LCFGenerator {
 	/**

@@ -41,12 +41,18 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * <dt>LCF</dt>
  * <dd>[2, 6, -2]^4</dd>
  * </dl>
+ * 
+ * @reference Weisstein, Eric W. "Truncated Tetrahedral Graph." From
+ *            MathWorld--A Wolfram Web Resource.
+ *            http://mathworld.wolfram.com/TruncatedTetrahedralGraph.html
+ * 
  */
 public class TruncatedTetrahedralGraphGenerator extends LCFGenerator {
 	/**
 	 * LCF notation of a truncated tetrahedral graph.
 	 */
-	public static final LCF TRUNCATED_TETRAHEDRAL_GRAPH_LCF = new LCF(4, 2, 6, -2);
+	public static final LCF TRUNCATED_TETRAHEDRAL_GRAPH_LCF = new LCF(4, 2, 6,
+			-2);
 
 	public TruncatedTetrahedralGraphGenerator() {
 		super(TRUNCATED_TETRAHEDRAL_GRAPH_LCF, 12, false);

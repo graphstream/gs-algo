@@ -41,6 +41,10 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * <dt>LCF</dt>
  * <dd>[5,-9,7,-7,9,-5]^4</dd>
  * </dl>
+ * 
+ * @reference Eppstein, D., The many faces of the Nauru graph on LiveJournal,
+ *            2007.
+ * 
  */
 public class NauruGraphGenerator extends LCFGenerator {
 	/**

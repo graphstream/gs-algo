@@ -42,19 +42,9 @@ import org.graphstream.stream.PipeBase;
 import org.graphstream.ui.geom.Point3;
 import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.layout.LayoutListener;
-import org.graphstream.ui.swingViewer.Viewer;
-import org.miv.pherd.Particle;
-import org.miv.pherd.ParticleBox;
-import org.miv.pherd.ParticleBoxListener;
 import org.miv.pherd.geom.Vector3;
-import org.miv.pherd.ntree.Anchor;
-import org.miv.pherd.ntree.BarycenterCellData;
-import org.miv.pherd.ntree.CellSpace;
-import org.miv.pherd.ntree.OctreeCellSpace;
-import org.miv.pherd.ntree.QuadtreeCellSpace;
 
-public class Eades84Layout extends PipeBase implements Layout,
-		ParticleBoxListener {
+public class Eades84Layout extends PipeBase implements Layout {
 
 	boolean is3D;
 
@@ -65,16 +55,17 @@ public class Eades84Layout extends PipeBase implements Layout,
 
 	double M;
 
-	ParticleBox pbox;
-	CellSpace space;
-
 	HashMap<String, Spring> springs;
+	HashMap<String, EadesParticle> particles;
 
 	Random random;
 
 	int nodeMoved = 0;
 	LinkedList<LayoutListener> listeners;
 	double stabilization = 0;
+
+	Point3 high;
+	Point3 low;
 
 	public Eades84Layout() {
 		//
@@ -89,18 +80,13 @@ public class Eades84Layout extends PipeBase implements Layout,
 
 		is3D = false;
 
-		Anchor up = new Anchor(1, 1, is3D ? 1 : 0.01);
-		Anchor down = new Anchor(-1, -1, is3D ? -1 : -0.01);
-
-		space = is3D ? new OctreeCellSpace(down, up) : new QuadtreeCellSpace(
-				down, up);
-
-		pbox = new ParticleBox(30, space, new BarycenterCellData());
 		springs = new HashMap<String, Spring>();
+		particles = new HashMap<String, EadesParticle>();
 		random = new Random();
 		listeners = new LinkedList<LayoutListener>();
 
-		pbox.addParticleBoxListener(this);
+		high = new Point3(1, 1, 1);
+		low = new Point3(-1, -1, -1);
 	}
 
 	public String getLayoutAlgorithmName() {
@@ -122,15 +108,13 @@ public class Eades84Layout extends PipeBase implements Layout,
 	public void setStabilizationLimit(double l) {
 		M = l;
 	}
-	
+
 	public Point3 getLowPoint() {
-		org.miv.pherd.geom.Point3 p = pbox.getNTree().getLowestPoint();
-		return new Point3(p.x, p.y, p.z);
+		return low;
 	}
 
 	public Point3 getHiPoint() {
-		org.miv.pherd.geom.Point3 p = pbox.getNTree().getHighestPoint();
-		return new Point3(p.x, p.y, p.z);
+		return high;
 	}
 
 	public int getSteps() {
@@ -202,7 +186,35 @@ public class Eades84Layout extends PipeBase implements Layout,
 		for (Spring s : springs.values())
 			s.computeForce();
 
-		pbox.step();
+		for (EadesParticle p : particles.values())
+			p.step();
+
+		double minx, miny, minz, maxx, maxy, maxz;
+
+		minx = miny = minz = Double.MAX_VALUE;
+		maxx = maxy = maxz = Double.MIN_VALUE;
+
+		for (EadesParticle p : particles.values()) {
+			p.commit();
+
+			if (p.getEnergy() > 0)
+				particleMoved(p.id, p.pos.x, p.pos.y, p.pos.z);
+
+			minx = Math.min(minx, p.pos.x);
+			miny = Math.min(miny, p.pos.y);
+			minz = Math.min(minz, p.pos.z);
+			maxx = Math.max(minx, p.pos.x);
+			maxy = Math.max(miny, p.pos.y);
+			maxz = Math.max(minz, p.pos.z);
+		}
+
+		high.x = maxx;
+		high.y = maxy;
+		high.z = maxz;
+
+		low.x = minx;
+		low.y = miny;
+		low.z = minz;
 
 		stabilization += 1;
 
@@ -211,12 +223,12 @@ public class Eades84Layout extends PipeBase implements Layout,
 	}
 
 	public void nodeAdded(String sourceId, long timeId, String nodeId) {
-		pbox.addParticle(getNewParticle(nodeId));
+		particles.put(nodeId, getNewParticle(nodeId));
 		stabilization = 0;
 	}
 
 	public void nodeRemoved(String sourceId, long timeId, String nodeId) {
-		pbox.removeParticle(nodeId);
+		particles.remove(nodeId);
 		stabilization = 0;
 	}
 
@@ -225,8 +237,8 @@ public class Eades84Layout extends PipeBase implements Layout,
 		EadesParticle p1, p2;
 		Spring spring;
 
-		p1 = (EadesParticle) pbox.getParticle(fromNodeId);
-		p2 = (EadesParticle) pbox.getParticle(toNodeId);
+		p1 = (EadesParticle) particles.get(fromNodeId);
+		p2 = (EadesParticle) particles.get(toNodeId);
 
 		spring = getNewSpring(p1, p2);
 		springs.put(edgeId, spring);
@@ -256,10 +268,6 @@ public class Eades84Layout extends PipeBase implements Layout,
 		throw new RuntimeException("unhandle feature");
 	}
 
-	public void particleAdded(Object id, double x, double y, double z) {
-		// System.out.printf("new particle : %s\n", id);
-	}
-
 	public void particleMoved(Object id, double x, double y, double z) {
 		for (LayoutListener listener : listeners)
 			listener.nodeMoved((String) id, x, y, z);
@@ -273,16 +281,6 @@ public class Eades84Layout extends PipeBase implements Layout,
 				xyz, xyz);
 
 		// System.out.printf("particle %s moved : %f;%f;%f\n", id, x, y, z);
-	}
-
-	public void particleAttributeChanged(Object id, String attribute,
-			Object newValue, boolean removed) {
-	}
-
-	public void particleRemoved(Object id) {
-	}
-
-	public void stepFinished(int time) {
 	}
 
 	protected EadesParticle getNewParticle(String id) {
@@ -324,19 +322,28 @@ public class Eades84Layout extends PipeBase implements Layout,
 		}
 	}
 
-	protected class EadesParticle extends Particle {
+	protected class EadesParticle {
 		HashMap<EadesParticle, Spring> springs;
 		Vector3 dir;
 		Vector3 sum;
+		Point3 pos;
+		String id;
 
 		public EadesParticle(String id) {
-			super(id);
+			this.id = id;
 			springs = new HashMap<EadesParticle, Spring>();
 			dir = new Vector3();
 			sum = new Vector3();
+			pos = new Point3();
+
+			pos.x = random.nextDouble() * (high.x - low.x) + low.x;
+			pos.y = random.nextDouble() * (high.y - low.y) + low.y;
+
+			if (is3D)
+				pos.z = random.nextDouble() * (high.z - low.z) + low.z;
 		}
 
-		public void move(int time) {
+		public void step() {
 			Vector3 v = new Vector3();
 
 			dir.fill(0);
@@ -353,11 +360,11 @@ public class Eades84Layout extends PipeBase implements Layout,
 
 			// sum.fill(0);
 
-			Iterator<? extends Particle> it = cell.getParticles();
+			Iterator<EadesParticle> it = particles.values().iterator();
 			double i = 0;
 
 			while (it.hasNext()) {
-				Particle p = it.next();
+				EadesParticle p = it.next();
 
 				if (!springs.containsKey(p) && p != this) {
 					double d = d(p);
@@ -377,8 +384,8 @@ public class Eades84Layout extends PipeBase implements Layout,
 				}
 			}
 
-			if (i + springs.size() > 0)
-				sum.scalarDiv(i + springs.size());
+			//if (i + springs.size() > 0)
+			//	sum.scalarDiv(i + springs.size());
 
 			dir.add(sum);
 			dir.scalarMult(c4);
@@ -386,45 +393,28 @@ public class Eades84Layout extends PipeBase implements Layout,
 			assert (!Double.isNaN(dir.data[0]) && !Double.isNaN(dir.data[1]));
 		}
 
-		public void inserted() {
-			pos.setX(random.nextDouble()
-					* (space.getHiAnchor().x - space.getLoAnchor().x)
-					+ space.getLoAnchor().x);
-			pos.setY(random.nextDouble()
-					* (space.getHiAnchor().y - space.getLoAnchor().y)
-					+ space.getLoAnchor().y);
-
-			if (is3D)
-				pos.setZ(random.nextDouble()
-						* (space.getHiAnchor().z - space.getLoAnchor().z)
-						+ space.getLoAnchor().z);
-		}
-
-		public void removed() {
-
-		}
-
 		public double getEnergy() {
 			return dir.length();
 		}
 
-		public void nextStep(int time) {
-			nextPos.x = pos.x + dir.data[0];
-			nextPos.y = pos.y + dir.data[1];
+		public void commit() {
+			pos.x = pos.x + dir.data[0];
+			pos.y = pos.y + dir.data[1];
 
-			assert (!Double.isNaN(nextPos.x) && !Double.isNaN(nextPos.y));
+			assert (!Double.isNaN(pos.x) && !Double.isNaN(pos.y));
 
 			if (is3D)
-				nextPos.z = pos.z + dir.data[2];
+				pos.z = pos.z + dir.data[2];
 
 			nodeMoved++;
-			moved = true;
-
-			super.nextStep(time);
 		}
 
-		protected double d(Particle p) {
+		protected double d(EadesParticle p) {
 			return getPosition().distance(p.getPosition());
+		}
+
+		public Point3 getPosition() {
+			return pos;
 		}
 	}
 
@@ -433,7 +423,7 @@ public class Eades84Layout extends PipeBase implements Layout,
 		PreferentialAttachmentGenerator gen = new PreferentialAttachmentGenerator();
 		Eades84Layout layout = new Eades84Layout();
 
-		int size = 100;
+		int size = 30;
 
 		gen.addSink(g);
 		g.addSink(layout);

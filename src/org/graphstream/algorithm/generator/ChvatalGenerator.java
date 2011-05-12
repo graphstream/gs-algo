@@ -31,6 +31,9 @@
 package org.graphstream.algorithm.generator;
 
 /**
+ * Generate the Chvatal graph.
+ * 
+ * <p>
  * In the mathematical field of graph theory, the Chvátal graph is an undirected
  * graph with 12 vertices and 24 edges, discovered by Václav Chvátal (1970). It
  * is triangle-free: its girth (the length of its shortest cycle) is four. It is
@@ -39,8 +42,15 @@ package org.graphstream.algorithm.generator;
  * as Chvátal observes, the smallest possible 4-chromatic 4-regular
  * triangle-free graph; the only smaller 4-chromatic triangle-free graph is the
  * Grötzsch graph, which has 11 vertices but is not regular.
+ * </p>
  * 
- * Source : <a href="http://en.wikipedia.org/wiki/Chv%C3%A1tal_graph">Wikipedia</a>
+ * Source : <a
+ * href="http://en.wikipedia.org/wiki/Chv%C3%A1tal_graph">Wikipedia</a>
+ * 
+ * @reference Chvátal, V. (1970),
+ *            "The smallest triangle-free 4-chromatic 4-regular graph", Journal
+ *            of Combinatorial Theory 9 (1): 93–94,
+ *            doi:10.1016/S0021-9800(70)80057-6
  */
 public class ChvatalGenerator extends BaseGenerator {
 
@@ -76,6 +86,7 @@ public class ChvatalGenerator extends BaseGenerator {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#begin()
 	 */
 	public void begin() {
@@ -99,6 +110,7 @@ public class ChvatalGenerator extends BaseGenerator {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
 	 */
 	public boolean nextEvents() {

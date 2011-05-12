@@ -44,6 +44,10 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * -25, 23, 9, -17, 51, 35, -29, 21, -51, -39, 33, -9, -51, 51, -47, -33, 19,
  * 51, -21, 29, 21, -31, -39]^2</dd>
  * </dl>
+ * 
+ * @reference Weisstein, Eric W. "Ljubljana Graph." From MathWorld--A Wolfram
+ *            Web Resource. http://mathworld.wolfram.com/LjubljanaGraph.html
+ * 
  */
 public class LjubljanaGraphGenerator extends LCFGenerator {
 	/**

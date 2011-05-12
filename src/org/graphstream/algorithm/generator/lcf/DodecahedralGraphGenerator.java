@@ -41,6 +41,10 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * <dt>LCF</dt>
  * <dd>[10,7,4,-4,-7,10,-4,7,-7,4]^2</dd>
  * </dl>
+ * 
+ * @reference Weisstein, Eric W. "Dodecahedral Graph." From MathWorld--A Wolfram
+ *            Web Resource. http://mathworld.wolfram.com/DodecahedralGraph.html
+ * 
  */
 public class DodecahedralGraphGenerator extends LCFGenerator {
 	/**

@@ -42,9 +42,13 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * <dd>[-9, -25, -19, 29, 13, 35, -13, -29, 19, 25, 9, -29, 29, 17, 33, 21,
  * 9,-13, -31, -9, 25, 17, 9, -31, 27, -9, 17, -19, -29, 27, -17, -9, -29, 33,
  * -25,25, -21, 17, -17, 29, 35, -29, 17, -17, 21, -25, 25, -33, 29, 9, 17, -27,
- * 29, 19, -17, 9, -27, 31, -9, -17, -25, 9, 31, 13, -9, -21, -33, -17, -29,
- * 29]</dd>
+ * 29, 19, -17, 9, -27, 31, -9, -17, -25, 9, 31, 13, -9, -21, -33, -17, -29, 29]
+ * </dd>
  * </dl>
+ * 
+ * @reference A. T. Balaban, A trivalent graph of girth ten, J. Combinatorial
+ *            Theory, Set. B, 12:1-5, 1972
+ * 
  */
 public class Balaban10CageGraphGenerator extends LCFGenerator {
 	/**

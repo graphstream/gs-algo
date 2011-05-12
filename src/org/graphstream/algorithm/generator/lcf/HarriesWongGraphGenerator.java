@@ -44,6 +44,10 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * -25, 29, -33, 13, -13, 21, -29, -21, 25, 9, -11, -19, 29, 9, -27, -19, -13,
  * -35, -9, 9, 17, 25, -9, 9, 27, -27, -21, 15, -9, 29, -29, 33, -9, -25]</dd>
  * </dl>
+ * 
+ * @reference Weisstein, Eric W. "Harries-Wong Graph." From MathWorld--A Wolfram
+ *            Web Resource. http://mathworld.wolfram.com/Harries-WongGraph.html
+ * 
  */
 public class HarriesWongGraphGenerator extends LCFGenerator {
 	/**

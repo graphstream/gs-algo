@@ -35,15 +35,21 @@ import org.graphstream.algorithm.generator.LCFGenerator;
 /**
  * Build a Bidiakis cube.
  * 
- * Nodes : 12
- * LCF   : [6, 4, -4]^4
+ * <dl>
+ * <dt>Nodes</dt><dd>12</dd>
+ * <dt>LCF</dt><dd>[6, 4, -4]^4</dd>
+ * </dl>
+ * 
+ * @reference Weisstein, Eric W. "Bidiakis Cube." From MathWorld--A Wolfram Web
+ *            Resource. http://mathworld.wolfram.com/BidiakisCube.html
+ * 
  */
 public class BidiakisCubeGenerator extends LCFGenerator {
 	/**
 	 * LCF notation of a Bidiakis cube.
 	 */
-	public static final LCF BIDIAKIS_CUBE_LCF = new LCF(4, 6, 4,-4);
-	
+	public static final LCF BIDIAKIS_CUBE_LCF = new LCF(4, 6, 4, -4);
+
 	public BidiakisCubeGenerator() {
 		super(BIDIAKIS_CUBE_LCF, 12, false);
 	}

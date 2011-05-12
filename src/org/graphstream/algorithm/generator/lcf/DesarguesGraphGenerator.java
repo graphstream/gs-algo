@@ -41,6 +41,10 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * <dt>LCF</dt>
  * <dd>[5,-5,9,-9]^5</dd>
  * </dl>
+ * 
+ * @reference Weisstein, Eric W. "Desargues Graph." From MathWorld--A Wolfram
+ *            Web Resource. http://mathworld.wolfram.com/DesarguesGraph.html
+ * 
  */
 public class DesarguesGraphGenerator extends LCFGenerator {
 	/**

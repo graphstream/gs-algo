@@ -41,6 +41,11 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * <dt>LCF</dt>
  * <dd>[3,-7,7,-3]^6</dd>
  * </dl>
+ * 
+ * @reference Weisstein, Eric W. "Truncated Octahedral Graph." From MathWorld--A
+ *            Wolfram Web Resource.
+ *            http://mathworld.wolfram.com/TruncatedOctahedralGraph.html
+ * 
  */
 public class TruncatedOctahedralGraphGenerator extends LCFGenerator {
 	/**

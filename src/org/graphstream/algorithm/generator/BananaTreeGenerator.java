@@ -31,6 +31,8 @@
 package org.graphstream.algorithm.generator;
 
 /**
+ * Banana tree generator. A (n,k)-banana tree is composed of a root node and n
+ * k-stars with one leaf of each star connected to the root node.
  * 
  * @reference Chen, W. C.; Lü, H. I.; and Yeh, Y. N.
  *            "Operations of Interlaced Trees and Graceful Trees." Southeast

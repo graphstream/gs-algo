@@ -35,8 +35,16 @@ import org.graphstream.algorithm.generator.LCFGenerator;
 /**
  * Build a Wagner graph.
  * 
- * Nodes : 8
- * LCF   : [4]^8
+ * <dl>
+ * <dt>Nodes</dt>
+ * <dd>8</dd>
+ * <ddt>LCF</dt>
+ * <dd>[4]^8</dd>
+ * </dl>
+ * 
+ * @reference Wagner, K. (1937). "Über eine Eigenschaft der ebenen Komplexe".
+ *            Mathematische Annalen 114 (1): 570–590. doi:10.1007/BF01594196
+ * 
  */
 public class WagnerGraphGenerator extends LCFGenerator {
 	/**

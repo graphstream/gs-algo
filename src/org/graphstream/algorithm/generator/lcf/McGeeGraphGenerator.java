@@ -41,12 +41,16 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * <dt>LCF</dt>
  * <dd>[12,7,-7]^8</dd>
  * </dl>
+ * 
+ * @reference McGee, W. F. "A Minimal Cubic Graph of Girth Seven." Canad. Math.
+ *            Bull. 3, 149-152, 1960.
+ * 
  */
 public class McGeeGraphGenerator extends LCFGenerator {
 	/**
 	 * LCF notation of a McGee graph.
 	 */
-	public static final LCF MCGEE_GRAPH_LCF = new LCF(8, 12,7,-7);
+	public static final LCF MCGEE_GRAPH_LCF = new LCF(8, 12, 7, -7);
 
 	public McGeeGraphGenerator() {
 		super(MCGEE_GRAPH_LCF, 24, false);

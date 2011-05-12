@@ -28,33 +28,11 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
  */
-package org.graphstream.algorithm.generator.lcf;
-
-import org.graphstream.algorithm.generator.LCFGenerator;
-
 /**
- * Build a Frucht graph.
+ * This package contains some generator that produce well-known graphs. 
+ * Graphs are generated using a lcf notation.
  * 
- * <dl>
- * <dt>Nodes</dt>
- * <dd>12</dd>
- * <dt>LCF</dt>
- * <dd>[-5,-2,-4,2,5,-2,2,5,-2,-5,4,2]</dd>
- * </dl>
- * 
- * @reference Frucht, R.
- *            "Herstellung von Graphen mit vorgegebener abstrakter Gruppe."
- *            Compos. Math. 6, 239-250, 1939.
- * 
+ * For more informations about the LCF notation, please visit :
+ * <<a href="http://en.wikipedia.org/wiki/LCF_notation">Wikipedia</a>
  */
-public class FruchtGraphGenerator extends LCFGenerator {
-	/**
-	 * LCF notation of a Frucht graph.
-	 */
-	public static final LCF FRUCHT_GRAPH_LCF = new LCF(1, -5, -2, -4, 2, 5, -2,
-			2, 5, -2, -5, 4, 2);
-
-	public FruchtGraphGenerator() {
-		super(FRUCHT_GRAPH_LCF, 12, false);
-	}
-}
+package org.graphstream.algorithm.generator.lcf;

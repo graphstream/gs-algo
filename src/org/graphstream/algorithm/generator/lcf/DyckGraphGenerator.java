@@ -41,12 +41,17 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * <dt>LCF</dt>
  * <dd>[5,-5,13,-13]^8</dd>
  * </dl>
+ * 
+ * @reference Dyck, W. (1881),
+ *            "Über Aufstellung und Untersuchung von Gruppe und Irrationalität regulärer Riemann'scher Flächen"
+ *            , Math. Ann. 17: 473.
+ * 
  */
 public class DyckGraphGenerator extends LCFGenerator {
 	/**
 	 * LCF notation of a Dyck graph.
 	 */
-	public static final LCF DYCK_GRAPH_LCF = new LCF(8, 5,-5,13,-13);
+	public static final LCF DYCK_GRAPH_LCF = new LCF(8, 5, -5, 13, -13);
 
 	public DyckGraphGenerator() {
 		super(DYCK_GRAPH_LCF, 32, false);

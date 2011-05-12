@@ -41,6 +41,11 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * <dt>LCF</dt>
  * <dd>[2,9,-2,2,-9,-2]^4</dd>
  * </dl>
+ * 
+ * @reference Weisstein, Eric W. "Truncated Cubical Graph." From MathWorld--A
+ *            Wolfram Web Resource.
+ *            http://mathworld.wolfram.com/TruncatedCubicalGraph.html
+ * 
  */
 public class TruncatedCubicalGraphGenerator extends LCFGenerator {
 	/**

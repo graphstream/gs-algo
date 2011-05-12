@@ -41,12 +41,16 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * <dt>LCF</dt>
  * <dd>[5,7,-7,7,-7,-5]^3</dd>
  * </dl>
+ * 
+ * @reference Weisstein, Eric W. "Pappus Graph." From MathWorld--A Wolfram Web
+ *            Resource. http://mathworld.wolfram.com/PappusGraph.html
+ * 
  */
 public class PappusGraphGenerator extends LCFGenerator {
 	/**
 	 * LCF notation of a Pappus graph.
 	 */
-	public static final LCF PAPPUS_GRAPH_LCF = new LCF(3, 5,7,-7,7,-7,-5);
+	public static final LCF PAPPUS_GRAPH_LCF = new LCF(3, 5, 7, -7, 7, -7, -5);
 
 	public PappusGraphGenerator() {
 		super(PAPPUS_GRAPH_LCF, 18, false);

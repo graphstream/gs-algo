@@ -34,13 +34,22 @@ import org.graphstream.algorithm.generator.LCFGenerator;
 
 /**
  * Generate a tetrahedral graph.
+ * 
+ * <dl>
+ * <dt>Nodes</dt><dd>4</dd>
+ * <dt>LCF</dt><dd>[2, -2]^2</dd>
+ * </dl>
+ * 
+ * @reference Weisstein, Eric W. "Tetrahedral Graph." From MathWorld--A Wolfram
+ *            Web Resource. http://mathworld.wolfram.com/TetrahedralGraph.html
+ * 
  */
 public class TetrahedralGraphGenerator extends LCFGenerator {
 	/**
 	 * LCF notation of a tetrahedral graph. [2, -2]^2
 	 */
 	public static final LCF TETRAHEDRAL_LCF = new LCF(2, 2, -2);
-	
+
 	public TetrahedralGraphGenerator() {
 		super(TETRAHEDRAL_LCF, 4, false);
 	}

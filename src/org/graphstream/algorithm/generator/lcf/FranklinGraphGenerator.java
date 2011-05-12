@@ -34,9 +34,17 @@ import org.graphstream.algorithm.generator.LCFGenerator;
 
 /**
  * Build a Franklin graph.
- *
- * Nodes : 12
- * LCF   : [5, -5]^6
+ * 
+ * <dl>
+ * <dt>Nodes</dt>
+ * <dd>12</dd>
+ * <dt>LCF</dt>
+ * <dd>[5, -5]^6</dd>
+ * </dl>
+ * 
+ * @reference Franklin, P. "A Six Color Problem." J. Math. Phys. 13, 363-379,
+ *            1934.
+ * 
  */
 public class FranklinGraphGenerator extends LCFGenerator {
 	/**

@@ -41,12 +41,17 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * <dt>LCF</dt>
  * <dd>[17,-9,37,-37,9,-17]^15</dd>
  * </dl>
+ * 
+ * @reference Foster, R. M. "Geometrical Circuits of Electrical Networks."
+ *            Trans. Amer. Inst. Elec. Engin. 51, 309-317, 1932.
+ * 
  */
 public class FosterGraphGenerator extends LCFGenerator {
 	/**
 	 * LCF notation of a Foster graph.
 	 */
-	public static final LCF FOSTER_GRAPH_LCF = new LCF(15, 17,-9,37,-37,9,-17);
+	public static final LCF FOSTER_GRAPH_LCF = new LCF(15, 17, -9, 37, -37, 9,
+			-17);
 
 	public FosterGraphGenerator() {
 		super(FOSTER_GRAPH_LCF, 90, false);

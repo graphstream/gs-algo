@@ -42,6 +42,10 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * <dd>[17, 27, -13, -59, -35, 35, -11, 13, -53, 53, -27, 21, 57, 11, -21, -57,
  * 59, -17]^7</dd>
  * </dl>
+ * 
+ * @reference Brouwer, A. E.; Cohen, A. M.; and Neumaier, A. Distance Regular
+ *            Graphs. New York: Springer-Verlag, 1989.
+ * 
  */
 public class Tutte12CageGraphGenerator extends LCFGenerator {
 	/**

@@ -41,6 +41,10 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * <dt>LCF</dt>
  * <dd>[-29,-19,-13,13,21,-27,27,33,-13,13,19,-21,-33,29]^5</dd>
  * </dl>
+ * 
+ * @reference Weisstein, Eric W. "Harries Graph." From MathWorld--A Wolfram Web
+ *            Resource. http://mathworld.wolfram.com/HarriesGraph.html
+ * 
  */
 public class HarriesGraphGenerator extends LCFGenerator {
 	/**

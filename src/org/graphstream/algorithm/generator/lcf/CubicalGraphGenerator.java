@@ -35,8 +35,14 @@ import org.graphstream.algorithm.generator.LCFGenerator;
 /**
  * Build a cubical graph.
  * 
- * Nodes : 8
- * LCF   : [3, -3]^8
+ * <dl>
+ * <dt>Nodes</dt><dd>8</dd>
+ * <dt>LCF</dt><dd>[3, -3]^4</dd>
+ * </dl>
+ * 
+ * @reference Weisstein, Eric W. "Cubical Graph." From MathWorld--A Wolfram Web
+ *            Resource. http://mathworld.wolfram.com/CubicalGraph.html
+ * 
  */
 public class CubicalGraphGenerator extends LCFGenerator {
 

@@ -41,6 +41,11 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * <dt>LCF</dt>
  * <dd>[5, -5]^8</dd>
  * </dl>
+ * 
+ * @reference Weisstein, Eric W. "Möbius-Kantor Graph." From MathWorld--A
+ *            Wolfram Web Resource.
+ *            http://mathworld.wolfram.com/Moebius-KantorGraph.html
+ * 
  */
 public class MobiusKantorGraphGenerator extends LCFGenerator {
 	/**

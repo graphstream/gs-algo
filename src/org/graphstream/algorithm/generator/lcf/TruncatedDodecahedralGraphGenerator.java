@@ -42,6 +42,11 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * <dd>[30, -2, 2, 21, -2, 2, 12, -2, 2, -12, -2, 2, -21, -2, 2, 30, -2, 2, -12,
  * -2, 2, 21, -2, 2, -21, -2, 2, 12, -2, 2]^2</dd>
  * </dl>
+ * 
+ * @reference Weisstein, Eric W. "Truncated Dodecahedral Graph." From
+ *            MathWorld--A Wolfram Web Resource.
+ *            http://mathworld.wolfram.com/TruncatedDodecahedralGraph.html
+ * 
  */
 public class TruncatedDodecahedralGraphGenerator extends LCFGenerator {
 	/**

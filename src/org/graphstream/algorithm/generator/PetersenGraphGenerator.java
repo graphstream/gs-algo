@@ -33,6 +33,7 @@ package org.graphstream.algorithm.generator;
 /**
  * Generate a Petersen graph.
  * 
+ * <p>
  * In the mathematical field of graph theory, the Petersen graph is an
  * undirected graph with 10 vertices and 15 edges. It is a small graph that
  * serves as a useful example and counterexample for many problems in graph
@@ -43,8 +44,13 @@ package org.graphstream.algorithm.generator;
  * (1886). Donald Knuth states that the Petersen graph is "a remarkable
  * configuration that serves as a counterexample to many optimistic predictions
  * about what might be true for graphs in general."
+ * </p>
  * 
  * Source : <a href="http://en.wikipedia.org/wiki/Petersen_graph">Wikipedia</a>
+ * 
+ * @reference Petersen, Julius (1898), "Sur le théorème de Tait",
+ *            L'Intermédiaire des Mathématiciens 5: 225–227.
+ * 
  */
 public class PetersenGraphGenerator extends BaseGenerator {
 
@@ -52,6 +58,7 @@ public class PetersenGraphGenerator extends BaseGenerator {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#begin()
 	 */
 	public void begin() {
@@ -82,6 +89,7 @@ public class PetersenGraphGenerator extends BaseGenerator {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
 	 */
 	public boolean nextEvents() {

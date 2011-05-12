@@ -41,6 +41,12 @@ import org.graphstream.algorithm.generator.LCFGenerator;
  * <dt>LCF</dt>
  * <dd>[-25,7,-7,13,-13,25]^9</dd>
  * </dl>
+ * 
+ * @reference Bouwer, I. Z. (1968),
+ *            "An edge but not vertex transitive cubic graph", Bulletin of the
+ *            Canadian Mathematical Society 11: 533–535,
+ *            doi:10.4153/CMB-1968-063-0
+ * 
  */
 public class GrayGraphGenerator extends LCFGenerator {
 	/**
