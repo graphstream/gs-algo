@@ -37,6 +37,10 @@ package org.graphstream.algorithm.generator;
  * 4. The flower snarks are non-planar and non-hamiltonian.
  * 
  * Source : <a href="http://en.wikipedia.org/wiki/Flower_snark">Wikipedia</a>
+ * 
+ * @reference Isaacs, R.
+ *            "Infinite Families of Nontrivial Trivalent Graphs Which Are Not Tait Colorable."
+ *            Amer. Math. Monthly 82, 221–239, 1975.
  */
 public class FlowerSnarkGenerator extends BaseGenerator {
 

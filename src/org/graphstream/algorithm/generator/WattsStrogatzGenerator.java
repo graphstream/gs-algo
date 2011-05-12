@@ -4,22 +4,18 @@ import static java.lang.Math.*;
 
 /**
  * A generator following the small-world model of Watts and Strogatz.
- *
+ * 
  * <p>
  * This generator creates small-world graphs of arbitrary size.
  * </p>
  * 
  * <p>
- * This generator is based on the Watts-Strogatz model described in:
- * <ul>
- * 		<li>Watts, D.J. and Strogatz, S.H.</li>
- * 		<li>Collective dynamics of 'small-world' networks</li>
- * 		<li>Nature 393 (6684): 409–10</li>
- * 		<li>doi:10.1038/30918</li>
- * 		<li>PMID 9623998</li>
- * 		<li>1998</li>
- * </ul>
- * </p>
+ * This generator is based on the Watts-Strogatz model.
+ * 
+ * 
+ * @reference Watts, D.J. and Strogatz, S.H.
+ *            "Collective dynamics of 'small-world' networks". Nature 393
+ *            (6684): 409–10. doi:10.1038/30918. PMID 9623998. 1998.
  */
 public class WattsStrogatzGenerator extends BaseGenerator {
 	/** The number of nodes to generate. */

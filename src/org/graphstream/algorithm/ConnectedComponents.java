@@ -46,10 +46,10 @@ import org.util.set.FixedArrayList;
  * Compute and update the number of connected components of a dynamic graph.
  * 
  * <p>
- * This algorithm computes the connected components of one given graph. The
- * connected components are the set of its connected subgraphs. Two nodes belong
- * to the same connected component when there exists a path (without considering
- * the direction of the edges) between them. Therefore, the algorithm does not
+ * This algorithm computes the connected components for a given graph. Connected
+ * components are the set of its connected subgraphs. Two nodes belong to the
+ * same connected component when there exists a path (without considering the
+ * direction of the edges) between them. Therefore, the algorithm does not
  * consider the direction of the edges. The number of connected components of an
  * undirected graph is equal to the number of connected components of the same
  * directed graph. See <a
@@ -62,7 +62,7 @@ import org.util.set.FixedArrayList;
  * <p>
  * This algorithm tries to handle the dynamics of the graph, trying not to
  * recompute all from scratch at each change (kind of re-optimization). In this
- * way, each instance of the algorithm is registered as a graph listener. Each
+ * way, each instance of the algorithm is registered as a graph sink. Each
  * change in the graph topology may affect the algorithm.
  * </p>
  * 
@@ -90,17 +90,18 @@ import org.util.set.FixedArrayList;
  * 
  * <h2>Additional features</h2>
  * 
+ * 
+ * <h3>Threshold and Ceiling</h3>
  * <p>
- * This algorithm allows to consider some edges as non existent by marking them
- * with a specific attribute. Use the {@link #setCutAttribute(String)} to
- * specify the name of the attribute that, if present on an edge (whatever be
- * its value, excepted null, naturally), will make it invisible to the
- * algorithm. This allows to create connected components without really
- * modifying the graph. The name of the attribute is given to the
- * {@link #setCutAttribute(String)} method. The value of the attribute can be
- * chosen arbitrarily, but cannot be null.
+ * It is possible to get rid of connected components belong a size threshold
+ * when counting the overall number of connected components. It is also possible
+ * to define a ceiling size for the connected component. Above that size
+ * ceiling, connected components will not be counted. Use the
+ * {@link #getConnectedComponentsCount(int)} or
+ * {@link #getConnectedComponentsCount(int, int)} methods.
  * </p>
  * 
+ * <h3>Components Identifiers</h3>
  * <p>
  * You can tag each node with an integer that identifies the component it
  * pertains to using {@link #setCountAttribute(String)}. The argument of this
@@ -109,6 +110,31 @@ import org.util.set.FixedArrayList;
  * zero) that is different for each connected component.
  * </p>
  * 
+ * <h3>Giant component</h3>
+ * <p>
+ * The {@link #getGiantComponent()} method gives you a list of nodes belonging
+ * to the biggest connected component of the graph.
+ * </p>
+ * 
+ * <h3>Cut Attribute</h3>
+ * <p>
+ * The cut attribute is a feature that can optionally simulate a given edge to
+ * be invisible (as if the edge did not exist). In other words if an edge is
+ * given such a cut attribute, it will be ignored by the algorithm when
+ * counting. You can enable (or disable by passing null) the cut attribute by
+ * specifying it with the {@link #setCutAttribute(String)} method, and by giving
+ * the special edges the same attribute.
+ * </p>
+ * <p>
+ * What is it useful for? Well you may want to simulate the removal of a given
+ * edge and see if it increases the number of connected components. You may not
+ * want to really remove and then re-add that edge in the graph, because such
+ * removal event may have consequences on other algorithms, viewer, writers...
+ * </p>
+ * <p>
+ * Note that setting the cut attribute will trigger a new computation of the
+ * algorithm.
+ * </p>
  * 
  * @author Yoann Pigné
  * @author Antoine Dutot
@@ -123,7 +149,6 @@ import org.util.set.FixedArrayList;
  */
 public class ConnectedComponents extends SinkAdapter implements
 		DynamicAlgorithm {
-	// private static final String CONNECTED_COMPONENT = "connectedComponent";
 
 	/**
 	 * Map of connected components.
@@ -168,13 +193,24 @@ public class ConnectedComponents extends SinkAdapter implements
 	 */
 	protected String countAttribute = null;
 
+	/**
+	 * Construction of an instance with no parameter. The process is not
+	 * initialized and the algorithm will not receive any event from any graph.
+	 * You will have to call the {@link #init(Graph)} method with a reference to
+	 * a graph so that the computation is able to start.
+	 * 
+	 * After the {@link #init(Graph)} method is invoked, the computation 
+	 * starts as soon as and event is received or if the {@link #compute()}
+	 * method is invoked.
+	 */
 	public ConnectedComponents() {
 		this(null);
 	}
 
 	/**
 	 * Constructor with the given graph. The computation of the algorithm start
-	 * only when the {@link #init(Graph)} method is invoked.
+	 * only when the {@link #init(Graph)} method is invoked. This Constructor
+	 * will call the {@link #init(Graph)} method anyway.
 	 * 
 	 * @param graph
 	 *            The graph who's connected components will be computed.
@@ -184,9 +220,7 @@ public class ConnectedComponents extends SinkAdapter implements
 		// value).
 
 		if (graph != null)
-			init(graph);
-
-		
+			init(graph);	
 	}
 
 	/**
@@ -223,8 +257,9 @@ public class ConnectedComponents extends SinkAdapter implements
 	}
 
 	/**
-	 * 
 	 * Ask the algorithm for the number of connected components.
+	 * 
+	 * @return the number of connected components in this graph.
 	 */
 	public int getConnectedComponentsCount() {
 		return getConnectedComponentsCount(1);
@@ -236,6 +271,8 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * 
 	 * @param sizeThreshold
 	 *            Minimum size for the connected component to be considered
+	 *            
+	 * @return the number of connected components, bigger than the given size threshold, in this graph.
 	 */
 	public int getConnectedComponentsCount(int sizeThreshold) {
 		return getConnectedComponentsCount(sizeThreshold, 0);
@@ -251,6 +288,8 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * @param sizeCeiling
 	 *            Maximum size for the connected component to be considered (use
 	 *            0 or lower values to ignore the ceiling)
+	 *            
+	 * @return the number of connected components, bigger than the given size threshold, and smaller than the given size ceiling, in this graph.
 	 */
 	public int getConnectedComponentsCount(int sizeThreshold, int sizeCeiling) {
 		if (!started) {
@@ -285,7 +324,6 @@ public class ConnectedComponents extends SinkAdapter implements
 	 */
 	protected int addIdentifier() {
 		ids.add("");
-
 		return ids.getLastIndex();
 	}
 
@@ -589,13 +627,22 @@ public class ConnectedComponents extends SinkAdapter implements
 
 				if (!(connectedComponentsMap.get(edge.getNode0())
 						.equals(connectedComponentsMap.get(edge.getNode1())))) {
-					connectedComponents++;
 
 					// Two new connected components are created
 					// we need to get the size of each of them
-					connectedComponentsSize.put(id, newSize);
-					connectedComponentsSize.remove(oldId);
-					connectedComponentsSize.put(oldId, oldSize - newSize);
+					if (newSize > 0) {
+						connectedComponentsSize.put(id, newSize);
+						connectedComponents++;
+					}
+					
+					if (oldSize - newSize > 0) {
+						connectedComponentsSize.put(oldId, oldSize - newSize);
+						
+					}
+					else {
+						connectedComponentsSize.remove(oldId);
+						connectedComponents--;
+					}
 
 				} else {
 					removeIdentifier(oldId);
@@ -675,12 +722,22 @@ public class ConnectedComponents extends SinkAdapter implements
 
 			if (!connectedComponentsMap.get(edge.getNode0()).equals(
 					connectedComponentsMap.get(edge.getNode1()))) {
-				connectedComponents++;
-
+				
 				// Two new connected components are created
 				// we need to get the size of each of them
-				connectedComponentsSize.put(id, newSize);
-				connectedComponentsSize.put(oldId, oldSize - newSize);
+				if (newSize > 0) {
+					connectedComponentsSize.put(id, newSize);
+					connectedComponents++;
+				}
+				
+				if (oldSize - newSize > 0) {
+					connectedComponentsSize.put(oldId, oldSize - newSize);
+					
+				}
+				else {
+					connectedComponentsSize.remove(oldId);
+					connectedComponents--;
+				}
 
 			} else {
 				removeIdentifier(oldId);
