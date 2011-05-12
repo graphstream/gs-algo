@@ -46,6 +46,9 @@ import org.graphstream.graph.Node;
  * computation.
  * 
  * @complexity O(n2)
+ * @reference F. Harary, Graph Theory. Westview Press, Oct. 1969. [Online].
+ *            Available: http://www.amazon.com/exec/obidos/
+ *            redirect?tag=citeulike07-20\&path=ASIN/ 0201410338
  */
 public class Centroid implements Algorithm {
 
@@ -75,7 +78,9 @@ public class Centroid implements Algorithm {
 
 	/*
 	 * (non-Javadoc)
-	 * @see org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
+	 * 
+	 * @see
+	 * org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
 	 */
 	public void init(Graph graph) {
 		this.graph = graph;
@@ -83,6 +88,7 @@ public class Centroid implements Algorithm {
 
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see org.graphstream.algorithm.Algorithm#compute()
 	 */
 	public void compute() {
