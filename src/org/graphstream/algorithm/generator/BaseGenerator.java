@@ -469,7 +469,7 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	}
 
 	/**
-	 * Clear the internal graph is {@link #useInternalGraph} is enable.
+	 * Clear the internal graph if {@link #useInternalGraph} is enable.
 	 * 
 	 * This method is called in {@link #end()} to ensure the next generation
 	 * will start freshly anew.
