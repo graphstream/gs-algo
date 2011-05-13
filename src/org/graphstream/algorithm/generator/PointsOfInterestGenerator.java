@@ -359,8 +359,7 @@ public class PointsOfInterestGenerator extends BaseGenerator {
 	private long currentStep;
 
 	public PointsOfInterestGenerator() {
-		disableKeepNodesId();
-		disableKeepEdgesId();
+		setUseInternalGraph(false);
 
 		initialPeopleCount = 500;
 		addPeopleProbability = delPeopleProbability = 0.001f;
@@ -519,11 +518,11 @@ public class PointsOfInterestGenerator extends BaseGenerator {
 	public static void main(String... args) {
 		PointsOfInterestGenerator gen = new PointsOfInterestGenerator();
 
-		gen.setParameter(Parameter.INITIAL_PEOPLE_COUNT, 500);
+		gen.setParameter(Parameter.INITIAL_PEOPLE_COUNT, 300);
 		gen.setParameter(Parameter.ADD_PEOPLE_PROBABILITY, 0.01f);
 		gen.setParameter(Parameter.DEL_PEOPLE_PROBABILITY, 0.01f);
 		gen.setParameter(Parameter.INITIAL_POINT_OF_INTEREST_COUNT, 30);
-		gen.setParameter(Parameter.AVERAGE_POINTS_OF_INTEREST_COUNT, 4.0f);
+		gen.setParameter(Parameter.AVERAGE_POINTS_OF_INTEREST_COUNT, 5.0f);
 		gen.setParameter(Parameter.ADD_POINT_OF_INTEREST_PROBABILITY, 0.0f);
 		gen.setParameter(Parameter.DEL_POINT_OF_INTEREST_PROBABILITY, 0.0f);
 		gen.setParameter(Parameter.HAVE_INTEREST_PROBABILITY, 0.1f);

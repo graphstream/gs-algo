@@ -32,6 +32,9 @@ package org.graphstream.algorithm.generator;
 
 import java.util.Random;
 
+import org.graphstream.algorithm.Toolkit;
+import org.graphstream.graph.Edge;
+
 /**
  * Dorogovtsev - Mendes graph generator.
  * 
@@ -77,7 +80,7 @@ public class DorogovtsevMendesGenerator extends BaseGenerator {
 	 * Create a new generator with default random object.
 	 */
 	public DorogovtsevMendesGenerator() {
-		keepEdgesId = true;
+		setUseInternalGraph(true);
 	}
 
 	/**
@@ -106,11 +109,8 @@ public class DorogovtsevMendesGenerator extends BaseGenerator {
 		addNode("2");
 
 		addEdge("0-1", "0", "1");
-		edges.add("0-1");
 		addEdge("1-2", "1", "2");
-		edges.add("1-2");
 		addEdge("2-0", "2", "0");
-		edges.add("2-0");
 
 		nodeNames = 3;
 	}
@@ -123,11 +123,10 @@ public class DorogovtsevMendesGenerator extends BaseGenerator {
 	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
 	 */
 	public boolean nextEvents() {
-		int rand = random.nextInt(edges.size());
 		String name = Integer.toString(nodeNames++);
-		String edge = edges.get(rand);
-		String n0 = edge.substring(0, edge.indexOf('-'));
-		String n1 = edge.substring(edge.indexOf('-') + 1);
+		Edge edge = Toolkit.randomEdge(internalGraph, random);
+		String n0 = edge.getNode0().getId();
+		String n1 = edge.getNode1().getId();
 
 		addNode(name);
 

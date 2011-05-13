@@ -30,7 +30,7 @@
  */
 package org.graphstream.algorithm.generator;
 
-import java.util.HashMap;
+import org.graphstream.graph.Node;
 import org.graphstream.stream.Pipe;
 
 /**
@@ -94,8 +94,6 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 	 */
 	protected int dimension = 2;
 
-	protected HashMap<String, float[]> coords = new HashMap<String, float[]>();
-
 	/**
 	 * The threshold that defines whether or not a link is created between to
 	 * nodes. Since the coordinate system is defined between 0 and 1, the
@@ -110,7 +108,7 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 	public RandomEuclideanGenerator() {
 		super();
 		initDimension(2);
-		enableKeepNodesId();
+		setUseInternalGraph(true);
 	}
 
 	/**
@@ -124,7 +122,7 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 	public RandomEuclideanGenerator(int dimension) {
 		super();
 		initDimension(dimension);
-		enableKeepNodesId();
+		setUseInternalGraph(true);
 	}
 
 	/**
@@ -145,7 +143,7 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 			boolean randomlyDirectedEdges) {
 		super(directed, randomlyDirectedEdges);
 		initDimension(dimension);
-		enableKeepNodesId();
+		setUseInternalGraph(true);
 	}
 
 	/**
@@ -171,7 +169,7 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 			String edgeAttribute) {
 		super(directed, randomlyDirectedEdges, nodeAttribute, edgeAttribute);
 		initDimension(dimension);
-		enableKeepNodesId();
+		setUseInternalGraph(true);
 	}
 
 	private void initDimension(int dimension) {
@@ -215,9 +213,9 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 
 		addNode(id);
 
-		for (String node : nodes) {
-			if (!id.equals(node) && distance(id, node) < threshold)
-				addEdge(id + "-" + node, id, node);
+		for (Node n : internalGraph.getEachNode()) {
+			if (!id.equals(n.getId()) && distance(id, n.getId()) < threshold)
+				addEdge(id + "-" + n.getId(), id, n.getId());
 		}
 
 		return true;
@@ -245,19 +243,30 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 	private float distance(String n1, String n2) {
 		float d = 0f;
 
-		float[] p1 = coords.get(n1);
-		float[] p2 = coords.get(n2);
-
 		if (dimension == 2) {
-			d = (float) Math.pow(p1[0] - p2[0], 2)
-					+ (float) Math.pow(p1[1] - p2[1], 2);
+			double x1 = internalGraph.getNode(n1).getNumber("x");
+			double y1 = internalGraph.getNode(n1).getNumber("y");
+			double x2 = internalGraph.getNode(n2).getNumber("x");
+			double y2 = internalGraph.getNode(n2).getNumber("y");
+
+			d = (float) Math.pow(x1 - x2, 2) + (float) Math.pow(y1 - y2, 2);
 		} else if (dimension == 3) {
-			d = (float) Math.pow(p1[0] - p2[0], 2)
-					+ (float) Math.pow(p1[1] - p2[1], 2)
-					+ (float) Math.pow(p1[2] - p2[2], 2);
+			double x1 = internalGraph.getNode(n1).getNumber("x");
+			double y1 = internalGraph.getNode(n1).getNumber("y");
+			double x2 = internalGraph.getNode(n2).getNumber("x");
+			double y2 = internalGraph.getNode(n2).getNumber("y");
+			double z1 = internalGraph.getNode(n1).getNumber("z");
+			double z2 = internalGraph.getNode(n2).getNumber("z");
+
+			d = (float) Math.pow(z1 - z2, 2) + (float) Math.pow(x1 - x2, 2)
+					+ (float) Math.pow(y1 - y2, 2);
 		} else {
-			for (int i = 0; i < dimension; i++)
-				d += (float) Math.pow(p1[i] - p2[i], 2);
+			for (int i = 0; i < dimension; i++) {
+				double xi1 = internalGraph.getNode(n1).getNumber("x" + i);
+				double xi2 = internalGraph.getNode(n2).getNumber("x" + i);
+
+				d += (float) Math.pow(xi1 - xi2, 2);
+			}
 		}
 
 		return (float) Math.sqrt(d);
@@ -280,16 +289,8 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 		if (key != null && key.matches("x|y|z") && val instanceof Float) {
 			int i = ((int) key.charAt(0)) - (int) 'x';
 
-			if (i < dimension) {
-				float[] p = coords.get(nodeId);
-
-				if (p == null) {
-					p = new float[dimension];
-					coords.put(nodeId, p);
-				}
-
-				p[((int) key.charAt(0)) - (int) 'x'] = (Float) val;
-			}
+			if (i < dimension)
+				internalGraph.getNode(nodeId).addAttribute(key, val);
 		}
 	}
 

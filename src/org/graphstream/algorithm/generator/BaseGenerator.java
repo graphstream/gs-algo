@@ -31,10 +31,10 @@
 package org.graphstream.algorithm.generator;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Random;
 
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.AdjacencyListGraph;
 import org.graphstream.stream.SourceBase;
 
 /**
@@ -67,78 +67,9 @@ import org.graphstream.stream.SourceBase;
  * @since 2007
  */
 public abstract class BaseGenerator extends SourceBase implements Generator {
-	/**
-	 * Defines data which is stored when {@link #keepNodesId} is enabled.
-	 */
-	protected class NodeKeepData {
-		/**
-		 * List of edge ids adjacent to the node.
-		 */
-		LinkedList<String> edges;
-
-		/**
-		 * Remembers this edge id as an adjacent edge.
-		 * 
-		 * @param id
-		 *            id of the adjacent edge
-		 */
-		void keepEdge(String id) {
-			if (edges == null)
-				edges = new LinkedList<String>();
-
-			if (!edges.contains(id))
-				edges.add(id);
-		}
-
-		/**
-		 * Removes an edge id from adjacent edge list.
-		 * 
-		 * @param id
-		 *            id of the old adjacent edge
-		 */
-		void unkeepEdge(String id) {
-			if (edges != null)
-				edges.remove(id);
-		}
-	}
-
-	/**
-	 * Defines data which is stored when {@link #keepEdgesId} is enabled.
-	 */
-	protected class EdgeKeepData {
-		/**
-		 * Source and target node ids of the edge.
-		 */
-		String src, trg;
-
-		/**
-		 * Build the data.
-		 * 
-		 * @param src
-		 *            source node id
-		 * @param trg
-		 *            target node id
-		 */
-		EdgeKeepData(String src, String trg) {
-			keepNodes(src, trg);
-		}
-
-		/**
-		 * Set source and target node ids.
-		 * 
-		 * @param src
-		 *            source node id
-		 * @param trg
-		 *            target node id
-		 */
-		void keepNodes(String src, String trg) {
-			this.src = src;
-			this.trg = trg;
-		}
-	}
-
+	
 	// Attributes
-
+	
 	/**
 	 * Are edges directed ?
 	 */
@@ -172,39 +103,6 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	protected double[] edgeAttributeRange = new double[2];
 
 	/**
-	 * List of all generated nodes so far. Used to create edges toward all other
-	 * nodes at each step.
-	 */
-	protected ArrayList<String> nodes = new ArrayList<String>();
-
-	/**
-	 * List of all generated edges.
-	 */
-	protected ArrayList<String> edges = new ArrayList<String>();
-
-	/**
-	 * Data linked to nodes when {@link #keepNodesId} is enabled.
-	 */
-	protected HashMap<String, NodeKeepData> nodesData = new HashMap<String, NodeKeepData>();
-
-	/**
-	 * Data linked to edges when {@link #keepEdgesId} is enabled.
-	 */
-	protected HashMap<String, EdgeKeepData> edgesData = new HashMap<String, EdgeKeepData>();
-
-	/**
-	 * If enabled, keep node ids and essential data. In some generator,
-	 * algorithm needs to know what has been previously build.
-	 */
-	protected boolean keepNodesId = false;
-
-	/**
-	 * If enabled, keep edge ids and essential data. In some generator,
-	 * algorithm needs to know what has been previously build.
-	 */
-	protected boolean keepEdgesId = false;
-
-	/**
 	 * The random number generator.
 	 */
 	protected Random random = new Random();
@@ -218,6 +116,19 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	 * Set the edge label attribute using the identifier?.
 	 */
 	protected boolean addEdgeLabels = false;
+
+	/**
+	 * Flag to know if generator has to use an internal graph. Generator which
+	 * want to use this feature have to use the
+	 * {@link #setUseInternalGraph(boolean)} method to set this flag.
+	 */
+	private boolean useInternalGraph;
+
+	/**
+	 * When {@link #useInternalGraph} is on, nodes and edges are stored in this
+	 * graph.
+	 */
+	protected Graph internalGraph;
 
 	// Constructors
 
@@ -284,36 +195,6 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	 */
 	public void end() {
 		clearKeptData();
-	}
-	
-	/**
-	 * Enable storage of node data. Id of nodes and adjacent edges will be
-	 * stored.
-	 */
-	protected void enableKeepNodesId() {
-		keepNodesId = true;
-	}
-
-	/**
-	 * Disable storage of node data.
-	 */
-	protected void disableKeepNodesId() {
-		keepNodesId = false;
-	}
-
-	/**
-	 * Enable storage of edge data. Id of edges, source node id and target node
-	 * id will be stored.
-	 */
-	protected void enableKeepEdgesId() {
-		keepEdgesId = true;
-	}
-
-	/**
-	 * Disable storage of edge data.
-	 */
-	protected void disableKeepEdgesId() {
-		keepEdgesId = false;
 	}
 
 	/**
@@ -442,6 +323,39 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	}
 
 	/**
+	 * Enable or disable the use of an internal graph. If enable, nodes, edges
+	 * and their attributes are stored in an internal graph.
+	 * 
+	 * This is useful if the generator needs to remember informations like node
+	 * id.
+	 * 
+	 * @param on
+	 *            true if the internal graph has to be enable.
+	 */
+	public void setUseInternalGraph(boolean on) {
+		useInternalGraph = on;
+
+		if (!on && internalGraph != null) {
+			internalGraph.clear();
+			internalGraph = null;
+		}
+
+		if (on && internalGraph == null) {
+			internalGraph = new AdjacencyListGraph(getClass().getName()
+					+ "-internal_graph");
+		}
+	}
+
+	/**
+	 * Flag to know if an internal graph is in use.
+	 * 
+	 * @return true if nodes and edges are stored in an internal graph.
+	 */
+	public boolean isUsingInternalGraph() {
+		return useInternalGraph;
+	}
+
+	/**
 	 * Same as {@link #addNode(String)} but specify attributes to position the
 	 * node on a plane.
 	 * 
@@ -456,6 +370,10 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 		addNode(id);
 		sendNodeAttributeAdded(sourceId, id, "xy", new Double[] {
 				new Double(x), new Double(y) });
+
+		if (useInternalGraph)
+			internalGraph.getNode(id).addAttribute("xy",
+					(Object) (new Double[] { new Double(x), new Double(y) }));
 	}
 
 	/**
@@ -470,17 +388,18 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 		if (addNodeLabels)
 			sendNodeAttributeAdded(sourceId, id, "label", id);
 
+		if (useInternalGraph)
+			internalGraph.addNode(id);
+
 		double value;
 
 		for (String attr : nodeAttributes) {
 			value = (random.nextDouble() * (nodeAttributeRange[1] - nodeAttributeRange[0]))
 					+ nodeAttributeRange[0];
 			sendNodeAttributeAdded(sourceId, id, attr, value);
-		}
 
-		if (keepNodesId) {
-			nodes.add(id);
-			nodesData.put(id, new NodeKeepData());
+			if (useInternalGraph)
+				internalGraph.getNode(id).addAttribute(attr, value);
 		}
 	}
 
@@ -491,18 +410,8 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	 *            id of the node to remove
 	 */
 	protected void delNode(String id) {
-		if (keepNodesId) {
-			if (keepEdgesId) {
-				NodeKeepData nkd = nodesData.get(id);
-
-				if (nkd.edges != null)
-					while (nkd.edges.size() > 0)
-						delEdge(nkd.edges.peek());
-			}
-
-			nodes.remove(id);
-			nodesData.remove(id);
-		}
+		if (useInternalGraph)
+			internalGraph.removeNode(id);
 
 		sendNodeRemoved(sourceId, id);
 	}
@@ -530,6 +439,9 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 
 		sendEdgeAdded(sourceId, id, from, to, directed);
 
+		if (useInternalGraph)
+			internalGraph.addEdge(id, from, to, directed);
+
 		if (addEdgeLabels)
 			sendEdgeAttributeAdded(sourceId, id, "label", id);
 
@@ -537,16 +449,9 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 			double value = (random.nextDouble() * (edgeAttributeRange[1] - edgeAttributeRange[0]))
 					+ edgeAttributeRange[0];
 			sendEdgeAttributeAdded(sourceId, id, attr, value);
-		}
 
-		if (keepEdgesId) {
-			edges.add(id);
-
-			if (keepNodesId) {
-				edgesData.put(id, new EdgeKeepData(from, to));
-				nodesData.get(from).keepEdge(id);
-				nodesData.get(to).keepEdge(id);
-			}
+			if (useInternalGraph)
+				internalGraph.getEdge(id).addAttribute(attr, value);
 		}
 	}
 
@@ -559,28 +464,18 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	protected void delEdge(String edgeId) {
 		sendEdgeRemoved(sourceId, edgeId);
 
-		if (keepEdgesId) {
-			edges.remove(edgeId);
-
-			if (keepNodesId) {
-				EdgeKeepData ekd = edgesData.get(edgeId);
-
-				nodesData.get(ekd.src).unkeepEdge(edgeId);
-				nodesData.get(ekd.trg).unkeepEdge(edgeId);
-			}
-		}
+		if (useInternalGraph)
+			internalGraph.removeEdge(edgeId);
 	}
-	
+
 	/**
-	 * Clear all the kept edge and node as well as the associated data. 
+	 * Clear the internal graph is {@link #useInternalGraph} is enable.
 	 * 
-	 * This method is called in {@link #end()} to ensure the next generation will start freshly
-	 * anew.
+	 * This method is called in {@link #end()} to ensure the next generation
+	 * will start freshly anew.
 	 */
 	protected void clearKeptData() {
-		nodes.clear();
-		edges.clear();
-		nodesData.clear();
-		edgesData.clear();
+		if (useInternalGraph)
+			internalGraph.clear();
 	}
 }

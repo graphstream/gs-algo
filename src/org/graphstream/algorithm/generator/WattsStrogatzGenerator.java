@@ -37,8 +37,7 @@ public class WattsStrogatzGenerator extends BaseGenerator {
 	 * @param beta Probability to "rewire" an edge.
 	 */
 	public WattsStrogatzGenerator(int n, int k, double beta) {
-		keepNodesId = true;
-		keepEdgesId = true;
+		setUseInternalGraph(true);
 		
 		if(n<=k)
 			throw new RuntimeException("parameter n must be >> k");
@@ -119,7 +118,7 @@ public class WattsStrogatzGenerator extends BaseGenerator {
 		
 		do {
 			newId  = random.nextInt(n);
-			exists = edgesData.get(edgeId(avoid, newId)) != null; 
+			exists = internalGraph.getEdge(edgeId(avoid, newId)) != null; 
 		} while(newId == avoid || exists);
 		
 		return newId;

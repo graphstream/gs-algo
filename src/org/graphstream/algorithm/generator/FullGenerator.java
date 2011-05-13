@@ -30,6 +30,8 @@
  */
 package org.graphstream.algorithm.generator;
 
+import org.graphstream.graph.Node;
+
 /**
  * Full graph generator.
  * 
@@ -71,7 +73,7 @@ public class FullGenerator extends BaseGenerator {
 	 */
 	public FullGenerator() {
 		super();
-		keepNodesId = true;
+		setUseInternalGraph(true);
 	}
 
 	/**
@@ -84,7 +86,7 @@ public class FullGenerator extends BaseGenerator {
 	 */
 	public FullGenerator(boolean directed, boolean randomlyDirectedEdges) {
 		super(directed, randomlyDirectedEdges);
-		keepNodesId = true;
+		setUseInternalGraph(true);
 	}
 
 	/**
@@ -104,7 +106,7 @@ public class FullGenerator extends BaseGenerator {
 	public FullGenerator(boolean directed, boolean randomlyDirectedEdges,
 			String nodeAttribute, String edgeAttribute) {
 		super(directed, randomlyDirectedEdges, nodeAttribute, edgeAttribute);
-		keepNodesId = true;
+		setUseInternalGraph(true);
 	}
 
 	/**
@@ -128,9 +130,9 @@ public class FullGenerator extends BaseGenerator {
 
 		addNode(id);
 
-		for (String otherId : nodes) {
-			if (otherId != id) // We can compare refs safely here.
-				addEdge(null, id, otherId);
+		for (Node n : internalGraph.getEachNode()) {
+			if (!n.getId().equals(id)) // We can compare refs safely here.
+				addEdge(null, id, n.getId());
 		}
 
 		return true;
