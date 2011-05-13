@@ -259,7 +259,7 @@ public class Kruskal extends AbstractSpanningTree {
 	@SuppressWarnings({ "rawtypes" })
 	protected Comparable getWeight(Edge e) {
 		if (!e.hasAttribute(weightAttribute))
-			return Integer.valueOf(1);
+			return Double.valueOf(1);
 
 		return (Comparable) e.getAttribute(weightAttribute, Comparable.class);
 	}

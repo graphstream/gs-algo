@@ -192,6 +192,9 @@ public class Prim extends AbstractSpanningTree {
 	 */
 	@SuppressWarnings("rawtypes")
 	protected Comparable getWeight(Edge e) {
+		if (!e.hasAttribute(weightAttribute))
+			return Double.valueOf(1);
+
 		return (Comparable) e.getAttribute(weightAttribute, Comparable.class);
 	}
 
