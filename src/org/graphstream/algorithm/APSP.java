@@ -143,7 +143,6 @@ import org.graphstream.stream.SinkAdapter;
  * //    \       /
  * //     D-(1)-E
  * 
- * public class DijkstraTest {
  * 	static String my_graph = "DGS004\n" 
  * 			+ "my 0 0\n" 
  * 			+ "an A \n" 
