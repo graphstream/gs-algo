@@ -164,12 +164,12 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	/**
 	 * If node attributes are added, in which range are the numbers chosen ?.
 	 */
-	protected float[] nodeAttributeRange = new float[2];
+	protected double[] nodeAttributeRange = new double[2];
 
 	/**
 	 * If edge attributes are added, in which range are the numbers chosen ?.
 	 */
-	protected float[] edgeAttributeRange = new float[2];
+	protected double[] edgeAttributeRange = new double[2];
 
 	/**
 	 * List of all generated nodes so far. Used to create edges toward all other
@@ -425,7 +425,7 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	 * 
 	 * @see #addNodeAttribute(String)
 	 */
-	public void setNodeAttributesRange(float low, float hi) {
+	public void setNodeAttributesRange(double low, double hi) {
 		nodeAttributeRange[0] = low;
 		nodeAttributeRange[1] = hi;
 	}
@@ -436,7 +436,7 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	 * 
 	 * @see #addEdgeAttribute(String)
 	 */
-	public void setEdgeAttributesRange(float low, float hi) {
+	public void setEdgeAttributesRange(double low, double hi) {
 		edgeAttributeRange[0] = low;
 		edgeAttributeRange[1] = hi;
 	}
@@ -470,10 +470,10 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 		if (addNodeLabels)
 			sendNodeAttributeAdded(sourceId, id, "label", id);
 
-		float value;
+		double value;
 
 		for (String attr : nodeAttributes) {
-			value = (random.nextFloat() * (nodeAttributeRange[1] - nodeAttributeRange[0]))
+			value = (random.nextDouble() * (nodeAttributeRange[1] - nodeAttributeRange[0]))
 					+ nodeAttributeRange[0];
 			sendNodeAttributeAdded(sourceId, id, attr, value);
 		}
@@ -534,7 +534,7 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 			sendEdgeAttributeAdded(sourceId, id, "label", id);
 
 		for (String attr : edgeAttributes) {
-			float value = (random.nextFloat() * (edgeAttributeRange[1] - edgeAttributeRange[0]))
+			double value = (random.nextDouble() * (edgeAttributeRange[1] - edgeAttributeRange[0]))
 					+ edgeAttributeRange[0];
 			sendEdgeAttributeAdded(sourceId, id, attr, value);
 		}
