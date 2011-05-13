@@ -36,11 +36,76 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 
 /**
- * Base for spanning tree algorithms. In this implementation, you can specify
- * the attribute and the values which will define if an edge is in the spanning
- * tree or not. You can easily use this feature to colorize the spanning by
- * specifying the color attribute as <i>flagAttribute</i> and color of tree as
- * <i>flagOn</i>.
+ * Base for spanning tree algorithms.
+ * 
+ * <p>
+ * The result is stored in an edge attribute which name is defined by
+ * {@link #flagAttribute} and value is {@link #flagOn} if the edge is in the
+ * tree or {@link #flagOff} if not.
+ * </p>
+ * 
+ * <h2>Creating a spanning tree algorithm</h2>
+ * 
+ * <p>
+ * Spanning tree algorithms have to extend this class and to implements the
+ * {@link #makeTree()} method. {@link #edgeOn(Edge)} and {@link #edgeOff(Edge)}
+ * methods have to be used to properly tag edge.
+ * </p>
+ * 
+ * <p>
+ * A call to compute reset the values of edges attribute. Then a call to
+ * {@link #makeTree()} is done.
+ * </p>
+ * 
+ * <h2>Highlight the spanning tree in viewer</h2>
+ * 
+ * <p>
+ * Using the CSS, it is possible to highlight the spanning tree result using
+ * classes. Considering two css edge classes have been defined in the CSS, for
+ * example :
+ * 
+ * <pre>
+ * edge .in {
+ * 	 size: 3px;
+ *   fill-color: black;
+ * }
+ * 
+ * edge .notin {
+ *   size: 2px;
+ *   fill-color: gray;
+ * }
+ * </pre>
+ * 
+ * <p>
+ * You can tell the algorithm to set up the value of the "ui.class" attribute of
+ * edges to "in" when the edge is in the tree or "notin" when edge is not in the
+ * tree.
+ * </p>
+ * 
+ * <p>
+ * This can be done by setting the {@link #flagAttribute} of the algorithm using
+ * the setter {@link #setFlagAttribute(String)} and the flag values
+ * {@link #flagOn} and {@link #flagOff} with {@link #setFlagOn(Object)} and
+ * {@link #setFlagOff(Object)} setters.
+ * </p>
+ * 
+ * <pre>
+ * Graph graph = ...;
+ * AbstractSpanningTree sp = ...;
+ * 
+ * ...
+ * 
+ * sp.setFlagAttribute("ui.class");
+ * sp.setFlagOn("in");
+ * sp.setFlagOff("notin");
+ * 
+ * sp.init(graph);
+ * sp.compute();
+ * 
+ * graph.display();
+ * 
+ * ..
+ * </pre>
  */
 public abstract class AbstractSpanningTree implements Algorithm {
 	/**
@@ -205,12 +270,20 @@ public abstract class AbstractSpanningTree implements Algorithm {
 
 	// Algorithm interface
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
+	 */
 	public void init(Graph graph) {
 		this.graph = graph;
 	}
 
-	/**
-	 * Compute the spanning tree using Kruskal's algorithm.
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.graphstream.algorithm.Algorithm#compute()
 	 */
 	public void compute() {
 		if (this.graph == null) {
