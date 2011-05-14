@@ -142,42 +142,22 @@ import org.graphstream.graph.Node;
  * </pre>
  * 
  * <h2>Reference</h2>
- * 
+ *
  * <p>
  * This is based on the algorithm described in "A Faster Algorithm for
  * Betweenness Centrality", Ulrik Brandes, Journal of Mathematical Sociology,
- * 2001:
- * <ul>
- * <li>title = "A Faster Algorithm for Betweenness Centrality",</li>
- * <li>author = "Ulrik Brandes",</li>
- * <li>journal = "Journal of Mathematical Sociology",</li>
- * <li>year = "2001",</li>
- * <li>volume = "25",</li>
- * <li>number = "2",</li>
- * <li>pages = "163 - 177",</li>
- * <li>doi = "DOI: 10.1080/0022250X.2001.9990249"</li>
- * </ul>
+ * 2001, and in
+ * "On variants of shortest-path betweenness centrality and their generic computation",
+ * of the same author, 2008.
  * </p>
  * 
- * <p>
- * And in
- * "On variants of shortest-path betweenness centrality and their generic computation"
- * , of the same author, 2008:
- * <ul>
- * <li>title =
- * "On variants of shortest-path betweenness centrality and their generic computation"
- * ,</li>
- * <li>author = "Ulrik Brandes",</li>
- * <li>journal = "Social Networks",</li>
- * <li>volume = "30",</li>
- * <li>number = "2",</li>
- * <li>pages = "136 - 145",</li>
- * <li>year = "2008",</li>
- * <li>note = "",</li>
- * <li>issn = "0378-8733",</li>
- * <li>doi = "DOI: 10.1016/j.socnet.2007.11.001",</li>
- * </ul>
- * </p>
+ * @reference A Faster Algorithm for Betweenness Centrality, Ulrik Brandes,
+ * Journal of Mathematical Sociology, 2001, 25:2, pp. 163 - 177",
+ * "DOI: 10.1080/0022250X.2001.9990249"
+ * 
+ * @reference On variants of shortest-path betweenness centrality and their generic computation,
+ * Ulrik Brandes, Social Networks, vol 30:2", pp. 136 - 145, 2008,
+ * issn 0378-8733, "DOI: 10.1016/j.socnet.2007.11.001".
  */
 public class BetweennessCentrality implements Algorithm {
 	// Attribute

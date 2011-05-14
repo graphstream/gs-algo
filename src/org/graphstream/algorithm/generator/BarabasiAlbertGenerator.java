@@ -15,6 +15,8 @@ import java.util.LinkedList;
  * chance to a node if it has a high degree.
  * </p>
  * 
+ * <h2>Usage</h2>
+ * 
  * <p>
  * The more this generator is iterated, the more nodes are generated. It can
  * therefore generate graphs of any size. One node is generated at each call to
@@ -25,6 +27,22 @@ import java.util.LinkedList;
  * {@link #getMaxLinksPerStep()}. To have exactly this number of edges at each
  * new node, use {@link #setExactlyMaxLinksPerStep(boolean)}.
  * </p>
+ * 
+ * <h2>Example</h2>
+ * 
+ * <pre>
+ * Graph graph = new SingleGraph("Barabàsi-Albert");
+ * // Between 1 and 3 new links per node added.
+ * Generator gen = new BarabasiAlbertGenerator(3);
+ * // Generate 100 nodes:
+ * gen.addSink(graph); 
+ * gen.begin();
+ * for(int i=0; i<100; i++) {
+ * 		gen.nextEvents();
+ * }
+ * gen.end();
+ * graph.display();
+ * </pre>
  * 
  * @reference Albert-László Barabási & Réka Albert
  *            "Emergence of scaling in random networks", Science 286: 509–512.
