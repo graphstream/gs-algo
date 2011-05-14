@@ -36,6 +36,12 @@ import org.graphstream.algorithm.Toolkit;
  * Random graph generator.
  * 
  * <p>
+ * Generate a random graph of any size.
+ * </p>
+ * 
+ * <h2>Usage</h2>
+ * 
+ * <p>
  * This generator creates random graphs of any size. Calling {@link #begin()}
  * put one unique node in the graph, then {@link #nextEvents()} will add a new
  * node each time it is called and connect this node randomly to others.
@@ -66,6 +72,26 @@ import org.graphstream.algorithm.Toolkit;
  * By default, edges are not oriented. It is possible to ask orientation, in
  * which case the direction is chosen randomly.
  * </p>
+ * 
+ * <h2>Complexity</h2>
+ * 
+ * <p>
+ * At each call to {@link #nextEvents()} at max k operations are run with
+ * k the average degree.
+ * </p>
+ * 
+ * <h2>Example</h2>
+ * 
+ * <pre>
+ * Graph graph = new SingleGraph("Random");
+ * Generator gen = new RandomGenerator();
+ * gen.addSinkg(graph);
+ * gen.begin();
+ * for(int i=0; i<100; i++)
+ * 	gen.nextEvents();
+ * gen.end();
+ * graph.display();
+ * </pre>
  * 
  * @since 2007
  */
