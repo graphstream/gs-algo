@@ -31,9 +31,66 @@
 package org.graphstream.algorithm.generator;
 
 /**
- * Generator for grids.
+ * Generator for square grids of any size.
  * 
- * TODO add 3d generation
+ * <p>
+ * This generate square grid graphs of any size with each node not on the
+ * border of the graph having four neighbours for regular grids or
+ * height neighbours for cross grids. The nodes at each of the four
+ * corners of the grid consequently have only two or three (cross)
+ * neighbours. The nodes on the side of the grid have three or five (cross)
+ * neighbours.
+ * </p>
+ * 
+ * <p>
+ * The generated grid can be closed as a torus, meaning that there is
+ * no border nodes will exist, therefore all nodes will have the same
+ * degree four or height (cross).
+ * </p>
+ * 
+ * <h2>Usage</h2>
+ * 
+ * <p>
+ * At the contrary of most generators, this generator does not produce
+ * only one node when you call {@link #nextEvents()}. It adds a row
+ * and column to the grid, making the side of the square grow by one.
+ * Therfore if you call the {@link #nextEvents()} methode n times you
+ * will have n^2 nodes.
+ * </p>
+ * 
+ * <p>
+ * You can indicate at construction time if the graph will be a regular
+ * grid (no argument) or if it must be a cross-grid (first boolean argument to
+ * true) and a tore (second boolean argument to true).
+ * </p>
+ * 
+ * <p>
+ * A constructor with a third boolean parameter allows to indicate that nodes
+ * must have a ``xyz`` attribute to position them or not. This is the default
+ * behaviour. 
+ * </p>
+ * 
+ * <h2>Complexity</h2>
+ * 
+ * At each call to {@link #nextEvents()} ((n+1)*2) new nodes are generated
+ * with n the size of a side of the grid.
+ * 
+ * <h2>Example</h2>
+ * 
+ * <pre>
+ * Graph graph = new SingleGraph("grid");
+ * Generator gen = GridGenerator();
+ * 
+ * gen.addSink(graph);
+ * gen.begin();
+ * for(int i=0; i<10; i++) {
+ * 		gen.nextEvents();
+ * }
+ * gen.end();
+ * 
+ * // Nodes already have a position.
+ * graph.display(false);
+ * </pre>
  * 
  * @since 2007
  */

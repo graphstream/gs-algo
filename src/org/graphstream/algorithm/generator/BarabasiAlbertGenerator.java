@@ -28,6 +28,12 @@ import java.util.LinkedList;
  * new node, use {@link #setExactlyMaxLinksPerStep(boolean)}.
  * </p>
  * 
+ * <h2>Complexity</h2>
+ * 
+ * For each new step, the algorithm act in O(n) with n the number of
+ * nodes if 1 max edge per new node is created, else the complexity
+ * is O(nm) if m max edge per new node is created.
+ * 
  * <h2>Example</h2>
  * 
  * <pre>
