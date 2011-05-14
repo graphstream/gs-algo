@@ -10,8 +10,53 @@ import static java.lang.Math.*;
  * </p>
  * 
  * <p>
- * This generator is based on the Watts-Strogatz model.
+ * This model
+ * generates a ring of n nodes where each node is connected to its k nearest
+ * neighbours in the ring (k/2 on each side, which means k must be even).
+ * Then it process each node of the ring in order following the ring, and "rewiring"
+ * each of their edges toward the not yet processed nodes with randomly chosen nodes
+ * with a probability beta. 
+ * </p>
+ *
+ * <h2>Usage</h2>
+ *
+ * <p>
+ * You must provide values for n, k and beta at construction time. You must ensure
+ * that k is event, that n >> k >> log(n) >> 1. Furthermore, beta being a probability
+ * it must be between 0 and 1.
+ * </p>
  * 
+ * <p>
+ * By default, the generator will produce a placement for nodes using the ``xyz``
+ * attribute.
+ * </p>
+ * 
+ * <p>
+ * This generator will produce the ring of nodes once {@link #begin()} has been
+ * called. Then calling {@link #nextEvents()} will rewire one node at a time
+ * return true until each node is processed, in which case it returns false.
+ * You must then call {@link #end()}. 
+ * </p>
+ * 
+ * <h2>Example</h2>
+ * 
+ * <pre>
+ * Graph graph = new SingleGraph("This is a small world!");
+ * Generator gen = new WattsStrogatzGenerator(20, 2, 0.5);
+ * 
+ * gen.addSink(graph);
+ * gen.begin();
+ * while(gen.nextEvents()) {}
+ * gen.end();
+ * 
+ * graph.display(false); // Node position is provided.
+ * </pre>
+ * 
+ * <h2>Reference</h2>
+ * 
+ * <p>
+ * This generator is based on the Watts-Strogatz model.
+ * </p>
  * 
  * @reference Watts, D.J. and Strogatz, S.H.
  *            "Collective dynamics of 'small-world' networks". Nature 393
