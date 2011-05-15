@@ -252,7 +252,7 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	 * 
 	 * @param name
 	 *            The attribute name.
-	 * @see #setNodeAttributesRange(float, float)
+	 * @see #setNodeAttributesRange(double, double)
 	 * @see #removeNodeAttribute(String)
 	 */
 	public void addNodeAttribute(String name) {
@@ -279,7 +279,7 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	 * 
 	 * @param name
 	 *            The attribute name.
-	 * @see #setEdgeAttributesRange(float, float)
+	 * @see #setEdgeAttributesRange(double, double)
 	 * @see #removeEdgeAttribute(String)
 	 */
 	public void addEdgeAttribute(String name) {

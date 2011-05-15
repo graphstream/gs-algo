@@ -4,7 +4,7 @@
         <javadoc 
         	access="public" 
         	author="true" 
-        	classpath="../gs-core/lib/mbox2.jar:../gs-core/lib/util.jar:../gs-core/lib/pherd.jar:../gs-core/bin/" 
+        	classpath="../gs-core/lib/mbox2.jar:../gs-core/lib/util.jar:../gs-core/lib/pherd.jar:../gs-core/bin/:./lib/commons-math-2.1.jar" 
         	destdir="doc" 
         	doctitle="GraphStream 1.0 API" 
         	nodeprecated="false" 

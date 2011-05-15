@@ -83,7 +83,7 @@ import org.graphstream.graph.Path;
  * <p>
  * The advantage of A* is that it can consider any cost function to drive the
  * search. You can create your own cost functions implementing the
- * {@link #Costs} interface.
+ * {@link org.graphstream.algorithm.AStar.Costs} interface.
  * </p>
  * <p>
  * You can also test the default "distance" cost function on a graph that has
@@ -151,10 +151,7 @@ import org.graphstream.graph.Path;
  * 	}
  * }
  * </pre>
- * 
- * <p>
- * This algorithm uses the <i>std-algo-1.0</i> algorithm's standard.
- * </p>
+
  * 
  * @complexity The complexity of A* depends on the heuristic.
  * @author Antoine Dutot

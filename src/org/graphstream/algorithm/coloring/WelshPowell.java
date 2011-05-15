@@ -72,7 +72,7 @@ import org.graphstream.graph.*;
  * <p>
  * After computation (using {@link #compute()}, the algorithm result for the
  * computation, the chromatic number, is accessible with the
- * {@link #getLastComputedResult()} method.  Colors (of "Integer" type) are stored in the graph as attributes (one for each node).
+ * {@link #getChromaticNumber()} method.  Colors (of "Integer" type) are stored in the graph as attributes (one for each node).
  * By default the attribute name is "WelshPowell.color", but you can optional choose the
  * attribute name.
  * </p>
