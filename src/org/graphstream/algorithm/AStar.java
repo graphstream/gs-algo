@@ -64,20 +64,93 @@ import org.graphstream.graph.Path;
  * 
  * <p>
  * By default the {@link org.graphstream.algorithm.AStar.Costs} implementation
- * used uses an heuristic that returns 0 for any heuristic. This makes A* an
+ * used uses a heuristic that returns 0 for any heuristic. This makes A* an
  * equivalent of the Dijkstra algorithm, but also makes it far less efficient.
  * </p>
  * 
- * <p>
- * The basic usage of this algorithm is as follows :
  * 
+ * <h2>Usage</h2>
+ * 
+ * <p>The basic usage is to create an instance of A*, then to ask it to compute
+ * from a shortest path from one target to one destination, and finally to ask
+ * for that path:
+ * </p>
  * <pre>
- * AStart astar = new AStar(graph);
- * astar.compute(&quot;A&quot;, &quot;Z&quot;); // with A and Z node identifiers in the graph.
+ * AStart astar = new AStar(graph); 
+ * astar.compute("A", "Z"); // with A and Z node identifiers in the graph. 
+ * Path path = astar.getShortestPath();
+ * </pre>
+ * <p>
+ * The advantage of A* is that it can consider any cost function to drive the
+ * search. You can create your own cost functions implementing the
+ * {@link #Costs} interface.
+ * </p>
+ * <p>
+ * You can also test the default "distance" cost function on a graph that has
+ * "x" and "y" values. You specify the Cost function before calling the
+ * {@link #compute(String,String)} method:
+ * </p>
+ * <pre>
+ * AStart astar = new AStar(graph); 
+ * astar.setCosts(new DistanceCosts());
+ * astar.compute("A", "Z"); 
  * Path path = astar.getShortestPath();
  * </pre>
  * 
- * </p>
+ * <h2>Example</h2>
+ * import java.io.IOException;
+ * import java.io.StringReader;
+ * 
+ * import org.graphstream.algorithm.AStar;
+ * import org.graphstream.algorithm.AStar.DistanceCosts;
+ * import org.graphstream.graph.Graph;
+ * import org.graphstream.graph.implementations.DefaultGraph;
+ * import org.graphstream.stream.file.FileSourceDGS;
+ * 
+ * public class AStarTest {
+ * 	
+ * 	//     B-(1)-C
+ * 	//    /       \
+ * 	//  (1)       (10)
+ * 	//  /           \
+ * 	// A             F
+ * 	//  \           /
+ * 	//  (1)       (1)
+ * 	//    \       /
+ * 	//     D-(1)-E
+ * 	static String my_graph = 
+ * 		"DGS004\n" 
+ * 		+ "my 0 0\n" 
+ * 		+ "an A xy: 0,1\n" 
+ * 		+ "an B xy: 1,2\n"
+ * 		+ "an C xy: 2,2\n"
+ * 		+ "an D xy: 1,0\n"
+ * 		+ "an E xy: 2,0\n"
+ * 		+ "an F xy: 3,1\n"
+ * 		+ "ae AB A B weight:1 \n"
+ * 		+ "ae AD A D weight:1 \n"
+ * 		+ "ae BC B C weight:1 \n"
+ * 		+ "ae CF C F weight:10 \n"
+ * 		+ "ae DE D E weight:1 \n"
+ * 		+ "ae EF E F weight:1 \n"
+ * 		;
+ * 
+ * 	public static void main(String[] args) throws IOException {
+ * 		Graph graph = new DefaultGraph("A* Test");
+ * 		StringReader reader = new StringReader(my_graph);
+ * 
+ * 		FileSourceDGS source = new FileSourceDGS();
+ * 		source.addSink(graph);
+ * 		source.readAll(reader);
+ * 
+ * 		AStar astar = new AStar(graph);
+ * 		//astar.setCosts(new DistanceCosts());
+ * 		astar.compute("C", "F");
+ * 
+ * 		System.out.println(astar.getShortestPath());
+ * 	}
+ * }
+ * </pre>
  * 
  * <p>
  * This algorithm uses the <i>std-algo-1.0</i> algorithm's standard.
