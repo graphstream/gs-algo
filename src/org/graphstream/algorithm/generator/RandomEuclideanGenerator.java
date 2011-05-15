@@ -40,6 +40,11 @@ import org.graphstream.stream.Pipe;
  * This generator creates random graphs of any size. Links of such graphs are
  * created according to a threshold. If the Euclidean distance between two nodes
  * is less than a given threshold, then a link is created between those 2 nodes.
+ * <p>
+ * 
+ * <h2>Usage</h2>
+ * 
+ * <p>
  * Calling {@link #begin()} put one unique node in the graph, then
  * {@link #nextEvents()} will add a new node each time it is called and connect
  * this node to its neighbors according to the threshold planar Euclidean
@@ -79,6 +84,24 @@ import org.graphstream.stream.Pipe;
  * |dimension|) .
  * </p>
  * 
+ * <h2>Complexity</h2>
+ * 
+ * For the construction of a n nodes graph, the complexity is about O(n^2).
+ * 
+ * <h2>Example</h2>
+ * 
+ * <pre>
+ * Graph graph = new SingleGraph("random euclidean");
+ * Generator gen = new RandomEuclideanGenerator();
+ * gen.addSink(graph);
+ * gen.begin();
+ * for(int i=0; i<1000; i++) {
+ * 		gen.nextEvents();
+ * }
+ * gen.end();
+ * graph.display(false);
+ * </pre>
+ * 
  * @since June 25 2007
  * @complexity For the construction of a n nodes graph, the complexity is about
  *             O(n^2).
@@ -99,8 +122,8 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 	 * nodes. Since the coordinate system is defined between 0 and 1, the
 	 * threshold has to be set between these two bounds.
 	 */
-	protected float threshold = 0.1f;
-
+	protected double threshold = 0.1;
+	
 	/**
 	 * New random Euclidean graph generator. By default no attributes are added
 	 * to nodes and edges. Dimension of the space is two.
@@ -240,8 +263,8 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 	 *            second node
 	 * @return distance between n1 and n2
 	 */
-	private float distance(String n1, String n2) {
-		float d = 0f;
+	private double distance(String n1, String n2) {
+		double d = 0.0;
 
 		if (dimension == 2) {
 			double x1 = internalGraph.getNode(n1).getNumber("x");
@@ -249,7 +272,7 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 			double x2 = internalGraph.getNode(n2).getNumber("x");
 			double y2 = internalGraph.getNode(n2).getNumber("y");
 
-			d = (float) Math.pow(x1 - x2, 2) + (float) Math.pow(y1 - y2, 2);
+			d = Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2);
 		} else if (dimension == 3) {
 			double x1 = internalGraph.getNode(n1).getNumber("x");
 			double y1 = internalGraph.getNode(n1).getNumber("y");
@@ -258,18 +281,17 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 			double z1 = internalGraph.getNode(n1).getNumber("z");
 			double z2 = internalGraph.getNode(n2).getNumber("z");
 
-			d = (float) Math.pow(z1 - z2, 2) + (float) Math.pow(x1 - x2, 2)
-					+ (float) Math.pow(y1 - y2, 2);
+			d = Math.pow(z1 - z2, 2) + Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2);
 		} else {
 			for (int i = 0; i < dimension; i++) {
 				double xi1 = internalGraph.getNode(n1).getNumber("x" + i);
 				double xi2 = internalGraph.getNode(n2).getNumber("x" + i);
 
-				d += (float) Math.pow(xi1 - xi2, 2);
+				d += Math.pow(xi1 - xi2, 2);
 			}
 		}
 
-		return (float) Math.sqrt(d);
+		return Math.sqrt(d);
 	}
 
 	/**
@@ -280,7 +302,7 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 	 * @param threshold
 	 *            The defined threshold.
 	 */
-	public void setThreshold(float threshold) {
+	public void setThreshold(double threshold) {
 		if (threshold <= 1f && threshold >= 0f)
 			this.threshold = threshold;
 	}
