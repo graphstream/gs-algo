@@ -110,7 +110,7 @@ import org.graphstream.graph.Node;
  * </pre>
  * 
  * @complexity O(n2)
- * @see org.graphstream.algorithm.APSPAlgorithm.APSPInfo
+ * @see org.graphstream.algorithm.APSP.APSPInfo
  * @reference F. Harary, Graph Theory. Westview Press, Oct. 1969. [Online].
  *            Available: http://www.amazon.com/exec/obidos/
  *            redirect?tag=citeulike07-20\&path=ASIN/0201410338
