@@ -39,13 +39,67 @@ import java.util.Comparator;
 import java.util.Collections;
 
 /**
+ * Compute a spanning tree using the Prim algorithm.
+ * 
+ * <p>
  * Prim's algorithm is an algorithm which allows to find a minimal spanning tree
  * in a weighted connected graph. More informations on <a
  * href="http://en.wikipedia.org/wiki/Prim%27s_algorithm">Wikipedia</a>.
+ * </p>
+ * 
+ * <h2>Example</h2>
+ * 
+ * The following example generates a graph with the Dorogovtsev-Mendes generator
+ * and then compute a spanning-tree using the Kruskal algorithm. The generator
+ * creates random weights for edges that will be used by the Kruskal algorithm.
+ * 
+ * If no weight is present, algorithm considers that all weights are set to 1.
+ * 
+ * When an edge is in the spanning tree, the algorithm will set its "ui.class"
+ * attribute to "intree", else the attribute is set to "notintree". According to
+ * the css stylesheet that is defined, spanning will be displayed with thick
+ * black lines while edges not in the spanning tree will be displayed with thin
+ * gray lines.
+ * 
+ * <pre>
+ * import org.graphstream.graph.Graph;
+ * import org.graphstream.graph.implementations.DefaultGraph;
+ * 
+ * import org.graphstream.algorithm.Prim;
+ * import org.graphstream.algorithm.generator.DorogovtsevMendesGenerator;
+ * 
+ * public class PrimTest {
+ *  
+ * 	public static void main(String .. args) {
+ * 		DorogovtsevMendesGenerator gen = new DorogovtsevMendesGenerator();
+ * 		Graph graph = new DefaultGraph("Prim Test");
+ * 
+ *  	String css = "edge .notintree {size:1px;fill-color:gray;} " +
+ *  				 "edge .intree {size:3px;fill-color:black;}";
+ *  
+ * 		graph.addAttribute("ui.stylesheet", css);
+ * 		graph.display();
+ * 
+ * 		gen.addEdgeAttribute("weight");
+ * 		gen.setEdgeAttributesRange(1, 100);
+ * 		gen.addSink(graph);
+ * 		gen.begin();
+ * 		for (int i = 0; i < 100 && gen.nextEvents(); i++)
+ * 			;
+ * 		gen.end();
+ * 
+ * 		Prim prim = new Prim("ui.class", "intree", "notintree");
+ * 
+ * 		prim.init(g);
+ * 		prim.compute();
+ *  }
+ * }
+ * </pre>
  * 
  * @complexity 0(m+m<sup>2</sup>log(m)), where m = |E|
- * 
- * @author Guilhelm Savin
+ * @reference R. C. Prim: Shortest connection networks and some generalizations.
+ *            In: Bell System Technical Journal, 36 (1957), pp. 1389–1401
+ * @see org.graphstream.algorithm.AbstractSpanningTree
  * 
  */
 public class Prim extends AbstractSpanningTree {
@@ -71,6 +125,22 @@ public class Prim extends AbstractSpanningTree {
 	 */
 	public Prim(String weightAttribute, String flagAttribute) {
 		this(weightAttribute, flagAttribute, true, false);
+	}
+
+	/**
+	 * Create a new Prim's algorithm.
+	 * 
+	 * @param flagAttribute
+	 *            attribute used to set if an edge is in the spanning tree
+	 * @param flagOn
+	 *            value of the <i>flagAttribute</i> if edge is in the spanning
+	 *            tree
+	 * @param flagOff
+	 *            value of the <i>flagAttribute</i> if edge is not in the
+	 *            spanning tree
+	 */
+	public Prim(String flagAttribute, Object flagOn, Object flagOff) {
+		this("weight", flagAttribute, flagOn, flagOff);
 	}
 
 	/**
@@ -122,6 +192,9 @@ public class Prim extends AbstractSpanningTree {
 	 */
 	@SuppressWarnings("rawtypes")
 	protected Comparable getWeight(Edge e) {
+		if (!e.hasAttribute(weightAttribute))
+			return Double.valueOf(1);
+
 		return (Comparable) e.getAttribute(weightAttribute, Comparable.class);
 	}
 

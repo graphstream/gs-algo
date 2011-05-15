@@ -30,8 +30,16 @@
  */
 package org.graphstream.algorithm.generator;
 
+import org.graphstream.algorithm.Toolkit;
+
 /**
  * Random graph generator.
+ * 
+ * <p>
+ * Generate a random graph of any size.
+ * </p>
+ * 
+ * <h2>Usage</h2>
  * 
  * <p>
  * This generator creates random graphs of any size. Calling {@link #begin()}
@@ -65,6 +73,26 @@ package org.graphstream.algorithm.generator;
  * which case the direction is chosen randomly.
  * </p>
  * 
+ * <h2>Complexity</h2>
+ * 
+ * <p>
+ * At each call to {@link #nextEvents()} at max k operations are run with
+ * k the average degree.
+ * </p>
+ * 
+ * <h2>Example</h2>
+ * 
+ * <pre>
+ * Graph graph = new SingleGraph("Random");
+ * Generator gen = new RandomGenerator();
+ * gen.addSinkg(graph);
+ * gen.begin();
+ * for(int i=0; i<100; i++)
+ * 	gen.nextEvents();
+ * gen.end();
+ * graph.display();
+ * </pre>
+ * 
  * @since 2007
  */
 public class RandomGenerator extends BaseGenerator {
@@ -94,8 +122,7 @@ public class RandomGenerator extends BaseGenerator {
 	 */
 	public RandomGenerator(int averageDegree) {
 		super();
-		enableKeepNodesId();
-		enableKeepEdgesId();
+		setUseInternalGraph(true);
 		this.averageDegree = averageDegree;
 	}
 
@@ -112,8 +139,7 @@ public class RandomGenerator extends BaseGenerator {
 	public RandomGenerator(int averageDegree, boolean directed,
 			boolean randomlyDirectedEdges) {
 		super(directed, randomlyDirectedEdges);
-		enableKeepNodesId();
-		enableKeepEdgesId();
+		setUseInternalGraph(true);
 		this.averageDegree = averageDegree;
 	}
 
@@ -137,8 +163,7 @@ public class RandomGenerator extends BaseGenerator {
 			boolean randomlyDirectedEdges, String nodeAttribute,
 			String edgeAttribute) {
 		super(directed, randomlyDirectedEdges, nodeAttribute, edgeAttribute);
-		enableKeepNodesId();
-		enableKeepEdgesId();
+		setUseInternalGraph(true);
 		this.averageDegree = averageDegree;
 	}
 
@@ -171,13 +196,12 @@ public class RandomGenerator extends BaseGenerator {
 		// to the new node.
 
 		for (int i = 0; i < degree; ++i) {
-			int n = random.nextInt(nodes.size());
-			String otherId = nodes.get(n);
+			String otherId = Toolkit.randomNode(internalGraph, random).getId();
 
 			if (otherId != id) {
 				String edgeId = getEdgeId(id, otherId);
 
-				if (!edges.contains(edgeId))
+				if (internalGraph.getEdge(edgeId) == null)
 					addEdge(edgeId, id, otherId);
 			}
 		}

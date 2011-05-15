@@ -33,14 +33,145 @@ package org.graphstream.algorithm;
 import java.util.*;
 
 import org.graphstream.graph.*;
+import org.graphstream.ui.geom.Point3;
 
 /**
  * Lots of small often used algorithms on graphs.
  * 
  * <p>
- * Use this class with a static import. This should be a trait or a mixin in an
- * advanced language.
+ * This class contains a lot of very small algorithms that could be often useful
+ * with a graph. Most methods take a graph as first argument.
  * </p>
+ * 
+ * <h2>Usage</h2>
+ * 
+ * <h3>Degrees</h3>
+ *
+ * <p>
+ * The {@link #degreeDistribution(Graph)} method allows to obtain an array where
+ * each cell index represents the degree, and the value of the cell the number
+ * of nodes having this degree. Its complexity is O(n) with n the number of nodes.
+ * </p>
+ * 
+ * <p>
+ * The {@link #degreeMap(Graph)} returns an array of nodes sorted by degree
+ * in descending order. The complexity is O(n log(n)) with n the number of nodes.
+ * </p>
+ * 
+ * <p>
+ * The {@link #averageDegree(Graph)} returns the average degree. The complexity
+ * is O(1).
+ * </p>
+ * 
+ * <p>
+ * The {@link #degreeAverageDeviation(Graph)} returns the deviation of the average
+ * degree. The complexity is O(n) with n the number of nodes.
+ * </p>
+ * * 
+ * <h3>Density</h3>
+ * 
+ * <p>
+ * The {@link #density(Graph)} method returns the number of links in the graph
+ * divided by the total number of possible links. The complexity is O(1). 
+ * </p>
+ * 
+ * <h3>Diameter</h3>
+ *
+ * <p>
+ * The {@link #diameter(Graph)} method computes the diameter of the graph.
+ * The diameter of the graph is the largest of all the shortest paths from any node to
+ * any other node.
+ * </p>
+ * 
+ * <p>
+ * Note that this operation can be quite costly, the algorithm used to compute all shortest
+ * paths is the Floyd-Warshall algorithm whose complexity is at worst of O(n^3).
+ * </p>
+ * 
+ * <p>
+ * The returned diameter is not an integer since some graphs have non-integer weights
+ * on edges.
+ * </p>
+ * 
+ * <p>
+ * The {@link #diameter(Graph, String, boolean)} method does the same thing, but
+ * considers that the graph is weighted. The second argument is the weight attribute
+ * name. The third argument indicates if the graph must be considered as directed
+ * or not.
+ * </p>
+ * 
+ * <h3>Clustering coefficient</h3>
+ * 
+ * <p>
+ * The {@link #clusteringCoefficient(Node)} method return the clustering
+ * coefficient for the given node. The complexity if O(d^2) where d is the
+ * degree of the node.
+ * </p>
+ * 
+ * <p>
+ * The {@link #clusteringCoefficients(Graph)} method return the clustering
+ * coefficient of each node of the graph as an array.
+ * </p>
+ * 
+ * <p>
+ * The {@link #averageClusteringCoefficient(Graph)} method return the average
+ * clustering coefficient for the graph.
+ * </p>
+ * 
+ * <h3>Random nodes and edges</h3>
+ *
+ * <p>
+ * The {@link #randomNode(Graph)} returns a node chosen at random in the graph. You can
+ * alternatively pass a ``Random`` instance as parameter with {@link #randomNode(Graph, Random)}.
+ * The complexity depends on the kind of graph.
+ * </p>
+ * 
+ * <p>
+ * The {@link #randomEdge(Graph)} returns an edge chosen at random in the graph. You can
+ * alternatively pass a ``Random`` instance as parameter with {@link #randomEdge(Graph, Random)}.
+ * The {@link #randomEdge(Node)} returns an edge chosen at random within the edge set of
+ * the given node. You can also use {@link #randomEdge(Node, Random)}. To chose a random
+ * edge of a node inside the entering or leaving edge sets only, you can use {@link #randomInEdge(Node)}
+ * or {@link #randomInEdge(Node, Random)}, or {@link #randomOutEdge(Node)} or finally
+ * {@link #randomOutEdge(Node, Random)}. 
+ * </p>
+ * 
+ * <h3>Nodes position</h3>
+ * 
+ * <p>
+ * Extracting nodes position from attributes can be tricky due to the face the positions
+ * can be stored either as separate ``x``, ``y`` and ``z`` attributes or inside ``xy`` or
+ * ``xyz`` attributes.
+ * </p>
+ * 
+ * <p>
+ * To simplify things you can use {@link #nodePosition(Node)} which returns an array of three
+ * doubles, containing the position of the node. You can also use {@link #nodePosition(Graph, String)}
+ * with a graph and a node identifier.
+ * </p>
+ * 
+ * <p>
+ * If you already have an array of doubles with at least three cells you can also use
+ * {@link #nodePosition(Node, double[])} that will store the position in the passed array.
+ * You can as well use {@link #nodePosition(Graph, String, double[])}.
+ * </p>
+ * 
+ * <p>
+ * All these methods can also handle the ``org.graphstream.ui.geom.Point3`` class instead
+ * of arrays of doubles. Methods that use such an array as argument are the same. Methods
+ * that return a ``Point3`` instead of an array are {@link #nodePointPosition(Graph, String)}
+ * and {@link #nodePointPosition(Node)}.
+ * </p>
+ *
+ * <h2>Example</h2>
+ *
+ * <p>
+ * You can use this class with a static import for example:
+ * </p>
+ * 
+ * <pre>
+ * import static org.graphstream.algorithm.Toolkit.*;
+ * </pre>
  */
 public class Toolkit {
 	// Access
@@ -119,23 +250,6 @@ public class Toolkit {
 	}
 
 	/**
-	 * The density is the number of links in the graph divided by the total
-	 * number of possible links.
-	 * 
-	 * @return The density of the graph.
-	 * @complexity O(1)
-	 */
-	public static double density(Graph graph) {
-		float m = (float) graph.getEdgeCount();
-		float n = (float) graph.getNodeCount();
-
-		if (n > 0)
-			return ((2 * m) / (n * (n - 1)));
-
-		return 0;
-	}
-
-	/**
 	 * Returns the value of the degree average deviation of the graph.
 	 * 
 	 * @return The degree average deviation.
@@ -151,6 +265,23 @@ public class Toolkit {
 		}
 
 		return Math.sqrt(sum / graph.getNodeCount());
+	}
+
+	/**
+	 * The density is the number of links in the graph divided by the total
+	 * number of possible links.
+	 * 
+	 * @return The density of the graph.
+	 * @complexity O(1)
+	 */
+	public static double density(Graph graph) {
+		float m = (float) graph.getEdgeCount();
+		float n = (float) graph.getNodeCount();
+
+		if (n > 0)
+			return ((2 * m) / (n * (n - 1)));
+
+		return 0;
 	}
 
 	/**
@@ -728,6 +859,25 @@ public class Toolkit {
 	}
 
 	/**
+	 * Retrieve a node position from its attributes ("x", "y", "z", or "xy", or
+	 * "xyz").
+	 * 
+	 * @param id
+	 *            The node identifier.
+	 * @return A newly allocated point containing the (x,y,z)
+	 *         position of the node, or null if the node is not part of the
+	 *         graph.
+	 */
+	public static Point3 nodePointPosition(Graph graph, String id) {
+		Node node = graph.getNode(id);
+
+		if (node != null)
+			return nodePointPosition(node);
+
+		return null;
+	}
+
+	/**
 	 * Like {@link #nodePosition(Graph,String)} but use an existing node as
 	 * argument.
 	 * 
@@ -742,6 +892,23 @@ public class Toolkit {
 		nodePosition(node, xyz);
 
 		return xyz;
+	}
+
+	/**
+	 * Like {@link #nodePointPosition(Graph,String)} but use an existing node as
+	 * argument.
+	 * 
+	 * @param node
+	 *            The node to consider.
+	 * @return A newly allocated point containing the (x,y,z)
+	 *         position of the node.
+	 */
+	public static Point3 nodePointPosition(Node node) {
+		Point3 pos = new Point3();
+
+		nodePosition(node, pos);
+
+		return pos;
 	}
 
 	/**
@@ -761,6 +928,27 @@ public class Toolkit {
 
 		if (node != null)
 			nodePosition(node, xyz);
+
+		throw new RuntimeException("node '" + id + "' does not exist");
+	}
+	
+	/**
+	 * Like {@link #nodePointPosition(Graph,String)}, but instead of returning a
+	 * newly allocated array, fill up the array given as parameter. This array
+	 * must have at least three cells.
+	 * 
+	 * @param id
+	 *            The node identifier.
+	 * @param pos
+	 *            A point that will receive the node position.
+	 * @throws RuntimeException
+	 *             If the node with the given identifier does not exist.
+	 */
+	public static void nodePosition(Graph graph, String id, Point3 pos) {
+		Node node = graph.getNode(id);
+
+		if (node != null)
+			nodePosition(node, pos);
 
 		throw new RuntimeException("node '" + id + "' does not exist");
 	}
@@ -788,22 +976,61 @@ public class Toolkit {
 				Object oo[] = (Object[]) o;
 
 				if (oo.length > 0 && oo[0] instanceof Number) {
-					xyz[0] = ((Number) oo[0]).floatValue();
+					xyz[0] = ((Number) oo[0]).doubleValue();
 
 					if (oo.length > 1)
-						xyz[1] = ((Number) oo[1]).floatValue();
+						xyz[1] = ((Number) oo[1]).doubleValue();
 					if (oo.length > 2)
-						xyz[2] = ((Number) oo[2]).floatValue();
+						xyz[2] = ((Number) oo[2]).doubleValue();
 				}
 			}
 		} else if (node.hasAttribute("x")) {
-			xyz[0] = (float) node.getNumber("x");
+			xyz[0] = (double) node.getNumber("x");
 
 			if (node.hasAttribute("y"))
-				xyz[1] = (float) node.getNumber("y");
+				xyz[1] = (double) node.getNumber("y");
 
 			if (node.hasAttribute("z"))
-				xyz[2] = (float) node.getNumber("z");
+				xyz[2] = (double) node.getNumber("z");
+		}
+	}
+	
+	/**
+	 * Like {@link #nodePosition(Graph,String,Point3)} but use an existing node
+	 * as argument.
+	 * 
+	 * @param node
+	 *            The node to consider.
+	 * @param pos
+	 *            A point that will receive the node position.
+	 */
+	public static void nodePosition(Node node, Point3 pos) {
+		if (node.hasAttribute("xyz") || node.hasAttribute("xy")) {
+			Object o = node.getAttribute("xyz");
+
+			if (o == null)
+				o = node.getAttribute("xy");
+
+			if (o != null && o instanceof Object[]) {
+				Object oo[] = (Object[]) o;
+
+				if (oo.length > 0 && oo[0] instanceof Number) {
+					pos.x = ((Number) oo[0]).doubleValue();
+
+					if (oo.length > 1)
+						pos.y = ((Number) oo[1]).doubleValue();
+					if (oo.length > 2)
+						pos.z = ((Number) oo[2]).doubleValue();
+				}
+			}
+		} else if (node.hasAttribute("x")) {
+			pos.x = (double) node.getNumber("x");
+
+			if (node.hasAttribute("y"))
+				pos.y = (double) node.getNumber("y");
+
+			if (node.hasAttribute("z"))
+				pos.z = (double) node.getNumber("z");
 		}
 	}
 

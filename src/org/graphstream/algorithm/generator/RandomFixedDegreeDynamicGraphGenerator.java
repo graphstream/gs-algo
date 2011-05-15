@@ -30,6 +30,8 @@
  */
 package org.graphstream.algorithm.generator;
 
+import org.graphstream.algorithm.Toolkit;
+
 /**
  * This is a graph generator that generates dynamic random graphs.
  * 
@@ -147,8 +149,7 @@ public class RandomFixedDegreeDynamicGraphGenerator extends BaseGenerator {
 	 */
 	public RandomFixedDegreeDynamicGraphGenerator(int nbVertices,
 			double meanDegreeLimit, double nervousness) {
-		enableKeepNodesId();
-		enableKeepEdgesId();
+		setUseInternalGraph(true);
 
 		this.nbVertices = nbVertices;
 		this.meanDegreeLimit = meanDegreeLimit;
@@ -159,7 +160,8 @@ public class RandomFixedDegreeDynamicGraphGenerator extends BaseGenerator {
 	 * This method computes the mean degree of the graph.
 	 */
 	public double meanDegree() {
-		return 2.0 * edges.size() / (double) nodes.size();
+		return 2.0 * internalGraph.getEdgeCount()
+				/ (double) internalGraph.getNodeCount();
 	}
 
 	protected String getEdgeId(String src, String trg) {
@@ -190,15 +192,16 @@ public class RandomFixedDegreeDynamicGraphGenerator extends BaseGenerator {
 
 		sendStepBegins(sourceId, step);
 
-		nbSuppressions = (int) (random.nextFloat() * (nodes.size() * nervousness));
+		nbSuppressions = (int) (random.nextFloat() * (internalGraph
+				.getNodeCount() * nervousness));
 
 		for (int r = 1; r <= nbSuppressions; r++) {
-			dead = nodes.get(random.nextInt(nodes.size()));
+			dead = Toolkit.randomNode(internalGraph, random).getId();
 			delNode(dead);
 		}
 
-		nbCreations = (int) (random.nextFloat() * ((nbVertices - nodes.size())
-				* Math.log(step) / Math.log(step + deltaStep)));
+		nbCreations = (int) (random.nextFloat() * ((nbVertices - internalGraph
+				.getNodeCount()) * Math.log(step) / Math.log(step + deltaStep)));
 
 		for (int c = 1; c <= nbCreations; c++) {
 			String nodeId = String.format("%d", currentNodeId++);
@@ -208,20 +211,21 @@ public class RandomFixedDegreeDynamicGraphGenerator extends BaseGenerator {
 
 		double degreMoyen = meanDegree();
 
-		nbCreationsEdges = (int) (random.nextFloat() * (((meanDegreeLimit - degreMoyen) * (nodes
-				.size() / 2)) * Math.log(step) / Math.log(step + deltaStep)));
+		nbCreationsEdges = (int) (random.nextFloat() * (((meanDegreeLimit - degreMoyen) * (internalGraph
+				.getNodeCount() / 2)) * Math.log(step) / Math.log(step
+				+ deltaStep)));
 
-		if (nodes.size() > 1) {
+		if (internalGraph.getNodeCount() > 1) {
 			for (int c = 1; c <= nbCreationsEdges; c++) {
 				do {
-					source = nodes.get(random.nextInt(nodes.size()));
-					dest = nodes.get(random.nextInt(nodes.size()));
+					source = Toolkit.randomNode(internalGraph, random).getId();
+					dest = Toolkit.randomNode(internalGraph, random).getId();
 				} while (source.equals(dest));
 
 				String idEdge = getEdgeId(source, dest);
 
-				while (edges.contains(idEdge) || source.equals(dest)) {
-					dest = nodes.get(random.nextInt(nodes.size()));
+				while (internalGraph.getEdge(idEdge) != null || source.equals(dest)) {
+					dest = Toolkit.randomNode(internalGraph, random).getId();
 					idEdge = getEdgeId(source, dest);
 				}
 

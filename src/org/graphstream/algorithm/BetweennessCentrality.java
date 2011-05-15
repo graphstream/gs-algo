@@ -42,65 +42,122 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
 /**
- * Compute the "betweeness" centrality of each vertex of a given graph.
+ * Compute the "betweenness" centrality of each vertex of a given graph.
  * 
+ * <p>
+ * The betweenness centrality counts how many shortest paths between each
+ * pair of nodes of the graph pass by a node. It does it for all nodes of
+ * the graph.
+ * </p>
+ * 
+ * <h2>Usage</h2>
+ * 
+ * <p>
  * This algorithm, by default, stores the centrality values for each edge inside
  * the "Cb" attribute. You can change this attribute name at construction time.
+ * </p>
  * 
+ * <p>
  * This algorithm does not accept multi-graphs (p-graphs with p>1) yet.
+ * </p>
  * 
+ * <p>
  * This algorithm does not take into account edge direction yet.
+ * </p>
  * 
- * By default the algorithm performs on a graph considered as not weighted with
- * complexity O(nm). You can specify that the graph edges contain weights in
- * which case the algorithm complexity is O(nm + n^2 log n). By default the
+ * <p>
+ * By default the
  * weight attribute name is "weight", you can activate the weights using
  * {@link #setWeighted()}. You can change the weight attribute name using the
  * dedicated constructor or the {@link #setWeightAttributeName(String)} method.
  * This method implicitly enable weights in the computation. Use
  * {@link #setUnweighted()} to disable weights.
+ * </p>
  * 
+ * <p>
  * The result of the computation is stored on each node inside the "Cb"
  * attribute. You can change the name of this attribute using the dedicated
  * constructor or the {@link #setCentralityAttributeName(String)} method.
+ * </p>
  * 
+ * <p>
  * As the computing of centrality can take a lot of time, you can provide a
  * progress 'callback' to get notified each time the algorithm finished
  * processing a node (however the centrality values are usable only when the
  * algorithm finished). See the {@link #registerProgressIndicator(Progress)}
  * method.
+ * </p>
  * 
+ * <h2>Complexity</h2>
+ * 
+ * <p>
+ * By default the algorithm performs on a graph considered as not weighted with
+ * complexity O(nm). You can specify that the graph edges contain weights in
+ * which case the algorithm complexity is O(nm + n^2 log n).
+ * </p>
+ * 
+ * <h2>Example</h2>
+ * 
+ * <pre>
+ * 		Graph graph = new SingleGraph("Betweenness Test");
+ * 		
+ * 		//    E----D  AB=1, BC=5, CD=3, DE=2, BE=6, EA=4  
+ *		//   /|    |  Cb(A)=4
+ *		//  / |    |  Cb(B)=2
+ *		// A  |    |  Cb(C)=0
+ *		//  \ |    |  Cb(D)=2
+ *		//   \|    |  Cb(E)=4
+ *		//    B----C
+ *		
+ *		Node A = graph.addNode("A");
+ *		Node B = graph.addNode("B");
+ *		Node E = graph.addNode("E");
+ *		Node C = graph.addNode("C");
+ *		Node D = graph.addNode("D");
+ *
+ *		graph.addEdge("AB", "A", "B");
+ *		graph.addEdge("BE", "B", "E");
+ *		graph.addEdge("BC", "B", "C");
+ *		graph.addEdge("ED", "E", "D");
+ *		graph.addEdge("CD", "C", "D");
+ *		graph.addEdge("AE", "A", "E");
+ *		
+ *		bcb.setWeight(A, B, 1);
+ *		bcb.setWeight(B, E, 6);
+ *		bcb.setWeight(B, C, 5);
+ *		bcb.setWeight(E, D, 2);
+ *		bcb.setWeight(C, D, 3);
+ *		bcb.setWeight(A, E, 4);
+ *
+ *		BetweennessCentrality bcb = new BetweennessCentrality();
+ *		bcb.setWeightAttributeName("weight");
+ *		bcb.init(graph);
+ *		bcb.compute();
+ *		
+ *		System.out.println("A="+ graph.getNode("A").getAttribute("Cb"));
+ *		System.out.println("B="+ graph.getNode("B").getAttribute("Cb"));
+ *		System.out.println("C="+ graph.getNode("C").getAttribute("Cb"));
+ *		System.out.println("D="+ graph.getNode("D").getAttribute("Cb"));
+ *		System.out.println("E="+ graph.getNode("E").getAttribute("Cb"));
+ * </pre>
+ * 
+ * <h2>Reference</h2>
+ *
+ * <p>
  * This is based on the algorithm described in "A Faster Algorithm for
  * Betweenness Centrality", Ulrik Brandes, Journal of Mathematical Sociology,
- * 2001:
- * <ul>
- * <li>title = "A Faster Algorithm for Betweenness Centrality",</li>
- * <li>author = "Ulrik Brandes",</li>
- * <li>journal = "Journal of Mathematical Sociology",</li>
- * <li>year = "2001",</li>
- * <li>volume = "25",</li>
- * <li>number = "2",</li>
- * <li>pages = "163 - 177",</li>
- * <li>doi = "DOI: 10.1080/0022250X.2001.9990249"</li>
- * </ul>
+ * 2001, and in
+ * "On variants of shortest-path betweenness centrality and their generic computation",
+ * of the same author, 2008.
+ * </p>
  * 
- * And in
- * "On variants of shortest-path betweenness centrality and their generic computation"
- * , of the same author, 2008 :
- * <ul>
- * <li>title =
- * "On variants of shortest-path betweenness centrality and their generic computation"
- * ,</li>
- * <li>author = "Ulrik Brandes",</li>
- * <li>journal = "Social Networks",</li>
- * <li>volume = "30",</li>
- * <li>number = "2",</li>
- * <li>pages = "136 - 145",</li>
- * <li>year = "2008",</li>
- * <li>note = "",</li>
- * <li>issn = "0378-8733",</li>
- * <li>doi = "DOI: 10.1016/j.socnet.2007.11.001",</li>
- * </ul>
+ * @reference A Faster Algorithm for Betweenness Centrality, Ulrik Brandes,
+ * Journal of Mathematical Sociology, 2001, 25:2, pp. 163 - 177",
+ * "DOI: 10.1080/0022250X.2001.9990249"
+ * 
+ * @reference On variants of shortest-path betweenness centrality and their generic computation,
+ * Ulrik Brandes, Social Networks, vol 30:2", pp. 136 - 145, 2008,
+ * issn 0378-8733, "DOI: 10.1016/j.socnet.2007.11.001".
  */
 public class BetweennessCentrality implements Algorithm {
 	// Attribute

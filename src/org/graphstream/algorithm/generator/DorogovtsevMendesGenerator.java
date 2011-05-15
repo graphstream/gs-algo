@@ -32,14 +32,18 @@ package org.graphstream.algorithm.generator;
 
 import java.util.Random;
 
+import org.graphstream.algorithm.Toolkit;
+import org.graphstream.graph.Edge;
+
 /**
  * Dorogovtsev - Mendes graph generator.
  * 
  * <p>
- * Generates a graph using the Dorogovtsev - Mendes algorithm. This starts by
- * creating three nodes and tree edges, making a triangle, and then add one node
- * at a time. Each time a node is added, an edge is chosen randomly and the node
- * is connected to the two extremities of this edge.
+ * This generator creates graph using the Dorogovtsev - Mendes algorithm. This
+ * starts by creating three nodes and tree edges, making a triangle, and then
+ * add one node at a time. Each time a node is added, an edge is chosen randomly
+ * and the node is connected via two new edges to the two extremities of the
+ * chosen edge.
  * </p>
  * 
  * <p>
@@ -49,21 +53,45 @@ import java.util.Random;
  * </p>
  * 
  * <p>
- * This algorithm often generates graphs that seem more suitable than the simple
- * preferential attachment implemented in the PreferentialAttachmentGenerator
- * class (despite the fact more complex and useful preferential attachment
- * generators could be realized in the future).
+ * The Dorogovtsev - Mendes algorithm always produce planar graphs.
  * </p>
  * 
- * </p> The Dorogovtsev - Mendes algorithm always produce planar graphs. </p>
+ * <h2>Usage</h2>
  * 
  * <p>
  * The more this generator is iterated, the more nodes are generated. It can
- * therefore generate trees of any size.
+ * therefore generate trees of any size. A each call to {@link #nextEvents()},
+ * a new node and two edges are added.
+ * </p>
+ * 
+ * <h2>Complexity</h2>
+ * 
+ * At each step only one node and two edges are added.
+ * 
+ * <h2>Example</h2>
+ * 
+ * <pre>
+ * Graph graph = new SingleGraph("Dorogovtsev mendes");
+ * Generator gen = new DorogovtsevMendesGenerator();
+ * gen.addSink(graph);
+ * gen.begin();
+ * for(int i=0; i<100; i++) {
+ * 		gen.nextEvents();
+ * }
+ * gen.end();
+ * graph.display();
+ * </pre>
+ * 
+ * <h2>References</h2>
+ * 
+ * <p>
+ * This kind of graph is described, among others, in the "Evolution of networks"
+ * by Dorogovtsev and Mendes.
  * </p>
  * 
  * @reference S. N. Dorogovtsev and J. F. F. Mendes, "Evolution of networks", in
- *            Adv. Phys, 2002, 1079--1187
+ *            Adv. Phys. 51, 2002, 1079--1187, 
+ *			  arXiv:cond-mat/0106144v2
  * 
  * @since 20070117
  */
@@ -77,7 +105,7 @@ public class DorogovtsevMendesGenerator extends BaseGenerator {
 	 * Create a new generator with default random object.
 	 */
 	public DorogovtsevMendesGenerator() {
-		keepEdgesId = true;
+		setUseInternalGraph(true);
 	}
 
 	/**
@@ -106,11 +134,8 @@ public class DorogovtsevMendesGenerator extends BaseGenerator {
 		addNode("2");
 
 		addEdge("0-1", "0", "1");
-		edges.add("0-1");
 		addEdge("1-2", "1", "2");
-		edges.add("1-2");
 		addEdge("2-0", "2", "0");
-		edges.add("2-0");
 
 		nodeNames = 3;
 	}
@@ -123,11 +148,10 @@ public class DorogovtsevMendesGenerator extends BaseGenerator {
 	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
 	 */
 	public boolean nextEvents() {
-		int rand = random.nextInt(edges.size());
 		String name = Integer.toString(nodeNames++);
-		String edge = edges.get(rand);
-		String n0 = edge.substring(0, edge.indexOf('-'));
-		String n1 = edge.substring(edge.indexOf('-') + 1);
+		Edge edge = Toolkit.randomEdge(internalGraph, random);
+		String n0 = edge.getNode0().getId();
+		String n1 = edge.getNode1().getId();
 
 		addNode(name);
 

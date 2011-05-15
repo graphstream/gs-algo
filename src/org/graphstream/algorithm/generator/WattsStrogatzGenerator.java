@@ -10,8 +10,53 @@ import static java.lang.Math.*;
  * </p>
  * 
  * <p>
- * This generator is based on the Watts-Strogatz model.
+ * This model
+ * generates a ring of n nodes where each node is connected to its k nearest
+ * neighbours in the ring (k/2 on each side, which means k must be even).
+ * Then it process each node of the ring in order following the ring, and "rewiring"
+ * each of their edges toward the not yet processed nodes with randomly chosen nodes
+ * with a probability beta. 
+ * </p>
+ *
+ * <h2>Usage</h2>
+ *
+ * <p>
+ * You must provide values for n, k and beta at construction time. You must ensure
+ * that k is event, that n >> k >> log(n) >> 1. Furthermore, beta being a probability
+ * it must be between 0 and 1.
+ * </p>
  * 
+ * <p>
+ * By default, the generator will produce a placement for nodes using the ``xyz``
+ * attribute.
+ * </p>
+ * 
+ * <p>
+ * This generator will produce the ring of nodes once {@link #begin()} has been
+ * called. Then calling {@link #nextEvents()} will rewire one node at a time
+ * return true until each node is processed, in which case it returns false.
+ * You must then call {@link #end()}. 
+ * </p>
+ * 
+ * <h2>Example</h2>
+ * 
+ * <pre>
+ * Graph graph = new SingleGraph("This is a small world!");
+ * Generator gen = new WattsStrogatzGenerator(20, 2, 0.5);
+ * 
+ * gen.addSink(graph);
+ * gen.begin();
+ * while(gen.nextEvents()) {}
+ * gen.end();
+ * 
+ * graph.display(false); // Node position is provided.
+ * </pre>
+ * 
+ * <h2>Reference</h2>
+ * 
+ * <p>
+ * This generator is based on the Watts-Strogatz model.
+ * </p>
  * 
  * @reference Watts, D.J. and Strogatz, S.H.
  *            "Collective dynamics of 'small-world' networks". Nature 393
@@ -20,108 +65,119 @@ import static java.lang.Math.*;
 public class WattsStrogatzGenerator extends BaseGenerator {
 	/** The number of nodes to generate. */
 	protected int n;
-	
+
 	/** Base degree of each node. */
 	protected int k;
-	
+
 	/** Probability to "rewire" an edge. */
 	protected double beta;
-	
+
 	/** Current rewired node, used to allo nextEvents() iteration. */
 	protected int current;
-	
+
 	/**
 	 * New Watts-Strogatz generator.
-	 * @param n The number of nodes to generate.
-	 * @param k The base degree of each node.
-	 * @param beta Probability to "rewire" an edge.
+	 * 
+	 * @param n
+	 *            The number of nodes to generate.
+	 * @param k
+	 *            The base degree of each node.
+	 * @param beta
+	 *            Probability to "rewire" an edge.
 	 */
 	public WattsStrogatzGenerator(int n, int k, double beta) {
-		keepNodesId = true;
-		keepEdgesId = true;
-		
-		if(n<=k)
+		setUseInternalGraph(true);
+
+		if (n <= k)
 			throw new RuntimeException("parameter n must be >> k");
-		if(beta<0 || beta>1)
+		if (beta < 0 || beta > 1)
 			throw new RuntimeException("parameter beta must be between 0 and 1");
-		if(k%2!=0)
+		if (k % 2 != 0)
 			throw new RuntimeException("parameter k must be even");
-		if(k<2)
+		if (k < 2)
 			throw new RuntimeException("parameter k must be >= 2");
-		
-		this.n    = n;
-		this.k    = k;
+
+		this.n = n;
+		this.k = k;
 		this.beta = beta;
 	}
-	
+
 	public void begin() {
-		double step = (2*PI)/n;
+		double step = (2 * PI) / n;
 		double x = 0;
-		
-		for(int i=0; i<n; i++) {
+
+		for (int i = 0; i < n; i++) {
 			addNode(nodeId(i), cos(x), sin(x));
 			x += step;
 		}
-		
+
 		// Add the circle links.
-		
-		int kk = k/2;
-		
-		for(int i=0; i<n; i++) {
-			for(int j=1; j<=kk; j++) {
-				int jj = (i+j)%n;
-				addEdge(edgeId(i, jj),nodeId(i),nodeId(jj));
+
+		int kk = k / 2;
+
+		for (int i = 0; i < n; i++) {
+			for (int j = 1; j <= kk; j++) {
+				int jj = (i + j) % n;
+				addEdge(edgeId(i, jj), nodeId(i), nodeId(jj));
 			}
 		}
-		
+
 		current = 0;
 	}
 
 	public boolean nextEvents() {
-		int kk = k/2;
-		
-		if(current < n) {
-			for(int j=1; j<=kk; j++) {
-				int jj = (current+j)%n;
-				
-				if(random.nextDouble() < beta) {
+		int kk = k / 2;
+
+		if (current < n) {
+			for (int j = 1; j <= kk; j++) {
+				int jj = (current + j) % n;
+
+				if (random.nextDouble() < beta) {
 					delEdge(edgeId(current, jj));
 					int newTarget = chooseNewNode(current, jj);
-					addEdge(edgeId(current, newTarget), nodeId(current), nodeId(newTarget));
+					String edgeId = edgeId(current, newTarget);
+
+					if (internalGraph.getEdge(edgeId) == null)
+						addEdge(edgeId, nodeId(current), nodeId(newTarget));
 				}
 			}
-			
+
 			current += 1;
-			
+
 			return true;
 		} else {
 			return false;
 		}
 	}
 
-	
 	@Override
 	public void end() {
 		super.end();
 	}
-	
+
 	protected String nodeId(int id) {
 		return String.format("%d", id);
 	}
-	
+
 	protected String edgeId(int from, int to) {
+		if (from > to) {
+			to += from;
+			from = to - from;
+			to -= from;
+		}
+
 		return String.format("%d_%d", from, to);
 	}
-	
+
 	protected int chooseNewNode(int avoid, int old) {
 		int newId = 0;
 		boolean exists = true;
-		
+
 		do {
-			newId  = random.nextInt(n);
-			exists = edgesData.get(edgeId(avoid, newId)) != null; 
-		} while(newId == avoid || exists);
-		
+			newId = random.nextInt(n);
+			exists = internalGraph.getEdge(edgeId(avoid, newId)) != null;
+		} while (newId == avoid || exists);
+
 		return newId;
 	}
 }

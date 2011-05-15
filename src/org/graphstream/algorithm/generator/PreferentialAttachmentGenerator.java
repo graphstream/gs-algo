@@ -33,8 +33,12 @@ package org.graphstream.algorithm.generator;
 import java.util.ArrayList;
 
 /**
- * Scale-free graph (tree) generator using the preferential attachment rule as
+ * Scale-free tree generator using the preferential attachment rule as
  * defined in the Barabási-Albert model.
+ * 
+ * <p>
+ * THIS GENERATOR IS DEPRECATED, USE THE {@link BarabasiAlbertGenerator} INSTEAD.
+ * </p>
  * 
  * <p>
  * This is a very simple graph generator that generates a tree using the
@@ -54,6 +58,7 @@ import java.util.ArrayList;
  * 
  * @since 20061128
  */
+@Deprecated
 public class PreferentialAttachmentGenerator extends BaseGenerator {
 	/**
 	 * Degree of each node.
