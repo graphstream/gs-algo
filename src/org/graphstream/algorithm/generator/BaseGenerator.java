@@ -67,9 +67,9 @@ import org.graphstream.stream.SourceBase;
  * @since 2007
  */
 public abstract class BaseGenerator extends SourceBase implements Generator {
-	
+
 	// Attributes
-	
+
 	/**
 	 * Are edges directed ?
 	 */
@@ -130,6 +130,11 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	 */
 	protected Graph internalGraph;
 
+	/**
+	 * Used to created unique generatorId.
+	 */
+	private volatile static int generatorId;
+
 	// Constructors
 
 	/**
@@ -151,7 +156,7 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	 *            randomly.
 	 */
 	public BaseGenerator(boolean directed, boolean randomlyDirectedEdges) {
-		super("generator");
+		super(String.format("generator-08x", generatorId++));
 		setDirectedEdges(directed, randomlyDirectedEdges);
 
 		nodeAttributeRange[0] = 0;
