@@ -224,6 +224,22 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 		 * Number of entities that jump at each step.
 		 */
 		protected int jumpCount = 0, goCount = 0, waitCount = 0;
+		
+		public String getPassesAttribute() {
+			return passesAttribute;
+		}
+		
+		public String getWeightAttribute() {
+			return weightAttribute;
+		}
+		
+		public Random getRandom() {
+			return random;
+		}
+		
+		public int getEntityMemory() {
+			return entityMemory;
+		}
 	}
 
 	/**
