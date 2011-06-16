@@ -116,7 +116,7 @@ import org.graphstream.stream.SinkAdapter;
  * 
  * <pre>
  * info.getShortestPathTo("A")
- * 
+ * </pre>
  * 
  * 
  * <h2>Example</h2>
