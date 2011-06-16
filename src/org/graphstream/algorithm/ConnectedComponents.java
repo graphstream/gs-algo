@@ -481,10 +481,10 @@ public class ConnectedComponents extends SinkAdapter implements
 				connectedComponents++;
 
 				int newIdentifier = addIdentifier();
-				computeConnectedComponent(v, newIdentifier, null);
+				int size = computeConnectedComponent(v, newIdentifier, null);
 
 				// Initial size count of all connected components
-				connectedComponentsSize.put(newIdentifier, 1);
+				connectedComponentsSize.put(newIdentifier, size);
 			}
 		}
 
