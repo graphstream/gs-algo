@@ -2,9 +2,8 @@ package org.graphstream.algorithm;
 
 import java.util.ArrayList;
 
-
 public class FibonacciHeap<K extends Comparable<K>, V> {
-	
+
 	public class Node {
 		protected K key;
 		protected V value;
@@ -14,7 +13,7 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 		protected Node right;
 		protected int degree;
 		protected boolean lostChild;
-		
+
 		protected Node(K key, V value) {
 			this.key = key;
 			this.value = value;
@@ -23,7 +22,7 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 			degree = 0;
 			lostChild = false;
 		}
-		
+
 		protected void clear() {
 			parent = null;
 			if (child != null) {
@@ -35,7 +34,7 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 			if (right != null)
 				right.clear();
 		}
-		
+
 		protected void concatLists(Node y) {
 			Node r = right;
 			Node l = y.left;
@@ -44,7 +43,7 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 			l.right = r;
 			r.left = l;
 		}
-		
+
 		protected void addChild(Node y) {
 			y.parent = this;
 			y.left = y.right = y;
@@ -55,34 +54,34 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 			else
 				child.concatLists(y);
 		}
-		
+
 		public K getKey() {
 			return key;
 		}
-		
+
 		public V getValue() {
 			return value;
 		}
 	}
-	
+
 	protected Node min;
 	protected int size;
 	protected ArrayList<Node> degList;
-	
+
 	public FibonacciHeap() {
 		min = null;
 		size = 0;
 		degList = new ArrayList<Node>();
 	}
-	
+
 	public boolean isEmpty() {
 		return size == 0;
 	}
-	
+
 	public int size() {
 		return size;
 	}
-	
+
 	public void clear() {
 		if (!isEmpty()) {
 			min.clear();
@@ -90,7 +89,7 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 			size = 0;
 		}
 	}
-	
+
 	public Node add(K key, V value) {
 		Node node = new Node(key, value);
 		if (isEmpty())
@@ -103,7 +102,7 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 		size++;
 		return node;
 	}
-	
+
 	public void addAll(FibonacciHeap<K, V> heap) {
 		if (isEmpty())
 			min = heap.min;
@@ -116,15 +115,15 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 		heap.min = null;
 		heap.size = 0;
 	}
-	
+
 	public K getMinKey() {
 		return min.key;
 	}
-	
+
 	public V getMinValue() {
 		return min.value;
 	}
-	
+
 	public V extractMin() {
 		Node z = min;
 		Node x = z.child;
@@ -135,7 +134,7 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 			} while (x != z.child);
 			z.concatLists(x);
 			z.child = null;
-		}		
+		}
 		if (z == z.right)
 			min = null;
 		else {
@@ -148,7 +147,7 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 		size--;
 		return z.value;
 	}
-	
+
 	protected void consolidate() {
 		Node w, x, y, t;
 		int d;
@@ -190,10 +189,11 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 				}
 			}
 	}
-	
+
 	public void decreaseKey(Node x, K key) {
 		if (key.compareTo(x.key) > 0)
-			throw new IllegalArgumentException("The new key must be less than the old");
+			throw new IllegalArgumentException(
+					"The new key must be less than the old");
 		x.key = key;
 		Node y = x.parent;
 		if (y != null && x.key.compareTo(y.key) < 0) {
@@ -203,7 +203,7 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 		if (key.compareTo(min.key) < 0)
 			min = x;
 	}
-	
+
 	protected void detach(Node x) {
 		Node y = x.parent;
 		y.degree--;
@@ -218,18 +218,17 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 		}
 		min.concatLists(x);
 		x.parent = null;
-		x.lostChild = false;		
+		x.lostChild = false;
 	}
-	
+
 	protected void multiDetach(Node x) {
-		if (x.parent == null) 
+		if (x.parent == null)
 			return;
 		if (x.lostChild) {
 			Node z = x.parent;
 			detach(x);
 			multiDetach(z);
-		}
-		else
+		} else
 			x.lostChild = true;
 	}
 }

@@ -66,7 +66,7 @@ import org.graphstream.graph.Path;
  * <li>Instantiation using one of the constructors with appropriate parameters</li>
  * <li>Initialization of the algorithm using {@link #init(Graph)}</li>
  * <li>Computation of the shortest paths using {@link #compute()}</li>
- * <li>Retrieving the solution using solution access methods</li>
+ * <li>Retrieving the solution using differernt solution access methods</li>
  * <li>Cleaning up using {@link #clear()}</li>
  * </ul>
  * 
@@ -152,7 +152,6 @@ public class DijkstraFH implements Algorithm {
 	protected String lengthAttribute;
 	protected Graph graph;
 	protected Node source;
-	protected boolean validSolution;
 
 	// *** Helpers ***
 
@@ -174,12 +173,6 @@ public class DijkstraFH implements Algorithm {
 		if (element == Element.edge)
 			return 0;
 		return lengthAttribute == null ? 1 : source.getNumber(lengthAttribute);
-	}
-
-	protected void checkValidSolution() {
-		if (!validSolution)
-			throw new IllegalStateException(
-					"No valid solution. Call compute() first.");
 	}
 
 	// *** Constructors ***
@@ -213,7 +206,6 @@ public class DijkstraFH implements Algorithm {
 		this.lengthAttribute = lengthAttribute;
 		graph = null;
 		source = null;
-		validSolution = false;
 	}
 
 	/**
@@ -238,10 +230,10 @@ public class DijkstraFH implements Algorithm {
 
 	/**
 	 * Dijkstra's algorithm computes shortest paths from a given source node to
-	 * all nodes in a graph.
+	 * all nodes in a graph. This method returns the source node.
 	 * 
 	 * @return the source node
-	 * @see {@link #setSource(Node)}
+	 * @see #setSource(Node)
 	 */
 	@SuppressWarnings("unchecked")
 	public <T extends Node> T getSource() {
@@ -254,10 +246,10 @@ public class DijkstraFH implements Algorithm {
 	 * 
 	 * @param source
 	 *            The new source node.
+	 * @see #getSource()
 	 */
 	public void setSource(Node source) {
 		this.source = source;
-		validSolution = false;
 	}
 
 	/**
@@ -274,21 +266,34 @@ public class DijkstraFH implements Algorithm {
 			}
 			node.removeAttribute(resultAttribute);
 		}
-		validSolution = false;
 	}
 
 	// *** Methods of Algorithm interface ***
 
-	/**
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @see org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
+	 * @see
+	 * org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
 	 */
 	@Override
 	public void init(Graph graph) {
 		this.graph = graph;
-		validSolution = false;
 	}
 
+	/**
+	 * Computes the shortest paths from the source node to all nodes in the
+	 * graph.
+	 * 
+	 * @throws IllegalStateException
+	 *             if {@link #init(Graph)} or {@link #setSource(Node)} have not
+	 *             been called before or if elements with negative lengths are
+	 *             discovered.
+	 * @see org.graphstream.algorithm.Algorithm#compute()
+	 * @complexity O(<em>m</em> + <em>n</em>log<em>n</em>) where <em>m</em> is
+	 *             the number of edges and <em>n</em> is the number of nodes in
+	 *             the graph.
+	 */
 	@Override
 	public void compute() {
 		// check if computation can start
@@ -328,7 +333,6 @@ public class DijkstraFH implements Algorithm {
 				}
 			}
 		}
-		validSolution = true;
 	}
 
 	// *** Iterators ***
@@ -337,7 +341,6 @@ public class DijkstraFH implements Algorithm {
 		protected Node nextNode;
 
 		protected NodeIterator(Node target) {
-			checkValidSolution();
 			nextNode = Double.isInfinite(getPathLength(target)) ? null : target;
 		}
 
@@ -368,7 +371,6 @@ public class DijkstraFH implements Algorithm {
 		protected T nextEdge;
 
 		protected EdgeIterator(Node target) {
-			checkValidSolution();
 			nextNode = target;
 			nextEdge = getEdgeFromParent(nextNode);
 		}
@@ -403,13 +405,12 @@ public class DijkstraFH implements Algorithm {
 		protected void extendPathStep() {
 			int last = nodes.size() - 1;
 			Node v = nodes.get(last);
-			Data dataV = v.getAttribute(resultAttribute);
+			double lengthV = getPathLength(v);
 			Iterator<Edge> it = iterators.get(last);
 			while (it.hasNext()) {
 				Edge e = it.next();
 				Node u = e.getOpposite(v);
-				Data dataU = u.getAttribute(resultAttribute);
-				if (dataU.distance + getLength(e, v) == dataV.distance) {
+				if (getPathLength(u) + getLength(e, v) == lengthV) {
 					nodes.add(u);
 					iterators.add(u.getEnteringEdgeIterator());
 					return;
@@ -437,7 +438,6 @@ public class DijkstraFH implements Algorithm {
 		}
 
 		public PathIterator(Node target) {
-			checkValidSolution();
 			nodes = new ArrayList<Node>();
 			iterators = new ArrayList<Iterator<Edge>>();
 			if (Double.isInfinite(getPathLength(target))) {
@@ -485,7 +485,6 @@ public class DijkstraFH implements Algorithm {
 		}
 
 		protected TreeIterator() {
-			checkValidSolution();
 			nodeIt = graph.getNodeIterator();
 			findNextEdge();
 		}
@@ -513,13 +512,30 @@ public class DijkstraFH implements Algorithm {
 
 	// *** Methods to access the solution ***
 
+	/**
+	 * Returns the length of the shortest path from the source node to a given
+	 * target node.
+	 * 
+	 * @param target
+	 *            A node
+	 * @return the length of the shortest path or
+	 *         {@link java.lang.Double#POSITIVE_INFINITY} if there is no path
+	 *         from the source to the target
+	 * @complexity O(1)
+	 */
 	public double getPathLength(Node target) {
-		checkValidSolution();
 		return target.<Data> getAttribute(resultAttribute).distance;
 	}
 
+	/**
+	 * Dijkstra's algorithm produces a shortest path tree rooted in the source
+	 * node. This method returns the total length of the tree.
+	 * 
+	 * @return the length of the shortest path tree
+	 * @complexity O(<em>n</em>) where <em>n</em> is the number of nodes is the
+	 *             graph.
+	 */
 	public double getTreeLength() {
-		checkValidSolution();
 		double length = getSourceLength();
 		for (Edge edge : getTreeEdges()) {
 			Node node = edge.getNode0();
@@ -530,25 +546,74 @@ public class DijkstraFH implements Algorithm {
 		return length;
 	}
 
+	/**
+	 * Returns the edge between the target node and the previous node in the
+	 * shortest path from the source to the target. This is also the edge
+	 * connecting the target to its parent in the shortest path tree.
+	 * 
+	 * @param target
+	 *            a node
+	 * @return the edge between the target and its predecessor in the shortest
+	 *         path, {@code null} if there is no path from the source to the
+	 *         target or if the target and the source are the same node.
+	 * @see #getParent(Node)
+	 * @complexity O(1)
+	 */
 	@SuppressWarnings("unchecked")
 	public <T extends Edge> T getEdgeFromParent(Node target) {
-		checkValidSolution();
 		return (T) target.<Data> getAttribute(resultAttribute).edgeFromParent;
 	}
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * Returns the node preceding the target in the shortest path from the
+	 * source to the target. This node is the parent of the target in the
+	 * shortest path tree.
+	 * 
+	 * @param target
+	 *            a node
+	 * @return the predecessor of the target in the shortest path, {@code null}
+	 *         if there is no path from the source to the target or if the
+	 *         target and the source are the same node.
+	 * @see #getEdgeFromParent(Node)
+	 * @complexity O(1)
+	 */
 	public <T extends Node> T getParent(Node target) {
-		checkValidSolution();
 		Edge edge = getEdgeFromParent(target);
 		if (edge == null)
 			return null;
-		return (T) edge.getOpposite(target);
+		return edge.getOpposite(target);
 	}
 
+	/**
+	 * This iterator traverses the nodes on the shortest path from the source
+	 * node to a given target node. The nodes are traversed in reverse order:
+	 * the target node first, then its predecessor, ... and finally the source
+	 * node. If there is no path from the source to the target, no nodes are
+	 * traversed. This iterator does not support
+	 * {@link java.util.Iterator#remove()}.
+	 * 
+	 * @param target
+	 *            a node
+	 * @return an iterator on the nodes of the shortest path from the source to
+	 *         the target
+	 * @see #getPathNodes(Node)
+	 * @complexity Each call of {@link java.util.Iterator#next()} of this
+	 *             iterator takes O(1) time
+	 */
 	public <T extends Node> Iterator<T> getPathNodesIterator(Node target) {
 		return new NodeIterator<T>(target);
 	}
 
+	/**
+	 * An iterable view of the nodes on the shortest path from the source node
+	 * to a given target node. Uses {@link #getPathNodesIterator(Node)}.
+	 * 
+	 * @param target
+	 *            a node
+	 * @return an iterable view of the nodes on the shortest path from the
+	 *         source to the target
+	 * @see #getPathNodesIterator(Node)
+	 */
 	public <T extends Node> Iterable<T> getPathNodes(final Node target) {
 		return new Iterable<T>() {
 			@Override
@@ -558,10 +623,37 @@ public class DijkstraFH implements Algorithm {
 		};
 	}
 
+	/**
+	 * This iterator traverses the edges on the shortest path from the source
+	 * node to a given target node. The edges are traversed in reverse order:
+	 * first the edge between the target and its predecessor, ... and finally
+	 * the edge between the source end its successor. If there is no path from
+	 * the source to the target or if he source and the target are the same
+	 * node, no edges are traversed. This iterator does not support
+	 * {@link java.util.Iterator#remove()}.
+	 * 
+	 * @param target
+	 *            a node
+	 * @return an iterator on the edges of the shortest path from the source to
+	 *         the target
+	 * @see #getPathEdges(Node)
+	 * @complexity Each call of {@link java.util.Iterator#next()} of this
+	 *             iterator takes O(1) time
+	 */
 	public <T extends Edge> Iterator<T> getPathEdgesIterator(Node target) {
 		return new EdgeIterator<T>(target);
 	}
 
+	/**
+	 * An iterable view of the edges on the shortest path from the source node
+	 * to a given target node. Uses {@link #getPathEdgesIterator(Node)}.
+	 * 
+	 * @param target
+	 *            a node
+	 * @return an iterable view of the edges on the shortest path from the
+	 *         source to the target
+	 * @see #getPathEdgesIterator(Node)
+	 */
 	public <T extends Edge> Iterable<T> getPathEdges(final Node target) {
 		return new Iterable<T>() {
 			@Override
@@ -572,10 +664,39 @@ public class DijkstraFH implements Algorithm {
 		};
 	}
 
+	/**
+	 * This iterator traverses <em>all</em> the shortest paths from the source
+	 * node to a given target node. If there is more than one shortest paths
+	 * between the source and the target, other solution access methods choose
+	 * one of them (the one from the shortest path tree). This iterator can be
+	 * used if one needs to know all the paths. Each call to
+	 * {@link java.util.Iterator#next()} method of this iterator returns a
+	 * shortest path in the form of {@link org.graphstream.graph.Path} object.
+	 * This iterator does not support {@link java.util.Iterator#remove()}.
+	 * 
+	 * @param target
+	 *            a node
+	 * @return an iterator on all the shortest paths from the source to the
+	 *         target
+	 * @see #getAllPaths(Node)
+	 * @complexity Each call of {@link java.util.Iterator#next()} of this
+	 *             iterator takes O(<em>m</em>) time in the worst case, where
+	 *             <em>m</em> is the number of edges in the graph
+	 */
 	public Iterator<Path> getAllPathsIterator(Node target) {
 		return new PathIterator(target);
 	}
 
+	/**
+	 * An iterable view of of <em>all</em> the shortest paths from the source
+	 * node to a given target node. Uses {@link #getAllPathsIterator(Node)}
+	 * 
+	 * @param target
+	 *            a node
+	 * @return an iterable view of all the shortest paths from the source to the
+	 *         target
+	 * @see #getAllPathsIterator(Node)
+	 */
 	public Iterable<Path> getAllPaths(final Node target) {
 		return new Iterable<Path>() {
 			@Override
@@ -585,10 +706,28 @@ public class DijkstraFH implements Algorithm {
 		};
 	}
 
+	/**
+	 * Dijkstra's algorithm produces a shortest path tree rooted in the source
+	 * node. This iterator traverses the edges of this tree. The edges are
+	 * traversed in no particular order.
+	 * 
+	 * @return an iterator on the edges of the shortest path tree
+	 * @see #getTreeEdges()
+	 * @complexity Each call of {@link java.util.Iterator#next()} of this
+	 *             iterator takes O(1) time
+	 */
 	public <T extends Edge> Iterator<T> getTreeEdgesIterator() {
 		return new TreeIterator<T>();
 	}
 
+	/**
+	 * Dijkstra's algorithm produces a shortest path tree rooted in the source
+	 * node. This method provides an iterable view of the edges of this tree.
+	 * Uses {@link #getTreeEdgesIterator()}
+	 * 
+	 * @return an iterable view of the edges of the shortest path tree
+	 * @see #getTreeEdgesIterator()
+	 */
 	public <T extends Edge> Iterable<T> getTreeEdges() {
 		return new Iterable<T>() {
 			@Override
@@ -598,8 +737,21 @@ public class DijkstraFH implements Algorithm {
 		};
 	}
 
+	/**
+	 * Returns the shortest path from the source node to a given target node. If
+	 * there is no path from the source to the target returns an empty path.
+	 * This method constructs a {@link org.graphstream.graph.Path} object which
+	 * consumes heap memory proportional to the number of edges and nodes in the
+	 * path. When possible, prefer using {@link #getPathNodes(Node)} and
+	 * {@link #getPathEdges(Node)} which are more memory- and time-efficient.
+	 * 
+	 * @param target
+	 *            a node
+	 * @return the shortest path from the source to the target
+	 * @complexity O(<em>p</em>) where <em>p</em> is the number of the nodes in
+	 *             the path
+	 */
 	public Path getPath(Node target) {
-		checkValidSolution();
 		Path path = new Path();
 		if (Double.isInfinite(getPathLength(target)))
 			return path;
