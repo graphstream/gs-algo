@@ -135,16 +135,16 @@ public class DijkstraFH implements Algorithm {
 		/**
 		 * The length of a path is the sum of the lengths of its edges.
 		 */
-		edge,
+		EDGE,
 		/**
 		 * The length of a path is the sum of the lengths of its nodes.
 		 */
-		node,
+		NODE,
 		/**
 		 * The length of a path is the sum of the lengths of its edges and
 		 * nodes.
 		 */
-		edgeAndNode;
+		EDGE_AND_NODE;
 	}
 
 	protected Element element;
@@ -157,10 +157,10 @@ public class DijkstraFH implements Algorithm {
 
 	protected double getLength(Edge edge, Node dest) {
 		double lenght = 0;
-		if (element != Element.node)
+		if (element != Element.NODE)
 			lenght += lengthAttribute == null ? 1 : edge
 					.getNumber(lengthAttribute);
-		if (element != Element.edge)
+		if (element != Element.EDGE)
 			lenght += lengthAttribute == null ? 1 : dest
 					.getNumber(lengthAttribute);
 		if (lenght < 0)
@@ -170,7 +170,7 @@ public class DijkstraFH implements Algorithm {
 	}
 
 	protected double getSourceLength() {
-		if (element == Element.edge)
+		if (element == Element.EDGE)
 			return 0;
 		return lengthAttribute == null ? 1 : source.getNumber(lengthAttribute);
 	}
@@ -276,7 +276,6 @@ public class DijkstraFH implements Algorithm {
 	 * @see
 	 * org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
 	 */
-	@Override
 	public void init(Graph graph) {
 		this.graph = graph;
 	}
@@ -294,7 +293,6 @@ public class DijkstraFH implements Algorithm {
 	 *             the number of edges and <em>n</em> is the number of nodes in
 	 *             the graph.
 	 */
-	@Override
 	public void compute() {
 		// check if computation can start
 		if (graph == null)
@@ -344,12 +342,10 @@ public class DijkstraFH implements Algorithm {
 			nextNode = Double.isInfinite(getPathLength(target)) ? null : target;
 		}
 
-		@Override
 		public boolean hasNext() {
 			return nextNode != null;
 		}
 
-		@Override
 		@SuppressWarnings("unchecked")
 		public T next() {
 			if (nextNode == null)
@@ -359,7 +355,6 @@ public class DijkstraFH implements Algorithm {
 			return (T) node;
 		}
 
-		@Override
 		public void remove() {
 			throw new UnsupportedOperationException(
 					"remove is not supported by this iterator");
@@ -375,12 +370,10 @@ public class DijkstraFH implements Algorithm {
 			nextEdge = getEdgeFromParent(nextNode);
 		}
 
-		@Override
 		public boolean hasNext() {
 			return nextEdge != null;
 		}
 
-		@Override
 		public T next() {
 			if (nextEdge == null)
 				throw new NoSuchElementException();
@@ -390,7 +383,6 @@ public class DijkstraFH implements Algorithm {
 			return edge;
 		}
 
-		@Override
 		public void remove() {
 			throw new UnsupportedOperationException(
 					"remove is not supported by this iterator");
@@ -450,12 +442,10 @@ public class DijkstraFH implements Algorithm {
 			constructNextPath();
 		}
 
-		@Override
 		public boolean hasNext() {
 			return nextPath != null;
 		}
 
-		@Override
 		public Path next() {
 			if (nextPath == null)
 				throw new NoSuchElementException();
@@ -467,7 +457,6 @@ public class DijkstraFH implements Algorithm {
 			return path;
 		}
 
-		@Override
 		public void remove() {
 			throw new UnsupportedOperationException(
 					"remove is not supported by this iterator");
@@ -489,12 +478,10 @@ public class DijkstraFH implements Algorithm {
 			findNextEdge();
 		}
 
-		@Override
 		public boolean hasNext() {
 			return nextEdge != null;
 		}
 
-		@Override
 		public T next() {
 			if (nextEdge == null)
 				throw new NoSuchElementException();
@@ -503,7 +490,6 @@ public class DijkstraFH implements Algorithm {
 			return edge;
 		}
 
-		@Override
 		public void remove() {
 			throw new UnsupportedOperationException(
 					"remove is not supported by this iterator");
@@ -616,7 +602,6 @@ public class DijkstraFH implements Algorithm {
 	 */
 	public <T extends Node> Iterable<T> getPathNodes(final Node target) {
 		return new Iterable<T>() {
-			@Override
 			public Iterator<T> iterator() {
 				return getPathNodesIterator(target);
 			}
@@ -656,7 +641,6 @@ public class DijkstraFH implements Algorithm {
 	 */
 	public <T extends Edge> Iterable<T> getPathEdges(final Node target) {
 		return new Iterable<T>() {
-			@Override
 			public Iterator<T> iterator() {
 				return getPathEdgesIterator(target);
 			}
@@ -699,7 +683,6 @@ public class DijkstraFH implements Algorithm {
 	 */
 	public Iterable<Path> getAllPaths(final Node target) {
 		return new Iterable<Path>() {
-			@Override
 			public Iterator<Path> iterator() {
 				return getAllPathsIterator(target);
 			}
@@ -730,7 +713,6 @@ public class DijkstraFH implements Algorithm {
 	 */
 	public <T extends Edge> Iterable<T> getTreeEdges() {
 		return new Iterable<T>() {
-			@Override
 			public Iterator<T> iterator() {
 				return getTreeEdgesIterator();
 			}
