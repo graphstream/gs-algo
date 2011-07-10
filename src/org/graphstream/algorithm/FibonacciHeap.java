@@ -2,8 +2,72 @@ package org.graphstream.algorithm;
 
 import java.util.ArrayList;
 
+/**
+ * <p>
+ * Fibonacci heap is a data structure used mainly to implement priority queues.
+ * It stores pairs (key, value) in nodes. The structure is designed so that the
+ * following operations can be implemented efficiently:
+ * <ul>
+ * <li>Finding the node with minimal key</li>
+ * <li>Extracting the node with minimal key</li>
+ * <li>Decreasing the key of a given node</li>
+ * <li>Adding a new node</li>
+ * <li>Merging two heaps</li>
+ * <li>Deleting a node</li>
+ * </ul>
+ * 
+ * <p>
+ * This implementation does not support directly the last operation, but there
+ * is a workaround. To delete a node, first decrease its key to something less
+ * than the current minimum, then just extract the minimum.
+ * 
+ * <p>
+ * In order to compare keys, this implementation uses their natural order: they
+ * must implement {@link java.lang.Comparable} interface. The values can be of
+ * any type.
+ * 
+ * <h3>Example</h3>
+ * 
+ * <pre>
+ * FibonacciHeap&lt;Integer, String&gt; heap = new FibonacciHeap&lt;Integer, String&gt;();
+ * // add some nodes and keep their references in order to be able to decrease
+ * // their keys later
+ * FibonacciHeap&lt;Integer, String&gt;.Node nodeA = heap.add(20, &quot;A&quot;);
+ * FibonacciHeap&lt;Integer, String&gt;.Node nodeB = heap.add(10, &quot;B&quot;);
+ * FibonacciHeap&lt;Integer, String&gt;.Node nodeC = heap.add(30, &quot;C&quot;);
+ * FibonacciHeap&lt;Integer, String&gt;.Node nodeD = heap.add(50, &quot;D&quot;);
+ * FibonacciHeap&lt;Integer, String&gt;.Node nodeE = heap.add(40, &quot;E&quot;);
+ * 
+ * String s1 = heap.extractMin(); // &quot;B&quot;
+ * String s2 = heap.getMinValue(); // &quot;A&quot;
+ * heap.decreaseKey(nodeD, 5);
+ * String s3 = heap.extractMin(); // &quot;D&quot;
+ * //delete nodeC
+ * int kMin = heap.getMinKey(); // 20
+ * heap.decreaseKey(nodeC, kMin - 1);
+ * String s4 = heap.extractMin(); // C
+ * </pre>
+ * 
+ * @author Stefan Balev
+ * 
+ * @param <K>
+ *            the type of the keys
+ * @param <V>
+ *            the type of the values
+ */
 public class FibonacciHeap<K extends Comparable<K>, V> {
 
+	/**
+	 * This class encapsulates pairs (key, value) in nodes stored in Fibonacci
+	 * heaps. Objects of this class cannot be instantiated directly. The only
+	 * way to obtain a node reference is the return value of
+	 * {@link FibonacciHeap#add(Comparable, Object)}. Typically these references
+	 * are stored and then used in calls to
+	 * {@link FibonacciHeap#decreaseKey(Node, Comparable)}.
+	 * 
+	 * @author Stefan Balev
+	 * 
+	 */
 	public class Node {
 		protected K key;
 		protected V value;
@@ -55,10 +119,18 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 				child.concatLists(y);
 		}
 
+		/**
+		 * Returns the key stored in this node.
+		 * @return the key stored in this node
+		 */
 		public K getKey() {
 			return key;
 		}
 
+		/**
+		 * Returns the value stored in this node.
+		 * @return the value stored in this node
+		 */
 		public V getValue() {
 			return value;
 		}
@@ -68,20 +140,38 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 	protected int size;
 	protected ArrayList<Node> degList;
 
+	/**
+	 * Creates a new empty Fibonacci heap.
+	 */
 	public FibonacciHeap() {
 		min = null;
 		size = 0;
 		degList = new ArrayList<Node>();
 	}
 
+	/**
+	 * Checks if the heap is empty.
+	 * @return {@code true} if the heap is empty
+	 * @complexity O(1)
+	 */
 	public boolean isEmpty() {
 		return size == 0;
 	}
 
+	/**
+	 * Returns the number of nodes in the heap.
+	 * @return the number of nodes in the heap
+	 * @complexity O(1)
+	 */
 	public int size() {
 		return size;
 	}
 
+	/**
+	 * Removes all the nodes in the heap
+	 * @complexity This operation can be done in O(1) but this implementation takes O(<em>n</em>)
+	 * in order to facilitate the garbage collection.
+	 */
 	public void clear() {
 		if (!isEmpty()) {
 			min.clear();
@@ -90,6 +180,14 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 		}
 	}
 
+	/**
+	 * Adds a new node containing the given key and value to the heap.
+	 * @param key the key of the new node
+	 * @param value the value of the new node
+	 * @return a reference to the new node. Typically this reference is stored and used in subsequent calls to
+	 * {@link #decreaseKey(Node, Comparable)}
+	 * @complexity O(1)
+	 */
 	public Node add(K key, V value) {
 		Node node = new Node(key, value);
 		if (isEmpty())
@@ -103,6 +201,11 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 		return node;
 	}
 
+	/**
+	 * Merges two heaps. Warning: <b>this operation is destructive</b>. This method empties the parameter {@code heap}.
+	 * @param heap the heap to be merged with this heap
+	 * @complexity O(1)
+	 */
 	public void addAll(FibonacciHeap<K, V> heap) {
 		if (isEmpty())
 			min = heap.min;
@@ -116,14 +219,30 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 		heap.size = 0;
 	}
 
+	/**
+	 * Returns the minimal key in the heap.
+	 * @return the minimal key in the heap
+	 * @complexity O(1)
+	 */
 	public K getMinKey() {
 		return min.key;
 	}
 
+	/**
+	 * Returns the value stored in the node containing the minimal key.
+	 * @return the value stored in the node containing the minimal key
+	 * @complexity O(1)
+	 * 
+	 */
 	public V getMinValue() {
 		return min.value;
 	}
 
+	/**
+	 * Removes the node containing the minimal key from the heap.
+	 * @return the value stored in the removed node
+	 * @complexity O(log<em>n</em>) amortized running time
+	 */
 	public V extractMin() {
 		Node z = min;
 		Node x = z.child;
@@ -190,6 +309,12 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 			}
 	}
 
+	/** Decreases the key of a given node
+	 * @param x the node whose key is to be decreased. Must be a reference returned by {@link #add(Comparable, Object)}.
+	 * @param key the new key
+	 * @throws IllegalArgumentException if the new key is greater than the current.
+	 * @complexity O(1) amortized running time
+	 */
 	public void decreaseKey(Node x, K key) {
 		if (key.compareTo(x.key) > 0)
 			throw new IllegalArgumentException(
