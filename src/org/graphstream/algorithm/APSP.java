@@ -528,6 +528,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 
 		/**
 		 * The minimum distance between this node and another.
+		 * XXX this is the minimum value seen during compute not the minimum shortest path XXX
 		 * 
 		 * @return A distance.
 		 */
@@ -537,6 +538,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 
 		/**
 		 * The maximum distance between this node and another.
+		 * XXX this is the maximum value seen during compute not the maximum shortest path XXX
 		 * 
 		 * @return A distance.
 		 */

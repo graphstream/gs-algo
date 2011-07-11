@@ -1108,11 +1108,19 @@ public class Toolkit {
 	 * </p>
 	 * 
 	 * <p>
-	 * Note that this operation can be quite costly, the algorithm used to compute all shortest
+	 * Note that this operation can be quite costly. Two algorithms are used here. If the graph
+	 * is not weighted (the weightAttributeName parameter is null), the algorithm use breath
+	 * first search from all the nodes to find the max depth (or eccentricity) of each node. The
+	 * diameter is then the maximum of these maximum depths. The complexity of this algorithm
+	 * is O(n*(n+m)), with n the number of nodes and m the number of edges.
+	 * </p>
+	 * 
+	 * <p>
+	 * If the graph is weighted, the algorithm used to compute all shortest
 	 * paths is the Floyd-Warshall algorithm whose complexity is at worst of O(n^3).
 	 * </p>
 	 * 
-	 * <p>The returned diameter is not an integer since some graphs have non-integer weights
+	 * <p>The returned diameter is not an integer since weighted graphs have non-integer weights
 	 * on edges.</p>
 	 *
 	 * @param graph
@@ -1125,19 +1133,58 @@ public class Toolkit {
 	 */
 	public static double diameter(Graph graph, String weightAttributeName, boolean directed) {
 		double diameter = Double.MIN_VALUE;
-		APSP apsp = new APSP(graph, weightAttributeName, directed);
 		
-		apsp.compute();
+		if(weightAttributeName == null) {
+			int d = 0;
 		
-		for(Node node:graph) {
-			APSP.APSPInfo info = (APSP.APSPInfo) node.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
-			
-			for(APSP.TargetPath path: info.targets.values()) {
-				if(path.distance > diameter)
-					diameter = path.distance;
+			for(Node node: graph) {
+				d = unweightedEccentricity(node, directed);
+				if(d > diameter)
+					diameter = d;
 			}
+		} else {
+			APSP apsp = new APSP(graph, weightAttributeName, directed);
+			
+			apsp.compute();
+			
+			for(Node node:graph) {
+				APSP.APSPInfo info = (APSP.APSPInfo) node.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
+				
+				for(APSP.TargetPath path: info.targets.values()) {
+					if(path.distance > diameter)
+						diameter = path.distance;
+				}
+			}
+			
 		}
-		
+
 		return diameter;
+	}
+	
+	/**
+	 * Eccentricity of a node not considering edge weights.
+	 * 
+	 * <p>
+	 * The eccentricity is the largest shortest path between the given node and any other. It is
+	 * here computed on number of edges crossed, not considering the eventual weights of edges.
+	 * </p>
+	 * 
+	 * <p>
+	 * This is computed using a breath first search and looking at the maximum depth of the search.
+	 * </p>
+	 * 
+	 * @param node
+	 * 			The node for which the eccentricity is to be computed.
+	 * @param directed
+	 * 			If true, the computation will respect edges direction, if any.
+	 * 
+	 * @complexity O(n+m) with n the number of nodes and m the number of edges.
+	 * 
+	 * @return The eccentricity.
+	 */
+	public static int unweightedEccentricity(Node node, boolean directed) {
+		BreadthFirstIterator<Node> k = new BreadthFirstIterator<Node>(node, directed);
+		while(k.hasNext()) { k.next(); }
+		return k.getDepthMax();
 	}
 }
