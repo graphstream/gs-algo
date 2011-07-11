@@ -84,20 +84,23 @@ import org.graphstream.ui.geom.Point3;
  * </p>
  * 
  * <p>
- * Note that this operation can be quite costly, the algorithm used to compute all shortest
- * paths is the Floyd-Warshall algorithm whose complexity is at worst of O(n^3).
- * </p>
- * 
- * <p>
  * The returned diameter is not an integer since some graphs have non-integer weights
  * on edges.
  * </p>
  * 
  * <p>
  * The {@link #diameter(Graph, String, boolean)} method does the same thing, but
- * considers that the graph is weighted. The second argument is the weight attribute
+ * considers that the graph is weighted if the second argument is non-null. The second
+ * argument is the weight attribute
  * name. The third argument indicates if the graph must be considered as directed
  * or not.
+ * </p>
+ * 
+ * <p>
+ * Note that this operation can be quite costly, the algorithm used depends on the
+ * fact the graph is weighted or not. If unweighted, the algorithm is in O(n*(n+m)).
+ * If weighted the algorithm is the Floyd-Warshall algorithm whose complexity is at worst
+ * of O(n^3).
  * </p>
  * 
  * <h3>Clustering coefficient</h3>
@@ -1080,23 +1083,22 @@ public class Toolkit {
 	 * 
 	 * <p>
 	 * The diameter of the graph is the largest of all the shortest paths from any node to
-	 * any other node.
+	 * any other node. The graph is considered non weighted.
 	 * </p>
 	 * 
 	 * <p>
-	 * Note that this operation can be quite costly, the algorithm used to compute all shortest
-	 * paths is the Floyd-Warshall algorithm whose complexity is at worst of O(n^3).
+	 * Note that this operation can be quite costly, O(n*(n+m)).
 	 * </p>
 	 * 
 	 * <p>The returned diameter is not an integer since some graphs have non-integer weights
-	 * on edges.</p>
+	 * on edges. Although this version of the diameter algorithm will return an integer.</p>
 	 *
 	 * @param graph
 	 * 			The graph to use.
 	 * @return The diameter.
 	 */
 	public static double diameter(Graph graph) {
-		return diameter(graph, "weight", false);
+		return diameter(graph, null, false);
 	}
 	
 	/**
