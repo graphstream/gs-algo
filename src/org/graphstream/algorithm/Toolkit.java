@@ -46,16 +46,17 @@ import org.graphstream.ui.geom.Point3;
  * <h2>Usage</h2>
  * 
  * <h3>Degrees</h3>
- *
+ * 
  * <p>
  * The {@link #degreeDistribution(Graph)} method allows to obtain an array where
  * each cell index represents the degree, and the value of the cell the number
- * of nodes having this degree. Its complexity is O(n) with n the number of nodes.
+ * of nodes having this degree. Its complexity is O(n) with n the number of
+ * nodes.
  * </p>
  * 
  * <p>
- * The {@link #degreeMap(Graph)} returns an array of nodes sorted by degree
- * in descending order. The complexity is O(n log(n)) with n the number of nodes.
+ * The {@link #degreeMap(Graph)} returns an array of nodes sorted by degree in
+ * descending order. The complexity is O(n log(n)) with n the number of nodes.
  * </p>
  * 
  * <p>
@@ -64,43 +65,41 @@ import org.graphstream.ui.geom.Point3;
  * </p>
  * 
  * <p>
- * The {@link #degreeAverageDeviation(Graph)} returns the deviation of the average
- * degree. The complexity is O(n) with n the number of nodes.
+ * The {@link #degreeAverageDeviation(Graph)} returns the deviation of the
+ * average degree. The complexity is O(n) with n the number of nodes.
  * </p>
- * * 
- * <h3>Density</h3>
+ * * <h3>Density</h3>
  * 
  * <p>
  * The {@link #density(Graph)} method returns the number of links in the graph
- * divided by the total number of possible links. The complexity is O(1). 
+ * divided by the total number of possible links. The complexity is O(1).
  * </p>
  * 
  * <h3>Diameter</h3>
- *
+ * 
  * <p>
- * The {@link #diameter(Graph)} method computes the diameter of the graph.
- * The diameter of the graph is the largest of all the shortest paths from any node to
- * any other node.
+ * The {@link #diameter(Graph)} method computes the diameter of the graph. The
+ * diameter of the graph is the largest of all the shortest paths from any node
+ * to any other node.
  * </p>
  * 
  * <p>
- * The returned diameter is not an integer since some graphs have non-integer weights
- * on edges.
+ * The returned diameter is not an integer since some graphs have non-integer
+ * weights on edges.
  * </p>
  * 
  * <p>
  * The {@link #diameter(Graph, String, boolean)} method does the same thing, but
- * considers that the graph is weighted if the second argument is non-null. The second
- * argument is the weight attribute
- * name. The third argument indicates if the graph must be considered as directed
- * or not.
+ * considers that the graph is weighted if the second argument is non-null. The
+ * second argument is the weight attribute name. The third argument indicates if
+ * the graph must be considered as directed or not.
  * </p>
  * 
  * <p>
- * Note that this operation can be quite costly, the algorithm used depends on the
- * fact the graph is weighted or not. If unweighted, the algorithm is in O(n*(n+m)).
- * If weighted the algorithm is the Floyd-Warshall algorithm whose complexity is at worst
- * of O(n^3).
+ * Note that this operation can be quite costly, the algorithm used depends on
+ * the fact the graph is weighted or not. If unweighted, the algorithm is in
+ * O(n*(n+m)). If weighted the algorithm is the Floyd-Warshall algorithm whose
+ * complexity is at worst of O(n^3).
  * </p>
  * 
  * <h3>Clustering coefficient</h3>
@@ -122,52 +121,79 @@ import org.graphstream.ui.geom.Point3;
  * </p>
  * 
  * <h3>Random nodes and edges</h3>
- *
+ * 
  * <p>
- * The {@link #randomNode(Graph)} returns a node chosen at random in the graph. You can
- * alternatively pass a ``Random`` instance as parameter with {@link #randomNode(Graph, Random)}.
- * The complexity depends on the kind of graph.
+ * The {@link #randomNode(Graph)} returns a node chosen at random in the graph.
+ * You can alternatively pass a ``Random`` instance as parameter with
+ * {@link #randomNode(Graph, Random)}. The complexity depends on the kind of
+ * graph.
  * </p>
  * 
  * <p>
- * The {@link #randomEdge(Graph)} returns an edge chosen at random in the graph. You can
- * alternatively pass a ``Random`` instance as parameter with {@link #randomEdge(Graph, Random)}.
- * The {@link #randomEdge(Node)} returns an edge chosen at random within the edge set of
- * the given node. You can also use {@link #randomEdge(Node, Random)}. To chose a random
- * edge of a node inside the entering or leaving edge sets only, you can use {@link #randomInEdge(Node)}
- * or {@link #randomInEdge(Node, Random)}, or {@link #randomOutEdge(Node)} or finally
- * {@link #randomOutEdge(Node, Random)}. 
+ * The {@link #randomEdge(Graph)} returns an edge chosen at random in the graph.
+ * You can alternatively pass a ``Random`` instance as parameter with
+ * {@link #randomEdge(Graph, Random)}. The {@link #randomEdge(Node)} returns an
+ * edge chosen at random within the edge set of the given node. You can also use
+ * {@link #randomEdge(Node, Random)}. To chose a random edge of a node inside
+ * the entering or leaving edge sets only, you can use
+ * {@link #randomInEdge(Node)} or {@link #randomInEdge(Node, Random)}, or
+ * {@link #randomOutEdge(Node)} or finally {@link #randomOutEdge(Node, Random)}.
  * </p>
  * 
  * <h3>Nodes position</h3>
  * 
  * <p>
- * Extracting nodes position from attributes can be tricky due to the face the positions
- * can be stored either as separate ``x``, ``y`` and ``z`` attributes or inside ``xy`` or
- * ``xyz`` attributes.
+ * Extracting nodes position from attributes can be tricky due to the face the
+ * positions can be stored either as separate ``x``, ``y`` and ``z`` attributes
+ * or inside ``xy`` or ``xyz`` attributes.
  * </p>
  * 
  * <p>
- * To simplify things you can use {@link #nodePosition(Node)} which returns an array of three
- * doubles, containing the position of the node. You can also use {@link #nodePosition(Graph, String)}
- * with a graph and a node identifier.
+ * To simplify things you can use {@link #nodePosition(Node)} which returns an
+ * array of three doubles, containing the position of the node. You can also use
+ * {@link #nodePosition(Graph, String)} with a graph and a node identifier.
  * </p>
  * 
  * <p>
- * If you already have an array of doubles with at least three cells you can also use
- * {@link #nodePosition(Node, double[])} that will store the position in the passed array.
- * You can as well use {@link #nodePosition(Graph, String, double[])}.
+ * If you already have an array of doubles with at least three cells you can
+ * also use {@link #nodePosition(Node, double[])} that will store the position
+ * in the passed array. You can as well use
+ * {@link #nodePosition(Graph, String, double[])}.
  * </p>
  * 
  * <p>
- * All these methods can also handle the ``org.graphstream.ui.geom.Point3`` class instead
- * of arrays of doubles. Methods that use such an array as argument are the same. Methods
- * that return a ``Point3`` instead of an array are {@link #nodePointPosition(Graph, String)}
- * and {@link #nodePointPosition(Node)}.
+ * All these methods can also handle the ``org.graphstream.ui.geom.Point3``
+ * class instead of arrays of doubles. Methods that use such an array as
+ * argument are the same. Methods that return a ``Point3`` instead of an array
+ * are {@link #nodePointPosition(Graph, String)} and
+ * {@link #nodePointPosition(Node)}.
  * </p>
- *
+ * 
+ * <h3> Cliques</h3>
+ * 
+ * <p>A clique <i>C</i> is a subset of the node set of a graph, such that there exists an edge between
+ * each pair of nodes in <i>C</i>. In other words, the subgraph induced by <i>C</i> is complete.
+ * A maximal clique is a clique that cannot be extended by adding more nodes, that is, there is no node
+ * outside the clique connected to all the clique nodes.</p>
+ * 
+ * <p>This class provides several methods for dealing with cliques. Use {@link #isClique(Collection)} or
+ * {@link #isMaximalClique(Collection, Graph)} to check if a set of nodes is a clique or a maximal clique.</p>
+ * 
+ * <p>The methods {@link #getMaximalCliqueIterator(Graph)} and {@link #getMaximalCliques(Graph)}
+ * enumerate all the maximal cliques in a graph. Iterating on all the maximal cliques of a graph can take
+ * much time, because their number can grow exponentially with the size of the graph.
+ * For example, the following naive method to find the maximum clique (that is, the largest possible clique)
+ * in a graph, is practical only for small and sparse graphs.</p>
+ * 
+ * <pre>
+ * List&lt;Node&gt; maximumClique = new ArrayList&lt;Node&gt;();
+ * for (List&lt;Node&gt; clique : Toolkit.getMaximalCliques(g))
+ *     if (clique.size() > maximumClique.size())
+ *         maximumClique = clique;
+ * </pre>
+ * 
  * <h2>Example</h2>
- *
+ * 
  * <p>
  * You can use this class with a static import for example:
  * </p>
@@ -363,7 +389,7 @@ public class Toolkit {
 			for (i = 0; i < n; ++i) // For all neighbour nodes.
 			{
 				for (int j = 0; j < n; ++j) // For all other nodes of this
-											// clique.
+				// clique.
 				{
 					if (j != i) {
 						Edge e = nodes[j].getEdgeToward(nodes[i].getId());
@@ -405,8 +431,8 @@ public class Toolkit {
 	 */
 	public static Node randomNode(Graph graph, Random random) {
 		int n = graph.getNodeCount();
-		
-		if(n > 0) {
+
+		if (n > 0) {
 			int r = random.nextInt(n);
 			int i = 0;
 
@@ -440,8 +466,8 @@ public class Toolkit {
 	 */
 	public static Edge randomEdge(Graph graph, Random random) {
 		int n = graph.getEdgeCount();
-		
-		if(n > 0) {
+
+		if (n > 0) {
 			int r = random.nextInt(n);
 			int i = 0;
 
@@ -497,7 +523,7 @@ public class Toolkit {
 	 */
 	public static Edge randomEdge(Node node, Random random) {
 		int n = node.getDegree();
-		
+
 		if (n > 0) {
 			int r = random.nextInt(n);
 			int i = 0;
@@ -523,8 +549,8 @@ public class Toolkit {
 	 */
 	public static Edge randomInEdge(Node node, Random random) {
 		int n = node.getInDegree();
-		
-		if(n > 0) {
+
+		if (n > 0) {
 			int r = random.nextInt(n);
 			int i = 0;
 
@@ -549,7 +575,7 @@ public class Toolkit {
 	 */
 	public static Edge randomOutEdge(Node node, Random random) {
 		int n = node.getOutDegree();
-		
+
 		if (n > 0) {
 			int r = random.nextInt(n);
 			int i = 0;
@@ -867,9 +893,8 @@ public class Toolkit {
 	 * 
 	 * @param id
 	 *            The node identifier.
-	 * @return A newly allocated point containing the (x,y,z)
-	 *         position of the node, or null if the node is not part of the
-	 *         graph.
+	 * @return A newly allocated point containing the (x,y,z) position of the
+	 *         node, or null if the node is not part of the graph.
 	 */
 	public static Point3 nodePointPosition(Graph graph, String id) {
 		Node node = graph.getNode(id);
@@ -903,8 +928,8 @@ public class Toolkit {
 	 * 
 	 * @param node
 	 *            The node to consider.
-	 * @return A newly allocated point containing the (x,y,z)
-	 *         position of the node.
+	 * @return A newly allocated point containing the (x,y,z) position of the
+	 *         node.
 	 */
 	public static Point3 nodePointPosition(Node node) {
 		Point3 pos = new Point3();
@@ -934,7 +959,7 @@ public class Toolkit {
 
 		throw new RuntimeException("node '" + id + "' does not exist");
 	}
-	
+
 	/**
 	 * Like {@link #nodePointPosition(Graph,String)}, but instead of returning a
 	 * newly allocated array, fill up the array given as parameter. This array
@@ -957,8 +982,8 @@ public class Toolkit {
 	}
 
 	/**
-	 * Like {@link #nodePosition(Graph,String,double[])} but use an existing node
-	 * as argument.
+	 * Like {@link #nodePosition(Graph,String,double[])} but use an existing
+	 * node as argument.
 	 * 
 	 * @param node
 	 *            The node to consider.
@@ -997,7 +1022,7 @@ public class Toolkit {
 				xyz[2] = (double) node.getNumber("z");
 		}
 	}
-	
+
 	/**
 	 * Like {@link #nodePosition(Graph,String,Point3)} but use an existing node
 	 * as argument.
@@ -1074,119 +1099,361 @@ public class Toolkit {
 		xyz0[1] = xyz1[1] - xyz0[1];
 		xyz0[2] = xyz1[2] - xyz0[2];
 
-		return Math.sqrt(xyz0[0] * xyz0[0] + xyz0[1] * xyz0[1]
-				+ xyz0[2] * xyz0[2]);
+		return Math.sqrt(xyz0[0] * xyz0[0] + xyz0[1] * xyz0[1] + xyz0[2]
+				* xyz0[2]);
 	}
-	
+
 	/**
 	 * Compute the diameter of the graph.
 	 * 
 	 * <p>
-	 * The diameter of the graph is the largest of all the shortest paths from any node to
-	 * any other node. The graph is considered non weighted.
+	 * The diameter of the graph is the largest of all the shortest paths from
+	 * any node to any other node. The graph is considered non weighted.
 	 * </p>
 	 * 
 	 * <p>
 	 * Note that this operation can be quite costly, O(n*(n+m)).
 	 * </p>
 	 * 
-	 * <p>The returned diameter is not an integer since some graphs have non-integer weights
-	 * on edges. Although this version of the diameter algorithm will return an integer.</p>
-	 *
+	 * <p>
+	 * The returned diameter is not an integer since some graphs have
+	 * non-integer weights on edges. Although this version of the diameter
+	 * algorithm will return an integer.
+	 * </p>
+	 * 
 	 * @param graph
-	 * 			The graph to use.
+	 *            The graph to use.
 	 * @return The diameter.
 	 */
 	public static double diameter(Graph graph) {
 		return diameter(graph, null, false);
 	}
-	
+
 	/**
 	 * Compute the diameter of the graph.
 	 * 
 	 * <p>
-	 * The diameter of the graph is the largest of all the shortest paths from any node to
-	 * any other node.
+	 * The diameter of the graph is the largest of all the shortest paths from
+	 * any node to any other node.
 	 * </p>
 	 * 
 	 * <p>
-	 * Note that this operation can be quite costly. Two algorithms are used here. If the graph
-	 * is not weighted (the weightAttributeName parameter is null), the algorithm use breath
-	 * first search from all the nodes to find the max depth (or eccentricity) of each node. The
-	 * diameter is then the maximum of these maximum depths. The complexity of this algorithm
-	 * is O(n*(n+m)), with n the number of nodes and m the number of edges.
+	 * Note that this operation can be quite costly. Two algorithms are used
+	 * here. If the graph is not weighted (the weightAttributeName parameter is
+	 * null), the algorithm use breath first search from all the nodes to find
+	 * the max depth (or eccentricity) of each node. The diameter is then the
+	 * maximum of these maximum depths. The complexity of this algorithm is
+	 * O(n*(n+m)), with n the number of nodes and m the number of edges.
 	 * </p>
 	 * 
 	 * <p>
 	 * If the graph is weighted, the algorithm used to compute all shortest
-	 * paths is the Floyd-Warshall algorithm whose complexity is at worst of O(n^3).
+	 * paths is the Floyd-Warshall algorithm whose complexity is at worst of
+	 * O(n^3).
 	 * </p>
 	 * 
-	 * <p>The returned diameter is not an integer since weighted graphs have non-integer weights
-	 * on edges.</p>
-	 *
+	 * <p>
+	 * The returned diameter is not an integer since weighted graphs have
+	 * non-integer weights on edges.
+	 * </p>
+	 * 
 	 * @param graph
-	 * 	 		The graph to use.
+	 *            The graph to use.
 	 * @param weightAttributeName
-	 * 			The name used to store weights on the edges (must be a Number).
-	 * @param directed Does
-	 * 			The edge direction should be considered ?.
+	 *            The name used to store weights on the edges (must be a
+	 *            Number).
+	 * @param directed
+	 *            Does The edge direction should be considered ?.
 	 * @return The diameter.
 	 */
-	public static double diameter(Graph graph, String weightAttributeName, boolean directed) {
+	public static double diameter(Graph graph, String weightAttributeName,
+			boolean directed) {
 		double diameter = Double.MIN_VALUE;
-		
-		if(weightAttributeName == null) {
+
+		if (weightAttributeName == null) {
 			int d = 0;
-		
-			for(Node node: graph) {
+
+			for (Node node : graph) {
 				d = unweightedEccentricity(node, directed);
-				if(d > diameter)
+				if (d > diameter)
 					diameter = d;
 			}
 		} else {
 			APSP apsp = new APSP(graph, weightAttributeName, directed);
-			
+
 			apsp.compute();
-			
-			for(Node node:graph) {
-				APSP.APSPInfo info = (APSP.APSPInfo) node.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
-				
-				for(APSP.TargetPath path: info.targets.values()) {
-					if(path.distance > diameter)
+
+			for (Node node : graph) {
+				APSP.APSPInfo info = (APSP.APSPInfo) node
+						.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
+
+				for (APSP.TargetPath path : info.targets.values()) {
+					if (path.distance > diameter)
 						diameter = path.distance;
 				}
 			}
-			
+
 		}
 
 		return diameter;
 	}
-	
+
 	/**
 	 * Eccentricity of a node not considering edge weights.
 	 * 
 	 * <p>
-	 * The eccentricity is the largest shortest path between the given node and any other. It is
-	 * here computed on number of edges crossed, not considering the eventual weights of edges.
+	 * The eccentricity is the largest shortest path between the given node and
+	 * any other. It is here computed on number of edges crossed, not
+	 * considering the eventual weights of edges.
 	 * </p>
 	 * 
 	 * <p>
-	 * This is computed using a breath first search and looking at the maximum depth of the search.
+	 * This is computed using a breath first search and looking at the maximum
+	 * depth of the search.
 	 * </p>
 	 * 
 	 * @param node
-	 * 			The node for which the eccentricity is to be computed.
+	 *            The node for which the eccentricity is to be computed.
 	 * @param directed
-	 * 			If true, the computation will respect edges direction, if any.
+	 *            If true, the computation will respect edges direction, if any.
 	 * 
 	 * @complexity O(n+m) with n the number of nodes and m the number of edges.
 	 * 
 	 * @return The eccentricity.
 	 */
 	public static int unweightedEccentricity(Node node, boolean directed) {
-		BreadthFirstIterator<Node> k = new BreadthFirstIterator<Node>(node, directed);
-		while(k.hasNext()) { k.next(); }
+		BreadthFirstIterator<Node> k = new BreadthFirstIterator<Node>(node,
+				directed);
+		while (k.hasNext()) {
+			k.next();
+		}
 		return k.getDepthMax();
+	}
+
+	/**
+	 * Checks if a set of nodes is a clique.
+	 * 
+	 * @param nodes
+	 *            a set of nodes
+	 * @return {@code true} if {@code nodes} form a clique
+	 * @complexity O(<i>k</i>), where <i>k</i> is the size of {@code nodes}
+	 */
+	public static boolean isClique(Collection<? extends Node> nodes) {
+		if (nodes.isEmpty())
+			return false;
+		for (Node x : nodes)
+			for (Node y : nodes)
+				if (x != y && x.getEdgeBetween(y.getId()) == null)
+					return false;
+		return true;
+	}
+
+	/**
+	 * Checks if a set of nodes is a maximal clique.
+	 * 
+	 * @param nodes
+	 *            a set of nodes
+	 * @return {@code true} if {@nodes} form a maximal clique
+	 * @complexity O(<i>kn</i>), where <i>n</i> is the number of nodes in the
+	 *             graph and <i>k</i> is the size of {@code nodes}
+	 */
+	public static boolean isMaximalClique(Collection<? extends Node> nodes,
+			Graph graph) {
+		if (!isClique(nodes))
+			return false;
+		for (Node x : graph) {
+			String xId = x.getId();
+			boolean isXConnectedToAll = true;
+			for (Node y : nodes)
+				if (y == x || y.getEdgeBetween(xId) == null) {
+					isXConnectedToAll = false;
+					break;
+				}
+			if (isXConnectedToAll)
+				return false;
+		}
+		return true;
+	}
+
+	/**
+	 * This iterator traverses all the maximal cliques in a graph. Each call to
+	 * {@link java.util.Iterator#next()} returns a maximal clique in the form of
+	 * list of nodes. This iterator does not support remove.
+	 * 
+	 * @param graph
+	 *            a graph, must not have loop edges
+	 * @return an iterator on the maximal cliques of {@code graph}
+	 * @throws IllegalArgumentException
+	 *             if {@code graph} has loop edges
+	 * @complexity This iterator implements the Bron–Kerbosch algorithm. There
+	 *             is no guarantee that each call to
+	 *             {@link java.util.Iterator#next()} will run in polynomial
+	 *             time. However, iterating over <em>all</em> the maximal
+	 *             cliques is efficient in worst case sense. The whole iteration
+	 *             takes O(3<sup><i>n</i>/3</sup>) time in the worst case and it
+	 *             is known that a <i>n</i>-node graph has at most
+	 *             3<sup><i>n</i>/3</sup> maximal cliques.
+	 */
+	public static <T extends Node> Iterator<List<T>> getMaximalCliqueIterator(
+			Graph graph) {
+		for (Edge edge : graph.getEachEdge())
+			if (edge.isLoop())
+				throw new IllegalArgumentException(
+						"The graph must not have loop edges");
+		return new BronKerboschIterator<T>(graph);
+	}
+
+	/**
+	 * An iterable view of the set of all the maximal cliques in a graph. Uses
+	 * {@link #getMaximalCliqueIterator(Graph)}.
+	 * 
+	 * @param graph
+	 *            a graph
+	 * @return An iterable view of the maximal cliques in {@code graph}.
+	 */
+	public static <T extends Node> Iterable<List<T>> getMaximalCliques(
+			final Graph graph) {
+		return new Iterable<List<T>>() {
+			public Iterator<List<T>> iterator() {
+				return getMaximalCliqueIterator(graph);
+			}
+
+		};
+	}
+
+	protected static class StackElement<T extends Node> {
+		protected List<T> candidates;
+		protected int candidateIndex;
+		protected List<T> excluded;
+		protected String pivotId;
+
+		protected boolean moreCandidates() {
+			return candidateIndex < candidates.size();
+		}
+
+		protected T currentCandidate() {
+			return candidates.get(candidateIndex);
+		}
+
+		protected int nonNeighborCandidateCount(Node node) {
+			int count = 0;
+			String nodeId = node.getId();
+			for (T c : candidates)
+				if (c.getEdgeBetween(nodeId) == null)
+					count++;
+			return count;
+		}
+
+		protected void setPivot() {
+			pivotId = null;
+			int minCount = candidates.size() + 1;
+			for (T x : candidates) {
+				int count = nonNeighborCandidateCount(x);
+				if (count < minCount) {
+					minCount = count;
+					pivotId = x.getId();
+				}
+			}
+			for (T x : excluded) {
+				int count = nonNeighborCandidateCount(x);
+				if (count < minCount) {
+					minCount = count;
+					pivotId = x.getId();
+				}
+			}
+		}
+
+		protected boolean skipCurrentCandidate() {
+			return currentCandidate().getEdgeBetween(pivotId) != null;
+		}
+
+		protected void forwardIndex() {
+			while (moreCandidates() && skipCurrentCandidate())
+				candidateIndex++;
+		}
+
+		protected StackElement<T> nextElement() {
+			StackElement<T> next = new StackElement<T>();
+			String currentId = currentCandidate().getId();
+
+			next.candidates = new ArrayList<T>();
+			for (T x : candidates)
+				if (x.getEdgeBetween(currentId) != null)
+					next.candidates.add(x);
+
+			next.excluded = new ArrayList<T>();
+			for (T x : excluded)
+				if (x.getEdgeBetween(currentId) != null)
+					next.excluded.add(x);
+
+			next.setPivot();
+			next.candidateIndex = 0;
+			next.forwardIndex();
+			return next;
+		}
+
+		protected void forward() {
+			excluded.add(candidates.remove(candidateIndex));
+			forwardIndex();
+		}
+	}
+
+	protected static class BronKerboschIterator<T extends Node> implements
+			Iterator<List<T>> {
+
+		protected Stack<StackElement<T>> stack;
+		protected Stack<T> clique;
+
+		protected void constructNextClique() {
+			// backtrack
+			while (!clique.isEmpty() && !stack.peek().moreCandidates()) {
+				stack.pop();
+				clique.pop();
+			}
+			// forward
+			StackElement<T> currentElement = stack.peek();
+			while (currentElement.moreCandidates()) {
+				clique.push(currentElement.currentCandidate());
+				stack.push(currentElement.nextElement());
+				currentElement.forward();
+				currentElement = stack.peek();
+			}
+		}
+
+		protected void constructNextMaximalClique() {
+			do {
+				constructNextClique();
+			} while (!clique.isEmpty() && !stack.peek().excluded.isEmpty());
+		}
+
+		protected BronKerboschIterator(Graph graph) {
+			clique = new Stack<T>();
+			stack = new Stack<StackElement<T>>();
+			StackElement<T> initial = new StackElement<T>();
+			initial.candidates = new ArrayList<T>(graph.<T> getNodeSet());
+			initial.excluded = new ArrayList<T>();
+			initial.setPivot();
+			initial.candidateIndex = 0;
+			initial.forwardIndex();
+			stack.push(initial);
+			constructNextMaximalClique();
+		}
+
+		public boolean hasNext() {
+			return !clique.isEmpty();
+		}
+
+		public List<T> next() {
+			if (clique.isEmpty())
+				throw new NoSuchElementException();
+			List<T> result = new ArrayList<T>(clique);
+			constructNextMaximalClique();
+			return result;
+		}
+
+		public void remove() {
+			throw new UnsupportedOperationException(
+					"This iterator does not support remove");
+		}
 	}
 }
