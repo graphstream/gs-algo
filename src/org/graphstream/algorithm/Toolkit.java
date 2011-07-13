@@ -169,27 +169,37 @@ import org.graphstream.ui.geom.Point3;
  * {@link #nodePointPosition(Node)}.
  * </p>
  * 
- * <h3> Cliques</h3>
+ * <h3>Cliques</h3>
  * 
- * <p>A clique <i>C</i> is a subset of the node set of a graph, such that there exists an edge between
- * each pair of nodes in <i>C</i>. In other words, the subgraph induced by <i>C</i> is complete.
- * A maximal clique is a clique that cannot be extended by adding more nodes, that is, there is no node
- * outside the clique connected to all the clique nodes.</p>
+ * <p>
+ * A clique <i>C</i> is a subset of the node set of a graph, such that there
+ * exists an edge between each pair of nodes in <i>C</i>. In other words, the
+ * subgraph induced by <i>C</i> is complete. A maximal clique is a clique that
+ * cannot be extended by adding more nodes, that is, there is no node outside
+ * the clique connected to all the clique nodes.
+ * </p>
  * 
- * <p>This class provides several methods for dealing with cliques. Use {@link #isClique(Collection)} or
- * {@link #isMaximalClique(Collection, Graph)} to check if a set of nodes is a clique or a maximal clique.</p>
+ * <p>
+ * This class provides several methods for dealing with cliques. Use
+ * {@link #isClique(Collection)} or {@link #isMaximalClique(Collection, Graph)}
+ * to check if a set of nodes is a clique or a maximal clique.
+ * </p>
  * 
- * <p>The methods {@link #getMaximalCliqueIterator(Graph)} and {@link #getMaximalCliques(Graph)}
- * enumerate all the maximal cliques in a graph. Iterating on all the maximal cliques of a graph can take
- * much time, because their number can grow exponentially with the size of the graph.
- * For example, the following naive method to find the maximum clique (that is, the largest possible clique)
- * in a graph, is practical only for small and sparse graphs.</p>
+ * <p>
+ * The methods {@link #getMaximalCliqueIterator(Graph)} and
+ * {@link #getMaximalCliques(Graph)} enumerate all the maximal cliques in a
+ * graph. Iterating on all the maximal cliques of a graph can take much time,
+ * because their number can grow exponentially with the size of the graph. For
+ * example, the following naive method to find the maximum clique (that is, the
+ * largest possible clique) in a graph, is practical only for small and sparse
+ * graphs.
+ * </p>
  * 
  * <pre>
  * List&lt;Node&gt; maximumClique = new ArrayList&lt;Node&gt;();
  * for (List&lt;Node&gt; clique : Toolkit.getMaximalCliques(g))
- *     if (clique.size() > maximumClique.size())
- *         maximumClique = clique;
+ * 	if (clique.size() &gt; maximumClique.size())
+ * 		maximumClique = clique;
  * </pre>
  * 
  * <h2>Example</h2>
