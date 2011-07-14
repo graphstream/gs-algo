@@ -60,12 +60,30 @@ public class TestToolkit {
 	 * Unit tests for {@link Toolkit#isClique(java.util.Collection)}, 
 	 * {@link Toolkit#isClique(java.util.Collection)},
 	 * {@link Toolkit#isMaximalClique(java.util.Collection)},
-	 * {@link Toolkit#getMaximalCliqueIterator(Graph)} and
-	 * {@link Toolkit#getMaximalCliques(Graph)}.
+	 * {@link Toolkit#getMaximalCliqueIterator(Graph)},
+	 * {@link Toolkit#getMaximalCliques(Graph)} and
+	 * {@link Toolkit#getDegeneracy(Graph, List)}
 	 */
 	@Test
 	public void testCliques() {
 		Graph g = toyCliqueGraph();
+		
+		int d = Toolkit.getDegeneracy(g, null);
+		assertEquals(3, d);
+		List<Node> ordering = new ArrayList<Node>();
+		d = Toolkit.getDegeneracy(g, ordering);
+		assertEquals(3, d);
+		assertEquals(9, ordering.size());
+		assertEquals(g.getNode("H"), ordering.get(8));
+		assertEquals(g.getNode("I"), ordering.get(7));
+		assertEquals(g.getNode("G"), ordering.get(6));
+		assertEquals(g.getNode("F"), ordering.get(5));
+		assertEquals(g.getNode("E"), ordering.get(4));
+		assertTrue(ordering.contains(g.getNode("A")));
+		assertTrue(ordering.contains(g.getNode("B")));
+		assertTrue(ordering.contains(g.getNode("C")));
+		assertTrue(ordering.contains(g.getNode("D")));
+		
 		int cliqueCount = 0;
 		int totalNodeCount = 0;
 		List<Node> maximumClique = new ArrayList<Node>();

@@ -1440,7 +1440,12 @@ public class Toolkit {
 			clique = new Stack<T>();
 			stack = new Stack<StackElement<T>>();
 			StackElement<T> initial = new StackElement<T>();
-			initial.candidates = new ArrayList<T>(graph.<T> getNodeSet());
+
+			// initial.candidates = new ArrayList<T>(graph.<T> getNodeSet());
+			// More efficient initial order
+			initial.candidates = new ArrayList<T>(graph.getNodeCount());
+			getDegeneracy(graph, initial.candidates);
+
 			initial.excluded = new ArrayList<T>();
 			initial.setPivot();
 			initial.candidateIndex = 0;
@@ -1464,6 +1469,108 @@ public class Toolkit {
 		public void remove() {
 			throw new UnsupportedOperationException(
 					"This iterator does not support remove");
+		}
+	}
+
+	/**
+	 * <p>
+	 * This method computes the gedeneracy and the degeneracy ordering of a
+	 * graph.
+	 * </p>
+	 * 
+	 * <p>
+	 * The degeneracy of a graph is the smallest number <i>d</i> such that every
+	 * subgraph has a node with degree <i>d</i> or less. The degeneracy is a
+	 * measure of sparseness of graphs. A degeneracy ordering is an ordering of
+	 * the nodes such that each node has at most <i>d</i> neighbors following it
+	 * in the ordering. The degeneracy ordering is used, among others, in greedy
+	 * coloring algorithms.
+	 * </p>
+	 * 
+	 * 
+	 * @param graph
+	 *            a graph
+	 * @param ordering
+	 *            a list of nodes. If not {@code null}, this list is first
+	 *            cleared and then filled with the nodes of the graph in
+	 *            degeneracy order.
+	 * @return the degeneracy of {@code graph}
+	 * @complexity O(<i>m</i>) where <i>m</i> is the number of edges in the
+	 *             graph
+	 */
+	@SuppressWarnings("unchecked")
+	public static <T extends Node> int getDegeneracy(Graph graph,
+			List<T> ordering) {
+		int n = graph.getNodeCount();
+		if (ordering != null)
+			ordering.clear();
+		int maxDeg = 0;
+		for (Node x : graph)
+			if (x.getDegree() > maxDeg)
+				maxDeg = x.getDegree();
+		List<DegenEntry> heads = new ArrayList<DegenEntry>(maxDeg + 1);
+		for (int d = 0; d <= maxDeg; d++)
+			heads.add(null);
+
+		Map<Node, DegenEntry> map = new HashMap<Node, DegenEntry>(
+				4 * (n + 2) / 3);
+		for (Node x : graph) {
+			DegenEntry entry = new DegenEntry();
+			entry.node = x;
+			entry.deg = x.getDegree();
+			entry.addToList(heads);
+			map.put(x, entry);
+		}
+
+		int degeneracy = 0;
+		for (int j = 0; j < n; j++) {
+			int i;
+			DegenEntry entry;
+			for (i = 0; (entry = heads.get(i)) == null; i++)
+				;
+			if (i > degeneracy)
+				degeneracy = i;
+			entry.removeFromList(heads);
+			entry.deg = -1;
+			if (ordering != null)
+				ordering.add((T) entry.node);
+			Iterator<Node> neighborIt = entry.node.getNeighborNodeIterator();
+			while (neighborIt.hasNext()) {
+				Node x = neighborIt.next();
+				DegenEntry entryX = map.get(x);
+				if (entryX.deg == -1)
+					continue;
+				entryX.removeFromList(heads);
+				entryX.deg--;
+				entryX.addToList(heads);
+			}
+		}
+		if (ordering != null)
+			Collections.reverse(ordering);
+		return degeneracy;
+	}
+
+	protected static class DegenEntry {
+		Node node;
+		int deg;
+		DegenEntry prev, next;
+
+		protected void addToList(List<DegenEntry> heads) {
+			DegenEntry oldHead = heads.get(deg);
+			heads.set(deg, this);
+			prev = null;
+			next = oldHead;
+			if (oldHead != null)
+				oldHead.prev = this;
+		}
+
+		protected void removeFromList(List<DegenEntry> heads) {
+			if (prev == null)
+				heads.set(deg, next);
+			else
+				prev.next = next;
+			if (next != null)
+				next.prev = prev;
 		}
 	}
 }
