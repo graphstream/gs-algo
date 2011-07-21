@@ -40,7 +40,7 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.stream.SinkAdapter;
-import org.util.set.FixedArrayList;
+import org.graphstream.util.set.FixedArrayList;
 
 /**
  * Compute and update the number of connected components of a dynamic graph.
