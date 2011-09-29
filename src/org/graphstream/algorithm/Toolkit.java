@@ -442,14 +442,15 @@ public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils
 		int n = graph.getNodeCount();
 
 		if (n > 0) {
-			int r = random.nextInt(n);
-			int i = 0;
-
-			for (Node node : graph) {
-				if (r == i)
-					return node;
-				i++;
-			}
+			return graph.getNode(random.nextInt(n));
+//			int r = random.nextInt(n);
+//			int i = 0;
+//
+//			for (Node node : graph) {
+//				if (r == i)
+//					return node;
+//				i++;
+//			}
 		}
 
 		return null;
@@ -477,14 +478,15 @@ public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils
 		int n = graph.getEdgeCount();
 
 		if (n > 0) {
-			int r = random.nextInt(n);
-			int i = 0;
-
-			for (Edge edge : graph.getEachEdge()) {
-				if (r == i)
-					return edge;
-				i++;
-			}
+			return graph.getEdge(random.nextInt(n));
+//			int r = random.nextInt(n);
+//			int i = 0;
+//
+//			for (Edge edge : graph.getEachEdge()) {
+//				if (r == i)
+//					return edge;
+//				i++;
+//			}
 		}
 
 		return null;
@@ -534,14 +536,15 @@ public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils
 		int n = node.getDegree();
 
 		if (n > 0) {
-			int r = random.nextInt(n);
-			int i = 0;
-
-			for (Edge edge : node.getEdgeSet()) {
-				if (r == i)
-					return edge;
-				i++;
-			}
+			return node.getEdge(random.nextInt(n));
+//			int r = random.nextInt(n);
+//			int i = 0;
+//
+//			for (Edge edge : node.getEdgeSet()) {
+//				if (r == i)
+//					return edge;
+//				i++;
+//			}
 		}
 
 		return null;
