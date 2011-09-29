@@ -424,7 +424,7 @@ public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils
 	 * Choose a node at random.
 	 * 
 	 * @return A node chosen at random, null if the graph is empty.
-	 * @complexity at worse O(n) where n is the number of nodes.
+	 * @complexity O(1).
 	 */
 	public static Node randomNode(Graph graph) {
 		return randomNode(graph, new Random());
@@ -436,7 +436,7 @@ public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils
 	 * @param random
 	 *            The random number generator to use.
 	 * @return A node chosen at random, null if the graph is empty.
-	 * @complexity at worse O(n) where n is the number of nodes.
+	 * @complexity O(1).
 	 */
 	public static Node randomNode(Graph graph, Random random) {
 		int n = graph.getNodeCount();
@@ -459,8 +459,8 @@ public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils
 	/**
 	 * Choose an edge at random.
 	 * 
-	 * @return An edge chosen at random. complexity at worse O(n) where n is the
-	 *         number of edges.
+	 * @return An edge chosen at random.
+	 * @complexity O(1).
 	 */
 	public static Edge randomEdge(Graph graph) {
 		return randomEdge(graph, new Random());
@@ -471,8 +471,7 @@ public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils
 	 * 
 	 * @param random
 	 *            The random number generator to use.
-	 * @return An edge chosen at random, null if the graph has no edges.
-	 *         complexity at worse O(n) where n is the number of edges.
+	 * @return O(1).
 	 */
 	public static Edge randomEdge(Graph graph, Random random) {
 		int n = graph.getEdgeCount();
@@ -495,8 +494,7 @@ public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils
 	/**
 	 * Choose an edge at random from the edges connected to the given node.
 	 * 
-	 * @return An edge chosen at random, null if the node has no edges.
-	 *         complexity at worse O(n) where n is the number of edges.
+	 * @return O(1).
 	 */
 	public static Edge randomEdge(Node node) {
 		return randomEdge(node, new Random());
@@ -506,8 +504,7 @@ public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils
 	 * Choose an edge at random from the entering edges connected to the given
 	 * node.
 	 * 
-	 * @return An edge chosen at random, null if the node has no entering edges.
-	 *         complexity at worse O(n) where n is the number of edges.
+	 * @return O(1).
 	 */
 	public static Edge randomInEdge(Node node) {
 		return randomInEdge(node, new Random());
@@ -518,7 +515,7 @@ public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils
 	 * node.
 	 * 
 	 * @return An edge chosen at random, null if the node has no leaving edges.
-	 *         complexity at worse O(n) where n is the number of edges.
+	 * @complexity O(1).
 	 */
 	public static Edge randomOutEdge(Node node) {
 		return randomOutEdge(node, new Random());
@@ -530,7 +527,7 @@ public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils
 	 * @param random
 	 *            The random number generator to use.
 	 * @return An edge chosen at random, null if the node has no edges.
-	 *         complexity at worse O(n) where n is the number of edges.
+	 * @complexity O(1).
 	 */
 	public static Edge randomEdge(Node node, Random random) {
 		int n = node.getDegree();
@@ -557,20 +554,21 @@ public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils
 	 * @param random
 	 *            The random number generator to use.
 	 * @return An edge chosen at random, null if the node has no entering edges.
-	 *         complexity at worse O(n) where n is the number of edges.
+	 * @complexity O(1).
 	 */
 	public static Edge randomInEdge(Node node, Random random) {
 		int n = node.getInDegree();
 
 		if (n > 0) {
-			int r = random.nextInt(n);
-			int i = 0;
-
-			for (Edge edge : node.getEnteringEdgeSet()) {
-				if (r == i)
-					return edge;
-				i++;
-			}
+			return node.getEnteringEdge(random.nextInt(n));
+//			int r = random.nextInt(n);
+//			int i = 0;
+//
+//			for (Edge edge : node.getEnteringEdgeSet()) {
+//				if (r == i)
+//					return edge;
+//				i++;
+//			}
 		}
 
 		return null;
@@ -583,20 +581,21 @@ public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils
 	 * @param random
 	 *            The random number generator to use.
 	 * @return An edge chosen at random, null if the node has no leaving edges.
-	 *         complexity at worse O(n) where n is the number of edges.
+	 * @complexity O(1).
 	 */
 	public static Edge randomOutEdge(Node node, Random random) {
 		int n = node.getOutDegree();
 
 		if (n > 0) {
-			int r = random.nextInt(n);
-			int i = 0;
-
-			for (Edge edge : node.getLeavingEdgeSet()) {
-				if (r == i)
-					return edge;
-				i += 1;
-			}
+			return node.getLeavingEdge(random.nextInt(n));
+//			int r = random.nextInt(n);
+//			int i = 0;
+//
+//			for (Edge edge : node.getLeavingEdgeSet()) {
+//				if (r == i)
+//					return edge;
+//				i += 1;
+//			}
 		}
 
 		return null;
