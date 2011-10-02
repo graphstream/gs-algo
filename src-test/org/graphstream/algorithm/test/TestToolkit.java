@@ -62,7 +62,7 @@ public class TestToolkit {
 	 * {@link Toolkit#isMaximalClique(java.util.Collection)},
 	 * {@link Toolkit#getMaximalCliqueIterator(Graph)},
 	 * {@link Toolkit#getMaximalCliques(Graph)} and
-	 * {@link Toolkit#getDegeneracy(Graph, List)}
+	 * {@link Toolkit#getDegeneracy(Graph, List, String)}
 	 */
 	@Test
 	public void testCliques() {
