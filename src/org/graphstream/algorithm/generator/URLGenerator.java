@@ -44,6 +44,13 @@ import java.util.regex.Pattern;
 
 import org.graphstream.graph.Node;
 
+/**
+ * Generate a graph using the web. Some urls are given to start and the
+ * generator will extract links on these pages. Each url is a node and there is
+ * an edge between two urls when one has a link to the other. Links are
+ * extracted using the "href" attribute of html elements.
+ * 
+ */
 public class URLGenerator extends BaseGenerator {
 
 	public static enum Mode {
@@ -123,26 +130,69 @@ public class URLGenerator extends BaseGenerator {
 		return newUrls.size() > 0;
 	}
 
+	/**
+	 * Add an url to process.
+	 * 
+	 * @param url
+	 *            a new url
+	 */
 	public void addURL(String url) {
 		stepUrls.add(url);
 	}
 
+	/**
+	 * Set the attribute key used to store weight of nodes. Whenever a node is
+	 * reached, its weight is increased by one.
+	 * 
+	 * @param attribute
+	 *            attribute key of the weight of nodes
+	 */
 	public void setNodeWeightAttribute(String attribute) {
 		this.nodeWeight = attribute;
 	}
 
+	/**
+	 * Set the attribute key used to store weight of edges. Whenever an edge is
+	 * reached, its weight is increased by one.
+	 * 
+	 * @param attribute
+	 *            attribute key of the weight of edges
+	 */
 	public void setEdgeWeightAttribute(String attribute) {
 		this.edgeWeight = attribute;
 	}
 
+	/**
+	 * Set the way that url are converted to node id. When mode is Mode.FULL,
+	 * then the id is the raw url. With Mode.PATH, the query of the url is
+	 * truncated so the url http://host/path?what=xxx will be converted as
+	 * http://host/path. With Mode.HOST, the url is converted to the host name
+	 * so the url http://host/path will be converted as http://host.
+	 * 
+	 * @param mode
+	 *            mode specifying how to convert url to have node id
+	 */
 	public void setMode(Mode mode) {
 		this.mode = mode;
 	}
 
+	/**
+	 * Set the amount of threads used to parse urls. Threads are created in the
+	 * {@link #nextEvents()} step. At the end of this method, all working thread
+	 * have stop.
+	 * 
+	 * @param count
+	 *            amount of threads
+	 */
 	public void setThreadCount(int count) {
 		this.threads = count;
 	}
 
+	/**
+	 * Can be used to filter url. Url not matching this regex will be discarded.
+	 * 
+	 * @param regex
+	 */
 	public void acceptOnlyMatchingURL(final String regex) {
 		URLFilter f = new URLFilter() {
 			public boolean accept(String url) {
@@ -156,6 +206,11 @@ public class URLGenerator extends BaseGenerator {
 		filters.add(f);
 	}
 
+	/**
+	 * Can be used to filter url. Url matching this regex will be discarded.
+	 * 
+	 * @param regex
+	 */
 	public void declineMatchingURL(final String regex) {
 		URLFilter f = new URLFilter() {
 			public boolean accept(String url) {
@@ -169,9 +224,27 @@ public class URLGenerator extends BaseGenerator {
 		filters.add(f);
 	}
 
-	public void addHostFilter(String host) {
-		String regex = "^(\\w+:)?(//)?([\\w-\\d]+[.])?" + host + ".*";
-		acceptOnlyMatchingURL(regex);
+	/**
+	 * Can be used to filter url according to the host. Note that several calls
+	 * to this method may lead to discard all url. All hosts should be gived in
+	 * a single call.
+	 * 
+	 * @param hosts
+	 *            list of accepted hosts
+	 */
+	public void addHostFilter(String... hosts) {
+		if (hosts != null) {
+			StringBuilder b = new StringBuilder(
+					"^(\\w+:)?(//)?([\\w-\\d]+[.])?(");
+			b.append(hosts[0]);
+
+			for (int i = 1; i < hosts.length; i++)
+				b.append("|").append(hosts[i]);
+
+			b.append(").*");
+
+			acceptOnlyMatchingURL(b.toString());
+		}
 	}
 
 	protected HashSet<String> nextEventsThreaded() {
@@ -221,6 +294,15 @@ public class URLGenerator extends BaseGenerator {
 		return true;
 	}
 
+	/**
+	 * Parse an url and add all extracted links in a specified set.
+	 * 
+	 * @param url
+	 *            the url to parse
+	 * @param newUrls
+	 *            the set where extracted links will be added
+	 * @throws IOException
+	 */
 	protected void parseUrl(String url, HashSet<String> newUrls)
 			throws IOException {
 		URI uri;
@@ -372,6 +454,9 @@ public class URLGenerator extends BaseGenerator {
 		}
 	}
 
+	/*
+	 * Private class used to distribute url parsing.
+	 */
 	private class Worker implements Runnable {
 		int start, stop;
 		LinkedList<String> urls;
@@ -402,7 +487,18 @@ public class URLGenerator extends BaseGenerator {
 		}
 	}
 
+	/**
+	 * Defines url filter.
+	 */
 	public static interface URLFilter {
+		/**
+		 * Called by the generator to know if the specified url can be accepted
+		 * by this filter. If a filter return false, then the url is discarded.
+		 * 
+		 * @param url
+		 *            the url to check if it can be accepted
+		 * @return true if the url is accepted
+		 */
 		boolean accept(String url);
 	}
 }
