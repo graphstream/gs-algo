@@ -36,13 +36,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLConnection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.DefaultGraph;
 
 public class URLGenerator extends BaseGenerator {
 
@@ -52,23 +52,29 @@ public class URLGenerator extends BaseGenerator {
 
 	private static String REGEX = "href=\"([^\"]*)\"";
 
-	HashSet<String> urls;
-	LinkedList<String> stepUrls;
-	Pattern hrefPattern;
-	Mode mode;
-	int threads = 4;
+	protected HashSet<String> urls;
+	protected LinkedList<String> stepUrls;
+	protected Pattern hrefPattern;
+	protected Mode mode;
+	protected int threads = 2;
+	protected String nodeWeight = "weight";
+	protected String edgeWeight = "weight";
+	protected LinkedList<URLFilter> filters;
 
 	public URLGenerator(String... startFrom) {
 		urls = new HashSet<String>();
 		stepUrls = new LinkedList<String>();
 		hrefPattern = Pattern.compile(REGEX);
 		mode = Mode.HOST;
+		filters = new LinkedList<URLFilter>();
+
+		declineMatchingURL("^(javascript:|mailto:|#).*");
+		declineMatchingURL(".*[.](avi|tar|gz|zip|mp3|mpg|jpg|jpeg|png|ogg|flv)$");
 
 		setUseInternalGraph(true);
 
 		if (startFrom != null) {
 			for (int i = 0; i < startFrom.length; i++) {
-				urls.add(startFrom[i]);
 				stepUrls.add(startFrom[i]);
 			}
 		}
@@ -97,6 +103,12 @@ public class URLGenerator extends BaseGenerator {
 
 			for (String url : stepUrls) {
 				try {
+					addNodeURL(url);
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+				}
+
+				try {
 					parseUrl(url, newUrls);
 				} catch (IOException e) {
 					System.err.printf("Failed to parse \"%s\" : %s\n", url, e
@@ -109,6 +121,57 @@ public class URLGenerator extends BaseGenerator {
 		stepUrls.addAll(newUrls);
 
 		return newUrls.size() > 0;
+	}
+
+	public void addURL(String url) {
+		stepUrls.add(url);
+	}
+
+	public void setNodeWeightAttribute(String attribute) {
+		this.nodeWeight = attribute;
+	}
+
+	public void setEdgeWeightAttribute(String attribute) {
+		this.edgeWeight = attribute;
+	}
+
+	public void setMode(Mode mode) {
+		this.mode = mode;
+	}
+
+	public void setThreadCount(int count) {
+		this.threads = count;
+	}
+
+	public void acceptOnlyMatchingURL(final String regex) {
+		URLFilter f = new URLFilter() {
+			public boolean accept(String url) {
+				if (url.matches(regex))
+					return true;
+
+				return false;
+			}
+		};
+
+		filters.add(f);
+	}
+
+	public void declineMatchingURL(final String regex) {
+		URLFilter f = new URLFilter() {
+			public boolean accept(String url) {
+				if (!url.matches(regex))
+					return true;
+
+				return false;
+			}
+		};
+
+		filters.add(f);
+	}
+
+	public void addHostFilter(String host) {
+		String regex = "^(\\w+:)?(//)?([\\w-\\d]+[.])?" + host + ".*";
+		acceptOnlyMatchingURL(regex);
 	}
 
 	protected HashSet<String> nextEventsThreaded() {
@@ -150,11 +213,10 @@ public class URLGenerator extends BaseGenerator {
 	}
 
 	protected boolean isValid(String url) {
-		if (url.matches("^(javascript:|mailto:|#).*"))
-			return false;
-
-		if (url.matches(".*[.](avi|tar|gz|zip|mp3|mpg|jpg|jpeg|png)$"))
-			return false;
+		for (int i = 0; i < filters.size(); i++) {
+			if (!filters.get(i).accept(url))
+				return false;
+		}
 
 		return true;
 	}
@@ -162,6 +224,7 @@ public class URLGenerator extends BaseGenerator {
 	protected void parseUrl(String url, HashSet<String> newUrls)
 			throws IOException {
 		URI uri;
+		URLConnection conn;
 		InputStream stream;
 		BufferedReader reader;
 
@@ -184,11 +247,21 @@ public class URLGenerator extends BaseGenerator {
 			return;
 		}
 
-		stream = uri.toURL().openStream();
+		conn = uri.toURL().openConnection();
+
+		if (conn.getContentType() == null
+				|| !conn.getContentType().startsWith("text/html"))
+			return;
+
+		stream = conn.getInputStream();
 		reader = new BufferedReader(new InputStreamReader(stream));
 
 		while (reader.ready()) {
 			String line = reader.readLine();
+
+			if (line == null)
+				continue;
+
 			Matcher m = hrefPattern.matcher(line);
 
 			while (m.find()) {
@@ -202,20 +275,21 @@ public class URLGenerator extends BaseGenerator {
 				if (href.charAt(0) == '/')
 					href = String.format("%s://%s%s", uri.getScheme(), uri
 							.getHost(), href);
-				
+
 				if (href.charAt(0) == '.')
 					href = String.format("%s%s", url, href);
 
-				//if (!newUrls.contains(href) && !urls.contains(href)) {
-					try {
-						synchronizedOperation(href, null);
-						synchronizedOperation(url, href);
-					} catch (URISyntaxException e) {
-						throw new IOException(e);
-					}
+				if (!isValid(href))
+					continue;
 
-					newUrls.add(href);
-				//}
+				try {
+					synchronizedOperation(href, null);
+					synchronizedOperation(url, href);
+				} catch (URISyntaxException e) {
+					throw new IOException(e);
+				}
+
+				newUrls.add(href);
 			}
 		}
 	}
@@ -256,8 +330,7 @@ public class URLGenerator extends BaseGenerator {
 			connect(url1, url2);
 	}
 
-	protected void addNodeURL(String url)
-			throws URISyntaxException {
+	protected void addNodeURL(String url) throws URISyntaxException {
 		String nodeId = getNodeId(url);
 
 		urls.add(url);
@@ -265,18 +338,18 @@ public class URLGenerator extends BaseGenerator {
 		if (internalGraph.getNode(nodeId) == null) {
 			addNode(nodeId);
 			sendNodeAttributeAdded(sourceId, nodeId, "label", nodeId);
-			// System.out.printf("> new url '%s'\n", nodeId);
+			// System.out.printf("> new url '%s' --> '%s'\n", url, nodeId);
 		}
 
 		Node n = internalGraph.getNode(nodeId);
 		double w;
 
-		if (n.hasNumber("weight"))
-			w = n.getNumber("weight");
+		if (n.hasNumber(nodeWeight))
+			w = n.getNumber(nodeWeight);
 		else
 			w = 0;
 
-		n.setAttribute("weight", w + 1);
+		n.setAttribute(nodeWeight, w + 1);
 	}
 
 	protected void connect(String url1, String url2) throws URISyntaxException {
@@ -285,10 +358,18 @@ public class URLGenerator extends BaseGenerator {
 		src = getNodeId(url1);
 		trg = getNodeId(url2);
 
-		eid = getEdgeId(src, trg);
+		if (internalGraph.getNode(src) == null)
+			addNode(src);
 
-		if (internalGraph.getEdge(eid) == null)
-			addEdge(eid, src, trg);
+		if (internalGraph.getNode(trg) == null)
+			addNode(trg);
+
+		if (!src.equals(trg)) {
+			eid = getEdgeId(src, trg);
+
+			if (internalGraph.getEdge(eid) == null)
+				addEdge(eid, src, trg);
+		}
 	}
 
 	private class Worker implements Runnable {
@@ -304,26 +385,24 @@ public class URLGenerator extends BaseGenerator {
 		}
 
 		public void run() {
-			for (int i = start; i < stop; i++)
+			for (int i = start; i < stop; i++) {
+				try {
+					addNodeURL(urls.get(i));
+				} catch (URISyntaxException e) {
+					e.printStackTrace();
+				}
+
 				try {
 					parseUrl(urls.get(i), newUrls);
 				} catch (IOException e) {
 					System.err.printf("Failed to parse \"%s\" : %s\n", urls
 							.get(i), e.getMessage());
 				}
+			}
 		}
 	}
 
-	public static void main(String... args) {
-		URLGenerator gen = new URLGenerator("http://graphstream-project.org");
-		DefaultGraph g = new DefaultGraph("g");
-		
-		gen.addSink(g);
-		g.display(true);
-		
-		gen.begin();
-		while (gen.nextEvents())
-			;
-		gen.end();
+	public static interface URLFilter {
+		boolean accept(String url);
 	}
 }
