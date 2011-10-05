@@ -42,6 +42,7 @@ import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
 /**
@@ -462,6 +463,16 @@ public class URLGenerator extends BaseGenerator {
 
 			if (internalGraph.getEdge(eid) == null)
 				addEdge(eid, src, trg);
+
+			Edge e = internalGraph.getEdge(eid);
+			double w;
+
+			if (e.hasNumber(edgeWeight))
+				w = e.getNumber(edgeWeight);
+			else
+				w = 0;
+
+			e.setAttribute(edgeWeight, w + 1);
 		}
 	}
 
