@@ -74,6 +74,7 @@ public class URLGenerator extends BaseGenerator {
 		hrefPattern = Pattern.compile(REGEX);
 		mode = Mode.HOST;
 		filters = new LinkedList<URLFilter>();
+		directed = false;
 
 		declineMatchingURL("^(javascript:|mailto:|#).*");
 		declineMatchingURL(".*[.](avi|tar|gz|zip|mp3|mpg|jpg|jpeg|png|ogg|flv)$");
@@ -138,6 +139,16 @@ public class URLGenerator extends BaseGenerator {
 	 */
 	public void addURL(String url) {
 		stepUrls.add(url);
+	}
+
+	/**
+	 * Create directed edges.
+	 * 
+	 * @param on
+	 *            true to create directed edges
+	 */
+	public void setDirected(boolean on) {
+		setDirectedEdges(on, false);
 	}
 
 	/**
@@ -398,7 +409,7 @@ public class URLGenerator extends BaseGenerator {
 	}
 
 	protected String getEdgeId(String nodeId1, String nodeId2) {
-		if (nodeId1.compareTo(nodeId2) < 0)
+		if (directed || nodeId1.compareTo(nodeId2) < 0)
 			return String.format("%s > %s", nodeId1, nodeId2);
 
 		return String.format("%s > %s", nodeId2, nodeId1);
