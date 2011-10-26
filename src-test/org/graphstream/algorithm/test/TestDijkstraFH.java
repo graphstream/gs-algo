@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.graphstream.algorithm.Dijkstra;
-import org.graphstream.algorithm.DijkstraFH;
 import org.graphstream.algorithm.generator.Generator;
 import org.graphstream.algorithm.generator.RandomGenerator;
 import org.graphstream.graph.Edge;
@@ -63,7 +62,7 @@ public class TestDijkstraFH {
 		Graph g = toyGraph();
 		
 		// Test the weighted case
-		DijkstraFH d = new DijkstraFH(DijkstraFH.Element.EDGE, "result", "length");
+		Dijkstra d = new Dijkstra(Dijkstra.Element.EDGE, "result", "length");
 		d.init(g);
 		Node source = g.getNode("A");
 		d.setSource(source);
@@ -127,7 +126,7 @@ public class TestDijkstraFH {
 		
 		
 		// Test unweighted case with nodes
-		d = new DijkstraFH(DijkstraFH.Element.NODE, "result");
+		d = new Dijkstra(Dijkstra.Element.NODE, "result", null);
 		d.init(g);
 		d.setSource(source);
 		d.compute();
@@ -178,41 +177,5 @@ public class TestDijkstraFH {
 			generator.nextEvents();
 		generator.end();
 		return g;
-	}
-	
-	public static void compareDijkstras(Graph g) {
-		final double EPS = 1.0e-8;
-		
-		System.gc();
-		long start = System.currentTimeMillis();
-		Dijkstra d1 = new Dijkstra(Dijkstra.Element.edge, "length", "0");
-		d1.init(g);
-		d1.compute();
-		long end = System.currentTimeMillis();
-		double t1 = (end - start) / 1000.0;
-		
-		System.gc();
-		start = System.currentTimeMillis();
-		DijkstraFH d2 = new DijkstraFH(DijkstraFH.Element.EDGE, "result", "length");
-		d2.init(g);
-		d2.setSource(g.getNode("0"));
-		d2.compute();
-		end = System.currentTimeMillis();
-		double t2 = (end - start) / 1000.0;
-		
-		// check if both algorithms produce the same result
-		for (Node n : g)
-			assertEquals(d1.getShortestPathValue(n), d2.getPathLength(n), EPS);
-		
-		// print running times in gnuplotable form
-		System.out.printf("%15d%15d%15.4f%15.4f%n", g.getNodeCount(), g.getEdgeCount(), t1, t2);
-	}
-	
-	@Test
-	public void randomTest() {
-		for (int n = 100; n <= 1000; n += 100) {
-			Graph g = randomGraph(n, n / 10);
-			compareDijkstras(g);
-		}
-	}
+	}	
 }
