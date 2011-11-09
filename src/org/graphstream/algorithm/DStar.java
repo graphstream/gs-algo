@@ -30,46 +30,96 @@
  */
 package org.graphstream.algorithm;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Random;
 
+import org.graphstream.algorithm.generator.DorogovtsevMendesGenerator;
+import org.graphstream.algorithm.generator.Generator;
+import org.graphstream.algorithm.generator.GridGenerator;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
+import org.graphstream.graph.implementations.AdjacencyListGraph;
+import org.graphstream.stream.Sink;
 
-public class DStar implements DynamicAlgorithm {
+/**
+ * An implementation of the D* algorithm.
+ * 
+ * @author Guilhelm Savin
+ * 
+ * @reference Stentz, Anthony (1994),
+ *            "Optimal and Efficient Path Planning for Partially-Known Environments"
+ *            , Proceedings of the International Conference on Robotics and
+ *            Automation: 3310–3317
+ */
+public class DStar implements DynamicAlgorithm, Sink {
 
 	protected static enum Tag {
 		NEW, OPEN, CLOSED, LOWER, RAISE
 	}
 
+	public static final String STATE_ATTRIBUTE = "d*.state";
+	public static final String COST_ATTRIBUTE = "d*.cost";
+
 	protected String edgeWeightAttribute;
-	protected State g;
+	protected double defaultEdgeWeight;
+	protected State g, position;
 	protected LinkedList<State> openList;
+	protected Graph env;
+
+	protected final Comparator<State> stateComparator = new Comparator<State>() {
+		public int compare(State o1, State o2) {
+			return (int) Math.signum(k(o1) - k(o2));
+		}
+	};
+
+	public DStar() {
+		edgeWeightAttribute = "weight";
+		defaultEdgeWeight = 1;
+		g = null;
+		env = null;
+		openList = new LinkedList<State>();
+	}
 
 	public void terminate() {
-		// TODO Auto-generated method stub
-
+		env.removeSink(this);
 	}
 
 	public void compute() {
-		// TODO Auto-generated method stub
-
+		while (processState() >= 0 && position.t != Tag.CLOSED)
+			;
 	}
 
 	public void init(Graph graph) {
-		// TODO Auto-generated method stub
+		openList.clear();
+		env = graph;
+		env.addSink(this);
+	}
 
+	public void init(Node source, Node target, Graph graph) {
+		init(graph);
+		g = getState(target);
+		g.h = 0;
+		insert(g);
+
+		position = getState(source);
 	}
 
 	protected State minState() {
-		// TODO
-		return null;
+		Collections.sort(openList, stateComparator);
+		return openList.getFirst();
 	}
 
 	protected double getKMin() {
-		// TODO
-		return 0;
+		double kmin = Double.MAX_VALUE;
+
+		for (State x : openList)
+			kmin = Math.min(kmin, k(x));
+
+		return kmin;
 	}
 
 	protected double processState() {
@@ -93,6 +143,8 @@ public class DStar implements DynamicAlgorithm {
 			if (y.t == Tag.CLOSED && y.h <= kOld && x.h > y.h + c(y, x)) {
 				x.b = y;
 				x.h = y.h + c(y, x);
+
+				assert !Double.isNaN(x.h);
 			}
 		}
 
@@ -103,6 +155,7 @@ public class DStar implements DynamicAlgorithm {
 				y.h = x.h + c(x, y);
 				y.p = y.h;
 
+				assert !Double.isNaN(y.h);
 				insert(y);
 			} else {
 				if (y.b == x && y.h != x.h + c(x, y)) {
@@ -111,12 +164,17 @@ public class DStar implements DynamicAlgorithm {
 						if (y.h < y.p)
 							y.p = y.h;
 						y.h = x.h + c(x, y);
+
+						assert !Double.isNaN(y.h);
 					}
 					// L28 - L31
 					else {
 						y.h = x.h + c(x, y);
 						y.p = y.h;
+
+						assert !Double.isNaN(y.h);
 					}
+
 					insert(y);
 				}
 				// L34 -
@@ -130,6 +188,7 @@ public class DStar implements DynamicAlgorithm {
 							if (y.t == Tag.CLOSED)
 								y.p = y.h;
 
+							assert !Double.isNaN(y.h);
 							insert(y);
 						}
 						// L43 - 46
@@ -143,6 +202,8 @@ public class DStar implements DynamicAlgorithm {
 						if (y.b != x && x.h > y.h + c(y, x)
 								&& y.t == Tag.CLOSED && y.h > kOld) {
 							y.p = y.h;
+
+							assert !Double.isNaN(y.h);
 							insert(y);
 						}
 					}
@@ -153,42 +214,106 @@ public class DStar implements DynamicAlgorithm {
 		return getKMin();
 	}
 
-	protected double modifyCost(State x, State y, double cval) {
+	protected void modifyCost(String edgeId, double cval) {
+		Edge e = env.getEdge(edgeId);
 
+		if (e.isDirected())
+			modifyCost(getState(e.getSourceNode()),
+					getState(e.getTargetNode()), cval);
+		else {
+			modifyCost(getState(e.getNode0()), getState(e.getNode1()), cval);
+			modifyCost(getState(e.getNode1()), getState(e.getNode0()), cval);
+		}
+	}
+
+	protected void modifyCost(State x, State y, double cval) {
+		Edge e = x.node.getEdgeBetween(y.node);
+
+		if (e != null)
+			e.setAttribute(COST_ATTRIBUTE, cval);
+
+		if (x.b == y)
+			x.b = null;
+		
 		if (x.t == Tag.CLOSED) {
 			x.p = x.h;
 			insert(x);
 		}
-		
-		return getKMin();
 	}
 
 	public State getState(Node n) {
-		State s = n.getAttribute("d*.state");
+		State s = n.getAttribute(STATE_ATTRIBUTE);
 
 		if (s == null) {
 			s = new State(n);
-			n.addAttribute("d*.state", s);
+			n.addAttribute(STATE_ATTRIBUTE, s);
 		}
 
 		return s;
 	}
 
 	protected double c(State x, State y) {
-		// TODO
-		return 0;
+		Edge e = x.node.getEdgeBetween(y.node);
+
+		if (e != null) {
+			if (e.hasNumber(COST_ATTRIBUTE))
+				return e.getNumber(COST_ATTRIBUTE);
+			else
+				return defaultEdgeWeight;
+		}
+
+		return Double.NaN;
 	}
 
 	protected double k(State x) {
+		if (x.t != Tag.OPEN)
+			return Double.NaN;
+
 		return Math.min(x.h, x.p);
 	}
 
 	protected void insert(State x) {
 		openList.add(x);
+		x.t = Tag.OPEN;
+		x.p = x.h;
 	}
 
 	protected void delete(State x) {
 		openList.remove(x);
+		x.t = Tag.CLOSED;
+	}
+
+	protected boolean isMonotonic(State xn, int n) {
+		State xi1 = xn;
+		State xi = xi1.b;
+
+		for (int i = n; i > 0; i--) {
+			if (!((xi.t == Tag.CLOSED && xi.h < xi1.h) || (xi.t == Tag.OPEN && xi.p < xi1.h)))
+				return false;
+
+			xi1 = xi;
+			xi = xi1.b;
+		}
+
+		return true;
+	}
+
+	public void markPath(String attribute, Object on, Object off) {
+		for (Node n : env)
+			n.setAttribute(attribute, off);
+
+		for (Edge e : env.getEachEdge())
+			e.setAttribute(attribute, off);
+
+		State s = position;
+
+		do {
+			s.node.setAttribute(attribute, on);
+			s.node.getEdgeBetween(s.b.node).setAttribute(attribute, on);
+			s = s.b;
+		} while (s != g);
+
+		g.node.setAttribute(attribute, on);
 	}
 
 	protected class State implements Iterable<State> {
@@ -212,6 +337,9 @@ public class DStar implements DynamicAlgorithm {
 		 */
 		double p;
 
+		/**
+		 * 
+		 */
 		double h;
 
 		public State(Node node) {
@@ -247,5 +375,148 @@ public class DStar implements DynamicAlgorithm {
 
 		public void remove() {
 		}
+	}
+
+	public void edgeAttributeAdded(String sourceId, long timeId, String edgeId,
+			String attribute, Object value) {
+		if (attribute.equals(edgeWeightAttribute) && value != null
+				&& value instanceof Number)
+			modifyCost(edgeId, ((Number) value).doubleValue());
+	}
+
+	public void edgeAttributeChanged(String sourceId, long timeId,
+			String edgeId, String attribute, Object oldValue, Object newValue) {
+		if (attribute.equals(edgeWeightAttribute) && newValue != null
+				&& newValue instanceof Number)
+			modifyCost(edgeId, ((Number) newValue).doubleValue());
+	}
+
+	public void edgeAttributeRemoved(String sourceId, long timeId,
+			String edgeId, String attribute) {
+		// Nothing to do
+	}
+
+	public void graphAttributeAdded(String sourceId, long timeId,
+			String attribute, Object value) {
+		// Nothing to do
+	}
+
+	public void graphAttributeChanged(String sourceId, long timeId,
+			String attribute, Object oldValue, Object newValue) {
+		// Nothing to do
+	}
+
+	public void graphAttributeRemoved(String sourceId, long timeId,
+			String attribute) {
+		// Nothing to do
+	}
+
+	public void nodeAttributeAdded(String sourceId, long timeId, String nodeId,
+			String attribute, Object value) {
+		// Nothing to do
+	}
+
+	public void nodeAttributeChanged(String sourceId, long timeId,
+			String nodeId, String attribute, Object oldValue, Object newValue) {
+		// Nothing to do
+	}
+
+	public void nodeAttributeRemoved(String sourceId, long timeId,
+			String nodeId, String attribute) {
+		// Nothing to do
+	}
+
+	public void edgeAdded(String sourceId, long timeId, String edgeId,
+			String fromNodeId, String toNodeId, boolean directed) {
+		modifyCost(edgeId, defaultEdgeWeight);
+	}
+
+	public void edgeRemoved(String sourceId, long timeId, String edgeId) {
+		modifyCost(edgeId, Double.NaN);
+	}
+
+	public void graphCleared(String sourceId, long timeId) {
+		//
+		// WTF ? You want a shortest path but you clear the graph.
+		//
+		throw new RuntimeException();
+	}
+
+	public void nodeAdded(String sourceId, long timeId, String nodeId) {
+		// Nothing to do
+	}
+
+	public void nodeRemoved(String sourceId, long timeId, String nodeId) {
+		Node n = env.getNode(nodeId);
+		State s = getState(n);
+
+		if (s == g || s == position) {
+			//
+			// WTF ? How does the robot go to g if you remove it ??
+			//
+			throw new RuntimeException();
+		}
+
+		Iterator<State> it = new NeighborStateIterator(s);
+
+		while (it.hasNext()) {
+			State o = it.next();
+
+			modifyCost(s, o, Double.NaN);
+			modifyCost(o, s, Double.NaN);
+		}
+	}
+
+	public void stepBegins(String sourceId, long timeId, double step) {
+		// Nothing to do
+	}
+
+	public static void main(String... args) {
+		Generator gen = new DorogovtsevMendesGenerator();
+		AdjacencyListGraph g = new AdjacencyListGraph("g");
+		DStar dstar = new DStar();
+		Random r = new Random();
+		boolean alive = true;
+
+		g
+				.addAttribute(
+						"ui.stylesheet",
+						"node.on { fill-color: red; } node.off { fill-color: black; } edge.on { fill-color: red; } edge.off { fill-color: black; }");
+
+		gen.addSink(g);
+		g.display(true);
+
+		gen.begin();
+		for (int i = 0; i < 150; i++)
+			gen.nextEvents();
+
+		dstar.init(Toolkit.randomNode(g), Toolkit.randomNode(g), g);
+
+		do {
+			dstar.compute();
+			dstar.markPath("ui.class", "on", "off");
+
+			try {
+				Thread.sleep(2000);
+			} catch (Exception e) {
+			}
+
+			State s = dstar.position;
+
+			while (s.b != dstar.g && s.b != null && r.nextBoolean())
+				s = s.b;
+
+			if (r.nextBoolean() && s != dstar.position && s.b != dstar.g) {
+				g.removeNode(s.node);
+			} else {
+				g.removeEdge(s.node.getEdgeBetween(s.b.node));
+			}
+			
+			gen.nextEvents();
+		} while (alive);
+
+		gen.end();
+		dstar.terminate();
+
 	}
 }

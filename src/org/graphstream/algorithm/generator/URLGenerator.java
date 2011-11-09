@@ -34,11 +34,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLConnection;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,20 +64,28 @@ public class URLGenerator extends BaseGenerator {
 
 	protected HashSet<String> urls;
 	protected LinkedList<String> stepUrls;
+	protected HashSet<String> newUrls;
 	protected Pattern hrefPattern;
 	protected Mode mode;
 	protected int threads = 2;
 	protected String nodeWeight = "weight";
 	protected String edgeWeight = "weight";
 	protected LinkedList<URLFilter> filters;
+	protected double step;
+	protected boolean printProgress;
+	protected final ReentrantLock lock;
 
 	public URLGenerator(String... startFrom) {
 		urls = new HashSet<String>();
 		stepUrls = new LinkedList<String>();
+		newUrls = new HashSet<String>();
 		hrefPattern = Pattern.compile(REGEX);
 		mode = Mode.HOST;
 		filters = new LinkedList<URLFilter>();
 		directed = false;
+		step = 0;
+		printProgress = false;
+		lock = new ReentrantLock();
 
 		declineMatchingURL("^(javascript:|mailto:|#).*");
 		declineMatchingURL(".*[.](avi|tar|gz|zip|mp3|mpg|jpg|jpeg|png|ogg|flv)$");
@@ -103,22 +113,31 @@ public class URLGenerator extends BaseGenerator {
 	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
 	 */
 	public boolean nextEvents() {
-		HashSet<String> newUrls;
+		sendStepBegins(sourceId, step++);
+		sendGraphAttributeChanged(sourceId, "urls.parsed", null, urls.size());
+		sendGraphAttributeChanged(sourceId, "urls.remaining", null, stepUrls
+				.size());
+
+		if (printProgress)
+			progress();
+
+		for (String url : stepUrls) {
+			try {
+				addNodeURL(url);
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
+		}
+
+		urls.addAll(stepUrls);
+		newUrls.clear();
 
 		if (threads > 1)
-			newUrls = nextEventsThreaded();
+			nextEventsThreaded();
 		else {
-			newUrls = new HashSet<String>();
-
 			for (String url : stepUrls) {
 				try {
-					addNodeURL(url);
-				} catch (URISyntaxException e) {
-					e.printStackTrace();
-				}
-
-				try {
-					parseUrl(url, newUrls);
+					parseUrl(url);
 				} catch (IOException e) {
 					System.err.printf("Failed to parse \"%s\" : %s\n", url, e
 							.getMessage());
@@ -200,6 +219,10 @@ public class URLGenerator extends BaseGenerator {
 		this.threads = count;
 	}
 
+	public void enableProgression(boolean on) {
+		printProgress = on;
+	}
+
 	/**
 	 * Can be used to filter url. Url not matching this regex will be discarded.
 	 * 
@@ -259,14 +282,12 @@ public class URLGenerator extends BaseGenerator {
 		}
 	}
 
-	protected HashSet<String> nextEventsThreaded() {
+	protected void nextEventsThreaded() {
 		int t = Math.min(threads, stepUrls.size());
 		int byThreads = stepUrls.size() / t;
 
 		LinkedList<Worker> workers = new LinkedList<Worker>();
 		LinkedList<Thread> workersThreads = new LinkedList<Thread>();
-
-		HashSet<String> newUrls = new HashSet<String>();
 
 		for (int i = 0; i < t; i++) {
 			int start = i * byThreads;
@@ -282,19 +303,15 @@ public class URLGenerator extends BaseGenerator {
 
 			workers.add(w);
 			workersThreads.add(u);
-
 		}
 
 		for (int i = 0; i < t; i++) {
 			try {
 				workersThreads.get(i).join();
-				newUrls.addAll(workers.get(i).newUrls);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-
-		return newUrls;
 	}
 
 	protected boolean isValid(String url) {
@@ -315,12 +332,12 @@ public class URLGenerator extends BaseGenerator {
 	 *            the set where extracted links will be added
 	 * @throws IOException
 	 */
-	protected void parseUrl(String url, HashSet<String> newUrls)
-			throws IOException {
+	protected void parseUrl(String url) throws IOException {
 		URI uri;
 		URLConnection conn;
 		InputStream stream;
 		BufferedReader reader;
+		HashSet<String> localUrls = new HashSet<String>();
 
 		if (!isValid(url))
 			return;
@@ -342,6 +359,9 @@ public class URLGenerator extends BaseGenerator {
 		}
 
 		conn = uri.toURL().openConnection();
+		conn.setConnectTimeout(1000);
+		conn.setReadTimeout(1000);
+		conn.connect();
 
 		if (conn.getContentType() == null
 				|| !conn.getContentType().startsWith("text/html"))
@@ -383,9 +403,33 @@ public class URLGenerator extends BaseGenerator {
 					throw new IOException(e);
 				}
 
-				newUrls.add(href);
+				if (!urls.contains(href))
+					localUrls.add(href);
 			}
 		}
+
+		lock.lock();
+
+		try {
+			newUrls.addAll(localUrls);
+		} finally {
+			lock.unlock();
+		}
+		
+		localUrls.clear();
+		localUrls = null;
+
+		try {
+			if (conn.getDoOutput())
+				conn.getOutputStream().close();
+			reader.close();
+			stream.close();
+		} catch (IOException e) {
+			// Do not throw this exception
+		}
+
+		if (conn instanceof HttpURLConnection)
+			((HttpURLConnection) conn).disconnect();
 	}
 
 	protected String getNodeId(String url) throws URISyntaxException {
@@ -427,7 +471,7 @@ public class URLGenerator extends BaseGenerator {
 	protected void addNodeURL(String url) throws URISyntaxException {
 		String nodeId = getNodeId(url);
 
-		urls.add(url);
+		// urls.add(url);
 
 		if (internalGraph.getNode(nodeId) == null) {
 			addNode(nodeId);
@@ -444,6 +488,7 @@ public class URLGenerator extends BaseGenerator {
 			w = 0;
 
 		n.setAttribute(nodeWeight, w + 1);
+		sendNodeAttributeChanged(sourceId, nodeId, nodeWeight, null, w + 1);
 	}
 
 	protected void connect(String url1, String url2) throws URISyntaxException {
@@ -473,7 +518,13 @@ public class URLGenerator extends BaseGenerator {
 				w = 0;
 
 			e.setAttribute(edgeWeight, w + 1);
+			sendEdgeAttributeChanged(sourceId, eid, edgeWeight, null, w + 1);
 		}
+	}
+
+	protected void progress() {
+		System.out.printf("\033[s\033[K%d urls parsed, %d remaining\033[u",
+				urls.size(), stepUrls.size());
 	}
 
 	/*
@@ -482,25 +533,17 @@ public class URLGenerator extends BaseGenerator {
 	private class Worker implements Runnable {
 		int start, stop;
 		LinkedList<String> urls;
-		HashSet<String> newUrls;
 
 		public Worker(int start, int stop, LinkedList<String> urls) {
 			this.start = start;
 			this.stop = stop;
 			this.urls = urls;
-			this.newUrls = new HashSet<String>();
 		}
 
 		public void run() {
 			for (int i = start; i < stop; i++) {
 				try {
-					addNodeURL(urls.get(i));
-				} catch (URISyntaxException e) {
-					e.printStackTrace();
-				}
-
-				try {
-					parseUrl(urls.get(i), newUrls);
+					parseUrl(urls.get(i));
 				} catch (IOException e) {
 					System.err.printf("Failed to parse \"%s\" : %s\n", urls
 							.get(i), e.getMessage());

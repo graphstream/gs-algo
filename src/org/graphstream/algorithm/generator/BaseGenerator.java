@@ -348,6 +348,7 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 		if (on && internalGraph == null) {
 			internalGraph = new AdjacencyListGraph(getClass().getName()
 					+ "-internal_graph");
+			internalGraph.setStrict(false);
 		}
 	}
 
