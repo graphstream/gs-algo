@@ -21,7 +21,7 @@
 
 	<groupId>org.graphstream</groupId>
 	<artifactId>gs-algo</artifactId>
-	<version>1.0</version>
+	<version>1.x-git</version>
 
 	<name>gs-algo</name>
 	<description>
@@ -34,7 +34,6 @@
 	<!-- Source code of GraphStream is hosted on GitHub. -->
 	<scm>
 		<connection>scm:git:git://github.com/graphstream/gs-algo.git</connection>
-		<tag>1.0</tag>
 		<url>https://github.com/graphstream/gs-algo</url>
 	</scm>
 
@@ -50,6 +49,14 @@
 
 	<!-- The GraphStream Team. Members are sorted in alphabetically. -->
 	<developers>
+		<developer>
+			<id>sbalev</id>
+			<name>Stefan Balev</name>
+			<email>stefan.balev@graphstream-project.org</email>
+			<organization>LITIS</organization>
+			<organizationUrl>http://www.litislab.eu</organizationUrl>
+		</developer>
+		
 		<developer>
 			<id>jbaudry</id>
 			<name>Julien Baudry</name>
@@ -229,7 +236,7 @@
 		<dependency>
 			<groupId>org.graphstream</groupId>
 			<artifactId>gs-core</artifactId>
-			<version>1.0</version>
+			<version>1.x-git</version>
 			<optional>false</optional>
 		</dependency>
 	</dependencies>
