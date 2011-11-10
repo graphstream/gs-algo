@@ -39,7 +39,6 @@ import org.graphstream.algorithm.generator.FullGenerator;
 import org.graphstream.algorithm.generator.Generator;
 import org.graphstream.algorithm.generator.GridGenerator;
 import org.graphstream.algorithm.generator.IncompleteGridGenerator;
-import org.graphstream.algorithm.generator.PreferentialAttachmentGenerator;
 import org.graphstream.algorithm.generator.RandomEuclideanGenerator;
 import org.graphstream.algorithm.generator.RandomGenerator;
 import org.graphstream.graph.implementations.DefaultGraph;
@@ -79,8 +78,8 @@ public class TestGenerator {
 
 	@Test
 	public void testPreferentialAttachmentGenerator() {
-		testGenerator(new PreferentialAttachmentGenerator(),
-				"PreferentialAttachmentGenerator", 100);
+		testGenerator(new BarabasiAlbertGenerator(),
+				"BarabasiAlbertGenerator", 100);
 	}
 
 	@Test

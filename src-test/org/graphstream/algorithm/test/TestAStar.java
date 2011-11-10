@@ -252,10 +252,10 @@ public class TestAStar {
 		Iterator<? extends Edge> i = edges.iterator();
 
 		Edge e = i.next();
-		assertTrue(e != null);
+		assertNotNull(e);
 		assertTrue(e.getId().equals("AB"));
 		e = i.next();
-		assertTrue(e != null);
+		assertNotNull(e);
 		assertTrue(e.getId().equals("BF"));
 		assertTrue(!i.hasNext());
 	}
