@@ -31,11 +31,14 @@
  */
 package org.graphstream.algorithm.coloring;
 
-import java.util.*;
-import java.awt.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.PriorityQueue;
 
-import org.graphstream.algorithm.*;
-import org.graphstream.graph.*;
+import org.graphstream.algorithm.Algorithm;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
 
 /**
  * Welsh Powell static graph coloring algorithm.
