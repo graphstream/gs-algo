@@ -37,12 +37,10 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
 
-import org.graphstream.algorithm.generator.PreferentialAttachmentGenerator;
+import org.graphstream.algorithm.generator.BarabasiAlbertGenerator;
 import org.graphstream.graph.implementations.DefaultGraph;
 import org.graphstream.stream.PipeBase;
 import org.graphstream.ui.geom.Point3;
-import org.graphstream.ui.layout.Layout;
-import org.graphstream.ui.layout.LayoutListener;
 import org.miv.pherd.geom.Vector3;
 
 public class Eades84Layout extends PipeBase implements Layout {
@@ -421,7 +419,7 @@ public class Eades84Layout extends PipeBase implements Layout {
 
 	public static void main(String... args) {
 		DefaultGraph g = new DefaultGraph("g");
-		PreferentialAttachmentGenerator gen = new PreferentialAttachmentGenerator();
+		BarabasiAlbertGenerator gen = new BarabasiAlbertGenerator();
 		Eades84Layout layout = new Eades84Layout();
 
 		int size = 30;
