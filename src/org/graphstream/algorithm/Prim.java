@@ -51,8 +51,8 @@ import java.util.Collections;
  * <h2>Example</h2>
  * 
  * The following example generates a graph with the Dorogovtsev-Mendes generator
- * and then compute a spanning-tree using the Kruskal algorithm. The generator
- * creates random weights for edges that will be used by the Kruskal algorithm.
+ * and then compute a spanning-tree using the Prim algorithm. The generator
+ * creates random weights for edges that will be used by the Prim algorithm.
  * 
  * If no weight is present, algorithm considers that all weights are set to 1.
  * 
