@@ -71,7 +71,7 @@ import java.util.Collections;
  * 
  * public class PrimTest {
  *  
- * 	public static void main(String .. args) {
+ * 	public static void main(String ... args) {
  * 		DorogovtsevMendesGenerator gen = new DorogovtsevMendesGenerator();
  * 		Graph graph = new DefaultGraph("Prim Test");
  * 
@@ -91,7 +91,7 @@ import java.util.Collections;
  * 
  * 		Prim prim = new Prim("ui.class", "intree", "notintree");
  * 
- * 		prim.init(g);
+ * 		prim.init(graph);
  * 		prim.compute();
  *  }
  * }

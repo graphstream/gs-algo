@@ -80,7 +80,7 @@ package org.graphstream.algorithm.generator;
  * 
  * <pre>
  * Graph graph = new SingleGraph("grid");
- * Generator gen = GridGenerator();
+ * Generator gen = new GridGenerator();
  * 
  * gen.addSink(graph);
  * gen.begin();
