@@ -12,6 +12,9 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.stream.SinkAdapter;
 
+
+// XXX Not functional yet
+
 /**
  * Network simplex method is an algorithm that solves the minimum cost flow
  * (MCF) problem for an oriented graph.
