@@ -50,7 +50,6 @@ public class TestNetworkSimplex {
 	public void staticTest() {
 		Graph g = toyGraph();
 		NetworkSimplex ns = new NetworkSimplex("supply", "capacity", "cost");
-		ns.setFlowName("flow");
 		ns.init(g);
 
 		assertEquals(ns.getSolutionStatus(),
@@ -69,9 +68,19 @@ public class TestNetworkSimplex {
 		assertEquals(ns.getFlow(g.getEdge("CF")), 5);
 		assertEquals(ns.getFlow(g.getEdge("FE")), 3);
 		
-		for (Edge e : g.getEachEdge()) {
-			int f = e.getAttribute("flow");
-			assertEquals(f, ns.getFlow(e));
-		}
+		assertEquals(ns.getStatus(g.getEdge("AB")), NetworkSimplex.ArcStatus.NONBASIC_UPPER);
+		assertEquals(ns.getStatus(g.getEdge("AC")), NetworkSimplex.ArcStatus.BASIC);
+		assertEquals(ns.getStatus(g.getEdge("BC")), NetworkSimplex.ArcStatus.BASIC);
+		assertEquals(ns.getStatus(g.getEdge("CD")), NetworkSimplex.ArcStatus.BASIC);
+		assertEquals(ns.getStatus(g.getEdge("CE")), NetworkSimplex.ArcStatus.BASIC);
+		assertEquals(ns.getStatus(g.getEdge("CF")), NetworkSimplex.ArcStatus.BASIC);
+		assertEquals(ns.getStatus(g.getEdge("FE")), NetworkSimplex.ArcStatus.NONBASIC_UPPER);
+		
+		assertNull(ns.getEdgeToParent(g.getNode("A")));
+		assertEquals(ns.getEdgeToParent(g.getNode("B")).getId(), "BC");
+		assertEquals(ns.getEdgeToParent(g.getNode("C")).getId(), "AC");
+		assertEquals(ns.getEdgeToParent(g.getNode("D")).getId(), "CD");
+		assertEquals(ns.getEdgeToParent(g.getNode("E")).getId(), "CE");
+		assertEquals(ns.getEdgeToParent(g.getNode("F")).getId(), "CF");
 	}
 }

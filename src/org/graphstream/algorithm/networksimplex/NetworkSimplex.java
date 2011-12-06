@@ -1,5 +1,6 @@
 package org.graphstream.algorithm.networksimplex;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -9,15 +10,18 @@ import org.graphstream.algorithm.DynamicAlgorithm;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.stream.SinkAdapter;
 
-
-// XXX Not functional yet
+// XXX Work in progress
 
 /**
+ * <h3>Minimum cost flow problem</h3>
+ * 
+ * <p>
  * Network simplex method is an algorithm that solves the minimum cost flow
  * (MCF) problem for an oriented graph.
+ * </p>
+ * 
  * <p>
  * The MCF problem can be stated as follows. Each node has associated number
  * <i>supply</i> representing the available supply of or demand for flow at that
@@ -28,6 +32,8 @@ import org.graphstream.stream.SinkAdapter;
  * problem is to send the required flows from supply nodes to demand nodes at
  * minimum cost, respecting the capacities of the arcs. Note that if the sum of
  * <i>supply</i> attributes of all nodes is nonzero, the problem is infeasible.
+ * </p>
+ * 
  * <p>
  * MCF framework can be used to model a broad variety of network problems,
  * including matching, shortest path, transportation, etc. For example, if we
@@ -37,8 +43,51 @@ import org.graphstream.stream.SinkAdapter;
  * <i>cost</i> to the weight for each arc. The solution of the MCF problem with
  * these particular settings will be minimum cost unit flow from the source to
  * all other nodes passing by the shortest paths.
- * <p>
+ * </p>
  * 
+ * <h3>Problem data</h3>
+ * 
+ * <p>
+ * The user of this class must store the problem data as attributes of the nodes
+ * and the edges of the graph as described below. The names of these attributes
+ * are specified in the constructor
+ * {@link #NetworkSimplex(String, String, String)}. For efficiency reasons all
+ * the data are supposed to be integer. If some of the attributes are real,
+ * their fractional part is ignored. To avoid loss of precision, the user must
+ * scale her data properly if they are real.
+ * </p>
+ * 
+ * <p>
+ * An attribute called {@code supplyName} is used to store the supply (or demand
+ * if negative) of each node. If a node has not an attribute with this name or
+ * if the value of this attribute is not numeric, the node supply is considered
+ * as zero (transshipment node).
+ * </p>
+ * 
+ * <p>
+ * An attribute called {@code capacityName} is used to store the capacity of
+ * each edge. If an edge has not an attribute with this name, or if the value of
+ * this attribute is negative or not numeric, the edge capacity is considered as
+ * infinite.
+ * </p>
+ * 
+ * <p>
+ * An attribute called {@code costName} is used to store the cost per unit flow
+ * of each edge. If an edge has not an attribute with this name or if the value
+ * of this attribute is not numeric, the cost per unit flow of the edge is
+ * considered 1.
+ * </p>
+ * 
+ * <p>
+ * The flow on a directed edge is always from its source node to its target
+ * node. Each undirected edge is considered as a couple of directed edges with
+ * the same capacity and cost per unit flow. In other words, there are possibly
+ * two independent flows on each undirected edge.
+ * </p>
+ * 
+ * <h3>Solutions</h3>
+ * 
+ * TODO
  * 
  * @author Stefan Balev
  */
@@ -55,7 +104,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 * Used as capacity value for uncapacitated arcs
 	 */
 	protected static final int INFINITE_CAPACITY = -1;
-	
+
 	/**
 	 * Pricing strategy used at each iteration of the algorithm. Only two simple
 	 * strategies are implemented for the moment, more are to come.
@@ -73,16 +122,11 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		 */
 		MOST_NEGATIVE
 	}
-	
+
 	/**
 	 * The status of the current solution
 	 */
 	public static enum SolutionStatus {
-		/**
-		 * Status before initialization
-		 */
-		UNDEFINED,
-
 		/**
 		 * The current solution is optimal
 		 */
@@ -115,7 +159,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 * Name of the attribute used to store the cost per unit flow of each arc
 	 */
 	protected String costName;
-	
+
 	/**
 	 * Current pricing strategy
 	 */
@@ -150,9 +194,9 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 * The objective value of the current solution
 	 */
 	protected BigMNumber objectiveValue;
-	
+
 	/**
-	 * The status of the current BFS 
+	 * The status of the current BFS
 	 */
 	protected SolutionStatus solutionStatus;
 
@@ -217,7 +261,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	protected BigMNumber work2;
 
 	/**
-	 * Creates a network simplex instance specifying attribute name to be used.
+	 * Creates a network simplex instance specifying attribute names to be used.
 	 * Use {@link #init(Graph)} to assign a graph to this instance.
 	 * 
 	 * @param supplyName
@@ -231,14 +275,13 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		this.supplyName = supplyName;
 		this.capacityName = capaciyName;
 		this.costName = costName;
-		
+
 		objectiveValue = new BigMNumber();
 		cycleFlowChange = new BigMNumber();
 		work1 = new BigMNumber();
 		work2 = new BigMNumber();
-		solutionStatus = SolutionStatus.UNDEFINED;
 	}
-	
+
 	// simplex initialization
 
 	/**
@@ -302,7 +345,6 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 				arc.target = node;
 				arc.flow = -node.supply;
 			}
-			// XXX Do I need this ?
 			arcs.put(arc.id, arc);
 
 			node.parent = root;
@@ -318,9 +360,9 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		previous.thread = root;
 		root.supply = (int) -totalSupply;
 	}
-	
+
 	// Simplex machinery
-	
+
 	/**
 	 * "First negative" pricing strategy
 	 */
@@ -335,7 +377,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			}
 		}
 	}
-	
+
 	/**
 	 * "Most negative" pricing strategy
 	 */
@@ -352,7 +394,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			}
 		}
 	}
-	
+
 	/**
 	 * Selects entering arc among the candidates (non-basic arcs with negative
 	 * reduced costs). Puts the selected candidate in {@link #enteringArc}. If
@@ -368,7 +410,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			break;
 		}
 	}
-	
+
 	/**
 	 * Finds the nearest common predecessor of the two nodes of
 	 * {@link #enteringArc}. Puts it in {@link #join}.
@@ -404,7 +446,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			first = enteringArc.target;
 			second = enteringArc.source;
 		}
-		
+
 		enteringArc.computeAllowedFlowChange(first, cycleFlowChange);
 		leavingArc = enteringArc;
 
@@ -433,7 +475,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			}
 		}
 	}
-	
+
 	/**
 	 * Changes the flows on the arcs belonging to the cycle and updates the
 	 * objective value.
@@ -452,9 +494,10 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		for (NSNode node = first; node != join; node = node.parent)
 			node.arcToParent.changeFlow(delta, node.parent);
 	}
-	
+
 	/**
-	 * Turns upside-down the part of the tree between the entering arc and the leaving arc.
+	 * Turns upside-down the part of the tree between the entering arc and the
+	 * leaving arc.
 	 */
 	protected void updateBFS() {
 		NSNode stopNode = oldSubtreeRoot.parent;
@@ -473,9 +516,10 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			oldArc = currentNode.arcToParent;
 		}
 	}
-	
+
 	/**
-	 * 
+	 * Performs a pivot when the entering arc and the leaving arc are known.
+	 * Changes the flows on the cycle and updates the BFS.
 	 */
 	protected void pivot() {
 		changeFlows();
@@ -489,17 +533,21 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			nonBasicArcs.remove(enteringArc);
 			if ((newSubtreeRoot == first && oldSubtreeRoot == leavingArc.target)
 					|| (newSubtreeRoot == second && oldSubtreeRoot == leavingArc.source))
-				leavingArc.status = ArcStatus.NONBASIC_LOWER; // XXX
+				// The leaving arc is in the direction of the cycle
+				leavingArc.status = ArcStatus.NONBASIC_UPPER;
 			else
-				leavingArc.status = ArcStatus.NONBASIC_UPPER; // XXX
-
+				leavingArc.status = ArcStatus.NONBASIC_LOWER;
 			nonBasicArcs.add(leavingArc);
 			updateBFS();
 		}
 	}
-	
+
+	/**
+	 * The main simplex method loop. Selects leaving and entering arc. Loops
+	 * until there are no more candidates or until absorbing cycle is found.
+	 */
 	protected void simplex() {
-		while(true) {
+		while (true) {
 			selectEnteringArc();
 			if (enteringArc == null) {
 				if (objectiveValue.isInfinite())
@@ -517,8 +565,194 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		}
 	}
 
+	// access and modification of algorithm parameters
 
+	/**
+	 * Returns the name of the attribute used to store the supply of each node.
+	 * This name is given as constructor parameter and cannot be modified.
+	 * 
+	 * @return The name of the supply attribute.
+	 */
+	public String getSupplyName() {
+		return supplyName;
+	}
 
+	/**
+	 * Returns the name of the attribute used to store the capacity of each
+	 * edge. This name is given as constructor parameter and cannot be modified.
+	 * 
+	 * @return The name of the capacity attribute.
+	 */
+	public String getCapacityName() {
+		return capacityName;
+	}
+
+	/**
+	 * Returns the name of the attribute used to store the cost per unit flow of
+	 * each edge. This name is given as constructor parameter and cannot be
+	 * modified.
+	 * 
+	 * @return The name of the cost attribute.
+	 */
+	public String getCostName() {
+		return costName;
+	}
+
+	/**
+	 * Returns the currently used pricing strategy.
+	 * 
+	 * @return The pricing strategy
+	 */
+	public PricingStrategy getPricingStrategy() {
+		return pricingStrategy;
+	}
+
+	/**
+	 * Sets the pricing strategy
+	 * 
+	 * @param pricingStrategy
+	 *            The new pricing strategy
+	 */
+	public void setPricingStrategy(PricingStrategy pricingStrategy) {
+		this.pricingStrategy = pricingStrategy;
+	}
+
+	// solution access methods
+
+	/**
+	 * The MCF problem has solution only if the problem is balanced, i.e. if the
+	 * total supply is equal to the total demand. This method returns the
+	 * missing supply (if positive) or demand (if negative) in order to make the
+	 * problem balanced. If the returned value is zero, the problem is balanced.
+	 * 
+	 * @return The network balance
+	 */
+	public int getNetworkBalance() {
+		return root.supply;
+	}
+
+	/**
+	 * Returns the amount of unsatisfied supply (for supply nodes) or demand
+	 * (for demand nodes) of a given node. This method always returns a
+	 * non-negative value. If the value is zero, the current solution satisfies
+	 * the node demand / supply. If the current solution is feasible, the
+	 * returned value is always zero.
+	 * 
+	 * @param node
+	 *            A node
+	 * @return The balance of the node
+	 */
+	public int getNodeBalance(Node node) {
+		return arcs.get(PREFIX + "ARTIFICIAL_" + node.getId()).flow;
+	}
+
+	/**
+	 * Returns the status of the current solution.
+	 * 
+	 * @return The solution status
+	 */
+	public SolutionStatus getSolutionStatus() {
+		return solutionStatus;
+	}
+
+	/**
+	 * Returns the flow on an edge. If {@code sameDirection} is true, returns
+	 * the flow from the source to the target of the edge, otherwise returns the
+	 * flow from the target to the source of the edge. Note that for directed
+	 * edges the flow can only pass from the source node to the target node. For
+	 * undirected edges there may be independent flows in both directions.
+	 * 
+	 * @param edge
+	 *            An edge
+	 * @param sameDirection
+	 *            If true, returns the flow from the source to the target.
+	 * @return The flow on the edge.
+	 */
+	public int getFlow(Edge edge, boolean sameDirection) {
+		if (edge.isDirected())
+			return sameDirection ? arcs.get(edge.getId()).flow : 0;
+		else
+			return arcs.get((sameDirection ? "" : PREFIX + "REVERSE_")
+					+ edge.getId()).flow;
+	}
+
+	/**
+	 * Returns the flow on an edge from its source node to its target node. The
+	 * same as {@code getFlow(Edge, true)}.
+	 * 
+	 * @param edge
+	 *            An edge
+	 * @return The flow on the edge
+	 * @see #getFlow(Edge, boolean)
+	 */
+	public int getFlow(Edge edge) {
+		return getFlow(edge, true);
+	}
+
+	/**
+	 * Returns the status of an edge (basic, non-basic at zero or non-basic at
+	 * upper bound) in the current BFS. Note that undirected edges are
+	 * interpreted as two directed arcs. If {@code sameDirection} is true, the
+	 * method returns the status of the arc from the source to the target of the
+	 * edge, otherwise it returns the status of the arc from the target to the
+	 * source. If the edge is directed and {@code sameDirection} is false,
+	 * returns {@code null}.
+	 * 
+	 * @param edge
+	 *            An edge
+	 * @param sameDirection
+	 *            If true, returns the status of the arc from the source to the
+	 *            target.
+	 * @return The status of the edge
+	 */
+	public ArcStatus getStatus(Edge edge, boolean sameDirection) {
+		if (edge.isDirected())
+			return sameDirection ? arcs.get(edge.getId()).status : null;
+		else
+			return arcs.get((sameDirection ? "" : PREFIX + "REVERSE")
+					+ edge.getId()).status;
+	}
+
+	/**
+	 * Returns the status of an edge in the current BFS. The same as
+	 * {@code getStatus(edge, true)}.
+	 * 
+	 * @param edge
+	 *            An edge
+	 * @return The status of the edge
+	 * @see #getStatus(Edge, boolean)
+	 */
+	public ArcStatus getStatus(Edge edge) {
+		return getStatus(edge, true);
+	}
+
+	/**
+	 * Returns the edge to the parent of a node in the BFS tree.
+	 * 
+	 * If the parent of the node is the artificial root, this method returns
+	 * {@code null}. When the returned edge is undirected, use
+	 * {@link #getStatus(Edge, boolean)} to know which of the both arcs is
+	 * basic.
+	 * 
+	 * @param node
+	 *            A node
+	 * @return The edge to the parent of the node in the BFS tree
+	 */
+	public Edge getEdgeToParent(Node node) {
+		NSArc arc = nodes.get(node.getId()).arcToParent;
+		if (arc.isArtificial())
+			return null;
+		return graph.getEdge(arc.getOriginalId());
+	}
+
+	/**
+	 * Returns the total cost of the current network flow
+	 * 
+	 * @return The objective value of the problem
+	 */
+	public long getObjectiveValue() {
+		return objectiveValue.getSmall();
+	}
 
 	// DynamicAlgorithm methods
 
@@ -671,7 +905,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	/**
 	 * Arc status
 	 */
-	protected static enum ArcStatus {
+	public static enum ArcStatus {
 		/**
 		 * Basic arc
 		 */
@@ -686,6 +920,11 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		NONBASIC_UPPER;
 	}
 
+	/**
+	 * Internal representation of the graph arcs. Stores the arc ids,
+	 * capacities, costs, source and target nodes. Maintains BFS information:
+	 * flow and status.
+	 */
 	protected class NSArc {
 		/**
 		 * Arc id. The same as in the original graph. Special ids for the
@@ -747,7 +986,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 
 			v = edge.getNumber(costName);
 			if (Double.isNaN(v))
-				v = 0;
+				v = 1;
 			cost = new BigMNumber((int) v);
 
 			String sourceId = edge.getSourceNode().getId();
@@ -813,10 +1052,12 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			else
 				flow -= delta;
 		}
-		
+
 		/**
 		 * Returns the node on the other side.
-		 * @param node One of the endpoints of this arc
+		 * 
+		 * @param node
+		 *            One of the endpoints of this arc
 		 * @return The opposite node
 		 */
 		NSNode opposite(NSNode node) {
@@ -826,47 +1067,57 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 				return source;
 			return null;
 		}
+
+		public boolean isArtificial() {
+			return id.startsWith(PREFIX + "ARTIFICIAL_");
+		}
+
+		public boolean isReverse() {
+			return id.startsWith(PREFIX + "REVERSE_");
+		}
+
+		String getOriginalId() {
+			if (isArtificial())
+				return null;
+			if (isReverse())
+				return id.substring(PREFIX.length() + "REVERSE_".length());
+			return id;
+
+		}
 	}
-	
+
 	// test and debug
-	public static void main(String[] args) {
-		 Graph g = new SingleGraph("test");
-		
-		 g.addNode("A").addAttribute("supply", 5);
-		 g.addNode("B").addAttribute("supply", 2);
-		 g.addNode("C").addAttribute("supply", 0);
-		 g.addNode("D").addAttribute("supply", -1);
-		 g.addNode("E").addAttribute("supply", -4);
-		 g.addNode("F").addAttribute("supply", -2);
-		
-		 for (Node n : g)
-			 n.addAttribute("label", n.getId());
-		
-		 Edge e;
-		 e = g.addEdge("AB", "A", "B", true);
-		 e.addAttribute("capacity", 3);
-		 e.addAttribute("cost", 1);
-		 e = g.addEdge("AC", "A", "C", true);
-		 e.addAttribute("capacity", 3);
-		 e.addAttribute("cost", 4);
-		 e = g.addEdge("BC", "B", "C", true);
-		 e.addAttribute("capacity", 7);
-		 e.addAttribute("cost", 2);
-		 e = g.addEdge("CD", "C", "D", true);
-		 e.addAttribute("capacity", 1);
-		 e.addAttribute("cost", 8);
-		 e = g.addEdge("CE", "C", "E", true);
-		 e.addAttribute("capacity", 7);
-		 e.addAttribute("cost", 5);
-		 e = g.addEdge("CF", "C", "F", true);
-		 e.addAttribute("capacity", 5);
-		 e.addAttribute("cost", 2);
-		 e = g.addEdge("FE", "F", "E", true);
-		 e.addAttribute("capacity", 3);
-		 e.addAttribute("cost", 1);
-		 
-		 NetworkSimplex ns = new NetworkSimplex("supply", "capacity", "cost");
-		 ns.init(g);
-		 System.out.println(ns.objectiveValue);
+
+	/**
+	 * Prints a table containing informations about the current basic feasible
+	 * solution. Useful for testing and debugging purposes.
+	 * 
+	 * @param ps
+	 *            A stream where the output goes.
+	 */
+	public void printBFS(PrintStream ps) {
+		ps.println("=== Nodes ===");
+		ps.printf("%20s%10s%10s%20s%20s%10s%n", "id", "supply", "potential",
+				"parent", "thread", "depth");
+		ps.printf("%20s%10d%10s%20s%20s%10d%n", root.id, root.supply,
+				root.potential, "-", root.thread.id, root.depth);
+		for (NSNode node : nodes.values())
+			ps.printf("%20s%10d%10s%20s%20s%10d%n", node.id, node.supply,
+					node.potential, node.parent.id, node.thread.id, node.depth);
+		ps.println();
+
+		ps.println("=== Arcs ===");
+		ps.printf("%20s%10s%10s%10s%10s%20s%n", "id", "capacity", "cost",
+				"flow", "r. cost", "status");
+		for (NSArc a : arcs.values()) {
+			a.computeReducedCost(work1);
+			ps.printf("%20s%10s%10s%10s%10s%20s%n", a.id,
+					a.capacity == INFINITE_CAPACITY ? "Inf" : a.capacity,
+					a.cost, a.flow, work1, a.status);
+		}
+
+		ps.println();
+		ps.printf("=== Objective value %s. Solution status %s ===%n%n",
+				objectiveValue, solutionStatus);
 	}
 }
