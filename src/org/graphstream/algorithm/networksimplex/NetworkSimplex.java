@@ -89,6 +89,10 @@ import org.graphstream.stream.SinkAdapter;
  * 
  * TODO
  * 
+ * <h3>Visualization</h3>
+ * 
+ * TODO
+ * 
  * @author Stefan Balev
  */
 public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
@@ -260,6 +264,8 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 */
 	protected BigMNumber work2;
 
+	protected long animationDelay = 0;
+
 	/**
 	 * Creates a network simplex instance specifying attribute names to be used.
 	 * Use {@link #init(Graph)} to assign a graph to this instance.
@@ -319,6 +325,8 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			arc.flow = 0;
 			arc.status = ArcStatus.NONBASIC_LOWER;
 			nonBasicArcs.add(arc);
+			if (animationDelay > 0)
+				arc.setUIClass();
 		}
 
 		root = new NSNode();
@@ -356,6 +364,9 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 
 			totalSupply += node.supply;
 			objectiveValue.plusTimes(arc.flow, arc.cost);
+
+			if (animationDelay > 0)
+				arc.setUIClass();
 		}
 		previous.thread = root;
 		root.supply = (int) -totalSupply;
@@ -504,7 +515,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 
 		NSNode currentNode = newSubtreeRoot;
 		NSNode oldParent = currentNode.parent;
-		NSNode newParent = enteringArc.opposite(currentNode);
+		NSNode newParent = enteringArc.getOpposite(currentNode);
 		NSArc oldArc = currentNode.arcToParent;
 		NSArc newArc = enteringArc;
 		while (currentNode != stopNode) {
@@ -539,6 +550,15 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 				leavingArc.status = ArcStatus.NONBASIC_LOWER;
 			nonBasicArcs.add(leavingArc);
 			updateBFS();
+		}
+		if (animationDelay > 0) {
+			enteringArc.setUIClass();
+			leavingArc.setUIClass();
+			try {
+				Thread.sleep(animationDelay);
+			} catch (InterruptedException e) {
+			}
+
 		}
 	}
 
@@ -615,6 +635,62 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 */
 	public void setPricingStrategy(PricingStrategy pricingStrategy) {
 		this.pricingStrategy = pricingStrategy;
+	}
+
+	/**
+	 * When the animation delay is positive, the algorithm continuously updates
+	 * {@code "ui.class"} and {@code "label"} attributes of the edges and the
+	 * nodes of the graph and sleeps at the end of each simplex pivot. This
+	 * feature can be useful for visualizing the algorithm execution. The user
+	 * must provide a stylesheet defining the classes of the graph elements as
+	 * described in {@link #setUIClasses()} This feature is disabled by default.
+	 * 
+	 * @param millis
+	 *            The time in milliseconds to sleep between two simplex pivots.
+	 * @see #setUIClasses()
+	 */
+	public void setAnimationDelay(long millis) {
+		animationDelay = millis;
+	}
+
+	/**
+	 * This method can be used to visualize the current solution.
+	 * 
+	 * <p>
+	 * It sets the attributes {@code "label"} and {@code "ui.class"} of the
+	 * nodes and the edges of the graph depending on the current solution. The
+	 * labels of the nodes are set to their balance (see
+	 * {@link #getNodeBalance(Node)}). The labels of the edges are set to the
+	 * flow passing through them. The {@code "ui.class"} attribute of the nodes
+	 * is set to one of {@code "supply_balanced"}, {@code "supply_unbalanced"},
+	 * {@code "demand_balanced"}, {@code "demand_unbalanced"},
+	 * {@code "trans_balanced"} or {@code "trans_unbalanced"} depending on the
+	 * node type and the node status. The {@code "ui.class"} attribute of the
+	 * edges is set to one of {@code "basic"}, {@code "nonbasic_lower"} or
+	 * {@code "nonbasic_upper"} according to their status (see
+	 * {@link #getStatus(Edge)}.
+	 * </p>
+	 * <p>
+	 * The user must provide a stylesheet defining the visual appearance for
+	 * each of these node and edge classes. Note that if the animation delay is
+	 * positive (see {@link #setAnimationDelay(long)}), there is no need to call
+	 * this method, because in this case the labels and the UI classes of the
+	 * graph elements are set and updated during the algorithm execution.
+	 * </p>
+	 * <p>
+	 * Note that in the case of undirected edges the label and the UI class are
+	 * set according to the status of one of the corresponding arcs (not specified which one).
+	 * </p>
+	 */
+	public void setUIClasses() {
+		for (Node node : graph)
+			arcs.get(PREFIX + "ARTIFICIAL_" + node.getId()).setUIClass();
+		for (Edge edge : graph.getEachEdge()) {
+			NSArc arc = arcs.get(edge.getId());
+			if (!edge.isDirected() && arc.flow == 0)
+				arc = arcs.get(PREFIX + "REVERSE_" + edge.getId());
+			arc.setUIClass();
+		}
 	}
 
 	// solution access methods
@@ -761,6 +837,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		cloneGraph();
 		createInitialBFS();
 		simplex();
+		graph.addSink(this);
 	}
 
 	public void compute() {
@@ -771,6 +848,100 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	public void terminate() {
 		// TODO Auto-generated method stub
 
+	}
+
+	// Sink methods
+
+	@Override
+	public void edgeAttributeAdded(String sourceId, long timeId, String edgeId,
+			String attribute, Object value) {
+		if (attribute.equals(costName)) {
+			double v = objectToDouble(value);
+			if (Double.isNaN(v))
+				v = 1;
+
+			NSArc arc = arcs.get(edgeId);
+			work1.set((int) v);
+			changeCost(arc, work1);
+
+			arc = arcs.get(PREFIX + "REVERSE_" + edgeId);
+			if (arc != null) {
+				work1.set((int) v);
+				changeCost(arc, work1);
+			}
+		}
+	}
+
+	@Override
+	public void edgeAttributeChanged(String sourceId, long timeId,
+			String edgeId, String attribute, Object oldValue, Object newValue) {
+		edgeAttributeAdded(sourceId, timeId, edgeId, attribute, newValue);
+	}
+
+	@Override
+	public void edgeAttributeRemoved(String sourceId, long timeId,
+			String edgeId, String attribute) {
+		edgeAttributeAdded(sourceId, timeId, edgeId, attribute, null);
+	}
+
+	// helpers for the sink
+
+	/**
+	 * Utility method trying to convert object to double in the same way as
+	 * {@link org.graphstream.graph.implementations.AbstractElement#getNumber(String)}
+	 * does.
+	 * 
+	 * @param o
+	 *            The object to be converted
+	 * @return The numeric value of the object or NaN
+	 */
+	protected static double objectToDouble(Object o) {
+		if (o != null) {
+			if (o instanceof Number)
+				return ((Number) o).doubleValue();
+
+			if (o instanceof String) {
+				try {
+					return Double.parseDouble((String) o);
+				} catch (NumberFormatException e) {
+				}
+			}
+		}
+		return Double.NaN;
+	}
+
+	/**
+	 * Changes the cost of an arc and then restores the optimality
+	 * 
+	 * @param arc
+	 *            The arc that changes cost
+	 * @param newCost
+	 *            The new cost
+	 */
+	protected void changeCost(NSArc arc, BigMNumber newCost) {
+		objectiveValue.plusTimes(-arc.flow, arc.cost);
+		arc.cost.set(newCost);
+		objectiveValue.plusTimes(arc.flow, arc.cost);
+
+		if (arc.status == ArcStatus.BASIC) {
+			NSNode subtreeRoot = arc.source.arcToParent == arc ? arc.source
+					: arc.target;
+			subtreeRoot.computePotential();
+			for (NSNode node = subtreeRoot.thread; node.depth > subtreeRoot.depth; node = node.thread)
+				node.computePotential();
+		} else {
+			arc.computeReducedCost(work1);
+			if (!work1.isNegative())
+				return;
+			enteringArc = arc;
+			selectLeavingArc();
+			if (cycleFlowChange.isInfinite()) {
+				solutionStatus = SolutionStatus.UNBOUNDED;
+				return;
+			}
+			pivot();
+		}
+		simplex();
 	}
 
 	/**
@@ -899,6 +1070,14 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 				node.depth = node.parent.depth + 1;
 				node.computePotential();
 			}
+		}
+
+		String uiType() {
+			if (supply > 0)
+				return "supply";
+			if (supply < 0)
+				return "demand";
+			return "trans";
 		}
 	}
 
@@ -1051,6 +1230,8 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 				flow += delta;
 			else
 				flow -= delta;
+			if (animationDelay > 0)
+				setUIClass();
 		}
 
 		/**
@@ -1060,7 +1241,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		 *            One of the endpoints of this arc
 		 * @return The opposite node
 		 */
-		NSNode opposite(NSNode node) {
+		NSNode getOpposite(NSNode node) {
 			if (node == source)
 				return target;
 			if (node == target)
@@ -1068,21 +1249,57 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			return null;
 		}
 
+		/**
+		 * Checks if this arc is artificial.
+		 * 
+		 * @return True if the arc is artificial
+		 */
 		public boolean isArtificial() {
-			return id.startsWith(PREFIX + "ARTIFICIAL_");
+			return source == root || target == root;
 		}
 
-		public boolean isReverse() {
-			return id.startsWith(PREFIX + "REVERSE_");
-		}
-
+		/**
+		 * Returns the id of the edge of the original graph corresponding to
+		 * this arc.
+		 * 
+		 * @return The id of the original edge
+		 */
 		String getOriginalId() {
 			if (isArtificial())
 				return null;
-			if (isReverse())
+			if (id.startsWith(PREFIX + "REVERSE_"))
 				return id.substring(PREFIX.length() + "REVERSE_".length());
 			return id;
+		}
 
+		/**
+		 * Sets the label and the {@code "ui.class"} attribute of the edge (or
+		 * node if the arc is artificial) of the original graph corresponding to
+		 * this arc.
+		 */
+		void setUIClass() {
+			if (isArtificial()) {
+				NSNode node = getOpposite(root);
+				String uiClass = "trans";
+				if (node.supply > 0)
+					uiClass = "supply";
+				else if (node.supply < 0)
+					uiClass = "demand";
+				uiClass += flow == 0 ? "_balanced" : "_unbalanced";
+				Node x = graph.getNode(node.id);
+				x.addAttribute("label", flow);
+				x.addAttribute("ui.class", uiClass);
+			} else {
+				String uiClass = "basic";
+				if (status == ArcStatus.NONBASIC_LOWER)
+					uiClass = "nonbasic_lower";
+				else if (status == ArcStatus.NONBASIC_UPPER)
+					uiClass = "nonbasic_upper";
+
+				Edge e = graph.getEdge(getOriginalId());
+				e.addAttribute("label", flow);
+				e.addAttribute("ui.class", uiClass);
+			}
 		}
 	}
 
