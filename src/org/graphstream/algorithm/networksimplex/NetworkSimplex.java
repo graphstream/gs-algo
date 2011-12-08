@@ -132,6 +132,12 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 */
 	public static enum SolutionStatus {
 		/**
+		 * The solution is not (re)optimized. This is the value when the graph has changed
+		 * since the last call of {@link NetworkSimplex#compute()}
+		 */
+		UNDEFINED,
+		
+		/**
 		 * The current solution is optimal
 		 */
 		OPTIMAL,
@@ -202,7 +208,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	/**
 	 * The status of the current BFS
 	 */
-	protected SolutionStatus solutionStatus;
+	protected SolutionStatus solutionStatus = SolutionStatus.UNDEFINED;
 
 	/**
 	 * Entering arc for the next pivot. Set to {@code null} if no candidates.
@@ -370,6 +376,8 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		}
 		previous.thread = root;
 		root.supply = (int) -totalSupply;
+		
+		solutionStatus = SolutionStatus.UNDEFINED;
 	}
 
 	// Simplex machinery
@@ -692,6 +700,14 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			arc.setUIClass();
 		}
 	}
+	
+	/**
+	 * Returns the graph on which the algorithm is applied. This is the graph passed in parameter in {@link #init(Graph)}.
+	 * @return The graph on which the algorithm is applied.
+	 */
+	public Graph getGraph() {
+		return graph;
+	}
 
 	// solution access methods
 
@@ -836,18 +852,16 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		this.graph = graph;
 		cloneGraph();
 		createInitialBFS();
-		simplex();
 		graph.addSink(this);
 	}
 
 	public void compute() {
-		// TODO Auto-generated method stub
-
+		simplex();
 	}
 
 	public void terminate() {
-		// TODO Auto-generated method stub
-
+		graph.removeSink(this);
+		solutionStatus = SolutionStatus.UNDEFINED;
 	}
 
 	// Sink methods
@@ -911,7 +925,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	}
 
 	/**
-	 * Changes the cost of an arc and then restores the optimality
+	 * Changes the cost of an arc
 	 * 
 	 * @param arc
 	 *            The arc that changes cost
@@ -929,19 +943,8 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			subtreeRoot.computePotential();
 			for (NSNode node = subtreeRoot.thread; node.depth > subtreeRoot.depth; node = node.thread)
 				node.computePotential();
-		} else {
-			arc.computeReducedCost(work1);
-			if (!work1.isNegative())
-				return;
-			enteringArc = arc;
-			selectLeavingArc();
-			if (cycleFlowChange.isInfinite()) {
-				solutionStatus = SolutionStatus.UNBOUNDED;
-				return;
-			}
-			pivot();
 		}
-		simplex();
+		solutionStatus = SolutionStatus.UNDEFINED;
 	}
 
 	/**

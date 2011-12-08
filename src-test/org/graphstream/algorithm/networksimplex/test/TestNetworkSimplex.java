@@ -45,42 +45,108 @@ public class TestNetworkSimplex {
 
 		return g;
 	}
+	
+	public static void checkReferenceSolution(NetworkSimplex ns) {
+		Graph g = ns.getGraph();
+		
+		assertEquals(NetworkSimplex.SolutionStatus.OPTIMAL, ns.getSolutionStatus());
+		assertEquals(47, ns.getObjectiveValue());
+
+		assertEquals(0, ns.getNetworkBalance());
+		for (Node n : g)
+			assertEquals(0, ns.getNodeBalance(n), 0);
+
+		assertEquals(3, ns.getFlow(g.getEdge("AB")));
+		assertEquals(2, ns.getFlow(g.getEdge("AC")));
+		assertEquals(5, ns.getFlow(g.getEdge("BC")));
+		assertEquals(1, ns.getFlow(g.getEdge("CD")));
+		assertEquals(1, ns.getFlow(g.getEdge("CE")));
+		assertEquals(5, ns.getFlow(g.getEdge("CF")));
+		assertEquals(3, ns.getFlow(g.getEdge("FE")));
+		
+		assertEquals(NetworkSimplex.ArcStatus.NONBASIC_UPPER, ns.getStatus(g.getEdge("AB")));
+		assertEquals(NetworkSimplex.ArcStatus.BASIC, ns.getStatus(g.getEdge("AC")));
+		assertEquals(NetworkSimplex.ArcStatus.BASIC, ns.getStatus(g.getEdge("BC")));
+		assertEquals(NetworkSimplex.ArcStatus.BASIC, ns.getStatus(g.getEdge("CD")));
+		assertEquals(NetworkSimplex.ArcStatus.BASIC, ns.getStatus(g.getEdge("CE")));
+		assertEquals(NetworkSimplex.ArcStatus.BASIC, ns.getStatus(g.getEdge("CF")));
+		assertEquals(NetworkSimplex.ArcStatus.NONBASIC_UPPER, ns.getStatus(g.getEdge("FE")));
+		
+		assertNull(ns.getEdgeToParent(g.getNode("A")));
+		assertEquals("BC", ns.getEdgeToParent(g.getNode("B")).getId());
+		assertEquals("AC", ns.getEdgeToParent(g.getNode("C")).getId());
+		assertEquals("CD", ns.getEdgeToParent(g.getNode("D")).getId());
+		assertEquals("CE", ns.getEdgeToParent(g.getNode("E")).getId());
+		assertEquals("CF", ns.getEdgeToParent(g.getNode("F")).getId());
+	}
+	
+	public static void compareSolutions(NetworkSimplex ns1, NetworkSimplex ns2) {
+		Graph g = ns1.getGraph();
+		assertEquals(ns1.getNetworkBalance(), ns2.getNetworkBalance());
+		assertEquals(ns1.getSolutionStatus(), ns2.getSolutionStatus());
+		assertEquals(ns1.getObjectiveValue(), ns2.getObjectiveValue());
+		for (Node n : g) {
+			assertEquals(ns1.getNodeBalance(n), ns2.getNodeBalance(n));
+			assertEquals(ns1.getEdgeToParent(n), ns2.getEdgeToParent(n));
+		}
+		for (Edge e : g.getEachEdge()) {
+			assertEquals(ns1.getFlow(e, true), ns2.getFlow(e, true));
+			assertEquals(ns1.getFlow(e, false), ns2.getFlow(e, false));
+			assertEquals(ns1.getStatus(e, true), ns2.getStatus(e, true));
+			assertEquals(ns1.getStatus(e, false), ns2.getStatus(e, false));
+			
+		}
+	}
 
 	@Test
-	public void staticTest() {
+	public void toyTest() {
+		Graph g = toyGraph();
+		NetworkSimplex ns1 = new NetworkSimplex("supply", "capacity", "cost");
+		ns1.init(g);
+		assertEquals(NetworkSimplex.SolutionStatus.UNDEFINED, ns1.getSolutionStatus());
+		ns1.compute();
+		checkReferenceSolution(ns1);
+		
+		// now see if we obtain the same solution using other pricing strategy
+		NetworkSimplex ns2 = new NetworkSimplex("supply", "capacity", "cost");
+		ns2.init(g);
+		assertEquals(NetworkSimplex.SolutionStatus.UNDEFINED, ns2.getSolutionStatus());
+		ns2.compute();
+		compareSolutions(ns1, ns2);
+	}
+	
+	@Test
+	public void costChangeTest() {
 		Graph g = toyGraph();
 		NetworkSimplex ns = new NetworkSimplex("supply", "capacity", "cost");
 		ns.init(g);
+		ns.compute();
 
-		assertEquals(ns.getSolutionStatus(),
-				NetworkSimplex.SolutionStatus.OPTIMAL);
-		assertEquals(ns.getObjectiveValue(), 47);
-
-		assertEquals(ns.getNetworkBalance(), 0);
-		for (Node n : g)
-			assertEquals(ns.getNodeBalance(n), 0);
-
-		assertEquals(ns.getFlow(g.getEdge("AB")), 3);
-		assertEquals(ns.getFlow(g.getEdge("AC")), 2);
-		assertEquals(ns.getFlow(g.getEdge("BC")), 5);
-		assertEquals(ns.getFlow(g.getEdge("CD")), 1);
-		assertEquals(ns.getFlow(g.getEdge("CE")), 1);
-		assertEquals(ns.getFlow(g.getEdge("CF")), 5);
-		assertEquals(ns.getFlow(g.getEdge("FE")), 3);
+		// change the cost of FE (NONBASIC_UPPER) and recompute
+		// minor pivot should happen
+		g.getEdge("FE").addAttribute("cost", 4);
+		assertEquals(NetworkSimplex.SolutionStatus.UNDEFINED, ns.getSolutionStatus());
+		ns.compute();
+		// and see if we obtain the same result computing from scratch
+		NetworkSimplex nsCheck = new NetworkSimplex("supply", "capacity", "cost");
+		nsCheck.init(g);
+		nsCheck.compute();
+		compareSolutions(nsCheck, ns);
 		
-		assertEquals(ns.getStatus(g.getEdge("AB")), NetworkSimplex.ArcStatus.NONBASIC_UPPER);
-		assertEquals(ns.getStatus(g.getEdge("AC")), NetworkSimplex.ArcStatus.BASIC);
-		assertEquals(ns.getStatus(g.getEdge("BC")), NetworkSimplex.ArcStatus.BASIC);
-		assertEquals(ns.getStatus(g.getEdge("CD")), NetworkSimplex.ArcStatus.BASIC);
-		assertEquals(ns.getStatus(g.getEdge("CE")), NetworkSimplex.ArcStatus.BASIC);
-		assertEquals(ns.getStatus(g.getEdge("CF")), NetworkSimplex.ArcStatus.BASIC);
-		assertEquals(ns.getStatus(g.getEdge("FE")), NetworkSimplex.ArcStatus.NONBASIC_UPPER);
+		// now restore the cost of FE and see if we find the initial solution
+		g.getEdge("FE").addAttribute("cost", 1);
+		ns.compute();
+		checkReferenceSolution(ns);
 		
-		assertNull(ns.getEdgeToParent(g.getNode("A")));
-		assertEquals(ns.getEdgeToParent(g.getNode("B")).getId(), "BC");
-		assertEquals(ns.getEdgeToParent(g.getNode("C")).getId(), "AC");
-		assertEquals(ns.getEdgeToParent(g.getNode("D")).getId(), "CD");
-		assertEquals(ns.getEdgeToParent(g.getNode("E")).getId(), "CE");
-		assertEquals(ns.getEdgeToParent(g.getNode("F")).getId(), "CF");
+		// now change the cost of AC (BASIC) and recompute
+		// AB should enter and AC should leave
+		g.getEdge("AC").addAttribute("cost", 2);
+		ns.compute();
+		// and see if we obtain the same result computing from scratch
+		nsCheck = new NetworkSimplex("supply", "capacity", "cost");
+		nsCheck.init(g);
+		nsCheck.compute();
+		compareSolutions(nsCheck, ns);
+		
 	}
 }
