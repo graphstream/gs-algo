@@ -132,7 +132,6 @@ public class TestNetworkSimplex {
 		nsCheck.init(g);
 		nsCheck.compute();
 		compareSolutions(nsCheck, ns);
-		
 		// now restore the cost of FE and see if we find the initial solution
 		g.getEdge("FE").addAttribute("cost", 1);
 		ns.compute();
@@ -147,6 +146,24 @@ public class TestNetworkSimplex {
 		nsCheck.init(g);
 		nsCheck.compute();
 		compareSolutions(nsCheck, ns);
+		//now restore the cost of AC and see if we obtain the initial solution
+		g.getEdge("AC").addAttribute("cost", 4);
+		ns.compute();
+		checkReferenceSolution(ns);
 		
+		// now change the both arcs together
+		g.getEdge("FE").addAttribute("cost", 4);
+		g.getEdge("AC").addAttribute("cost", 2);
+		ns.compute();
+		// and see if we obtain the same result computing from scratch
+		nsCheck = new NetworkSimplex("supply", "capacity", "cost");
+		nsCheck.init(g);
+		nsCheck.compute();
+		compareSolutions(nsCheck, ns);	
+		// restore the both arcs and see if we obtain the initial solution
+		g.getEdge("FE").addAttribute("cost", 1);
+		g.getEdge("AC").addAttribute("cost", 4);
+		ns.compute();
+		checkReferenceSolution(ns);
 	}
 }
