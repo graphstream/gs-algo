@@ -3,6 +3,7 @@ package org.graphstream.algorithm.networksimplex.test;
 import static org.junit.Assert.*;
 
 import org.graphstream.algorithm.networksimplex.NetworkSimplex;
+import org.graphstream.algorithm.networksimplex.NetworkSimplex.PricingStrategy;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -97,6 +98,13 @@ public class TestNetworkSimplex {
 			
 		}
 	}
+	
+	public static void compareWithNew(NetworkSimplex ns) {
+		NetworkSimplex nsCheck = new NetworkSimplex("supply", "capacity", "cost");
+		nsCheck.init(ns.getGraph());
+		nsCheck.compute();
+		compareSolutions(ns, nsCheck);
+	}
 
 	@Test
 	public void toyTest() {
@@ -109,6 +117,7 @@ public class TestNetworkSimplex {
 		
 		// now see if we obtain the same solution using other pricing strategy
 		NetworkSimplex ns2 = new NetworkSimplex("supply", "capacity", "cost");
+		ns2.setPricingStrategy(PricingStrategy.FIRST_NEGATIVE);
 		ns2.init(g);
 		assertEquals(NetworkSimplex.SolutionStatus.UNDEFINED, ns2.getSolutionStatus());
 		ns2.compute();
@@ -128,10 +137,7 @@ public class TestNetworkSimplex {
 		assertEquals(NetworkSimplex.SolutionStatus.UNDEFINED, ns.getSolutionStatus());
 		ns.compute();
 		// and see if we obtain the same result computing from scratch
-		NetworkSimplex nsCheck = new NetworkSimplex("supply", "capacity", "cost");
-		nsCheck.init(g);
-		nsCheck.compute();
-		compareSolutions(nsCheck, ns);
+		compareWithNew(ns);
 		// now restore the cost of FE and see if we find the initial solution
 		g.getEdge("FE").addAttribute("cost", 1);
 		ns.compute();
@@ -142,10 +148,7 @@ public class TestNetworkSimplex {
 		g.getEdge("AC").addAttribute("cost", 2);
 		ns.compute();
 		// and see if we obtain the same result computing from scratch
-		nsCheck = new NetworkSimplex("supply", "capacity", "cost");
-		nsCheck.init(g);
-		nsCheck.compute();
-		compareSolutions(nsCheck, ns);
+		compareWithNew(ns);
 		//now restore the cost of AC and see if we obtain the initial solution
 		g.getEdge("AC").addAttribute("cost", 4);
 		ns.compute();
@@ -156,14 +159,73 @@ public class TestNetworkSimplex {
 		g.getEdge("AC").addAttribute("cost", 2);
 		ns.compute();
 		// and see if we obtain the same result computing from scratch
-		nsCheck = new NetworkSimplex("supply", "capacity", "cost");
-		nsCheck.init(g);
-		nsCheck.compute();
-		compareSolutions(nsCheck, ns);	
+		compareWithNew(ns);
 		// restore the both arcs and see if we obtain the initial solution
 		g.getEdge("FE").addAttribute("cost", 1);
 		g.getEdge("AC").addAttribute("cost", 4);
 		ns.compute();
 		checkReferenceSolution(ns);
+	}
+	
+	@Test
+	public void supplyChangeTest() {
+		Graph g = toyGraph();
+		
+		NetworkSimplex ns = new NetworkSimplex("supply", "capacity", "cost");
+		ns.init(g);
+		ns.compute();
+		
+		// The supply of A is 5
+		// change the supply of A (AR is already basic)
+		g.getNode("A").addAttribute("supply", 4);
+		ns.compute();
+		compareWithNew(ns);
+		
+		// one more change of the supply of A
+		g.getNode("A").addAttribute("supply", 6);
+		ns.compute();
+		compareWithNew(ns);
+		
+		// restore
+		g.getNode("A").addAttribute("supply", 5);
+		ns.compute();
+		checkReferenceSolution(ns);
+		
+		// Now play with F (RF is non-basic), supply = -2
+		g.getNode("F").addAttribute("supply", -1);
+		ns.compute();
+		compareWithNew(ns);
+		
+		// one more change of the supply of F
+		g.getNode("F").addAttribute("supply", -3);
+		ns.compute();
+		compareWithNew(ns);
+		
+		// restore does not work, the same solution but different basis
+		// but it's ok however
+		g.getNode("F").addAttribute("supply", -2);
+		ns = new NetworkSimplex("supply", "capacity", "cost");
+		ns.init(g);
+		ns.compute();
+		
+		// Now check with 2 nodes at the same time
+		g.getNode("A").addAttribute("supply", 6);
+		g.getNode("E").addAttribute("supply", -5);
+		ns.compute();
+		compareWithNew(ns);
+		
+		// restore does not work, the same solution but different basis
+		g.getNode("A").addAttribute("supply", 6);
+		g.getNode("E").addAttribute("supply", -5);
+		ns = new NetworkSimplex("supply", "capacity", "cost");
+		ns.init(g);
+		ns.compute();
+		
+		// one test with 3 nodes
+		g.getNode("B").addAttribute("supply", 1);
+		g.getNode("C").addAttribute("supply", -1);
+		g.getNode("E").addAttribute("supply", -2);
+		ns.compute();
+		compareWithNew(ns);
 	}
 }

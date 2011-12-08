@@ -132,11 +132,11 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 */
 	public static enum SolutionStatus {
 		/**
-		 * The solution is not (re)optimized. This is the value when the graph has changed
-		 * since the last call of {@link NetworkSimplex#compute()}
+		 * The solution is not (re)optimized. This is the value when the graph
+		 * has changed since the last call of {@link NetworkSimplex#compute()}
 		 */
 		UNDEFINED,
-		
+
 		/**
 		 * The current solution is optimal
 		 */
@@ -376,7 +376,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		}
 		previous.thread = root;
 		root.supply = (int) -totalSupply;
-		
+
 		solutionStatus = SolutionStatus.UNDEFINED;
 	}
 
@@ -687,7 +687,8 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 * </p>
 	 * <p>
 	 * Note that in the case of undirected edges the label and the UI class are
-	 * set according to the status of one of the corresponding arcs (not specified which one).
+	 * set according to the status of one of the corresponding arcs (not
+	 * specified which one).
 	 * </p>
 	 */
 	public void setUIClasses() {
@@ -700,9 +701,11 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			arc.setUIClass();
 		}
 	}
-	
+
 	/**
-	 * Returns the graph on which the algorithm is applied. This is the graph passed in parameter in {@link #init(Graph)}.
+	 * Returns the graph on which the algorithm is applied. This is the graph
+	 * passed in parameter in {@link #init(Graph)}.
+	 * 
 	 * @return The graph on which the algorithm is applied.
 	 */
 	public Graph getGraph() {
@@ -898,6 +901,31 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		edgeAttributeAdded(sourceId, timeId, edgeId, attribute, null);
 	}
 
+	@Override
+	public void nodeAttributeAdded(String sourceId, long timeId, String nodeId,
+			String attribute, Object value) {
+		if (attribute.equals(supplyName)) {
+			double v = objectToDouble(value);
+			if (Double.isNaN(v))
+				v = 0;
+
+			NSNode node = nodes.get(nodeId);
+			changeSupply(node, (int) v);
+		}
+	}
+
+	@Override
+	public void nodeAttributeChanged(String sourceId, long timeId,
+			String nodeId, String attribute, Object oldValue, Object newValue) {
+		nodeAttributeAdded(sourceId, timeId, nodeId, attribute, newValue);
+	}
+
+	@Override
+	public void nodeAttributeRemoved(String sourceId, long timeId,
+			String nodeId, String attribute) {
+		nodeAttributeAdded(sourceId, timeId, nodeId, attribute, null);
+	}
+
 	// helpers for the sink
 
 	/**
@@ -933,6 +961,8 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 *            The new cost
 	 */
 	protected void changeCost(NSArc arc, BigMNumber newCost) {
+		if (arc.cost.compareTo(newCost) == 0)
+			return;
 		objectiveValue.plusTimes(-arc.flow, arc.cost);
 		arc.cost.set(newCost);
 		objectiveValue.plusTimes(arc.flow, arc.cost);
@@ -945,6 +975,42 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 				node.computePotential();
 		}
 		solutionStatus = SolutionStatus.UNDEFINED;
+	}
+
+	protected void changeSupply(NSNode node, int newSupply) {
+		if (node.supply == newSupply)
+			return;
+		NSArc artificialArc = arcs.get(PREFIX + "ARTIFICIAL_" + node.id);
+
+		// enter the artificial arc is in the tree if not there
+		if (artificialArc.status == ArcStatus.NONBASIC_LOWER) {
+			enteringArc = artificialArc;
+			selectLeavingArc();
+			// if we are in infinite cycle, switch the direction
+			if (cycleFlowChange.isInfinite()) {
+				artificialArc.switchDirection();
+				selectLeavingArc();
+			}
+			pivot();
+		}
+		// now the artificial arc is basic and we can change its flow
+		objectiveValue.plusTimes(-artificialArc.flow, artificialArc.cost);
+		int delta = newSupply - node.supply;
+		node.supply = newSupply;
+		root.supply -= delta;
+		if (node == artificialArc.source) {
+			artificialArc.flow += delta;
+		} else {
+			artificialArc.flow -= delta;
+		}
+		if (artificialArc.flow < 0)
+			artificialArc.switchDirection();
+
+		objectiveValue.plusTimes(artificialArc.flow, artificialArc.cost);
+		solutionStatus = SolutionStatus.UNDEFINED;
+
+		if (animationDelay > 0)
+			artificialArc.setUIClass();
 	}
 
 	/**
@@ -1073,14 +1139,6 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 				node.depth = node.parent.depth + 1;
 				node.computePotential();
 			}
-		}
-
-		String uiType() {
-			if (supply > 0)
-				return "supply";
-			if (supply < 0)
-				return "demand";
-			return "trans";
 		}
 	}
 
@@ -1303,6 +1361,23 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 				e.addAttribute("label", flow);
 				e.addAttribute("ui.class", uiClass);
 			}
+		}
+
+		/**
+		 * Switches arc direction. Use with caution!
+		 * Used only in {@link NetworkSimplex#changeSupply(NSNode, int)}
+		 * for artificial basic arcs.
+		 */
+		void switchDirection() {
+			NSNode tmp = source;
+			source = target;
+			target = tmp;
+			flow = -flow;
+			
+			NSNode subtreeRoot = getOpposite(root);
+			subtreeRoot.computePotential();
+			for (NSNode node = subtreeRoot.thread; node.depth > subtreeRoot.depth; node = node.thread)
+				node.computePotential();
 		}
 	}
 
