@@ -997,6 +997,28 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		nodeAttributeAdded(sourceId, timeId, nodeId, attribute, null);
 	}
 
+	@Override
+	public void edgeAdded(String sourceId, long timeId, String edgeId,
+			String fromNodeId, String toNodeId, boolean directed) {
+		NSArc arc = new NSArc(graph.getEdge(edgeId), true);
+		addArc(arc);
+		if (!directed) {
+			arc = new NSArc(graph.getEdge(edgeId), false);
+			addArc(arc);
+		}
+		solutionStatus = SolutionStatus.UNDEFINED;
+	}
+
+	@Override
+	public void edgeRemoved(String sourceId, long timeId, String edgeId) {
+		NSArc arc = arcs.get(edgeId);
+		removeArc(arc);
+		arc = arcs.get(PREFIX + "REVERSE_" + edgeId);
+		if (arc != null)
+			removeArc(arc);
+	}
+	
+	
 	// helpers for the sink
 
 	/**
@@ -1114,6 +1136,32 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			arc.setUIClass();
 		changeSupply(arc.source, arc.source.supply + delta);
 		changeSupply(arc.target, arc.target.supply - delta);
+	}
+	
+	protected void addArc(NSArc arc) {
+		arc.flow = 0;
+		arc.status = ArcStatus.NONBASIC_LOWER;
+		arcs.put(arc.id, arc);
+		nonBasicArcs.add(arc);
+		solutionStatus = SolutionStatus.UNDEFINED;
+	}
+	
+	protected void removeArc(NSArc arc) {
+		changeCapacity(arc, 0);
+		if (arc.status == ArcStatus.BASIC) {
+			NSNode node = arc.source.arcToParent == arc ? arc.source : arc.target;
+			enteringArc = arcs.get(PREFIX + "ARTIFICIAL_" + node.id);
+			if (enteringArc.source == root)
+				enteringArc.switchDirection();
+			selectLeavingArc();
+			// XXX check
+			if (leavingArc != arc)
+				throw new RuntimeException("This should never happen!");
+			pivot();
+			solutionStatus = SolutionStatus.UNDEFINED;
+		}
+		arcs.remove(arc.id);
+		nonBasicArcs.remove(arc);
 	}
 
 	/**

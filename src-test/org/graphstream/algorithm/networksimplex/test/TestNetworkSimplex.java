@@ -283,4 +283,34 @@ public class TestNetworkSimplex {
 		ns.compute();
 		checkReferenceSolution(ns);
 	}
+	
+	public void edgeAddRemoveTest() {
+		Graph g = toyGraph();
+		NetworkSimplex ns = new NetworkSimplex("supply", "capacity", "cost");
+		ns.init(g);
+		ns.compute();
+
+		Edge bf = g.addEdge("BF", "B", "F");
+		bf.addAttribute("cost", 3);
+		bf.addAttribute("capacity", 4);
+		ns.compute();
+		compareWithNew(ns);
+		
+		g.removeEdge("CF");
+		ns.compute();
+		compareWithNew(ns);
+		
+		Edge ad = g.addEdge("AD", "A", "D");
+		ad.addAttribute("cost", 11);
+		ns.compute();
+		compareWithNew(ns);
+		
+		g.removeEdge(ad);
+		ns.compute();
+		compareWithNew(ns);
+		
+		g.removeEdge("BC");
+		ns.compute();
+		compareWithNew(ns);
+	}
 }
