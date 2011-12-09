@@ -170,7 +170,6 @@ public class TestNetworkSimplex {
 	@Test
 	public void supplyChangeTest() {
 		Graph g = toyGraph();
-		
 		NetworkSimplex ns = new NetworkSimplex("supply", "capacity", "cost");
 		ns.init(g);
 		ns.compute();
@@ -227,5 +226,61 @@ public class TestNetworkSimplex {
 		g.getNode("E").addAttribute("supply", -2);
 		ns.compute();
 		compareWithNew(ns);
+	}
+	
+	@Test
+	public void capacityChangeTest() {
+		Graph g = toyGraph();
+		NetworkSimplex ns = new NetworkSimplex("supply", "capacity", "cost");
+		ns.init(g);
+		ns.compute();
+		
+		// Decrease the capacity of AB (NONBASIC_UPPER)
+		g.getEdge("AB").addAttribute("capacity", 2);
+		ns.compute();
+		compareWithNew(ns);
+		// restore
+		g.getEdge("AB").addAttribute("capacity", 3);
+		ns.compute();
+		checkReferenceSolution(ns);
+		// now increase it
+		g.getEdge("AB").addAttribute("capacity", 4);
+		ns.compute();
+		compareWithNew(ns);
+		// restore it again
+		g.getEdge("AB").addAttribute("capacity", 3);
+		ns.compute();
+		checkReferenceSolution(ns);
+		
+		// Decrease the capacity of CF (BASIC)
+		g.getEdge("CF").addAttribute("capacity", 4);
+		ns.compute();
+		compareWithNew(ns);
+		// restore
+		g.getEdge("CF").addAttribute("capacity", 5);
+		ns.compute();
+		checkReferenceSolution(ns);
+		
+		// close CD. The problem should become infeasible
+		g.getEdge("CD").addAttribute("capacity", 0);
+		ns.compute();
+		assertEquals(NetworkSimplex.SolutionStatus.INFEASIBLE, ns.getSolutionStatus());
+		compareWithNew(ns);
+		// restore
+		g.getEdge("CD").addAttribute("capacity", 1);
+		ns.compute();
+		checkReferenceSolution(ns);
+		
+		// now several at the same time
+		g.getEdge("AB").addAttribute("capacity", 2);
+		g.getEdge("CF").addAttribute("capacity", 4);
+		g.getEdge("CD").removeAttribute("capacity");
+		ns.compute();
+		compareWithNew(ns);
+		// restore
+		g.getEdge("AB").addAttribute("capacity", 3);
+		g.getEdge("CF").addAttribute("capacity", 5);
+		ns.compute();
+		checkReferenceSolution(ns);
 	}
 }

@@ -270,7 +270,27 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 */
 	protected BigMNumber work2;
 
+	/**
+	 * If this delay is positive, sleeps at the end of each pivot and updates UI
+	 * classes
+	 */
 	protected long animationDelay = 0;
+
+	/**
+	 * True if pivot is called from sink method. In this case pivot does not
+	 * sleep
+	 */
+	protected boolean fromSink = false;
+
+	/**
+	 * Log frequency. Logs each logFreq-th iteration
+	 */
+	protected int logFreq = 0;
+
+	/**
+	 * Log stream
+	 */
+	protected PrintStream log = System.err;
 
 	/**
 	 * Creates a network simplex instance specifying attribute names to be used.
@@ -541,6 +561,12 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 * Changes the flows on the cycle and updates the BFS.
 	 */
 	protected void pivot() {
+		if (animationDelay > 0 && !fromSink)
+			try {
+				Thread.sleep(animationDelay);
+			} catch (InterruptedException e) {
+			}
+
 		changeFlows();
 		if (enteringArc == leavingArc) {
 			if (enteringArc.status == ArcStatus.NONBASIC_LOWER)
@@ -562,11 +588,6 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		if (animationDelay > 0) {
 			enteringArc.setUIClass();
 			leavingArc.setUIClass();
-			try {
-				Thread.sleep(animationDelay);
-			} catch (InterruptedException e) {
-			}
-
 		}
 	}
 
@@ -575,6 +596,12 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 * until there are no more candidates or until absorbing cycle is found.
 	 */
 	protected void simplex() {
+		int pivots = 0;
+		if (logFreq > 0) {
+			log.println("Starting simplex...");
+			log.printf("%10s%20s%20s%10s%10s%10s%n", "pivot", "entering",
+					"leaving", "delta", "cost", "infeas.");
+		}
 		while (true) {
 			selectEnteringArc();
 			if (enteringArc == null) {
@@ -582,15 +609,23 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 					solutionStatus = SolutionStatus.INFEASIBLE;
 				else
 					solutionStatus = SolutionStatus.OPTIMAL;
-				return;
+				break;
 			}
 			selectLeavingArc();
 			if (cycleFlowChange.isInfinite()) {
 				solutionStatus = SolutionStatus.UNBOUNDED;
-				return;
+				break;
 			}
 			pivot();
+			pivots++;
+			if (logFreq > 0 && pivots % logFreq == 0)
+				log.printf("%10d%20s%20s%10d%10d%10d%n", pivots,
+						enteringArc.id, leavingArc.id, cycleFlowChange.small,
+						objectiveValue.small, objectiveValue.big);
 		}
+		if (logFreq > 0)
+			log.printf("Simplex finished. Cost: %d. Status: %s%n%n",
+					objectiveValue.small, solutionStatus);
 	}
 
 	// access and modification of algorithm parameters
@@ -712,6 +747,31 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		return graph;
 	}
 
+	/**
+	 * Sets the log frequency.
+	 * 
+	 * If the parameter is positive, outputs information about the algorithm
+	 * execution to the log stream.
+	 * 
+	 * @param pivots
+	 *            The log frequency in number of pivots
+	 * @see #setLogStream(PrintStream)
+	 */
+	public void setLogFrequency(int pivots) {
+		logFreq = pivots;
+	}
+
+	/**
+	 * Sets the log stream
+	 * 
+	 * @param log
+	 *            The log stream
+	 * @see #setLogFrequency(int)
+	 */
+	public void setLogStream(PrintStream log) {
+		this.log = log;
+	}
+
 	// solution access methods
 
 	/**
@@ -727,18 +787,18 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	}
 
 	/**
-	 * Returns the amount of unsatisfied supply (for supply nodes) or demand
-	 * (for demand nodes) of a given node. This method always returns a
-	 * non-negative value. If the value is zero, the current solution satisfies
-	 * the node demand / supply. If the current solution is feasible, the
-	 * returned value is always zero.
+	 * Returns the amount of missing outflow (if positive) or inflow (if
+	 * negative) of a given node. If the value is zero, the current solution
+	 * satisfies the node demand / supply. If the current solution is feasible,
+	 * the returned value is zero for all the nodes.
 	 * 
 	 * @param node
 	 *            A node
 	 * @return The balance of the node
 	 */
 	public int getNodeBalance(Node node) {
-		return arcs.get(PREFIX + "ARTIFICIAL_" + node.getId()).flow;
+		NSArc artificial = arcs.get(PREFIX + "ARTIFICIAL_" + node.getId());
+		return artificial.target == root ? artificial.flow : -artificial.flow;
 	}
 
 	/**
@@ -859,7 +919,9 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	}
 
 	public void compute() {
-		simplex();
+		fromSink = false;
+		if (solutionStatus == SolutionStatus.UNDEFINED)
+			simplex();
 	}
 
 	public void terminate() {
@@ -886,6 +948,15 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 				work1.set((int) v);
 				changeCost(arc, work1);
 			}
+		} else if (attribute.equals(capacityName)) {
+			double v = objectToDouble(value);
+			if (Double.isNaN(v) || v < 0)
+				v = INFINITE_CAPACITY;
+			NSArc arc = arcs.get(edgeId);
+			changeCapacity(arc, (int) v);
+			arc = arcs.get(PREFIX + "REVERSE_" + edgeId);
+			if (arc != null)
+				changeCapacity(arc, (int) v);
 		}
 	}
 
@@ -991,6 +1062,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 				artificialArc.switchDirection();
 				selectLeavingArc();
 			}
+			fromSink = true;
 			pivot();
 		}
 		// now the artificial arc is basic and we can change its flow
@@ -1011,6 +1083,37 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 
 		if (animationDelay > 0)
 			artificialArc.setUIClass();
+	}
+
+	protected void changeCapacity(NSArc arc, int newCapacity) {
+		if (arc.capacity == newCapacity)
+			return;
+		if (arc.status == ArcStatus.NONBASIC_LOWER) {
+			arc.capacity = newCapacity;
+			return;
+		}
+		if (arc.status == ArcStatus.NONBASIC_UPPER) {
+			enteringArc = arc;
+			selectLeavingArc();
+			fromSink = true;
+			pivot();
+			solutionStatus = SolutionStatus.UNDEFINED;
+		}
+		// now the arc is basic ...
+		if (newCapacity == INFINITE_CAPACITY || arc.flow <= newCapacity) {
+			arc.capacity = newCapacity;
+			return;
+		}
+		// ... and the flow on it is greater than its new capacity
+		int delta = arc.flow - newCapacity;
+		arc.flow = arc.capacity = newCapacity;
+		objectiveValue.plusTimes(-delta, arc.cost);
+		arc.source.supply -= delta;
+		arc.target.supply += delta;
+		if (animationDelay > 0)
+			arc.setUIClass();
+		changeSupply(arc.source, arc.source.supply + delta);
+		changeSupply(arc.target, arc.target.supply - delta);
 	}
 
 	/**
@@ -1348,7 +1451,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 					uiClass = "demand";
 				uiClass += flow == 0 ? "_balanced" : "_unbalanced";
 				Node x = graph.getNode(node.id);
-				x.addAttribute("label", flow);
+				x.addAttribute("label", target == root ? flow : -flow);
 				x.addAttribute("ui.class", uiClass);
 			} else {
 				String uiClass = "basic";
@@ -1364,16 +1467,16 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		}
 
 		/**
-		 * Switches arc direction. Use with caution!
-		 * Used only in {@link NetworkSimplex#changeSupply(NSNode, int)}
-		 * for artificial basic arcs.
+		 * Switches arc direction. Use with caution! Used only in
+		 * {@link NetworkSimplex#changeSupply(NSNode, int)} for artificial basic
+		 * arcs.
 		 */
 		void switchDirection() {
 			NSNode tmp = source;
 			source = target;
 			target = tmp;
 			flow = -flow;
-			
+
 			NSNode subtreeRoot = getOpposite(root);
 			subtreeRoot.computePotential();
 			for (NSNode node = subtreeRoot.thread; node.depth > subtreeRoot.depth; node = node.thread)
