@@ -359,44 +359,13 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		root.id = PREFIX + "ROOT";
 		root.potential.set(0);
 		root.parent = null;
+		root.thread = root;
 		root.depth = 0;
+		root.supply = 0;
 
-		NSNode previous = root;
-		long totalSupply = 0;
 		objectiveValue.set(0);
-		for (NSNode node : nodes.values()) {
-			NSArc arc = new NSArc();
-			arc.id = PREFIX + "ARTIFICIAL_" + node.id;
-			arc.capacity = INFINITE_CAPACITY;
-			arc.cost.set(0, 1);
-			arc.status = ArcStatus.BASIC;
-			if (node.supply >= 0) {
-				arc.source = node;
-				arc.target = root;
-				arc.flow = node.supply;
-			} else {
-				arc.source = root;
-				arc.target = node;
-				arc.flow = -node.supply;
-			}
-			arcs.put(arc.id, arc);
-
-			node.parent = root;
-			node.arcToParent = arc;
-			node.computePotential();
-			previous.thread = node;
-			node.depth = 1;
-			previous = node;
-
-			totalSupply += node.supply;
-			objectiveValue.plusTimes(arc.flow, arc.cost);
-
-			if (animationDelay > 0)
-				arc.setUIClass();
-		}
-		previous.thread = root;
-		root.supply = (int) -totalSupply;
-
+		for (NSNode node : nodes.values())
+			addArtificialArc(node);
 		solutionStatus = SolutionStatus.UNDEFINED;
 	}
 
@@ -864,7 +833,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		if (edge.isDirected())
 			return sameDirection ? arcs.get(edge.getId()).status : null;
 		else
-			return arcs.get((sameDirection ? "" : PREFIX + "REVERSE")
+			return arcs.get((sameDirection ? "" : PREFIX + "REVERSE_")
 					+ edge.getId()).status;
 	}
 
@@ -1018,6 +987,16 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			removeArc(arc);
 	}
 	
+	@Override
+	public void nodeAdded(String sourceId, long timeId, String nodeId) {
+		addNode(new NSNode(graph.getNode(nodeId)));
+	}
+
+	@Override
+	public void nodeRemoved(String sourceId, long timeId, String nodeId) {
+		removeNode(nodes.get(nodeId));
+	}
+
 	
 	// helpers for the sink
 
@@ -1162,6 +1141,54 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		}
 		arcs.remove(arc.id);
 		nonBasicArcs.remove(arc);
+	}
+	
+	protected void addNode(NSNode node) {
+		nodes.put(node.id, node);
+		addArtificialArc(node);
+		solutionStatus = SolutionStatus.UNDEFINED;
+	}
+	
+	protected void removeNode(NSNode node) {
+		node.previousInThread().thread = node.thread;
+		NSArc artificial = node.arcToParent;
+		objectiveValue.plusTimes(-artificial.flow, artificial.cost);
+		root.supply += node.supply;
+		nodes.remove(node.id);
+		arcs.remove(artificial.id);
+		solutionStatus = SolutionStatus.UNDEFINED;
+	}
+	
+	protected void addArtificialArc(NSNode node) {
+		NSArc arc = new NSArc();
+		arc.id = PREFIX + "ARTIFICIAL_" + node.id;
+		arc.capacity = INFINITE_CAPACITY;
+		arc.cost.set(0, 1);
+		arc.status = ArcStatus.BASIC;
+		if (node.supply >= 0) {
+			arc.source = node;
+			arc.target = root;
+			arc.flow = node.supply;
+		} else {
+			arc.source = root;
+			arc.target = node;
+			arc.flow = -node.supply;
+		}
+		arcs.put(arc.id, arc);
+
+		node.parent = root;
+		node.thread = root.thread;
+		root.thread = node;
+		node.depth = 1;
+		node.arcToParent = arc;
+		node.computePotential();
+
+		root.supply -= node.supply;
+		objectiveValue.plusTimes(arc.flow, arc.cost);
+
+		if (animationDelay > 0)
+			arc.setUIClass();
+
 	}
 
 	/**

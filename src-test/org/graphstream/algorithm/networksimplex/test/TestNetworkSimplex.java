@@ -103,7 +103,7 @@ public class TestNetworkSimplex {
 		NetworkSimplex nsCheck = new NetworkSimplex("supply", "capacity", "cost");
 		nsCheck.init(ns.getGraph());
 		nsCheck.compute();
-		compareSolutions(ns, nsCheck);
+		compareSolutions(nsCheck, ns);
 	}
 
 	@Test
@@ -284,6 +284,7 @@ public class TestNetworkSimplex {
 		checkReferenceSolution(ns);
 	}
 	
+	@Test
 	public void edgeAddRemoveTest() {
 		Graph g = toyGraph();
 		NetworkSimplex ns = new NetworkSimplex("supply", "capacity", "cost");
@@ -310,6 +311,26 @@ public class TestNetworkSimplex {
 		compareWithNew(ns);
 		
 		g.removeEdge("BC");
+		ns.compute();
+		compareWithNew(ns);
+	}
+	
+	@Test
+	public void nodeAddRemoveTest() {
+		Graph g = toyGraph();
+		NetworkSimplex ns = new NetworkSimplex("supply", "capacity", "cost");
+		ns.init(g);
+		ns.compute();
+		
+		g.removeNode("F");
+		ns.compute();
+		compareWithNew(ns);
+		
+		g.addNode("F").addAttribute("supply", -2);
+		ns.compute();
+		compareWithNew(ns);
+		
+		g.addEdge("EF", "E", "F").addAttribute("cost", 6);
 		ns.compute();
 		compareWithNew(ns);
 	}
