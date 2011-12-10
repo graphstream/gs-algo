@@ -128,29 +128,31 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	}
 
 	/**
-	 * The status of the current solution
+	 * The status of the current solution.
 	 */
 	public static enum SolutionStatus {
 		/**
-		 * The solution is not (re)optimized. This is the value when the graph
+		 * The current solution is outdated. This is the value when the graph
 		 * has changed since the last call of {@link NetworkSimplex#compute()}
 		 */
 		UNDEFINED,
 
 		/**
-		 * The current solution is optimal
+		 * The problem is feasible and bounded. The current solution is up to
+		 * date and optimal.
 		 */
 		OPTIMAL,
 
 		/**
 		 * The problem is infeasible, some of the supply/demand constraints
-		 * cannot be satisfied
+		 * cannot be satisfied. The current solution is up to date.
 		 */
 		INFEASIBLE,
 
 		/**
-		 * The problem is unbounded. This happens when the graph contains an
-		 * uncapacitated negative cost cycle
+		 * The problem is unbounded (this happens when the graph contains an
+		 * uncapacitated negative cost cycle). The current solution is up to
+		 * date.
 		 */
 		UNBOUNDED
 	}
@@ -561,8 +563,9 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	}
 
 	/**
-	 * The main simplex method loop. Selects leaving and entering arc. Loops
-	 * until there are no more candidates or until absorbing cycle is found.
+	 * The main simplex method loop. Selects leaving and entering arc and
+	 * performs a pivot. Loops until there are no more candidates or until
+	 * absorbing cycle is found.
 	 */
 	protected void simplex() {
 		int pivots = 0;
@@ -652,10 +655,11 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	/**
 	 * When the animation delay is positive, the algorithm continuously updates
 	 * {@code "ui.class"} and {@code "label"} attributes of the edges and the
-	 * nodes of the graph and sleeps at the end of each simplex pivot. This
-	 * feature can be useful for visualizing the algorithm execution. The user
-	 * must provide a stylesheet defining the classes of the graph elements as
-	 * described in {@link #setUIClasses()} This feature is disabled by default.
+	 * nodes of the graph and sleeps at the beginning of each simplex pivot.
+	 * This feature can be useful for visualizing the algorithm execution. The
+	 * user must provide a stylesheet defining the classes of the graph elements
+	 * as described in {@link #setUIClasses()}. This feature is disabled by
+	 * default.
 	 * 
 	 * @param millis
 	 *            The time in milliseconds to sleep between two simplex pivots.
@@ -666,13 +670,215 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	}
 
 	/**
+	 * Returns the graph on which the algorithm is applied. This is the graph
+	 * passed in parameter in {@link #init(Graph)}.
+	 * 
+	 * @return The graph on which the algorithm is applied.
+	 */
+	public Graph getGraph() {
+		return graph;
+	}
+
+	/**
+	 * Sets the log frequency.
+	 * 
+	 * If the parameter is positive, outputs information about the algorithm
+	 * execution to the log stream.
+	 * 
+	 * @param pivots
+	 *            The log frequency in number of pivots
+	 * @see #setLogStream(PrintStream)
+	 */
+	public void setLogFrequency(int pivots) {
+		logFreq = pivots;
+	}
+
+	/**
+	 * Sets the log stream.
+	 * 
+	 * Note that the algorithm outputs information about its execution only if
+	 * the log frequency is positive. By default the log stream is
+	 * {@link System#err}.
+	 * 
+	 * @param log
+	 *            The log stream
+	 * @see #setLogFrequency(int)
+	 */
+	public void setLogStream(PrintStream log) {
+		this.log = log;
+	}
+
+	/**
+	 * Returns the sum of the supplies of all the nodes in the network.
+	 * 
+	 * The MCF problem has solution only if the problem is balanced, i.e. if the
+	 * total supply is equal to the total demand. This method returns the
+	 * missing supply (if negative) or demand (if positive) in order to make the
+	 * problem balanced. If the returned value is zero, the problem is balanced.
+	 * 
+	 * @return The network balance
+	 */
+	public int getNetworkBalance() {
+		return -root.supply;
+	}
+
+	// solution access methods
+
+	/**
+	 * If the current solution is up to date, returns the status of the problem.
+	 * Otherwise returns {@link SolutionStatus#UNDEFINED}.
+	 * 
+	 * 
+	 * @return The status of the current solution.
+	 * @see SolutionStatus
+	 */
+	public SolutionStatus getSolutionStatus() {
+		return solutionStatus;
+	}
+
+	/**
+	 * Returns the total cost of the current network flow
+	 * 
+	 * @return The cost of the flow defined by the current solution
+	 */
+	public long getSolutionCost() {
+		return objectiveValue.getSmall();
+	}
+
+	/**
+	 * Returns the infeasibility of the current solution.
+	 * 
+	 * This is the sum of the absolute values of the infeasibilities of all the
+	 * nodes. If the returned value is zero, the current solution is feasible,
+	 * i.e. it satisfies the supply constraints of all the nodes.
+	 * 
+	 * @return The infeasibility of the current solution.
+	 * @see #getInfeasibility(Node)
+	 */
+	public long getSolutionInfeasibility() {
+		return objectiveValue.big;
+	}
+
+	/**
+	 * Returns the infeasibility of a node.
+	 * 
+	 * Returns the amount of missing outflow (if positive) or inflow (if
+	 * negative) of a given node. If the value is zero, the current solution
+	 * satisfies the node demand / supply.
+	 * 
+	 * @param node
+	 *            A node
+	 * @return The infeasibility of the node
+	 */
+	public int getInfeasibility(Node node) {
+		NSArc artificial = arcs.get(PREFIX + "ARTIFICIAL_" + node.getId());
+		return artificial.target == root ? artificial.flow : -artificial.flow;
+	}
+
+	/**
+	 * Returns the edge to the parent of a node in the current BFS tree.
+	 * 
+	 * If the parent of the node is the artificial root, this method returns
+	 * {@code null}. When the returned edge is undirected, use
+	 * {@link #getStatus(Edge, boolean)} to know which of the both arcs is
+	 * basic.
+	 * 
+	 * @param node
+	 *            A node
+	 * @return The edge to the parent of the node in the BFS tree
+	 */
+	public Edge getEdgeToParent(Node node) {
+		NSArc arc = nodes.get(node.getId()).arcToParent;
+		if (arc.isArtificial())
+			return null;
+		return graph.getEdge(arc.getOriginalId());
+	}
+
+	/**
+	 * Returns the flow on an edge.
+	 * 
+	 * If {@code sameDirection} is true, returns the flow from the source to the
+	 * target of the edge, otherwise returns the flow from the target to the
+	 * source of the edge. Note that for directed edges the flow can only pass
+	 * from the source node to the target node. For undirected edges there may
+	 * be independent flows in both directions.
+	 * 
+	 * @param edge
+	 *            An edge
+	 * @param sameDirection
+	 *            If true, returns the flow from the source to the target.
+	 * @return The flow on the edge.
+	 */
+	public int getFlow(Edge edge, boolean sameDirection) {
+		if (edge.isDirected())
+			return sameDirection ? arcs.get(edge.getId()).flow : 0;
+		else
+			return arcs.get((sameDirection ? "" : PREFIX + "REVERSE_")
+					+ edge.getId()).flow;
+	}
+
+	/**
+	 * Returns the flow on an edge from its source node to its target node.
+	 * 
+	 * The same as {@code getFlow(Edge, true)}.
+	 * 
+	 * @param edge
+	 *            An edge
+	 * @return The flow on the edge
+	 * @see #getFlow(Edge, boolean)
+	 */
+	public int getFlow(Edge edge) {
+		return getFlow(edge, true);
+	}
+
+	/**
+	 * Returns the status of an edge in the current solution.
+	 * 
+	 * An edge can be basic, non-basic at zero or non-basic at
+	 * upper bound. Note that undirected edges are
+	 * interpreted as two directed arcs. If {@code sameDirection} is true, the
+	 * method returns the status of the arc from the source to the target of the
+	 * edge, otherwise it returns the status of the arc from the target to the
+	 * source. If the edge is directed and {@code sameDirection} is false,
+	 * returns {@code null}.
+	 * 
+	 * @param edge
+	 *            An edge
+	 * @param sameDirection
+	 *            If true, returns the status of the arc from the source to the
+	 *            target.
+	 * @return The status of the edge
+	 */
+	public ArcStatus getStatus(Edge edge, boolean sameDirection) {
+		if (edge.isDirected())
+			return sameDirection ? arcs.get(edge.getId()).status : null;
+		else
+			return arcs.get((sameDirection ? "" : PREFIX + "REVERSE_")
+					+ edge.getId()).status;
+	}
+
+	/**
+	 * Returns the status of an edge in the current solution. 
+	 * 
+	 * The same as {@code getStatus(edge, true)}.
+	 * 
+	 * @param edge
+	 *            An edge
+	 * @return The status of the edge
+	 * @see #getStatus(Edge, boolean)
+	 */
+	public ArcStatus getStatus(Edge edge) {
+		return getStatus(edge, true);
+	}
+
+	/**
 	 * This method can be used to visualize the current solution.
 	 * 
 	 * <p>
 	 * It sets the attributes {@code "label"} and {@code "ui.class"} of the
 	 * nodes and the edges of the graph depending on the current solution. The
 	 * labels of the nodes are set to their balance (see
-	 * {@link #getNodeBalance(Node)}). The labels of the edges are set to the
+	 * {@link #getInfeasibility(Node)}). The labels of the edges are set to the
 	 * flow passing through them. The {@code "ui.class"} attribute of the nodes
 	 * is set to one of {@code "supply_balanced"}, {@code "supply_unbalanced"},
 	 * {@code "demand_balanced"}, {@code "demand_unbalanced"},
@@ -704,178 +910,6 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 				arc = arcs.get(PREFIX + "REVERSE_" + edge.getId());
 			arc.setUIClass();
 		}
-	}
-
-	/**
-	 * Returns the graph on which the algorithm is applied. This is the graph
-	 * passed in parameter in {@link #init(Graph)}.
-	 * 
-	 * @return The graph on which the algorithm is applied.
-	 */
-	public Graph getGraph() {
-		return graph;
-	}
-
-	/**
-	 * Sets the log frequency.
-	 * 
-	 * If the parameter is positive, outputs information about the algorithm
-	 * execution to the log stream.
-	 * 
-	 * @param pivots
-	 *            The log frequency in number of pivots
-	 * @see #setLogStream(PrintStream)
-	 */
-	public void setLogFrequency(int pivots) {
-		logFreq = pivots;
-	}
-
-	/**
-	 * Sets the log stream
-	 * 
-	 * @param log
-	 *            The log stream
-	 * @see #setLogFrequency(int)
-	 */
-	public void setLogStream(PrintStream log) {
-		this.log = log;
-	}
-
-	// solution access methods
-
-	/**
-	 * The MCF problem has solution only if the problem is balanced, i.e. if the
-	 * total supply is equal to the total demand. This method returns the
-	 * missing supply (if positive) or demand (if negative) in order to make the
-	 * problem balanced. If the returned value is zero, the problem is balanced.
-	 * 
-	 * @return The network balance
-	 */
-	public int getNetworkBalance() {
-		return root.supply;
-	}
-
-	/**
-	 * Returns the amount of missing outflow (if positive) or inflow (if
-	 * negative) of a given node. If the value is zero, the current solution
-	 * satisfies the node demand / supply. If the current solution is feasible,
-	 * the returned value is zero for all the nodes.
-	 * 
-	 * @param node
-	 *            A node
-	 * @return The balance of the node
-	 */
-	public int getNodeBalance(Node node) {
-		NSArc artificial = arcs.get(PREFIX + "ARTIFICIAL_" + node.getId());
-		return artificial.target == root ? artificial.flow : -artificial.flow;
-	}
-
-	/**
-	 * Returns the status of the current solution.
-	 * 
-	 * @return The solution status
-	 */
-	public SolutionStatus getSolutionStatus() {
-		return solutionStatus;
-	}
-
-	/**
-	 * Returns the flow on an edge. If {@code sameDirection} is true, returns
-	 * the flow from the source to the target of the edge, otherwise returns the
-	 * flow from the target to the source of the edge. Note that for directed
-	 * edges the flow can only pass from the source node to the target node. For
-	 * undirected edges there may be independent flows in both directions.
-	 * 
-	 * @param edge
-	 *            An edge
-	 * @param sameDirection
-	 *            If true, returns the flow from the source to the target.
-	 * @return The flow on the edge.
-	 */
-	public int getFlow(Edge edge, boolean sameDirection) {
-		if (edge.isDirected())
-			return sameDirection ? arcs.get(edge.getId()).flow : 0;
-		else
-			return arcs.get((sameDirection ? "" : PREFIX + "REVERSE_")
-					+ edge.getId()).flow;
-	}
-
-	/**
-	 * Returns the flow on an edge from its source node to its target node. The
-	 * same as {@code getFlow(Edge, true)}.
-	 * 
-	 * @param edge
-	 *            An edge
-	 * @return The flow on the edge
-	 * @see #getFlow(Edge, boolean)
-	 */
-	public int getFlow(Edge edge) {
-		return getFlow(edge, true);
-	}
-
-	/**
-	 * Returns the status of an edge (basic, non-basic at zero or non-basic at
-	 * upper bound) in the current BFS. Note that undirected edges are
-	 * interpreted as two directed arcs. If {@code sameDirection} is true, the
-	 * method returns the status of the arc from the source to the target of the
-	 * edge, otherwise it returns the status of the arc from the target to the
-	 * source. If the edge is directed and {@code sameDirection} is false,
-	 * returns {@code null}.
-	 * 
-	 * @param edge
-	 *            An edge
-	 * @param sameDirection
-	 *            If true, returns the status of the arc from the source to the
-	 *            target.
-	 * @return The status of the edge
-	 */
-	public ArcStatus getStatus(Edge edge, boolean sameDirection) {
-		if (edge.isDirected())
-			return sameDirection ? arcs.get(edge.getId()).status : null;
-		else
-			return arcs.get((sameDirection ? "" : PREFIX + "REVERSE_")
-					+ edge.getId()).status;
-	}
-
-	/**
-	 * Returns the status of an edge in the current BFS. The same as
-	 * {@code getStatus(edge, true)}.
-	 * 
-	 * @param edge
-	 *            An edge
-	 * @return The status of the edge
-	 * @see #getStatus(Edge, boolean)
-	 */
-	public ArcStatus getStatus(Edge edge) {
-		return getStatus(edge, true);
-	}
-
-	/**
-	 * Returns the edge to the parent of a node in the BFS tree.
-	 * 
-	 * If the parent of the node is the artificial root, this method returns
-	 * {@code null}. When the returned edge is undirected, use
-	 * {@link #getStatus(Edge, boolean)} to know which of the both arcs is
-	 * basic.
-	 * 
-	 * @param node
-	 *            A node
-	 * @return The edge to the parent of the node in the BFS tree
-	 */
-	public Edge getEdgeToParent(Node node) {
-		NSArc arc = nodes.get(node.getId()).arcToParent;
-		if (arc.isArtificial())
-			return null;
-		return graph.getEdge(arc.getOriginalId());
-	}
-
-	/**
-	 * Returns the total cost of the current network flow
-	 * 
-	 * @return The objective value of the problem
-	 */
-	public long getObjectiveValue() {
-		return objectiveValue.getSmall();
 	}
 
 	// DynamicAlgorithm methods
@@ -986,7 +1020,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		if (arc != null)
 			removeArc(arc);
 	}
-	
+
 	@Override
 	public void nodeAdded(String sourceId, long timeId, String nodeId) {
 		addNode(new NSNode(graph.getNode(nodeId)));
@@ -996,16 +1030,13 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	public void nodeRemoved(String sourceId, long timeId, String nodeId) {
 		removeNode(nodes.get(nodeId));
 	}
-	
+
 	@Override
 	public void graphCleared(String sourceId, long timeId) {
 		clearGraph();
 	}
-	
 
-	
 	// helpers for the sink
-
 
 	/**
 	 * Utility method trying to convert object to double in the same way as
@@ -1123,7 +1154,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		changeSupply(arc.source, arc.source.supply + delta);
 		changeSupply(arc.target, arc.target.supply - delta);
 	}
-	
+
 	protected void addArc(NSArc arc) {
 		arc.flow = 0;
 		arc.status = ArcStatus.NONBASIC_LOWER;
@@ -1131,11 +1162,12 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		nonBasicArcs.add(arc);
 		solutionStatus = SolutionStatus.UNDEFINED;
 	}
-	
+
 	protected void removeArc(NSArc arc) {
 		changeCapacity(arc, 0);
 		if (arc.status == ArcStatus.BASIC) {
-			NSNode node = arc.source.arcToParent == arc ? arc.source : arc.target;
+			NSNode node = arc.source.arcToParent == arc ? arc.source
+					: arc.target;
 			enteringArc = arcs.get(PREFIX + "ARTIFICIAL_" + node.id);
 			if (enteringArc.source == root)
 				enteringArc.switchDirection();
@@ -1149,13 +1181,13 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		arcs.remove(arc.id);
 		nonBasicArcs.remove(arc);
 	}
-	
+
 	protected void addNode(NSNode node) {
 		nodes.put(node.id, node);
 		addArtificialArc(node);
 		solutionStatus = SolutionStatus.UNDEFINED;
 	}
-	
+
 	protected void removeNode(NSNode node) {
 		node.previousInThread().thread = node.thread;
 		NSArc artificial = node.arcToParent;
@@ -1165,7 +1197,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		arcs.remove(artificial.id);
 		solutionStatus = SolutionStatus.UNDEFINED;
 	}
-	
+
 	protected void clearGraph() {
 		nodes.clear();
 		arcs.clear();
@@ -1175,7 +1207,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		objectiveValue.set(0);
 		solutionStatus = SolutionStatus.OPTIMAL;
 	}
-	
+
 	protected void addArtificialArc(NSNode node) {
 		NSArc arc = new NSArc();
 		arc.id = PREFIX + "ARTIFICIAL_" + node.id;
