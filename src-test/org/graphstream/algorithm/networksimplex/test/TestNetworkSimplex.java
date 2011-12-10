@@ -334,4 +334,16 @@ public class TestNetworkSimplex {
 		ns.compute();
 		compareWithNew(ns);
 	}
+	
+	@Test
+	public void graphClearTest() {
+		Graph g = toyGraph();
+		NetworkSimplex ns = new NetworkSimplex("supply", "capacity", "cost");
+		ns.init(g);
+		ns.compute();
+		
+		g.clear();
+		ns.compute();
+		compareWithNew(ns);
+	}
 }

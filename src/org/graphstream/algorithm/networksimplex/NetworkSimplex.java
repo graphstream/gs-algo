@@ -996,9 +996,16 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	public void nodeRemoved(String sourceId, long timeId, String nodeId) {
 		removeNode(nodes.get(nodeId));
 	}
+	
+	@Override
+	public void graphCleared(String sourceId, long timeId) {
+		clearGraph();
+	}
+	
 
 	
 	// helpers for the sink
+
 
 	/**
 	 * Utility method trying to convert object to double in the same way as
@@ -1157,6 +1164,16 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		nodes.remove(node.id);
 		arcs.remove(artificial.id);
 		solutionStatus = SolutionStatus.UNDEFINED;
+	}
+	
+	protected void clearGraph() {
+		nodes.clear();
+		arcs.clear();
+		nonBasicArcs.clear();
+		root.thread = root;
+		root.supply = 0;
+		objectiveValue.set(0);
+		solutionStatus = SolutionStatus.OPTIMAL;
 	}
 	
 	protected void addArtificialArc(NSNode node) {
