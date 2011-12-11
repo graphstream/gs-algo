@@ -787,11 +787,27 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 *            A node
 	 * @return The edge to the parent of the node in the BFS tree
 	 */
-	public Edge getEdgeToParent(Node node) {
+	public <T extends Edge> T getEdgeFromParent(Node node) {
 		NSArc arc = nodes.get(node.getId()).arcToParent;
 		if (arc.isArtificial())
 			return null;
 		return graph.getEdge(arc.getOriginalId());
+	}
+
+	/**
+	 * Returns the parent of a node in the current BFS tree.
+	 * 
+	 * If the parent of the node is the artificial root, returns {@code null}.
+	 * 
+	 * @param node
+	 *            A node
+	 * @return The parent of a node in the BFS tree
+	 */
+	public <T extends Node> T getParent(Node node) {
+		NSNode nsNode = nodes.get(node.getId());
+		if (nsNode == root)
+			return null;
+		return graph.getNode(nsNode.parent.id);
 	}
 
 	/**
@@ -834,13 +850,12 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	/**
 	 * Returns the status of an edge in the current solution.
 	 * 
-	 * An edge can be basic, non-basic at zero or non-basic at
-	 * upper bound. Note that undirected edges are
-	 * interpreted as two directed arcs. If {@code sameDirection} is true, the
-	 * method returns the status of the arc from the source to the target of the
-	 * edge, otherwise it returns the status of the arc from the target to the
-	 * source. If the edge is directed and {@code sameDirection} is false,
-	 * returns {@code null}.
+	 * An edge can be basic, non-basic at zero or non-basic at upper bound. Note
+	 * that undirected edges are interpreted as two directed arcs. If
+	 * {@code sameDirection} is true, the method returns the status of the arc
+	 * from the source to the target of the edge, otherwise it returns the
+	 * status of the arc from the target to the source. If the edge is directed
+	 * and {@code sameDirection} is false, returns {@code null}.
 	 * 
 	 * @param edge
 	 *            An edge
@@ -858,7 +873,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	}
 
 	/**
-	 * Returns the status of an edge in the current solution. 
+	 * Returns the status of an edge in the current solution.
 	 * 
 	 * The same as {@code getStatus(edge, true)}.
 	 * 
@@ -1161,6 +1176,8 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		arcs.put(arc.id, arc);
 		nonBasicArcs.add(arc);
 		solutionStatus = SolutionStatus.UNDEFINED;
+		if (animationDelay > 0)
+			arc.setUIClass();
 	}
 
 	protected void removeArc(NSArc arc) {

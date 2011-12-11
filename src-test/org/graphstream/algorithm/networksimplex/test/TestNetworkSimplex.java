@@ -60,12 +60,12 @@ public class TestNetworkSimplex {
 		for (Node n : g)
 			assertEquals(0, ns.getInfeasibility(n), 0);
 
-		assertNull(ns.getEdgeToParent(g.getNode("A")));
-		assertEquals("BC", ns.getEdgeToParent(g.getNode("B")).getId());
-		assertEquals("AC", ns.getEdgeToParent(g.getNode("C")).getId());
-		assertEquals("CD", ns.getEdgeToParent(g.getNode("D")).getId());
-		assertEquals("CE", ns.getEdgeToParent(g.getNode("E")).getId());
-		assertEquals("CF", ns.getEdgeToParent(g.getNode("F")).getId());
+		assertNull(ns.getEdgeFromParent(g.getNode("A")));
+		assertEquals("BC", ns.getEdgeFromParent(g.getNode("B")).getId());
+		assertEquals("AC", ns.getEdgeFromParent(g.getNode("C")).getId());
+		assertEquals("CD", ns.getEdgeFromParent(g.getNode("D")).getId());
+		assertEquals("CE", ns.getEdgeFromParent(g.getNode("E")).getId());
+		assertEquals("CF", ns.getEdgeFromParent(g.getNode("F")).getId());
 
 		assertEquals(3, ns.getFlow(g.getEdge("AB")));
 		assertEquals(2, ns.getFlow(g.getEdge("AC")));
@@ -101,7 +101,7 @@ public class TestNetworkSimplex {
 		
 		for (Node n : g) {
 			assertEquals(ns1.getInfeasibility(n), ns2.getInfeasibility(n));
-			assertEquals(ns1.getEdgeToParent(n), ns2.getEdgeToParent(n));
+			assertEquals(ns1.getEdgeFromParent(n), ns2.getEdgeFromParent(n));
 		}
 		for (Edge e : g.getEachEdge()) {
 			assertEquals(ns1.getFlow(e, true), ns2.getFlow(e, true));
