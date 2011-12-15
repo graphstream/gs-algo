@@ -100,7 +100,6 @@ public class DynamicOneToAllShortestPath extends NetworkSimplex {
 			return nextNode.parent != root;
 		}
 
-		@Override
 		public T next() {
 			if (nextNode.parent == root)
 				throw new NoSuchElementException();
@@ -109,7 +108,6 @@ public class DynamicOneToAllShortestPath extends NetworkSimplex {
 			return edge;
 		}
 
-		@Override
 		public void remove() {
 			throw new UnsupportedOperationException(
 					"This iterator does not support remove");
