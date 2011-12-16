@@ -329,7 +329,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			nodes.put(copy.id, copy);
 		}
 
-		int arcCount = graph.getEdgeCount() + graph.getNodeCount();
+		int arcCount = graph.getEdgeCount();
 		for (Edge edge : graph.getEachEdge())
 			if (!edge.isDirected())
 				arcCount++;
@@ -360,30 +360,43 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		root = new NSNode();
 		root.id = PREFIX + "ROOT";
 		root.potential.set(0);
-		root.parent = null;
+		root.parent = root;
 		root.thread = root;
 		root.depth = 0;
 		root.supply = 0;
+		root.artificialArc = null;
 
 		objectiveValue.set(0);
 		for (NSNode node : nodes.values())
-			addArtificialArc(node);
+			node.createArtificialArc();
 		solutionStatus = SolutionStatus.UNDEFINED;
 	}
 
 	// Simplex machinery
-
+	
 	/**
 	 * "First negative" pricing strategy
 	 */
 	protected void selectEnteringArcFirstNegative() {
 		enteringArc = null;
 		BigMNumber reducedCost = work1;
+		
 		for (NSArc arc : nonBasicArcs) {
 			arc.computeReducedCost(reducedCost);
 			if (reducedCost.isNegative()) {
 				enteringArc = arc;
 				return;
+			}
+		}
+		
+		for (NSNode node : nodes.values()) {
+			NSArc arc = node.artificialArc;
+			if (arc.status == ArcStatus.NONBASIC_LOWER) {
+				arc.computeReducedCost(reducedCost);
+				if (reducedCost.isNegative()) {
+					enteringArc = arc;
+					return;
+				}
 			}
 		}
 	}
@@ -396,11 +409,25 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		BigMNumber reducedCost = work1;
 		BigMNumber bestReducedCost = work2;
 		bestReducedCost.set(0);
+		
 		for (NSArc arc : nonBasicArcs) {
 			arc.computeReducedCost(reducedCost);
 			if (reducedCost.compareTo(bestReducedCost) < 0) {
 				bestReducedCost.set(reducedCost);
 				enteringArc = arc;
+			}
+		}
+		if (enteringArc != null)
+			return;
+		
+		for (NSNode node : nodes.values()) {
+			NSArc arc = node.artificialArc;
+			if (arc.status == ArcStatus.NONBASIC_LOWER) {
+				arc.computeReducedCost(reducedCost);
+				if (reducedCost.compareTo(bestReducedCost) < 0) {
+					bestReducedCost = reducedCost;
+					enteringArc = arc;
+				}
 			}
 		}
 	}
@@ -553,7 +580,8 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 				leavingArc.status = ArcStatus.NONBASIC_UPPER;
 			else
 				leavingArc.status = ArcStatus.NONBASIC_LOWER;
-			nonBasicArcs.add(leavingArc);
+			if (!leavingArc.isArtificial())
+				nonBasicArcs.add(leavingArc);
 			updateBFS();
 		}
 		if (animationDelay > 0) {
@@ -571,7 +599,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		int pivots = 0;
 		if (logFreq > 0) {
 			log.println("Starting simplex...");
-			log.printf("%10s%20s%20s%10s%10s%10s%n", "pivot", "entering",
+			log.printf("%10s%30s%30s%10s%10s%10s%n", "pivot", "entering",
 					"leaving", "delta", "cost", "infeas.");
 		}
 		while (true) {
@@ -591,7 +619,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			pivot();
 			pivots++;
 			if (logFreq > 0 && pivots % logFreq == 0)
-				log.printf("%10d%20s%20s%10d%10d%10d%n", pivots,
+				log.printf("%10d%30s%30s%10d%10d%10d%n", pivots,
 						enteringArc.id, leavingArc.id, cycleFlowChange.small,
 						objectiveValue.small, objectiveValue.big);
 		}
@@ -771,7 +799,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 * @return The infeasibility of the node
 	 */
 	public int getInfeasibility(Node node) {
-		NSArc artificial = arcs.get(PREFIX + "ARTIFICIAL_" + node.getId());
+		NSArc artificial = nodes.get(node.getId()).artificialArc;
 		return artificial.target == root ? artificial.flow : -artificial.flow;
 	}
 
@@ -918,7 +946,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 */
 	public void setUIClasses() {
 		for (Node node : graph)
-			arcs.get(PREFIX + "ARTIFICIAL_" + node.getId()).setUIClass();
+			nodes.get(node.getId()).artificialArc.setUIClass();
 		for (Edge edge : graph.getEachEdge()) {
 			NSArc arc = arcs.get(edge.getId());
 			if (!edge.isDirected() && arc.flow == 0)
@@ -1024,7 +1052,6 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			arc = new NSArc(graph.getEdge(edgeId), false);
 			addArc(arc);
 		}
-		solutionStatus = SolutionStatus.UNDEFINED;
 	}
 
 	@Override
@@ -1105,38 +1132,37 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	protected void changeSupply(NSNode node, int newSupply) {
 		if (node.supply == newSupply)
 			return;
-		NSArc artificialArc = arcs.get(PREFIX + "ARTIFICIAL_" + node.id);
-
+		NSArc artificial = node.artificialArc;
 		// enter the artificial arc is in the tree if not there
-		if (artificialArc.status == ArcStatus.NONBASIC_LOWER) {
-			enteringArc = artificialArc;
+		if (artificial.status == ArcStatus.NONBASIC_LOWER) {
+			enteringArc = artificial;
 			selectLeavingArc();
 			// if we are in infinite cycle, switch the direction
 			if (cycleFlowChange.isInfinite()) {
-				artificialArc.switchDirection();
+				artificial.switchDirection();
 				selectLeavingArc();
 			}
 			fromSink = true;
 			pivot();
 		}
 		// now the artificial arc is basic and we can change its flow
-		objectiveValue.plusTimes(-artificialArc.flow, artificialArc.cost);
+		objectiveValue.plusTimes(-artificial.flow, artificial.cost);
 		int delta = newSupply - node.supply;
 		node.supply = newSupply;
 		root.supply -= delta;
-		if (node == artificialArc.source) {
-			artificialArc.flow += delta;
+		if (node == artificial.source) {
+			artificial.flow += delta;
 		} else {
-			artificialArc.flow -= delta;
+			artificial.flow -= delta;
 		}
-		if (artificialArc.flow < 0)
-			artificialArc.switchDirection();
+		if (artificial.flow < 0)
+			artificial.switchDirection();
 
-		objectiveValue.plusTimes(artificialArc.flow, artificialArc.cost);
+		objectiveValue.plusTimes(artificial.flow, artificial.cost);
 		solutionStatus = SolutionStatus.UNDEFINED;
 
 		if (animationDelay > 0)
-			artificialArc.setUIClass();
+			artificial.setUIClass();
 	}
 
 	protected void changeCapacity(NSArc arc, int newCapacity) {
@@ -1185,13 +1211,11 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		if (arc.status == ArcStatus.BASIC) {
 			NSNode node = arc.source.arcToParent == arc ? arc.source
 					: arc.target;
-			enteringArc = arcs.get(PREFIX + "ARTIFICIAL_" + node.id);
+			enteringArc = node.artificialArc;
 			if (enteringArc.source == root)
 				enteringArc.switchDirection();
 			selectLeavingArc();
-			// XXX check
-			if (leavingArc != arc)
-				throw new RuntimeException("This should never happen!");
+			fromSink = true;
 			pivot();
 			solutionStatus = SolutionStatus.UNDEFINED;
 		}
@@ -1201,7 +1225,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 
 	protected void addNode(NSNode node) {
 		nodes.put(node.id, node);
-		addArtificialArc(node);
+		node.createArtificialArc();
 		solutionStatus = SolutionStatus.UNDEFINED;
 	}
 
@@ -1211,7 +1235,6 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		objectiveValue.plusTimes(-artificial.flow, artificial.cost);
 		root.supply += node.supply;
 		nodes.remove(node.id);
-		arcs.remove(artificial.id);
 		solutionStatus = SolutionStatus.UNDEFINED;
 	}
 
@@ -1225,37 +1248,6 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		solutionStatus = SolutionStatus.OPTIMAL;
 	}
 
-	protected void addArtificialArc(NSNode node) {
-		NSArc arc = new NSArc();
-		arc.id = PREFIX + "ARTIFICIAL_" + node.id;
-		arc.capacity = INFINITE_CAPACITY;
-		arc.cost.set(0, 1);
-		arc.status = ArcStatus.BASIC;
-		if (node.supply >= 0) {
-			arc.source = node;
-			arc.target = root;
-			arc.flow = node.supply;
-		} else {
-			arc.source = root;
-			arc.target = node;
-			arc.flow = -node.supply;
-		}
-		arcs.put(arc.id, arc);
-
-		node.parent = root;
-		node.thread = root.thread;
-		root.thread = node;
-		node.depth = 1;
-		node.arcToParent = arc;
-		node.computePotential();
-
-		root.supply -= node.supply;
-		objectiveValue.plusTimes(arc.flow, arc.cost);
-
-		if (animationDelay > 0)
-			arc.setUIClass();
-
-	}
 
 	/**
 	 * Internal representation of the graph nodes. Stores node ids, supplies and
@@ -1263,6 +1255,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 * structure.
 	 */
 	protected class NSNode {
+		
 		/**
 		 * Node id. The same as in the original graph. Special id for the
 		 * artificial root.
@@ -1299,6 +1292,11 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		 * The arc connecting this node to its parent in the BFS tree
 		 */
 		NSArc arcToParent;
+		
+		/**
+		 * The artificial arc associated to this node
+		 */
+		NSArc artificialArc;
 
 		/**
 		 * Creates a copy of a node.
@@ -1320,6 +1318,39 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		 */
 		NSNode() {
 			potential = new BigMNumber();
+		}
+		
+		/**
+		 * Creates the artificial arc corresponding to this node and puts it in the BFS
+		 */
+		void createArtificialArc() {
+			artificialArc = new NSArc();
+			artificialArc.id = id;
+			artificialArc.capacity = INFINITE_CAPACITY;
+			artificialArc.cost.set(0, 1);
+			artificialArc.status = ArcStatus.BASIC;
+			if (supply > 0) {
+				artificialArc.source = this;
+				artificialArc.target = root;
+				artificialArc.flow = supply;
+			} else {
+				artificialArc.source = root;
+				artificialArc.target = this;
+				artificialArc.flow = -supply;
+			}
+			
+			parent = root;
+			thread = root.thread;
+			root.thread = this;
+			depth = 1;
+			arcToParent = artificialArc;
+			computePotential();
+			
+			root.supply -= supply;
+			objectiveValue.plusTimes(artificialArc.flow, artificialArc.cost);
+			
+			if (animationDelay > 0)
+				artificialArc.setUIClass();
 		}
 
 		/**
@@ -1649,6 +1680,14 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		ps.printf("%20s%10s%10s%10s%10s%20s%n", "id", "capacity", "cost",
 				"flow", "r. cost", "status");
 		for (NSArc a : arcs.values()) {
+			a.computeReducedCost(work1);
+			ps.printf("%20s%10s%10s%10s%10s%20s%n", a.id,
+					a.capacity == INFINITE_CAPACITY ? "Inf" : a.capacity,
+					a.cost, a.flow, work1, a.status);
+		}
+		
+		for (NSNode node : nodes.values()) {
+			NSArc a = node.artificialArc;
 			a.computeReducedCost(work1);
 			ps.printf("%20s%10s%10s%10s%10s%20s%n", a.id,
 					a.capacity == INFINITE_CAPACITY ? "Inf" : a.capacity,
