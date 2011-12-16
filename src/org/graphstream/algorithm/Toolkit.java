@@ -212,7 +212,8 @@ import org.graphstream.graph.*;
  * import static org.graphstream.algorithm.Toolkit.*;
  * </pre>
  */
-public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils {
+public class Toolkit extends
+		org.graphstream.ui.graphicGraph.GraphPosLengthUtils {
 	// Access
 
 	/**
@@ -444,14 +445,14 @@ public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils
 
 		if (n > 0) {
 			return graph.getNode(random.nextInt(n));
-//			int r = random.nextInt(n);
-//			int i = 0;
-//
-//			for (Node node : graph) {
-//				if (r == i)
-//					return node;
-//				i++;
-//			}
+			// int r = random.nextInt(n);
+			// int i = 0;
+			//
+			// for (Node node : graph) {
+			// if (r == i)
+			// return node;
+			// i++;
+			// }
 		}
 
 		return null;
@@ -479,14 +480,14 @@ public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils
 
 		if (n > 0) {
 			return graph.getEdge(random.nextInt(n));
-//			int r = random.nextInt(n);
-//			int i = 0;
-//
-//			for (Edge edge : graph.getEachEdge()) {
-//				if (r == i)
-//					return edge;
-//				i++;
-//			}
+			// int r = random.nextInt(n);
+			// int i = 0;
+			//
+			// for (Edge edge : graph.getEachEdge()) {
+			// if (r == i)
+			// return edge;
+			// i++;
+			// }
 		}
 
 		return null;
@@ -535,14 +536,14 @@ public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils
 
 		if (n > 0) {
 			return node.getEdge(random.nextInt(n));
-//			int r = random.nextInt(n);
-//			int i = 0;
-//
-//			for (Edge edge : node.getEdgeSet()) {
-//				if (r == i)
-//					return edge;
-//				i++;
-//			}
+			// int r = random.nextInt(n);
+			// int i = 0;
+			//
+			// for (Edge edge : node.getEdgeSet()) {
+			// if (r == i)
+			// return edge;
+			// i++;
+			// }
 		}
 
 		return null;
@@ -562,14 +563,14 @@ public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils
 
 		if (n > 0) {
 			return node.getEnteringEdge(random.nextInt(n));
-//			int r = random.nextInt(n);
-//			int i = 0;
-//
-//			for (Edge edge : node.getEnteringEdgeSet()) {
-//				if (r == i)
-//					return edge;
-//				i++;
-//			}
+			// int r = random.nextInt(n);
+			// int i = 0;
+			//
+			// for (Edge edge : node.getEnteringEdgeSet()) {
+			// if (r == i)
+			// return edge;
+			// i++;
+			// }
 		}
 
 		return null;
@@ -589,14 +590,14 @@ public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils
 
 		if (n > 0) {
 			return node.getLeavingEdge(random.nextInt(n));
-//			int r = random.nextInt(n);
-//			int i = 0;
-//
-//			for (Edge edge : node.getLeavingEdgeSet()) {
-//				if (r == i)
-//					return edge;
-//				i += 1;
-//			}
+			// int r = random.nextInt(n);
+			// int i = 0;
+			//
+			// for (Edge edge : node.getLeavingEdgeSet()) {
+			// if (r == i)
+			// return edge;
+			// i += 1;
+			// }
 		}
 
 		return null;
@@ -1339,5 +1340,140 @@ public class Toolkit extends org.graphstream.ui.graphicGraph.GraphPosLengthUtils
 			if (next != null)
 				next.prev = prev;
 		}
+	}
+
+	/**
+	 * Fills an array with the adjacency matrix of a graph.
+	 * 
+	 * The adjacency matrix of a graph is a <i>n</i> times <i>n</i> matrix
+	 * {@code a}, where <i>n</i> is the number of nodes of the graph. The
+	 * element {@code a[i][j]} of this matrix is equal to the number of edges
+	 * from the node {@code graph.getNode(i)} to the node
+	 * {@code graph.getNode(j)}. An undirected edge between i-th and j-th node
+	 * is counted twice: in {@code a[i][j]} and in {@code a[j][i]}.
+	 * 
+	 * @param graph
+	 *            A graph.
+	 * @param matrix
+	 *            The array where the adjacency matrix is stored. Must be of
+	 *            size at least <i>n</i> times <i>n</i>
+	 * @throws IndexOutOfBoundsException
+	 *             if the size of the matrix is insufficient.
+	 * @see Toolkit#getAdjacencyMatrix(Graph)
+	 * @complexity <i>O(n<sup>2</sup>)</i>, where <i>n</i> is the number of
+	 *             nodes.
+	 */
+	public static void fillAdjacencyMatrix(Graph graph, int[][] matrix) {
+		for (int i = 0; i < matrix.length; i++)
+			Arrays.fill(matrix[i], 0);
+
+		for (Edge e : graph.getEachEdge()) {
+			int i = e.getSourceNode().getIndex();
+			int j = e.getTargetNode().getIndex();
+			matrix[i][j]++;
+			if (!e.isDirected())
+				matrix[j][i]++;
+		}
+	}
+
+	/**
+	 * Returns the adjacency matrix of a graph.
+	 * 
+	 * The adjacency matrix of a graph is a <i>n</i> times <i>n</i> matrix
+	 * {@code a}, where <i>n</i> is the number of nodes of the graph. The
+	 * element {@code a[i][j]} of this matrix is equal to the number of edges
+	 * from the node {@code graph.getNode(i)} to the node
+	 * {@code graph.getNode(j)}. An undirected edge between i-th and j-th node
+	 * is counted twice: in {@code a[i][j]} and in {@code a[j][i]}.
+	 * 
+	 * @param graph
+	 *            A graph
+	 * @return The adjacency matrix of the graph.
+	 * @see Toolkit#fillAdjacencyMatrix(Graph, int[][])
+	 * @complexity <i>O(n<sup>2</sup>)</i>, where <i>n</i> is the number of
+	 *             nodes.
+	 */
+	public static int[][] getAdjacencyMatrix(Graph graph) {
+		int n = graph.getNodeCount();
+		int[][] matrix = new int[n][n];
+		fillAdjacencyMatrix(graph, matrix);
+		return matrix;
+	}
+
+	/**
+	 * Fills an array with the incidence matrix of a graph.
+	 * 
+	 * The incidence matrix of a graph is a <i>n</i> times <i>m</i> matrix
+	 * {@code a}, where <i>n</i> is the number of nodes and <i>m</i> is the
+	 * number of edges of the graph. The coefficients {@code a[i][j]} of this
+	 * matrix have the following values:
+	 * <ul>
+	 * <li>-1 if {@code graph.getEdge(j)} is directed and
+	 * {@code graph.getNode(i)} is its source.</li>
+	 * <li>1 if {@code graph.getEdge(j)} is undirected and
+	 * {@code graph.getNode(i)} is its source.</li>
+	 * <li>1 if {@code graph.getNode(i)} is the target of
+	 * {@code graph.getEdge(j)}.</li>
+	 * <li>0 otherwise.
+	 * </ul>
+	 * In the special case when the j-th edge is a loop connecting the i-th node
+	 * to itself, the coefficient {@code a[i][j]} is 0 if the loop is directed
+	 * and 2 if the loop is undirected. All the other coefficients in the j-th
+	 * column are 0.
+	 * 
+	 * @param graph
+	 *            A graph
+	 * @param matrix
+	 *            The array where the incidence matrix is stored. Must be at
+	 *            least of size <i>n</i> times <i>m</i>
+	 * @throws IndexOutOfBoundsException
+	 *             if the size of the matrix is insufficient
+	 * @see #getIncidenceMatrix(Graph)
+	 * @complexity <i>O(mn)</i>, where <i>n</i> is the number of nodes and
+	 *             <i>m</i> is the number of edges.
+	 */
+	public static void fillIncidenceMatrix(Graph graph, byte[][] matrix) {
+		for (int i = 0; i < matrix.length; i++)
+			Arrays.fill(matrix[i], (byte) 0);
+
+		for (Edge e : graph.getEachEdge()) {
+			int j = e.getIndex();
+			matrix[e.getSourceNode().getIndex()][j] += e.isDirected() ? -1 : 1;
+			matrix[e.getTargetNode().getIndex()][j] += 1;
+		}
+	}
+
+	/**
+	 * Returns the incidence matrix of a graph.
+	 * 
+	 * The incidence matrix of a graph is a <i>n</i> times <i>m</i> matrix
+	 * {@code a}, where <i>n</i> is the number of nodes and <i>m</i> is the
+	 * number of edges of the graph. The coefficients {@code a[i][j]} of this
+	 * matrix have the following values:
+	 * <ul>
+	 * <li>-1 if {@code graph.getEdge(j)} is directed and
+	 * {@code graph.getNode(i)} is its source.</li>
+	 * <li>1 if {@code graph.getEdge(j)} is undirected and
+	 * {@code graph.getNode(i)} is its source.</li>
+	 * <li>1 if {@code graph.getNode(i)} is the target of
+	 * {@code graph.getEdge(j)}.</li>
+	 * <li>0 otherwise.</li>
+	 * </ul>
+	 * In the special case when the j-th edge is a loop connecting the i-th node
+	 * to itself, the coefficient {@code a[i][j]} is 0 if the loop is directed
+	 * and 2 if the loop is undirected. All the other coefficients in the j-th
+	 * column are 0.
+	 * 
+	 * @param graph
+	 *            A graph
+	 * @return The incidence matrix of the graph.
+	 * @see #fillIncidenceMatrix(Graph, byte[][])
+	 * @complexity <i>O(mn)</i>, where <i>n</i> is the number of nodes and
+	 *             <i>m</i> is the number of edges.
+	 */
+	public static byte[][] getIncidenceMatrix(Graph graph) {
+		byte[][] matrix = new byte[graph.getNodeCount()][graph.getEdgeCount()];
+		fillIncidenceMatrix(graph, matrix);
+		return matrix;
 	}
 }
