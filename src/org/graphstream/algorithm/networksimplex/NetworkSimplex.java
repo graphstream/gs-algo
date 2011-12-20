@@ -373,14 +373,14 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	}
 
 	// Simplex machinery
-	
+
 	/**
 	 * "First negative" pricing strategy
 	 */
 	protected void selectEnteringArcFirstNegative() {
 		enteringArc = null;
 		BigMNumber reducedCost = work1;
-		
+
 		for (NSArc arc : nonBasicArcs) {
 			arc.computeReducedCost(reducedCost);
 			if (reducedCost.isNegative()) {
@@ -388,7 +388,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 				return;
 			}
 		}
-		
+
 		for (NSNode node : nodes.values()) {
 			NSArc arc = node.artificialArc;
 			if (arc.status == ArcStatus.NONBASIC_LOWER) {
@@ -409,7 +409,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		BigMNumber reducedCost = work1;
 		BigMNumber bestReducedCost = work2;
 		bestReducedCost.set(0);
-		
+
 		for (NSArc arc : nonBasicArcs) {
 			arc.computeReducedCost(reducedCost);
 			if (reducedCost.compareTo(bestReducedCost) < 0) {
@@ -419,7 +419,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		}
 		if (enteringArc != null)
 			return;
-		
+
 		for (NSNode node : nodes.values()) {
 			NSArc arc = node.artificialArc;
 			if (arc.status == ArcStatus.NONBASIC_LOWER) {
@@ -624,8 +624,9 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 						objectiveValue.small, objectiveValue.big);
 		}
 		if (logFreq > 0)
-			log.printf("Simplex finished. Cost: %d. Status: %s%n%n",
-					objectiveValue.small, solutionStatus);
+			log.printf(
+					"Simplex finished (%d pivots). Cost: %d. Status: %s%n%n",
+					pivots, objectiveValue.small, solutionStatus);
 	}
 
 	// access and modification of algorithm parameters
@@ -949,7 +950,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			nodes.get(node.getId()).artificialArc.setUIClass();
 		for (Edge edge : graph.getEachEdge()) {
 			NSArc arc = arcs.get(edge.getId());
-			if (!edge.isDirected() && arc.flow == 0)
+			if (!edge.isDirected() && arc.status != ArcStatus.BASIC)
 				arc = arcs.get(PREFIX + "REVERSE_" + edge.getId());
 			arc.setUIClass();
 		}
@@ -1248,14 +1249,13 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		solutionStatus = SolutionStatus.OPTIMAL;
 	}
 
-
 	/**
 	 * Internal representation of the graph nodes. Stores node ids, supplies and
 	 * potentials. Maintains BFS tree using PTD (parent, thread, depth) data
 	 * structure.
 	 */
 	protected class NSNode {
-		
+
 		/**
 		 * Node id. The same as in the original graph. Special id for the
 		 * artificial root.
@@ -1292,7 +1292,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		 * The arc connecting this node to its parent in the BFS tree
 		 */
 		NSArc arcToParent;
-		
+
 		/**
 		 * The artificial arc associated to this node
 		 */
@@ -1319,9 +1319,10 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		NSNode() {
 			potential = new BigMNumber();
 		}
-		
+
 		/**
-		 * Creates the artificial arc corresponding to this node and puts it in the BFS
+		 * Creates the artificial arc corresponding to this node and puts it in
+		 * the BFS
 		 */
 		void createArtificialArc() {
 			artificialArc = new NSArc();
@@ -1338,17 +1339,17 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 				artificialArc.target = this;
 				artificialArc.flow = -supply;
 			}
-			
+
 			parent = root;
 			thread = root.thread;
 			root.thread = this;
 			depth = 1;
 			arcToParent = artificialArc;
 			computePotential();
-			
+
 			root.supply -= supply;
 			objectiveValue.plusTimes(artificialArc.flow, artificialArc.cost);
-			
+
 			if (animationDelay > 0)
 				artificialArc.setUIClass();
 		}
@@ -1685,7 +1686,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 					a.capacity == INFINITE_CAPACITY ? "Inf" : a.capacity,
 					a.cost, a.flow, work1, a.status);
 		}
-		
+
 		for (NSNode node : nodes.values()) {
 			NSArc a = node.artificialArc;
 			a.computeReducedCost(work1);

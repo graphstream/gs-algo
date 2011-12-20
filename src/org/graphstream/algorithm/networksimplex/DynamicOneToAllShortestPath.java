@@ -1,10 +1,14 @@
 package org.graphstream.algorithm.networksimplex;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Stack;
 
+import org.graphstream.algorithm.Dijkstra;
 import org.graphstream.graph.Edge;
+import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.Path;
 
@@ -32,6 +36,89 @@ public class DynamicOneToAllShortestPath extends NetworkSimplex {
 		super.cloneGraph();
 		for (NSNode node : nodes.values())
 			node.supply = node.id.equals(sourceId) ? nodes.size() - 1 : -1;
+	}
+	
+	/**
+	 * NS is much slower than Dijkstra when starting from a big graph.
+	 * The idea is to call Dijkstra and then to construct the initial BFS from it.
+	 * This method should be called just after {@link #createInitialBFS()}.
+	 */
+	protected void bfsFromDijkstra() {
+		// first check if we can apply Dijkstra
+		if (nodes.get(sourceId) == null)
+			return;
+		for (NSArc arc : arcs.values())
+			if (arc.cost.isNegative())
+				return;
+		
+		// instantiate and compute Dijkstra
+		Dijkstra dijkstra = new Dijkstra(Dijkstra.Element.EDGE, null, costName);
+		dijkstra.init(graph);
+		dijkstra.setSource(graph.getNode(sourceId));
+		dijkstra.compute();
+		
+		// init
+		Map<NSNode, NSNode> last = new HashMap<NSNode, NSNode>(4 * (nodes.size() + 1) / 3 + 1);
+		last.put(root, root);
+		root.thread = root;
+		for (NSNode node : nodes.values()) {
+			last.put(node, node);
+			node.artificialArc.status = ArcStatus.NONBASIC_LOWER;
+			node.artificialArc.flow = 0;
+			node.thread = node;
+		}
+		
+		// restore parent and thread
+		for (NSNode node : nodes.values()) {
+			Node gNode = graph.getNode(node.id);
+			Node gParent = dijkstra.getParent(gNode);
+			NSNode parent = gParent == null ? root : nodes.get(gParent.getId());
+			node.parent = parent;
+			NSArc arc = node.artificialArc;
+			if (gParent != null) {
+				Edge gEdge = dijkstra.getEdgeFromParent(gNode);
+				if (gEdge.getSourceNode() == gParent)
+					arc = arcs.get(gEdge.getId());
+				else
+					arc = arcs.get(PREFIX + "REVERSE_" + gEdge.getId());
+			}
+			node.arcToParent = arc;
+			arc.status = ArcStatus.BASIC;
+			nonBasicArcs.remove(arc);
+			NSNode nodeLast = last.get(node);
+			nodeLast.thread = parent.thread;
+			parent.thread = node;
+			for (NSNode x = parent; last.get(x) == parent; x = x.parent)
+				last.put(x, nodeLast);
+		}
+		last.clear();
+		dijkstra.clear();
+		
+		// compute depths, potentials, flows and objective value
+		for (NSNode node = root.thread; node != root; node = node.thread) {
+			node.depth = node.parent.depth + 1;
+			node.computePotential();
+			for (NSNode x = node; x != root; x = x.parent)
+				x.arcToParent.flow++;
+		}
+		NSArc arc = nodes.get(sourceId).arcToParent;
+		arc.flow = nodes.size() - arc.flow;
+		
+		objectiveValue.set(0);
+		for (NSNode node = root.thread; node != root; node = node.thread)
+			objectiveValue.plusTimes(node.arcToParent.flow, node.arcToParent.cost);
+	}
+	
+	
+	
+	@Override
+	public void init(Graph graph) {
+		// Do not call super.init(graph), make BFS from Dijkstra before start listening
+		this.graph = graph;
+		cloneGraph();
+		createInitialBFS();
+		bfsFromDijkstra();
+		graph.addSink(this);		
 	}
 
 	@Override
@@ -122,7 +209,7 @@ public class DynamicOneToAllShortestPath extends NetworkSimplex {
 			return Long.MAX_VALUE;
 		return -nsNode.potential.small;
 	}
-	
+
 	/**
 	 * This iterator traverses the nodes on the shortest path from the source
 	 * node to a given target node. The nodes are traversed in reverse order:
@@ -200,7 +287,7 @@ public class DynamicOneToAllShortestPath extends NetworkSimplex {
 
 		};
 	}
-	
+
 	/**
 	 * Returns the shortest path from the source node to a given target node. If
 	 * there is no path from the source to the target returns an empty path.
