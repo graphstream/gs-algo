@@ -60,13 +60,6 @@ public class TestNetworkSimplex {
 		for (Node n : g)
 			assertEquals(0, ns.getInfeasibility(n), 0);
 
-		assertNull(ns.getEdgeFromParent(g.getNode("A")));
-		assertEquals("BC", ns.getEdgeFromParent(g.getNode("B")).getId());
-		assertEquals("AC", ns.getEdgeFromParent(g.getNode("C")).getId());
-		assertEquals("CD", ns.getEdgeFromParent(g.getNode("D")).getId());
-		assertEquals("CE", ns.getEdgeFromParent(g.getNode("E")).getId());
-		assertEquals("CF", ns.getEdgeFromParent(g.getNode("F")).getId());
-
 		assertEquals(3, ns.getFlow(g.getEdge("AB")));
 		assertEquals(2, ns.getFlow(g.getEdge("AC")));
 		assertEquals(5, ns.getFlow(g.getEdge("BC")));
@@ -74,22 +67,6 @@ public class TestNetworkSimplex {
 		assertEquals(1, ns.getFlow(g.getEdge("CE")));
 		assertEquals(5, ns.getFlow(g.getEdge("CF")));
 		assertEquals(3, ns.getFlow(g.getEdge("FE")));
-
-		assertEquals(NetworkSimplex.ArcStatus.NONBASIC_UPPER,
-				ns.getStatus(g.getEdge("AB")));
-		assertEquals(NetworkSimplex.ArcStatus.BASIC,
-				ns.getStatus(g.getEdge("AC")));
-		assertEquals(NetworkSimplex.ArcStatus.BASIC,
-				ns.getStatus(g.getEdge("BC")));
-		assertEquals(NetworkSimplex.ArcStatus.BASIC,
-				ns.getStatus(g.getEdge("CD")));
-		assertEquals(NetworkSimplex.ArcStatus.BASIC,
-				ns.getStatus(g.getEdge("CE")));
-		assertEquals(NetworkSimplex.ArcStatus.BASIC,
-				ns.getStatus(g.getEdge("CF")));
-		assertEquals(NetworkSimplex.ArcStatus.NONBASIC_UPPER,
-				ns.getStatus(g.getEdge("FE")));
-
 	}
 
 	public static void compareSolutions(NetworkSimplex ns1, NetworkSimplex ns2) {
@@ -99,15 +76,12 @@ public class TestNetworkSimplex {
 		assertEquals(ns1.getSolutionCost(), ns2.getSolutionCost());
 		assertEquals(ns1.getSolutionInfeasibility(), ns2.getSolutionInfeasibility());
 		
-		for (Node n : g) {
+		for (Node n : g)
 			assertEquals(ns1.getInfeasibility(n), ns2.getInfeasibility(n));
-			assertEquals(ns1.getEdgeFromParent(n), ns2.getEdgeFromParent(n));
-		}
+
 		for (Edge e : g.getEachEdge()) {
 			assertEquals(ns1.getFlow(e, true), ns2.getFlow(e, true));
 			assertEquals(ns1.getFlow(e, false), ns2.getFlow(e, false));
-			assertEquals(ns1.getStatus(e, true), ns2.getStatus(e, true));
-			assertEquals(ns1.getStatus(e, false), ns2.getStatus(e, false));
 		}
 	}
 
@@ -216,12 +190,10 @@ public class TestNetworkSimplex {
 		ns.compute();
 		compareWithNew(ns);
 
-		// restore does not work, the same solution but different basis
-		// but it's ok however
+		// restore
 		g.getNode("F").addAttribute("supply", -2);
-		ns = new NetworkSimplex("supply", "capacity", "cost");
-		ns.init(g);
 		ns.compute();
+		checkReferenceSolution(ns);
 
 		// Now check with 2 nodes at the same time
 		g.getNode("A").addAttribute("supply", 6);
@@ -229,12 +201,11 @@ public class TestNetworkSimplex {
 		ns.compute();
 		compareWithNew(ns);
 
-		// restore does not work, the same solution but different basis
-		g.getNode("A").addAttribute("supply", 6);
-		g.getNode("E").addAttribute("supply", -5);
-		ns = new NetworkSimplex("supply", "capacity", "cost");
-		ns.init(g);
+		// restore
+		g.getNode("A").addAttribute("supply", 5);
+		g.getNode("E").addAttribute("supply", -4);
 		ns.compute();
+		checkReferenceSolution(ns);
 
 		// one test with 3 nodes
 		g.getNode("B").addAttribute("supply", 1);
@@ -242,6 +213,13 @@ public class TestNetworkSimplex {
 		g.getNode("E").addAttribute("supply", -2);
 		ns.compute();
 		compareWithNew(ns);
+		
+		// restore
+		g.getNode("B").addAttribute("supply", 2);
+		g.getNode("C").addAttribute("supply", 0);
+		g.getNode("E").addAttribute("supply", -4);
+		ns.compute();
+		checkReferenceSolution(ns);
 	}
 
 	@Test

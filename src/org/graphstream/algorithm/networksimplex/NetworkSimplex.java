@@ -388,6 +388,10 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 				return;
 			}
 		}
+		
+		// Skip the artificial arcs if the objective value is finite
+		if (!objectiveValue.isInfinite())
+			return;
 
 		for (NSNode node : nodes.values()) {
 			NSArc arc = node.artificialArc;
@@ -418,6 +422,10 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			}
 		}
 		if (enteringArc != null)
+			return;
+		
+		// Skip the artificial arcs if the objective value is finite
+		if (!objectiveValue.isInfinite())
 			return;
 
 		for (NSNode node : nodes.values()) {
@@ -1126,15 +1134,19 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			subtreeRoot.computePotential();
 			for (NSNode node = subtreeRoot.thread; node.depth > subtreeRoot.depth; node = node.thread)
 				node.computePotential();
+			solutionStatus = SolutionStatus.UNDEFINED;
+		} else {
+			arc.computeReducedCost(work1);
+			if (work1.isNegative())
+				solutionStatus = SolutionStatus.UNDEFINED;
 		}
-		solutionStatus = SolutionStatus.UNDEFINED;
 	}
 
 	protected void changeSupply(NSNode node, int newSupply) {
 		if (node.supply == newSupply)
 			return;
 		NSArc artificial = node.artificialArc;
-		// enter the artificial arc is in the tree if not there
+		// enter the artificial arc in the tree if not there
 		if (artificial.status == ArcStatus.NONBASIC_LOWER) {
 			enteringArc = artificial;
 			selectLeavingArc();
@@ -1202,7 +1214,9 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		arc.status = ArcStatus.NONBASIC_LOWER;
 		arcs.put(arc.id, arc);
 		nonBasicArcs.add(arc);
-		solutionStatus = SolutionStatus.UNDEFINED;
+		arc.computeReducedCost(work1);
+		if (work1.isNegative())
+			solutionStatus = SolutionStatus.UNDEFINED;
 		if (animationDelay > 0)
 			arc.setUIClass();
 	}
