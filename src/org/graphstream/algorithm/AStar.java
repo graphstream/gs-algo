@@ -54,11 +54,11 @@ import org.graphstream.graph.Path;
  * <p>
  * In this A* implementation, the various costs (often called g, h and f) are
  * given by a {@link org.graphstream.algorithm.AStar.Costs} class. This class
- * must provide a way to compute :
+ * must provide a way to compute:
  * <ul>
- * <li>The cost of moving from a node to another, often called g ;</li>
+ * <li>The cost of moving from a node to another, often called g;</li>
  * <li>The estimated cost from a node to the destination, the heuristic, often
- * noted h ;</li>
+ * noted h;</li>
  * <li>f is the sum of g and h and is computed automatically.</li>
  * </ul>
  * </p>
@@ -68,7 +68,6 @@ import org.graphstream.graph.Path;
  * used uses a heuristic that returns 0 for any heuristic. This makes A* an
  * equivalent of the Dijkstra algorithm, but also makes it far less efficient.
  * </p>
- * 
  * 
  * <h2>Usage</h2>
  * 
@@ -88,7 +87,7 @@ import org.graphstream.graph.Path;
  * </p>
  * <p>
  * You can also test the default "distance" cost function on a graph that has
- * "x" and "y" values. You specify the Cost function before calling the
+ * "x" and "y" values. You specify the {@link Costs} function before calling the
  * {@link #compute(String,String)} method:
  * </p>
  * <pre>
@@ -99,6 +98,8 @@ import org.graphstream.graph.Path;
  * </pre>
  * 
  * <h2>Example</h2>
+ * 
+ * <pre>
  * import java.io.IOException;
  * import java.io.StringReader;
  * 
@@ -152,15 +153,11 @@ import org.graphstream.graph.Path;
  * 	}
  * }
  * </pre>
-
+ *
  * 
  * @complexity The complexity of A* depends on the heuristic.
- * @author Antoine Dutot
- * @author Yoann Pigné
  */
 public class AStar implements Algorithm {
-	// Attribute
-
 	/**
 	 * The graph.
 	 */
@@ -204,8 +201,6 @@ public class AStar implements Algorithm {
 	 */
 	protected boolean noPathFound;
 
-	// Construction
-
 	/**
 	 * New A* algorithm.
 	 */
@@ -237,12 +232,6 @@ public class AStar implements Algorithm {
 		setSource(src);
 		setTarget(trg);
 	}
-
-	// Access
-	/*
-	 * public Graph getGraph() { return graph; }
-	 */
-	// Command
 
 	/**
 	 * Change the source node. This clears the already computed path, but
@@ -284,8 +273,6 @@ public class AStar implements Algorithm {
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see
 	 * org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
 	 */
@@ -295,8 +282,6 @@ public class AStar implements Algorithm {
 	}
 
 	/*
-	 * (non-Javadoc)
-	 * 
 	 * @see org.graphstream.algorithm.Algorithm#compute()
 	 */
 	public void compute() {
@@ -329,7 +314,7 @@ public class AStar implements Algorithm {
 	 * After having called {@link #compute()} or
 	 * {@link #compute(String, String)}, if the {@link #getShortestPath()}
 	 * returns null, or this method return true, there is no path from the given
-	 * source node to the given target node. In other words, the graph as
+	 * source node to the given target node. In other words, the graph has
 	 * several connected components.
 	 * 
 	 * @return True if there is no possible path from the source to the
@@ -521,18 +506,18 @@ public class AStar implements Algorithm {
 		 *            multi-graph).
 		 * @param next
 		 *            The node we go to.
-		 * @return The real cost of moving from parent to next, or -1 is next is
+		 * @return The real cost of moving from parent to next, or -1 if next is
 		 *         not directly connected to parent by an edge.
 		 */
 		double cost(Node parent, Edge from, Node next);
 	}
 
 	/**
-	 * An implementation of the Costs interface that provide a default
+	 * An implementation of the Costs interface that provides a default
 	 * heuristic. It computes the G part using "weights" on edges. These weights
 	 * must be stored in an attribute on edges. By default this attribute must
 	 * be named "weight", but this can be changed. The weight attribute must be
-	 * a number an must be translatable to a float value. This implementation
+	 * a {@link Number} an must be translatable to a double value. This implementation
 	 * always return 0 for the H value. This makes the A* algorithm an
 	 * equivalent of the Dijkstra algorithm.
 	 */
@@ -598,9 +583,9 @@ public class AStar implements Algorithm {
 
 	/**
 	 * An implementation of the Costs interface that assume that the weight of
-	 * edges is an Euclidian distance in 2D or 3D. No weight attribute is used.
+	 * edges is an Euclidean distance in 2D or 3D. No weight attribute is used.
 	 * Instead, for the G value, the edge weights are used. For the H value the
-	 * Euclidian distance in 2D or 3D between the current node and the target
+	 * Euclidean distance in 2D or 3D between the current node and the target
 	 * node is used. For this Costs implementation to work, the graph nodes must
 	 * have a position (either individual "x", "y" and "z" attribute, or "xy"
 	 * attribute or even "xyz" attributes. If there are only "x" and "y" or "xy"
@@ -632,15 +617,12 @@ public class AStar implements Algorithm {
 	 * This representation contains :
 	 * <ul>
 	 * <li>the node itself;</li>
-	 * <li>its parent node (to reconstruct the path) ;</li>
-	 * <li>the g value (cost from the source to this node) ;</li>
-	 * <li>the h value (estimated cost from this node to the target) ;</li>
+	 * <li>its parent node (to reconstruct the path);</li>
+	 * <li>the g value (cost from the source to this node);</li>
+	 * <li>the h value (estimated cost from this node to the target);</li>
 	 * <li>the f value or rank, the sum of g and h.</li>
 	 * </ul>
 	 * </p>
-	 * 
-	 * @author Antoine Dutot
-	 * @author Yoann Pigné
 	 */
 	protected class AStarNode {
 		/**
