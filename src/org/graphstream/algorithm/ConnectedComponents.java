@@ -41,6 +41,7 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.stream.SinkAdapter;
+
 //import org.graphstream.util.set.FixedArrayList;
 
 /**
@@ -90,34 +91,35 @@ import org.graphstream.stream.SinkAdapter;
  * </p>
  * 
  * <h2>Example</h2>
+ * 
  * <pre>
  * import org.graphstream.algorithm.ConnectedComponents;
  * import org.graphstream.graph.Graph;
  * import org.graphstream.graph.implementations.DefaultGraph;
  * 
  * public class CCTest {
- *        public static void main(String[] args) {
+ * 	public static void main(String[] args) {
  * 
- *                Graph graph = new DefaultGraph("CC Test");
+ * 		Graph graph = new DefaultGraph(&quot;CC Test&quot;);
  * 
- *                graph.addNode("A");
- *                graph.addNode("B");
- *                graph.addNode("C");
- *                graph.addEdge("AB", "A", "B");
- *                graph.addEdge("AC", "A", "C");
+ * 		graph.addNode(&quot;A&quot;);
+ * 		graph.addNode(&quot;B&quot;);
+ * 		graph.addNode(&quot;C&quot;);
+ * 		graph.addEdge(&quot;AB&quot;, &quot;A&quot;, &quot;B&quot;);
+ * 		graph.addEdge(&quot;AC&quot;, &quot;A&quot;, &quot;C&quot;);
  * 
- *                ConnectedComponents cc = new ConnectedComponents();
- *                cc.init(graph);
+ * 		ConnectedComponents cc = new ConnectedComponents();
+ * 		cc.init(graph);
  * 
- *                System.out.printf("%d connected component(s) in this graph, so far.%n",
- *                                cc.getConnectedComponentsCount());
+ * 		System.out.printf(&quot;%d connected component(s) in this graph, so far.%n&quot;,
+ * 				cc.getConnectedComponentsCount());
  * 
- *                graph.removeEdge("AC");
+ * 		graph.removeEdge(&quot;AC&quot;);
  * 
- *                System.out.printf("Eventually, there are %d.%n",
- *                                cc.getConnectedComponentsCount());
+ * 		System.out.printf(&quot;Eventually, there are %d.%n&quot;, cc
+ * 				.getConnectedComponentsCount());
  * 
- *        }
+ * 	}
  * }
  * </pre>
  * 
@@ -181,7 +183,7 @@ import org.graphstream.stream.SinkAdapter;
  *             complexity is O(k).
  */
 public class ConnectedComponents extends SinkAdapter implements
-		DynamicAlgorithm {
+		DynamicAlgorithm, Iterable<ConnectedComponents.ConnectedComponent> {
 
 	/**
 	 * Map of connected components.
@@ -208,6 +210,8 @@ public class ConnectedComponents extends SinkAdapter implements
 	 */
 	protected FixedArrayList<String> ids = new FixedArrayList<String>();
 
+	protected FixedArrayList<ConnectedComponent> components = new FixedArrayList<ConnectedComponent>();
+
 	/**
 	 * A token to decide whether or not the algorithm is started.
 	 */
@@ -232,9 +236,9 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * You will have to call the {@link #init(Graph)} method with a reference to
 	 * a graph so that the computation is able to start.
 	 * 
-	 * After the {@link #init(Graph)} method is invoked, the computation 
-	 * starts as soon as and event is received or if the {@link #compute()}
-	 * method is invoked.
+	 * After the {@link #init(Graph)} method is invoked, the computation starts
+	 * as soon as and event is received or if the {@link #compute()} method is
+	 * invoked.
 	 */
 	public ConnectedComponents() {
 		this(null);
@@ -253,7 +257,7 @@ public class ConnectedComponents extends SinkAdapter implements
 		// value).
 
 		if (graph != null)
-			init(graph);	
+			init(graph);
 	}
 
 	/**
@@ -304,8 +308,9 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * 
 	 * @param sizeThreshold
 	 *            Minimum size for the connected component to be considered
-	 *            
-	 * @return the number of connected components, bigger than the given size threshold, in this graph.
+	 * 
+	 * @return the number of connected components, bigger than the given size
+	 *         threshold, in this graph.
 	 */
 	public int getConnectedComponentsCount(int sizeThreshold) {
 		return getConnectedComponentsCount(sizeThreshold, 0);
@@ -321,8 +326,10 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * @param sizeCeiling
 	 *            Maximum size for the connected component to be considered (use
 	 *            0 or lower values to ignore the ceiling)
-	 *            
-	 * @return the number of connected components, bigger than the given size threshold, and smaller than the given size ceiling, in this graph.
+	 * 
+	 * @return the number of connected components, bigger than the given size
+	 *         threshold, and smaller than the given size ceiling, in this
+	 *         graph.
 	 */
 	public int getConnectedComponentsCount(int sizeThreshold, int sizeCeiling) {
 		if (!started) {
@@ -341,13 +348,19 @@ public class ConnectedComponents extends SinkAdapter implements
 			int count = 0;
 			for (Integer c : connectedComponentsSize.keySet()) {
 				if (connectedComponentsSize.get(c) >= sizeThreshold
-						&& (sizeCeiling <= 0 ||
-							connectedComponentsSize.get(c) < sizeCeiling)) {
+						&& (sizeCeiling <= 0 || connectedComponentsSize.get(c) < sizeCeiling)) {
 					count++;
 				}
 			}
 			return count;
 		}
+	}
+
+	public Iterator<ConnectedComponent> iterator() {
+		while (components.size() > connectedComponents)
+			components.remove(components.getLastIndex());
+
+		return components.iterator();
 	}
 
 	/**
@@ -422,7 +435,7 @@ public class ConnectedComponents extends SinkAdapter implements
 
 	protected void remapMarks() {
 
-		if (countAttribute != null) {
+		if (countAttribute != null && connectedComponentsMap != null) {
 			Iterator<? extends Node> nodes = graph.getNodeIterator();
 
 			while (nodes.hasNext()) {
@@ -461,9 +474,10 @@ public class ConnectedComponents extends SinkAdapter implements
 		ids.clear();
 		ids.add(""); // The dummy first identifier (since zero is a special
 		// value).
+		components.add(new ConnectedComponent(0));
 
 		connectedComponentsMap = new HashMap<Node, Integer>();
-		
+
 		// Initialize the size count structure
 		connectedComponentsSize = new HashMap<Integer, Integer>();
 
@@ -483,6 +497,9 @@ public class ConnectedComponents extends SinkAdapter implements
 
 				int newIdentifier = addIdentifier();
 				int size = computeConnectedComponent(v, newIdentifier, null);
+
+				if (size > 0)
+					components.add(new ConnectedComponent(newIdentifier));
 
 				// Initial size count of all connected components
 				connectedComponentsSize.put(newIdentifier, size);
@@ -598,9 +615,9 @@ public class ConnectedComponents extends SinkAdapter implements
 
 					// Merge the size of the two connected components
 					// and remove the entry for the dismissed identifier
-					connectedComponentsSize.put(id0,
-							connectedComponentsSize.get(id0)
-									+ connectedComponentsSize.get(id1));
+					connectedComponentsSize.put(id0, connectedComponentsSize
+							.get(id0)
+							+ connectedComponentsSize.get(id1));
 					connectedComponentsSize.remove(id1);
 				}
 			}
@@ -667,12 +684,11 @@ public class ConnectedComponents extends SinkAdapter implements
 						connectedComponentsSize.put(id, newSize);
 						connectedComponents++;
 					}
-					
+
 					if (oldSize - newSize > 0) {
 						connectedComponentsSize.put(oldId, oldSize - newSize);
-						
-					}
-					else {
+
+					} else {
 						connectedComponentsSize.remove(oldId);
 						connectedComponents--;
 					}
@@ -681,8 +697,8 @@ public class ConnectedComponents extends SinkAdapter implements
 					removeIdentifier(oldId);
 
 					// No new connected component, simply "translate" the entry
-					connectedComponentsSize.put(id,
-							connectedComponentsSize.get(oldId));
+					connectedComponentsSize.put(id, connectedComponentsSize
+							.get(oldId));
 					connectedComponentsSize.remove(oldId);
 
 				}
@@ -755,19 +771,18 @@ public class ConnectedComponents extends SinkAdapter implements
 
 			if (!connectedComponentsMap.get(edge.getNode0()).equals(
 					connectedComponentsMap.get(edge.getNode1()))) {
-				
+
 				// Two new connected components are created
 				// we need to get the size of each of them
 				if (newSize > 0) {
 					connectedComponentsSize.put(id, newSize);
 					connectedComponents++;
 				}
-				
+
 				if (oldSize - newSize > 0) {
 					connectedComponentsSize.put(oldId, oldSize - newSize);
-					
-				}
-				else {
+
+				} else {
 					connectedComponentsSize.remove(oldId);
 					connectedComponents--;
 				}
@@ -776,8 +791,8 @@ public class ConnectedComponents extends SinkAdapter implements
 				removeIdentifier(oldId);
 
 				// No new connected component, simply "translate" the entry
-				connectedComponentsSize.put(id,
-						connectedComponentsSize.get(oldId));
+				connectedComponentsSize.put(id, connectedComponentsSize
+						.get(oldId));
 				connectedComponentsSize.remove(oldId);
 			}
 		}
@@ -813,11 +828,73 @@ public class ConnectedComponents extends SinkAdapter implements
 
 				// Merge the size of the two connected components
 				// and remove the entry for the dismissed identifier
-				connectedComponentsSize.put(id0,
-						connectedComponentsSize.get(id0)
-								+ connectedComponentsSize.get(id1));
+				connectedComponentsSize.put(id0, connectedComponentsSize
+						.get(id0)
+						+ connectedComponentsSize.get(id1));
 				connectedComponentsSize.remove(id1);
 			}
+		}
+	}
+
+	public class ConnectedComponent implements Iterable<Node> {
+		public final Integer id;
+		Filter<Node> nodeFilter;
+		Filter<Edge> edgeFilter;
+		Iterable<Edge> eachEdge;
+
+		public ConnectedComponent(Integer id) {
+			this.id = id;
+			this.nodeFilter = null;
+			this.edgeFilter = null;
+			this.eachEdge = null;
+		}
+
+		public Iterator<Node> iterator() {
+			if (nodeFilter == null)
+				nodeFilter = new Filter.ByAttributeFilter<Node>(countAttribute,
+						id);
+
+			return new FilteredNodeIterator(graph, nodeFilter);
+		}
+
+		public Iterable<Node> getEachNode() {
+			return this;
+		}
+
+		public Iterable<Edge> getEachEdge() {
+			if (eachEdge == null) {
+				eachEdge = new Iterable<Edge>() {
+					public Iterator<Edge> iterator() {
+						return getEdgeIterator();
+					}
+				};
+			}
+
+			return eachEdge;
+		}
+
+		public Iterator<Edge> getEdgeIterator() {
+			if (edgeFilter == null) {
+				if (nodeFilter == null)
+					nodeFilter = new Filter.ByAttributeFilter<Node>(
+							countAttribute, id);
+
+				edgeFilter = new EdgeFilter(nodeFilter);
+			}
+
+			return new FilteredEdgeIterator(graph, edgeFilter);
+		}
+	}
+
+	private static class EdgeFilter implements Filter<Edge> {
+		Filter<Node> f;
+
+		public EdgeFilter(Filter<Node> f) {
+			this.f = f;
+		}
+
+		public boolean isAvailable(Edge e) {
+			return f.isAvailable(e.getNode0()) && f.isAvailable(e.getNode1());
 		}
 	}
 }
