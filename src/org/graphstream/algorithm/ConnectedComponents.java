@@ -41,6 +41,9 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.stream.SinkAdapter;
+import org.graphstream.util.Filter;
+import org.graphstream.util.FilteredEdgeIterator;
+import org.graphstream.util.FilteredNodeIterator;
 
 //import org.graphstream.util.set.FixedArrayList;
 
