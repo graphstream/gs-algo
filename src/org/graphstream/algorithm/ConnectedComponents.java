@@ -884,7 +884,7 @@ public class ConnectedComponents extends SinkAdapter implements
 				edgeFilter = new EdgeFilter(nodeFilter);
 			}
 
-			return new FilteredEdgeIterator(graph, edgeFilter);
+			return new FilteredEdgeIterator<Edge>(graph, edgeFilter);
 		}
 	}
 
