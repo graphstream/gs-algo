@@ -44,6 +44,7 @@ import org.graphstream.stream.SinkAdapter;
 import org.graphstream.util.Filter;
 import org.graphstream.util.FilteredEdgeIterator;
 import org.graphstream.util.FilteredNodeIterator;
+import org.graphstream.util.Filters;
 
 //import org.graphstream.util.set.FixedArrayList;
 
@@ -854,10 +855,9 @@ public class ConnectedComponents extends SinkAdapter implements
 
 		public Iterator<Node> iterator() {
 			if (nodeFilter == null)
-				nodeFilter = new Filter.ByAttributeFilter<Node>(countAttribute,
-						id);
+				nodeFilter = Filters.byAttributeFilter(countAttribute, id);
 
-			return new FilteredNodeIterator(graph, nodeFilter);
+			return new FilteredNodeIterator<Node>(graph, nodeFilter);
 		}
 
 		public Iterable<Node> getEachNode() {
@@ -879,8 +879,7 @@ public class ConnectedComponents extends SinkAdapter implements
 		public Iterator<Edge> getEdgeIterator() {
 			if (edgeFilter == null) {
 				if (nodeFilter == null)
-					nodeFilter = new Filter.ByAttributeFilter<Node>(
-							countAttribute, id);
+					nodeFilter = Filters.byAttributeFilter(countAttribute, id);
 
 				edgeFilter = new EdgeFilter(nodeFilter);
 			}
