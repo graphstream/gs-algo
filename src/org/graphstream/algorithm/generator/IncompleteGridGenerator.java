@@ -304,16 +304,16 @@ public class IncompleteGridGenerator extends BaseGenerator {
 	 */
 	public boolean nextEvents() {
 		for (int i = 0; i < currentWidth; i++) {
-			addNode(getNodeId(i, currentHeight));
+			addNode(getNodeId(i, currentHeight), i, currentHeight);
 			connectNode(i, currentHeight);
 		}
 
 		for (int i = 0; i < currentHeight; i++) {
-			addNode(getNodeId(currentWidth, i));
+			addNode(getNodeId(currentWidth, i), currentWidth, i);
 			connectNode(currentWidth, i);
 		}
 
-		addNode(getNodeId(currentWidth, currentHeight));
+		addNode(getNodeId(currentWidth, currentHeight), currentWidth, currentHeight);
 		connectNode(currentWidth, currentHeight);
 
 		currentWidth++;
