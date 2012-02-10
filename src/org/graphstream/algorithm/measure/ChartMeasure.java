@@ -33,6 +33,7 @@ package org.graphstream.algorithm.measure;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Random;
 
 import javax.swing.JFrame;
 
@@ -41,7 +42,6 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 /**
@@ -54,7 +54,22 @@ public abstract class ChartMeasure {
 	 * Type of plot.s
 	 */
 	public static enum PlotType {
-		LINE, BAR, PIE
+		/**
+		 * Points connected with lines.
+		 */
+		LINE,
+		/**
+		 * 
+		 */
+		BAR,
+		/**
+		 * 
+		 */
+		PIE,
+		/**
+		 * Cloud of points.
+		 */
+		SCATTER
 	}
 
 	/**
@@ -165,23 +180,24 @@ public abstract class ChartMeasure {
 		JFreeChart chart = null;
 
 		switch (params.type) {
+		case SCATTER:
 		case LINE:
 			XYSeriesCollection dataset = new XYSeriesCollection();
 
 			for (ChartMeasure m : measures) {
 				ChartSeriesMeasure sm = (ChartSeriesMeasure) m;
-				XYSeries series = new XYSeries(m.name);
-
-				for (int i = 0; i < sm.data.getN(); i++)
-					series.add(i, sm.data.getElement(i));
-
-				dataset.addSeries(series);
+				dataset.addSeries(sm.createXYSeries());
 			}
 
-			chart = ChartFactory.createXYLineChart(params.title,
-					params.xAxisLabel, params.yAxisLabel, dataset,
-					params.orientation, params.showLegend, false, false);
+			if (params.type == PlotType.LINE)
+				chart = ChartFactory.createXYLineChart(params.title,
+						params.xAxisLabel, params.yAxisLabel, dataset,
+						params.orientation, params.showLegend, false, false);
+			else
 
+				chart = ChartFactory.createScatterPlot(params.title,
+						params.xAxisLabel, params.yAxisLabel, dataset,
+						params.orientation, params.showLegend, false, false);
 			break;
 		default:
 			throw new UnsupportedOperationException();
@@ -220,5 +236,21 @@ public abstract class ChartMeasure {
 
 			break;
 		}
+	}
+
+	public static void main(String... args) throws Exception {
+		ChartSeries1DMeasure m1 = new ChartSeries1DMeasure("my first measure");
+		ChartSeries1DMeasure m2 = new ChartSeries1DMeasure("my second measure");
+		Random r = new Random();
+
+		for (int i = 0; i < 100; i++) {
+			m1.addValue(r.nextDouble() * 10 + 10);
+			m2.addValue(r.nextDouble() * 10 + 10);
+		}
+
+		PlotParameters params = new PlotParameters();
+		params.title = "Hello World";
+		params.type = PlotType.SCATTER;
+		plot(params, m1, m2);
 	}
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2006 - 2012 
+ * Copyright 2006 - 2012
  *     Stefan Balev     <stefan.balev@graphstream-project.org>
  *     Julien Baudry	<julien.baudry@graphstream-project.org>
  *     Antoine Dutot	<antoine.dutot@graphstream-project.org>
@@ -31,37 +31,93 @@
  */
 package org.graphstream.algorithm.measure;
 
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.jfree.data.xy.XYSeries;
 
-public abstract class ChartSeriesMeasure extends ChartMeasure {
+public class ChartSeries1DMeasure extends ChartSeriesMeasure {
+	/**
+	 * Data containing values.
+	 */
+	protected DescriptiveStatistics data;
+
 	/**
 	 * Default constructor.
 	 * 
 	 * @param name
 	 *            name of this measure
 	 */
-	public ChartSeriesMeasure(String name) {
+	public ChartSeries1DMeasure(String name) {
 		super(name);
+		this.data = new DescriptiveStatistics();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.graphstream.algorithm.measure.ChartSeriesMeasure#createXYSeries()
+	 */
+	public XYSeries createXYSeries() {
+		XYSeries series = new XYSeries(name);
+
+		for (int i = 0; i < data.getN(); i++)
+			series.add(i, data.getElement(i));
+
+		return series;
 	}
 
 	/**
-	 * Create a {@link org.jfree.data.xy.XYSeries} object that can be used to
-	 * create plot.
+	 * Add a new value to the series.
 	 * 
-	 * @return a XYSeries
+	 * @param v
+	 *            the new value
 	 */
-	public abstract XYSeries createXYSeries();
+	public void addValue(double v) {
+		data.addValue(v);
+	}
 
 	/**
-	 * Utility function to plot this measure.
+	 * Get the count of values that have been added to this series.
 	 * 
-	 * @throws PlotException
+	 * @return count of values
 	 */
-	public void plot() throws PlotException {
-		PlotParameters params = new PlotParameters();
-		params.title = name;
-		params.type = PlotType.LINE;
+	public long getCount() {
+		return data.getN();
+	}
 
-		plot(params, this);
+	/**
+	 * Get the mean of the series.
+	 * 
+	 * @return mean of the series
+	 */
+	public double getMean() {
+		return data.getMean();
+	}
+
+	/**
+	 * Get the max of the series.
+	 * 
+	 * @return max of the series
+	 */
+	public double getMax() {
+		return data.getMax();
+	}
+
+	/**
+	 * Get the min of the series.
+	 * 
+	 * @return min of the series
+	 */
+	public double getMin() {
+		return data.getMin();
+	}
+
+	/**
+	 * Get the variance of the series.
+	 * 
+	 * @return variance of the series
+	 */
+	public double getVariance() {
+		return data.getVariance();
 	}
 }
