@@ -237,21 +237,4 @@ public abstract class ChartMeasure {
 			break;
 		}
 	}
-
-	public static void main(String... args) throws Exception {
-		ChartSeries2DMeasure m1 = new ChartSeries2DMeasure("my measure");
-		Random r = new Random();
-
-		for (int i = 0; i < 100; i++) {
-			m1.addValue(r.nextDouble() * 10, r.nextDouble() * 10);
-		}
-
-		PlotParameters params = new PlotParameters();
-		params.title = "Hello Scattered World";
-		params.type = PlotType.SCATTER;
-		params.outputType = PlotOutputType.PNG;
-		params.path = "plot.png";
-		m1.plot();
-		plot(params, m1);
-	}
 }
