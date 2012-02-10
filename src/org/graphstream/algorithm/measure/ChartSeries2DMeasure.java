@@ -52,6 +52,9 @@ public class ChartSeries2DMeasure extends ChartSeriesMeasure {
 	 */
 	public ChartSeries2DMeasure(String name) {
 		super(name);
+		
+		this.xData = new DescriptiveStatistics();
+		this.yData = new DescriptiveStatistics();
 	}
 
 	/*

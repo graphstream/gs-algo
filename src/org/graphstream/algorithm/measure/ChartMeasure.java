@@ -239,18 +239,19 @@ public abstract class ChartMeasure {
 	}
 
 	public static void main(String... args) throws Exception {
-		ChartSeries1DMeasure m1 = new ChartSeries1DMeasure("my first measure");
-		ChartSeries1DMeasure m2 = new ChartSeries1DMeasure("my second measure");
+		ChartSeries2DMeasure m1 = new ChartSeries2DMeasure("my measure");
 		Random r = new Random();
 
 		for (int i = 0; i < 100; i++) {
-			m1.addValue(r.nextDouble() * 10 + 10);
-			m2.addValue(r.nextDouble() * 10 + 10);
+			m1.addValue(r.nextDouble() * 10, r.nextDouble() * 10);
 		}
 
 		PlotParameters params = new PlotParameters();
-		params.title = "Hello World";
+		params.title = "Hello Scattered World";
 		params.type = PlotType.SCATTER;
-		plot(params, m1, m2);
+		params.outputType = PlotOutputType.PNG;
+		params.path = "plot.png";
+		m1.plot();
+		plot(params, m1);
 	}
 }
