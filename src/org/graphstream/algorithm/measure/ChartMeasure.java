@@ -33,7 +33,6 @@ package org.graphstream.algorithm.measure;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Random;
 
 import javax.swing.JFrame;
 

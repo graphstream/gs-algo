@@ -32,14 +32,13 @@
 package org.graphstream.algorithm.measure;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import org.jfree.data.xy.XYSeries;
 
 public class ChartSeries1DMeasure extends ChartSeriesMeasure {
 	/**
 	 * Data containing values.
 	 */
 	protected DescriptiveStatistics data;
-
+	
 	/**
 	 * Default constructor.
 	 * 
@@ -51,21 +50,6 @@ public class ChartSeries1DMeasure extends ChartSeriesMeasure {
 		this.data = new DescriptiveStatistics();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.graphstream.algorithm.measure.ChartSeriesMeasure#createXYSeries()
-	 */
-	public XYSeries createXYSeries() {
-		XYSeries series = new XYSeries(name);
-
-		for (int i = 0; i < data.getN(); i++)
-			series.add(i, data.getElement(i));
-
-		return series;
-	}
-
 	/**
 	 * Add a new value to the series.
 	 * 
@@ -74,6 +58,7 @@ public class ChartSeries1DMeasure extends ChartSeriesMeasure {
 	 */
 	public void addValue(double v) {
 		data.addValue(v);
+		series.add(data.getN() - 1, v);
 	}
 
 	/**

@@ -34,6 +34,9 @@ package org.graphstream.algorithm.measure;
 import org.jfree.data.xy.XYSeries;
 
 public abstract class ChartSeriesMeasure extends ChartMeasure {
+	
+	protected XYSeries series;
+	
 	/**
 	 * Default constructor.
 	 * 
@@ -42,6 +45,7 @@ public abstract class ChartSeriesMeasure extends ChartMeasure {
 	 */
 	public ChartSeriesMeasure(String name) {
 		super(name);
+		series = new XYSeries(name);
 	}
 
 	/**
@@ -50,7 +54,9 @@ public abstract class ChartSeriesMeasure extends ChartMeasure {
 	 * 
 	 * @return a XYSeries
 	 */
-	public abstract XYSeries createXYSeries();
+	public XYSeries createXYSeries() {
+		return series;
+	}
 
 	/**
 	 * Utility function to plot this measure.

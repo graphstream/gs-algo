@@ -32,7 +32,6 @@
 package org.graphstream.algorithm.measure;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
-import org.jfree.data.xy.XYSeries;
 
 public class ChartSeries2DMeasure extends ChartSeriesMeasure {
 	/**
@@ -57,21 +56,6 @@ public class ChartSeries2DMeasure extends ChartSeriesMeasure {
 		this.yData = new DescriptiveStatistics();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.graphstream.algorithm.measure.ChartSeriesMeasure#createXYSeries()
-	 */
-	public XYSeries createXYSeries() {
-		XYSeries series = new XYSeries(name);
-
-		for (int i = 0; i < xData.getN(); i++)
-			series.add(xData.getElement(i), yData.getElement(i));
-
-		return series;
-	}
-
 	/**
 	 * Add a new point to the series.
 	 * 
@@ -83,6 +67,7 @@ public class ChartSeries2DMeasure extends ChartSeriesMeasure {
 	public void addValue(double x, double y) {
 		xData.addValue(x);
 		yData.addValue(y);
+		series.add(x, y);
 	}
 
 	/**
