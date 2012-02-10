@@ -32,14 +32,9 @@
 package org.graphstream.algorithm.measure;
 
 import org.graphstream.algorithm.DynamicAlgorithm;
-import org.graphstream.algorithm.generator.BarabasiAlbertGenerator;
-import org.graphstream.algorithm.generator.DorogovtsevMendesGenerator;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.AdjacencyListGraph;
 import org.graphstream.stream.Sink;
 import org.graphstream.stream.SinkAdapter;
-
-import scala.util.Random;
 
 public abstract class ElementCountMeasure extends ChartSeries2DMeasure
 		implements DynamicAlgorithm {
@@ -98,6 +93,10 @@ public abstract class ElementCountMeasure extends ChartSeries2DMeasure
 		public NodeCountMeasure() {
 			super("nodes");
 		}
+		
+		public NodeCountMeasure(String name) {
+			super(name);
+		}
 
 		/*
 		 * (non-Javadoc)
@@ -118,6 +117,10 @@ public abstract class ElementCountMeasure extends ChartSeries2DMeasure
 		public EdgeCountMeasure() {
 			super("edges");
 		}
+		
+		public EdgeCountMeasure(String name) {
+			super(name);
+		}
 
 		/*
 		 * (non-Javadoc)
@@ -134,32 +137,6 @@ public abstract class ElementCountMeasure extends ChartSeries2DMeasure
 	private class StepTrigger extends SinkAdapter {
 		public void stepBegins(String sourceId, long timeId, double step) {
 			compute();
-		}
-	}
-	
-	public static void main(String ... args) throws Exception {
-		Graph g = new AdjacencyListGraph("g");
-		ElementCountMeasure ecm1 = new NodeCountMeasure();
-		ElementCountMeasure ecm2 = new EdgeCountMeasure();
-		DorogovtsevMendesGenerator gen = new DorogovtsevMendesGenerator();
-		Random r = new Random();
-		
-		ecm1.init(g);
-		ecm2.init(g);
-		gen.addSink(g);
-		
-		gen.begin();
-		
-		PlotParameters pp = new PlotParameters();
-		ChartMeasure.plot(pp, ecm1, ecm2);
-		
-		while(true) {
-			gen.nextEvents();
-			
-			if (r.nextDouble() < 0.2)
-				g.stepBegins(g.getStep()+1);
-			
-			Thread.sleep(50);
 		}
 	}
 }
