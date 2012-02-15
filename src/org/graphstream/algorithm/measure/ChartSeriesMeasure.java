@@ -31,12 +31,20 @@
  */
 package org.graphstream.algorithm.measure;
 
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.JFreeChart;
 import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 
+/**
+ * Base for series measure.
+ */
 public abstract class ChartSeriesMeasure extends ChartMeasure {
+
+	public static final int DEFAULT_WINDOW_SIZE = 100;
 	
 	protected XYSeries series;
-	
+
 	/**
 	 * Default constructor.
 	 * 
@@ -46,6 +54,7 @@ public abstract class ChartSeriesMeasure extends ChartMeasure {
 	public ChartSeriesMeasure(String name) {
 		super(name);
 		series = new XYSeries(name);
+		series.setMaximumItemCount(DEFAULT_WINDOW_SIZE);
 	}
 
 	/**
@@ -54,20 +63,77 @@ public abstract class ChartSeriesMeasure extends ChartMeasure {
 	 * 
 	 * @return a XYSeries
 	 */
-	public XYSeries createXYSeries() {
+	public XYSeries getXYSeries() {
 		return series;
 	}
 
-	/**
-	 * Utility function to plot this measure.
+	/*
+	 * (non-Javadoc)
 	 * 
-	 * @throws PlotException
+	 * @see org.graphstream.algorithm.measure.ChartMeasure#setWindowSize(int)
 	 */
-	public void plot() throws PlotException {
+	public void setWindowSize(int size) {
+		series.setMaximumItemCount(size);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.graphstream.algorithm.measure.ChartMeasure#plot(org.graphstream.algorithm
+	 * .measure.ChartMeasure.PlotParameters)
+	 */
+	public void plot(PlotParameters params) throws PlotException {
+		outputPlot(params, createChart(params));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.graphstream.algorithm.measure.ChartMeasure#getDefaultPlotParameters()
+	 */
+	public PlotParameters getDefaultPlotParameters() {
 		PlotParameters params = new PlotParameters();
 		params.title = name;
 		params.type = PlotType.LINE;
 
-		plot(params, this);
+		return params;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.graphstream.algorithm.measure.ChartMeasure#getChart(org.graphstream
+	 * .algorithm.measure.ChartMeasure.PlotParameters)
+	 */
+	public JFreeChart createChart(PlotParameters params) throws PlotException {
+		JFreeChart chart;
+		XYSeriesCollection dataset = new XYSeriesCollection();
+
+		dataset.addSeries(getXYSeries());
+
+		switch (params.type) {
+		case LINE:
+			chart = ChartFactory.createXYLineChart(params.title,
+					params.xAxisLabel, params.yAxisLabel, dataset,
+					params.orientation, params.showLegend, false, false);
+			break;
+		case BAR:
+			chart = ChartFactory.createXYBarChart(params.title,
+					params.xAxisLabel, false, params.yAxisLabel, dataset,
+					params.orientation, params.showLegend, false, false);
+			break;
+		case SCATTER:
+			chart = ChartFactory.createScatterPlot(params.title,
+					params.xAxisLabel, params.yAxisLabel, dataset,
+					params.orientation, params.showLegend, false, false);
+			break;
+		default:
+			throw new PlotException("unsupported plot type");
+		}
+
+		return chart;
 	}
 }

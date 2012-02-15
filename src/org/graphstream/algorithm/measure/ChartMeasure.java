@@ -36,17 +36,14 @@ import java.io.IOException;
 
 import javax.swing.JFrame;
 
-import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.ChartUtilities;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.xy.XYSeriesCollection;
 
 /**
  * This is the base for high level measures. These measures allow to compute
  * statistical values and plotting.
- * 
  */
 public abstract class ChartMeasure {
 	/**
@@ -165,42 +162,87 @@ public abstract class ChartMeasure {
 	}
 
 	/**
-	 * Utility function to easily plot measures.
+	 * Create a new plot with default plot parameters.
+	 * 
+	 * @see #getDefaultPlotParameters()
+	 * @throws PlotException
+	 */
+	public void plot() throws PlotException {
+		plot(getDefaultPlotParameters());
+	}
+
+	/**
+	 * Create a default set of parameters to plot this measure.
+	 * 
+	 * @return a default PlotParameters adapted to this measure.
+	 */
+	public abstract PlotParameters getDefaultPlotParameters();
+
+	/**
+	 * Plot this measure using a set of parameters.
 	 * 
 	 * @param params
-	 *            params of the plot
-	 * @param measures
-	 *            a list of measures we want to plot
+	 *            parameters that should be used to plot the measure
 	 * @throws PlotException
-	 *             raised if something wrong happens
 	 */
-	public static void plot(PlotParameters params, ChartMeasure... measures)
+	public abstract void plot(PlotParameters params) throws PlotException;
+
+	/**
+	 * Create a new chart of this measure according to a set of parameters.
+	 * 
+	 * @param params
+	 *            the set of parameters used to create the chart
+	 * @return a new chart
+	 * @throws PlotException
+	 */
+	public abstract JFreeChart createChart(PlotParameters params)
+			throws PlotException;
+
+	/**
+	 * Utility function to call
+	 * {@link #outputPlot(PlotParameters, JFreeChart...)} with
+	 * {@link org.graphstream.algorithm.measure.ChartMeasure} objects.
+	 * 
+	 * @see #outputPlot(PlotParameters, JFreeChart...)
+	 * @param params
+	 *            set of parameters used to output the plot
+	 * @param measures
+	 *            measures to plot
+	 * @throws PlotException
+	 */
+	public static void outputPlot(PlotParameters params,
+			ChartMeasure... measures) throws PlotException {
+		if (measures == null || measures.length == 0)
+			throw new PlotException("no measure");
+
+		JFreeChart[] charts = new JFreeChart[measures.length];
+
+		for (int i = 0; i < measures.length; i++)
+			charts[i] = measures[i].createChart(params);
+
+		outputPlot(params, charts);
+	}
+
+	/**
+	 * Output some charts according to a set of parameters. Actually, only one
+	 * chart is supported. According to {@link PlotParameters#outputType}, plot
+	 * is displayed on screen or saved in a file.
+	 * 
+	 * @param params
+	 *            parameters used to plot
+	 * @param charts
+	 *            charts to output
+	 * @throws PlotException
+	 */
+	public static void outputPlot(PlotParameters params, JFreeChart... charts)
 			throws PlotException {
-		JFreeChart chart = null;
+		if (charts == null || charts.length == 0)
+			throw new PlotException("no chart");
 
-		switch (params.type) {
-		case SCATTER:
-		case LINE:
-			XYSeriesCollection dataset = new XYSeriesCollection();
+		if (charts.length > 1)
+			throw new PlotException("multiple charts not yet supported");
 
-			for (ChartMeasure m : measures) {
-				ChartSeriesMeasure sm = (ChartSeriesMeasure) m;
-				dataset.addSeries(sm.createXYSeries());
-			}
-
-			if (params.type == PlotType.LINE)
-				chart = ChartFactory.createXYLineChart(params.title,
-						params.xAxisLabel, params.yAxisLabel, dataset,
-						params.orientation, params.showLegend, false, false);
-			else
-
-				chart = ChartFactory.createScatterPlot(params.title,
-						params.xAxisLabel, params.yAxisLabel, dataset,
-						params.orientation, params.showLegend, false, false);
-			break;
-		default:
-			throw new UnsupportedOperationException();
-		}
+		JFreeChart chart = charts[0];
 
 		switch (params.outputType) {
 		case SCREEN:
@@ -235,5 +277,6 @@ public abstract class ChartMeasure {
 
 			break;
 		}
+
 	}
 }

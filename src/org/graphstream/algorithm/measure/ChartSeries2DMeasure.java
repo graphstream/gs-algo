@@ -33,6 +33,9 @@ package org.graphstream.algorithm.measure;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
+/**
+ * A measure allowing to add 2D entries (x,y).
+ */
 public class ChartSeries2DMeasure extends ChartSeriesMeasure {
 	/**
 	 * Data containing x values.
@@ -51,9 +54,22 @@ public class ChartSeries2DMeasure extends ChartSeriesMeasure {
 	 */
 	public ChartSeries2DMeasure(String name) {
 		super(name);
-		
+
 		this.xData = new DescriptiveStatistics();
 		this.yData = new DescriptiveStatistics();
+		this.xData.setWindowSize(DEFAULT_WINDOW_SIZE);
+		this.yData.setWindowSize(DEFAULT_WINDOW_SIZE);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.graphstream.algorithm.measure.ChartMeasure#setWindowSize(int)
+	 */
+	public void setWindowSize(int size) {
+		super.setWindowSize(size);
+		xData.setWindowSize(size);
+		yData.setWindowSize(size);
 	}
 
 	/**

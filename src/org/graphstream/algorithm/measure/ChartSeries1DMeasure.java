@@ -33,12 +33,16 @@ package org.graphstream.algorithm.measure;
 
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 
+/**
+ * A measure to add 1D entries (y). x is auto-incremented by one at each new
+ * value.
+ */
 public class ChartSeries1DMeasure extends ChartSeriesMeasure {
 	/**
 	 * Data containing values.
 	 */
 	protected DescriptiveStatistics data;
-	
+
 	/**
 	 * Default constructor.
 	 * 
@@ -47,7 +51,19 @@ public class ChartSeries1DMeasure extends ChartSeriesMeasure {
 	 */
 	public ChartSeries1DMeasure(String name) {
 		super(name);
+
 		this.data = new DescriptiveStatistics();
+		this.data.setWindowSize(DEFAULT_WINDOW_SIZE);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.graphstream.algorithm.measure.ChartMeasure#setWindowSize(int)
+	 */
+	public void setWindowSize(int size) {
+		super.setWindowSize(size);
+		data.setWindowSize(size);
 	}
 
 	/**
