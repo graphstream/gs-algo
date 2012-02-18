@@ -337,6 +337,11 @@ public abstract class FlowAlgorithmBase implements FlowAlgorithm {
 			capacities[e.getIndex() + n] = capacity;
 	}
 
+	public void setAllCapacities(double value) {
+		for (int i = 0; i < 2 * n; i++)
+			capacities[i] = value;
+	}
+
 	/**
 	 * Load capacities from edge attributes.
 	 * 

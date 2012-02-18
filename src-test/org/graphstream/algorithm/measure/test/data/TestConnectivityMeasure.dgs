@@ -1,0 +1,54 @@
+DGS004
+null 0 0
+
+#
+# Create a full connected graph
+# Should be 5-vertex-connected and 4-edge-connected.
+#
+st 0
+
+an 0
+an 1
+an 2
+an 3
+an 4
+
+ae 01 0 1
+ae 02 0 2
+ae 03 0 3
+ae 04 0 4
+ae 12 1 2
+ae 13 1 3
+ae 14 1 4
+ae 23 2 3
+ae 24 2 4
+ae 34 3 4
+
+#
+# Create a 1-connected graph.
+#
+st 1
+cl
+
+an 0
+an 1
+an 2
+
+ae 01 0 1
+ae 12 1 2
+
+#
+# Create a 2-connected graph
+#
+st 2
+cl
+
+an 0
+an 1
+an 2
+an 3
+
+ae 01 0 1
+ae 12 1 2
+ae 23 2 3
+ae 30 3 0
