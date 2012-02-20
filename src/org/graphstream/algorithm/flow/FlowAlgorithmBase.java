@@ -31,6 +31,8 @@
  */
 package org.graphstream.algorithm.flow;
 
+import java.util.List;
+
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -69,8 +71,11 @@ public abstract class FlowAlgorithmBase implements FlowAlgorithm {
 	 */
 	protected double maximumFlow;
 
+	protected String capacityAttribute;
+
 	protected FlowAlgorithmBase() {
 		flowGraph = null;
+		capacityAttribute = null;
 	}
 
 	/**
@@ -337,23 +342,67 @@ public abstract class FlowAlgorithmBase implements FlowAlgorithm {
 			capacities[e.getIndex() + n] = capacity;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.graphstream.algorithm.flow.FlowAlgorithm#setCapacityAttribute(java
+	 * .lang.String)
+	 */
+	public void setCapacityAttribute(String attribute) {
+		capacityAttribute = attribute;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.graphstream.algorithm.flow.FlowAlgorithm#getCapacityAttribute()
+	 */
+	public String getCapacityAttribute() {
+		return capacityAttribute;
+	}
+
 	public void setAllCapacities(double value) {
 		for (int i = 0; i < 2 * n; i++)
 			capacities[i] = value;
 	}
 
 	/**
-	 * Load capacities from edge attributes.
-	 * 
-	 * @param c1
-	 *            name of the attribute for capacity of (u,v)
-	 * @param c2
-	 *            name of the attribute for capacity of (v,u)
+	 * Load capacities from edge attributes. Should be called between
+	 * {@link #init(Graph, String, String)} and {@link #compute()}.
 	 */
-	public void loadCapacitiesFromAttributes(String c1, String c2) {
+	protected void loadCapacitiesFromAttribute() {
+		if (capacityAttribute == null)
+			return;
+
+		Edge e;
+
 		for (int i = 0; i < n; i++) {
-			capacities[i] = flowGraph.getEdge(i).getNumber(c1);
-			capacities[i + n] = flowGraph.getEdge(i).getNumber(c2);
+			capacities[i] = 0.0;
+			capacities[i + n] = 0.0;
+
+			e = flowGraph.getEdge(i);
+
+			if (e.hasNumber(capacityAttribute)) {
+				capacities[i] = e.getNumber(capacityAttribute);
+			} else if (e.hasVector(capacityAttribute)) {
+				List<? extends Number> capVect = flowGraph.getEdge(i)
+						.getVector(capacityAttribute);
+
+				if (capVect.size() > 0)
+					capacities[i] = capVect.get(0).doubleValue();
+				if (capVect.size() > 1)
+					capacities[i + n] = capVect.get(1).doubleValue();
+			} else if (e.hasArray(capacityAttribute)) {
+				Object[] capArray = e.getArray(capacityAttribute);
+
+				if (capArray.length > 0)
+					capacities[i] = ((Number) capArray[0]).doubleValue();
+				if (capArray.length > 1)
+					capacities[i + n] = ((Number) capArray[1]).doubleValue();
+			} else if (e.hasAttribute(capacityAttribute))
+				System.err.printf("unknown capacity type \"%s\"\n", e
+						.getAttribute(capacityAttribute).getClass());
 		}
 	}
 }

@@ -60,10 +60,11 @@ public class TestFordFulkersonAlgorithm {
 	public void testFordFulkerson() throws IOException {
 		FordFulkersonAlgorithm flowAlgo = new FordFulkersonAlgorithm();
 		double maximumFlow;
+		
+		flowAlgo.setCapacityAttribute("cap");
 
 		while (dgs.nextStep()) {
 			flowAlgo.init(g, "s", "t");
-			flowAlgo.loadCapacitiesFromAttributes("c1", "c2");
 			flowAlgo.compute();
 
 			maximumFlow = flowAlgo.getMaximumFlow();

@@ -68,7 +68,8 @@ public interface FlowAlgorithm extends Algorithm {
 	double getCapacity(Node u, Node v);
 
 	/**
-	 * Set capacity of (u,v).
+	 * Set capacity of (u,v). Capacities should be set between calls to
+	 * {@link #init(Graph, String, String)} and {@link #compute()}.
 	 * 
 	 * @param u
 	 * @param v
@@ -76,6 +77,28 @@ public interface FlowAlgorithm extends Algorithm {
 	 *            new capacity of (u,v)
 	 */
 	void setCapacity(Node u, Node v, double capacity);
+
+	/**
+	 * Set the key of the attribute from which capacities will be loaded.
+	 * Attribute values of edge (u,v) should be an array of double where first
+	 * element is the value of the capacity of (u,v) and second the capacity of
+	 * (v,u). If there is only one value, the value of (v,u) will be zero. If no
+	 * value is available, both capacities will be zero.
+	 * 
+	 * If capacity attribute is null, you have to set capacities before calling
+	 * {@link #compute()}.
+	 * 
+	 * @param attribute
+	 */
+	void setCapacityAttribute(String attribute);
+
+	/**
+	 * Get the key attribute from which capacities are loaded.
+	 * 
+	 * @see #setCapacityAttribute(String)
+	 * @return key attribute of capacities
+	 */
+	String getCapacityAttribute();
 
 	/**
 	 * Get maximum flow compute by {@link #compute()}.
@@ -99,14 +122,15 @@ public interface FlowAlgorithm extends Algorithm {
 	String getFlowSinkId();
 
 	/**
-	 * Init the algorithm.
+	 * Init the algorithm. This method replaces the {@link #init(Graph)} method
+	 * of Algorithm so users just have to call this new method.
 	 * 
 	 * @param g
 	 *            graph that should be used by the algorithm
 	 * @param sourceId
-	 *            source
+	 *            id of the source of the flow
 	 * @param sinkId
-	 *            sink
+	 *            id of the sink of the flow
 	 */
 	void init(Graph g, String sourceId, String sinkId);
 }

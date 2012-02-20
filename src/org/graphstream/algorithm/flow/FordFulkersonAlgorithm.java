@@ -63,6 +63,7 @@ public class FordFulkersonAlgorithm extends FlowAlgorithmBase {
 			throw new ElementNotFoundException("node \"%s\"", sinkId);
 
 		checkArrays();
+		loadCapacitiesFromAttribute();
 
 		for (int i = 0; i < flowGraph.getEdgeCount(); i++) {
 			Edge e = flowGraph.getEdge(i);
