@@ -170,6 +170,15 @@
 			-->
 		</resources>
 
+		<testResources>
+			<testResource>
+				<directory>src-test</directory>
+				<includes>
+					<include>org/graphstream/**/test/data/**</include>
+				</includes>
+			</testResource>
+		</testResources>
+
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
