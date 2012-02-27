@@ -72,19 +72,10 @@ public class FordFulkersonAlgorithm extends FlowAlgorithmBase {
 			setFlow(e.getNode1(), e.getNode0(), 0);
 		}
 
+		double minCf;
 		LinkedList<Node> path = new LinkedList<Node>();
-		path.add(source);
 
-		while (findPath(path, source, sink)) {
-			double minCf = Double.MAX_VALUE;
-
-			for (int i = 1; i < path.size(); i++) {
-				Node u = path.get(i - 1);
-				Node v = path.get(i);
-
-				minCf = Math.min(minCf, getCapacity(u, v) - getFlow(u, v));
-			}
-
+		while ((minCf = findPath(path, source, sink)) > 0) {
 			for (int i = 1; i < path.size(); i++) {
 				Node u = path.get(i - 1);
 				Node v = path.get(i);
@@ -94,7 +85,6 @@ public class FordFulkersonAlgorithm extends FlowAlgorithmBase {
 			}
 
 			path.clear();
-			path.add(source);
 		}
 
 		double flow = 0;
@@ -105,9 +95,13 @@ public class FordFulkersonAlgorithm extends FlowAlgorithmBase {
 		maximumFlow = flow;
 	}
 
-	protected boolean findPath(LinkedList<Node> path, Node source, Node target) {
+	protected double findPath(LinkedList<Node> path, Node source, Node target) {
+		path.addLast(source);
+		
 		if (source == target)
-			return true;
+			return Double.MAX_VALUE;
+
+		double minCf;
 
 		for (int i = 0; i < source.getDegree(); i++) {
 			Edge e = source.getEdge(i);
@@ -115,15 +109,13 @@ public class FordFulkersonAlgorithm extends FlowAlgorithmBase {
 
 			if (getCapacity(source, o) - getFlow(source, o) > 0
 					&& !path.contains(o)) {
-				path.addLast(o);
-
-				if (findPath(path, o, target))
-					return true;
-
-				path.removeLast();
+				if ((minCf = findPath(path, o, target)) > 0)
+					return Math.min(minCf,
+							getCapacity(source, o) - getFlow(source, o));
 			}
 		}
-
-		return false;
+		
+		path.removeLast();
+		return 0;
 	}
 }

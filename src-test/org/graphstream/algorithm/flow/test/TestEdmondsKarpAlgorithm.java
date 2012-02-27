@@ -34,10 +34,10 @@ package org.graphstream.algorithm.flow.test;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.graphstream.algorithm.flow.EdmondsKarpAlgorithm;
 import org.graphstream.algorithm.flow.FlowAlgorithm;
-import org.graphstream.algorithm.flow.FordFulkersonAlgorithm;
 
-public class TestFordFulkersonAlgorithm extends TestFlowAlgorithm {
+public class TestEdmondsKarpAlgorithm extends TestFlowAlgorithm {
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -56,6 +56,6 @@ public class TestFordFulkersonAlgorithm extends TestFlowAlgorithm {
 	 * org.graphstream.algorithm.flow.test.TestFlowAlgorithm#getFlowAlgorithm()
 	 */
 	public FlowAlgorithm getFlowAlgorithm() {
-		return new FordFulkersonAlgorithm();
+		return new EdmondsKarpAlgorithm();
 	}
 }

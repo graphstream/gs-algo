@@ -31,31 +31,48 @@
  */
 package org.graphstream.algorithm.flow.test;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.io.InputStream;
 
 import org.graphstream.algorithm.flow.FlowAlgorithm;
-import org.graphstream.algorithm.flow.FordFulkersonAlgorithm;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.AdjacencyListGraph;
+import org.graphstream.stream.file.FileSourceDGS;
+import org.junit.Before;
+import org.junit.Test;
 
-public class TestFordFulkersonAlgorithm extends TestFlowAlgorithm {
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.graphstream.algorithm.flow.test.TestFlowAlgorithm#getGraphStream()
-	 */
-	public InputStream getGraphStream() throws IOException {
-		return getClass().getResourceAsStream(
-				"data/TestFordFulkersonAlgorithm.dgs");
+public abstract class TestFlowAlgorithm {
+	Graph g;
+	FileSourceDGS dgs;
+
+	public abstract InputStream getGraphStream() throws IOException;
+	
+	public abstract FlowAlgorithm getFlowAlgorithm();
+	
+	@Before
+	public void load() throws IOException {
+		dgs = new FileSourceDGS();
+		g = new AdjacencyListGraph("flow-test");
+
+		dgs.addSink(g);
+		dgs.begin(getGraphStream());
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.graphstream.algorithm.flow.test.TestFlowAlgorithm#getFlowAlgorithm()
-	 */
-	public FlowAlgorithm getFlowAlgorithm() {
-		return new FordFulkersonAlgorithm();
+	@Test
+	public void testFlowAlgorithm() throws IOException {
+		FlowAlgorithm flowAlgo = getFlowAlgorithm();
+		double maximumFlow;
+		
+		flowAlgo.setCapacityAttribute("cap");
+
+		while (dgs.nextStep()) {
+			flowAlgo.init(g, "s", "t");
+			flowAlgo.compute();
+
+			maximumFlow = flowAlgo.getMaximumFlow();
+			assertTrue(maximumFlow == g.getNumber("expected maximum flow"));
+		}
 	}
 }

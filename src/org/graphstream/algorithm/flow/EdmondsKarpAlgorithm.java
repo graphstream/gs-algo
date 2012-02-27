@@ -29,33 +29,65 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
  */
-package org.graphstream.algorithm.flow.test;
+package org.graphstream.algorithm.flow;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.util.Arrays;
+import java.util.LinkedList;
 
-import org.graphstream.algorithm.flow.FlowAlgorithm;
-import org.graphstream.algorithm.flow.FordFulkersonAlgorithm;
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.Node;
 
-public class TestFordFulkersonAlgorithm extends TestFlowAlgorithm {
+public class EdmondsKarpAlgorithm extends FordFulkersonAlgorithm {
 	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * org.graphstream.algorithm.flow.test.TestFlowAlgorithm#getGraphStream()
+	 * org.graphstream.algorithm.flow.FordFulkersonAlgorithm#findPath(java.util
+	 * .LinkedList, org.graphstream.graph.Node, org.graphstream.graph.Node)
 	 */
-	public InputStream getGraphStream() throws IOException {
-		return getClass().getResourceAsStream(
-				"data/TestFordFulkersonAlgorithm.dgs");
-	}
+	protected double findPath(LinkedList<Node> path, Node source, Node target) {
+		LinkedList<Node> Q = new LinkedList<Node>();
+		Node u;
+		int[] P = new int[source.getGraph().getNodeCount()];
+		double[] M = new double[source.getGraph().getNodeCount()];
+		double r;
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.graphstream.algorithm.flow.test.TestFlowAlgorithm#getFlowAlgorithm()
-	 */
-	public FlowAlgorithm getFlowAlgorithm() {
-		return new FordFulkersonAlgorithm();
+		Arrays.fill(P, -1);
+		P[source.getIndex()] = -2;
+		M[source.getIndex()] = Double.MAX_VALUE;
+
+		Q.add(source);
+
+		while (Q.size() > 0) {
+			u = Q.pop();
+
+			for (int i = 0; i < u.getDegree(); i++) {
+				Edge e = u.getEdge(i);
+				Node v = e.getOpposite(u);
+
+				r = getCapacity(u, v) - getFlow(u, v);
+
+				if (r > 0 && P[v.getIndex()] == -1) {
+					P[v.getIndex()] = u.getIndex();
+					M[v.getIndex()] = Math.min(M[u.getIndex()], r);
+
+					if (v != target)
+						Q.push(v);
+					else {
+						u = target;
+
+						do {
+							path.addFirst(u);
+							u = flowGraph.getNode(P[u.getIndex()]);
+						} while (u != source);
+
+						path.addFirst(u);
+						return M[target.getIndex()];
+					}
+				}
+			}
+		}
+
+		return 0;
 	}
 }
