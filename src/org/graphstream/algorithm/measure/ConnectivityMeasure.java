@@ -38,7 +38,7 @@ import java.util.LinkedList;
 
 import org.graphstream.algorithm.Algorithm;
 import org.graphstream.algorithm.DynamicAlgorithm;
-import org.graphstream.algorithm.flow.FordFulkersonAlgorithm;
+import org.graphstream.algorithm.flow.EdmondsKarpAlgorithm;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -115,7 +115,7 @@ public class ConnectivityMeasure {
 	 */
 	public static int getEdgeConnectivity(Graph g) {
 		int k = Integer.MAX_VALUE;
-		FordFulkersonAlgorithm flow = new FordFulkersonAlgorithm();
+		EdmondsKarpAlgorithm flow = new EdmondsKarpAlgorithm();
 
 		for (int u = 0; u < g.getNodeCount() - 1; u++) {
 			for (int v = u + 1; v < g.getNodeCount(); v++) {
