@@ -35,25 +35,26 @@ import java.util.List;
 import org.graphstream.algorithm.Toolkit;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
+import org.graphstream.graph.implementations.AdjacencyListGraph;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
 public class TestToolkit {
 	/**
-	 * A graph used to test clique methods 
+	 * A graph used to test clique methods
 	 */
 	public static Graph toyCliqueGraph() {
-//		    B-----E     H
-//		   /|\   /|\
-//		  / | \ / | \
-//		 A--+--D--F--G--I
-//		  \ | /
-//		   \|/
-//		    C
-//		    
-//		 This graph has 6 maximal cliques:
-//		 [A, B, C, D], [B, D, E], [D, E, F], [E, F, G], [H], [G, I]
+		// B-----E H
+		// /|\ /|\
+		// / | \ / | \
+		// A--+--D--F--G--I
+		// \ | /
+		// \|/
+		// C
+		//		    
+		// This graph has 6 maximal cliques:
+		// [A, B, C, D], [B, D, E], [D, E, F], [E, F, G], [H], [G, I]
 
 		Graph g = new SingleGraph("cliques");
 		g.addNode("A").addAttribute("xy", 0, 1);
@@ -86,7 +87,7 @@ public class TestToolkit {
 	}
 
 	/**
-	 * Unit tests for {@link Toolkit#isClique(java.util.Collection)}, 
+	 * Unit tests for {@link Toolkit#isClique(java.util.Collection)},
 	 * {@link Toolkit#isClique(java.util.Collection)},
 	 * {@link Toolkit#isMaximalClique(java.util.Collection)},
 	 * {@link Toolkit#getMaximalCliqueIterator(Graph)},
@@ -96,7 +97,7 @@ public class TestToolkit {
 	@Test
 	public void testCliques() {
 		Graph g = toyCliqueGraph();
-		
+
 		int d = Toolkit.getDegeneracy(g, null);
 		assertEquals(3, d);
 		List<Node> ordering = new ArrayList<Node>();
@@ -112,7 +113,7 @@ public class TestToolkit {
 		assertTrue(ordering.contains(g.getNode("B")));
 		assertTrue(ordering.contains(g.getNode("C")));
 		assertTrue(ordering.contains(g.getNode("D")));
-		
+
 		int cliqueCount = 0;
 		int totalNodeCount = 0;
 		List<Node> maximumClique = new ArrayList<Node>();
@@ -126,11 +127,40 @@ public class TestToolkit {
 		}
 		assertEquals(6, cliqueCount);
 		assertEquals(16, totalNodeCount);
-		
+
 		assertEquals(4, maximumClique.size());
 		assertTrue(maximumClique.contains(g.getNode("A")));
 		assertTrue(maximumClique.contains(g.getNode("B")));
 		assertTrue(maximumClique.contains(g.getNode("C")));
-		assertTrue(maximumClique.contains(g.getNode("D")));		
+		assertTrue(maximumClique.contains(g.getNode("D")));
+	}
+
+	@Test
+	public void testClusteringCoefficient() {
+		AdjacencyListGraph g = new AdjacencyListGraph("g");
+		double cc;
+
+		g.addNode("A");
+		g.addNode("B");
+		g.addNode("C");
+		g.addNode("D");
+
+		g.addEdge("AB", "A", "B");
+		g.addEdge("AC", "A", "C");
+		g.addEdge("AD", "A", "D");
+
+		cc = Toolkit.clusteringCoefficient(g.getNode("A"));
+		assertTrue(cc == 0);
+
+		g.addEdge("BC", "B", "C");
+
+		cc = Toolkit.clusteringCoefficient(g.getNode("A"));
+		assertTrue(cc == 1.0 / 3.0);
+
+		g.addEdge("BD", "B", "D");
+		g.addEdge("CD", "C", "D");
+
+		cc = Toolkit.clusteringCoefficient(g.getNode("A"));
+		assertTrue(cc == 1.0);
 	}
 }

@@ -372,49 +372,47 @@ public class Toolkit extends
 	}
 
 	/**
-	 * Clustering coefficient for one node of the graph.
+	 * Clustering coefficient for one node of the graph. For a node i with
+	 * degree k, if Ni is the neighborhood of i (a set of nodes), clustering
+	 * coefficient of i is defined as the count of edge e_uv with u,v in Ni
+	 * divided by the maximum possible count, ie. k * (k-1) / 2.
+	 * 
+	 * This method only works with undirected graphs.
 	 * 
 	 * @param node
 	 *            The node to compute the clustering coefficient for.
 	 * @return The clustering coefficient for this node.
 	 * @complexity O(d^2) where d is the degree of the given node.
+	 * @reference D. J. Watts and Steven Strogatz (June 1998).
+	 *            "Collective dynamics of 'small-world' networks" . Nature 393
+	 *            (6684): 440–442
 	 */
 	public static double clusteringCoefficient(Node node) {
 		double coef = 0.0;
 		int n = node.getDegree();
 
 		if (n > 1) {
-			// Collect the neighbour nodes.
-
 			Node[] nodes = new Node[n];
-			HashSet<Edge> set = new HashSet<Edge>();
-			int i = 0;
 
-			for (Edge edge : node.getEdgeSet())
-				nodes[i++] = edge.getOpposite(node);
+			//
+			// Collect the neighbor nodes.
+			//
+			for (int i = 0; i < n; i++)
+				nodes[i] = node.getEdge(i).getOpposite(node);
 
-			// Count the number of edges between these nodes.
-
-			for (i = 0; i < n; ++i) // For all neighbour nodes.
-			{
-				for (int j = 0; j < n; ++j) // For all other nodes of this
-				// clique.
-				{
+			//
+			// Check all edge possibilities
+			//
+			for (int i = 0; i < n; ++i)
+				for (int j = 0; j < n; ++j)
 					if (j != i) {
 						Edge e = nodes[j].getEdgeToward(nodes[i].getId());
 
-						if (e != null) {
-							// if( ! set.contains( e ) )
-							set.add(e);
-						}
+						if (e != null && e.getSourceNode() == nodes[j])
+							coef++;
 					}
-				}
-			}
 
-			double ne = set.size();
-			double max = (n * (n - 1)) / 2.0;
-
-			coef = ne / max;
+			coef /= (n * (n - 1)) / 2.0;
 		}
 
 		return coef;
@@ -1346,9 +1344,9 @@ public class Toolkit extends
 	 * The adjacency matrix of a graph is a <i>n</i> times <i>n</i> matrix
 	 * {@code a}, where <i>n</i> is the number of nodes of the graph. The
 	 * element {@code a[i][j]} of this matrix is equal to the number of edges
-	 * from the node {@code graph.getNode(i)} to the node
-	 * {@code graph.getNode(j)}. An undirected edge between i-th and j-th node
-	 * is counted twice: in {@code a[i][j]} and in {@code a[j][i]}.
+	 * from the node {@code graph.getNode(i)} to the node {@code
+	 * graph.getNode(j)}. An undirected edge between i-th and j-th node is
+	 * counted twice: in {@code a[i][j]} and in {@code a[j][i]}.
 	 * 
 	 * @param graph
 	 *            A graph.
@@ -1380,9 +1378,9 @@ public class Toolkit extends
 	 * The adjacency matrix of a graph is a <i>n</i> times <i>n</i> matrix
 	 * {@code a}, where <i>n</i> is the number of nodes of the graph. The
 	 * element {@code a[i][j]} of this matrix is equal to the number of edges
-	 * from the node {@code graph.getNode(i)} to the node
-	 * {@code graph.getNode(j)}. An undirected edge between i-th and j-th node
-	 * is counted twice: in {@code a[i][j]} and in {@code a[j][i]}.
+	 * from the node {@code graph.getNode(i)} to the node {@code
+	 * graph.getNode(j)}. An undirected edge between i-th and j-th node is
+	 * counted twice: in {@code a[i][j]} and in {@code a[j][i]}.
 	 * 
 	 * @param graph
 	 *            A graph
@@ -1406,12 +1404,12 @@ public class Toolkit extends
 	 * number of edges of the graph. The coefficients {@code a[i][j]} of this
 	 * matrix have the following values:
 	 * <ul>
-	 * <li>-1 if {@code graph.getEdge(j)} is directed and
-	 * {@code graph.getNode(i)} is its source.</li>
-	 * <li>1 if {@code graph.getEdge(j)} is undirected and
-	 * {@code graph.getNode(i)} is its source.</li>
-	 * <li>1 if {@code graph.getNode(i)} is the target of
-	 * {@code graph.getEdge(j)}.</li>
+	 * <li>-1 if {@code graph.getEdge(j)} is directed and {@code
+	 * graph.getNode(i)} is its source.</li>
+	 * <li>1 if {@code graph.getEdge(j)} is undirected and {@code
+	 * graph.getNode(i)} is its source.</li>
+	 * <li>1 if {@code graph.getNode(i)} is the target of {@code
+	 * graph.getEdge(j)}.</li>
 	 * <li>0 otherwise.
 	 * </ul>
 	 * In the special case when the j-th edge is a loop connecting the i-th node
@@ -1449,12 +1447,12 @@ public class Toolkit extends
 	 * number of edges of the graph. The coefficients {@code a[i][j]} of this
 	 * matrix have the following values:
 	 * <ul>
-	 * <li>-1 if {@code graph.getEdge(j)} is directed and
-	 * {@code graph.getNode(i)} is its source.</li>
-	 * <li>1 if {@code graph.getEdge(j)} is undirected and
-	 * {@code graph.getNode(i)} is its source.</li>
-	 * <li>1 if {@code graph.getNode(i)} is the target of
-	 * {@code graph.getEdge(j)}.</li>
+	 * <li>-1 if {@code graph.getEdge(j)} is directed and {@code
+	 * graph.getNode(i)} is its source.</li>
+	 * <li>1 if {@code graph.getEdge(j)} is undirected and {@code
+	 * graph.getNode(i)} is its source.</li>
+	 * <li>1 if {@code graph.getNode(i)} is the target of {@code
+	 * graph.getEdge(j)}.</li>
 	 * <li>0 otherwise.</li>
 	 * </ul>
 	 * In the special case when the j-th edge is a loop connecting the i-th node
