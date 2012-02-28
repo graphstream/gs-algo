@@ -117,6 +117,9 @@ public class ConnectivityMeasure {
 		int k = Integer.MAX_VALUE;
 		EdmondsKarpAlgorithm flow = new EdmondsKarpAlgorithm();
 
+		if (g.getNodeCount() < 2)
+			return 0;
+
 		for (int u = 0; u < g.getNodeCount() - 1; u++) {
 			for (int v = u + 1; v < g.getNodeCount(); v++) {
 				flow.init(g, g.getNode(u).getId(), g.getNode(v).getId());
