@@ -32,6 +32,9 @@ package org.graphstream.algorithm;
 import java.util.*;
 
 import org.graphstream.graph.*;
+import org.graphstream.stream.GraphReplay;
+import org.graphstream.ui.layout.Layout;
+import org.graphstream.ui.layout.springbox.SpringBox;
 
 /**
  * Lots of small often used algorithms on graphs.
@@ -1471,5 +1474,53 @@ public class Toolkit extends
 		byte[][] matrix = new byte[graph.getNodeCount()][graph.getEdgeCount()];
 		fillIncidenceMatrix(graph, matrix);
 		return matrix;
+	}
+
+	/**
+	 * Compute coordinates of nodes using a layout algorithm.
+	 * 
+	 * @param g
+	 *            the graph
+	 * @param layout
+	 *            layout algorithm to use for computing coordinates
+	 * @param stab
+	 *            stabilization limit
+	 */
+	public static void computeLayout(Graph g, Layout layout, double stab) {
+		GraphReplay r = new GraphReplay(g.getId());
+
+		stab = Math.min(stab, 1);
+
+		r.addSink(layout);
+		r.replay(g);
+
+		layout.shake();
+		layout.compute();
+
+		while (layout.getStabilization() < stab)
+			layout.compute();
+	}
+
+	/**
+	 * Compute coordinates of nodes using default layout algorithm (SpringBox).
+	 * 
+	 * @param g
+	 *            the graph
+	 * @param stab
+	 *            stabilization limit
+	 */
+	public static void computeLayout(Graph g, double stab) {
+		computeLayout(g, new SpringBox(), stab);
+	}
+
+	/**
+	 * Compute coordinates of nodes using default layout algorithm and default
+	 * stabilization limit.
+	 * 
+	 * @param g
+	 *            the graph
+	 */
+	public static void computeLayout(Graph g) {
+		computeLayout(g, new SpringBox(), 0.99);
 	}
 }
