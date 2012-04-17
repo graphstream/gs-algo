@@ -75,18 +75,18 @@ import org.graphstream.algorithm.Toolkit;
  * <h2>Complexity</h2>
  * 
  * <p>
- * At each call to {@link #nextEvents()} at max k operations are run with
- * k the average degree.
+ * At each call to {@link #nextEvents()} at max k operations are run with k the
+ * average degree.
  * </p>
  * 
  * <h2>Example</h2>
  * 
  * <pre>
- * Graph graph = new SingleGraph("Random");
+ * Graph graph = new SingleGraph(&quot;Random&quot;);
  * Generator gen = new RandomGenerator();
  * gen.addSinkg(graph);
  * gen.begin();
- * for(int i=0; i<100; i++)
+ * for (int i = 0; i &lt; 100; i++)
  * 	gen.nextEvents();
  * gen.end();
  * graph.display();
@@ -195,7 +195,11 @@ public class RandomGenerator extends BaseGenerator {
 		// to the new node.
 
 		for (int i = 0; i < degree; ++i) {
-			String otherId = Toolkit.randomNode(internalGraph, random).getId();
+			String otherId;
+
+			do
+				otherId = Toolkit.randomNode(internalGraph, random).getId();
+			while (otherId == id && internalGraph.getNodeCount() > 1);
 
 			if (otherId != id) {
 				String edgeId = getEdgeId(id, otherId);
