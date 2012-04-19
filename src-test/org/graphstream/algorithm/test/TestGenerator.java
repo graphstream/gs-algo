@@ -38,7 +38,7 @@ import org.graphstream.algorithm.generator.Generator;
 import org.graphstream.algorithm.generator.GridGenerator;
 import org.graphstream.algorithm.generator.IncompleteGridGenerator;
 import org.graphstream.algorithm.generator.RandomEuclideanGenerator;
-import org.graphstream.algorithm.generator.RandomGenerator;
+import org.graphstream.algorithm.generator.OldRandomGenerator;
 import org.graphstream.graph.implementations.DefaultGraph;
 import org.graphstream.stream.Pipe;
 import org.graphstream.ui.swingViewer.Viewer;
@@ -54,7 +54,7 @@ public class TestGenerator {
 
 	@Test
 	public void testRandomGenerator() {
-		testGenerator(new RandomGenerator(), "RandomGenerator", 100);
+		testGenerator(new OldRandomGenerator(), "RandomGenerator", 100);
 	}
 
 	@Test

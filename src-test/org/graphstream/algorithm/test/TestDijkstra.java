@@ -36,7 +36,7 @@ import java.util.List;
 
 import org.graphstream.algorithm.Dijkstra;
 import org.graphstream.algorithm.generator.Generator;
-import org.graphstream.algorithm.generator.RandomGenerator;
+import org.graphstream.algorithm.generator.OldRandomGenerator;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -199,7 +199,7 @@ public class TestDijkstra {
 	
 	public static Graph randomGraph(int nodes, int degree) {
 		Graph g = new SingleGraph("random");
-		Generator generator = new RandomGenerator(degree, false, false, null, "length");
+		Generator generator = new OldRandomGenerator(degree, false, false, null, "length");
 		generator.addSink(g);
 		generator.begin();
 		for (int i = 1; i < nodes; i++)
