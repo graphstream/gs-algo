@@ -27,7 +27,7 @@
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
  */
-package org.graphstream.algorithm;
+package org.graphstream.algorithm.util;
 
 import java.util.ArrayList;
 

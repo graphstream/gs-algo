@@ -31,6 +31,7 @@ package org.graphstream.algorithm;
 
 import java.util.*;
 
+import org.graphstream.algorithm.util.RandomTools;
 import org.graphstream.graph.*;
 import org.graphstream.stream.GraphReplay;
 import org.graphstream.ui.layout.Layout;
@@ -1347,9 +1348,9 @@ public class Toolkit extends
 	 * The adjacency matrix of a graph is a <i>n</i> times <i>n</i> matrix
 	 * {@code a}, where <i>n</i> is the number of nodes of the graph. The
 	 * element {@code a[i][j]} of this matrix is equal to the number of edges
-	 * from the node {@code graph.getNode(i)} to the node {@code
-	 * graph.getNode(j)}. An undirected edge between i-th and j-th node is
-	 * counted twice: in {@code a[i][j]} and in {@code a[j][i]}.
+	 * from the node {@code graph.getNode(i)} to the node
+	 * {@code graph.getNode(j)}. An undirected edge between i-th and j-th node
+	 * is counted twice: in {@code a[i][j]} and in {@code a[j][i]}.
 	 * 
 	 * @param graph
 	 *            A graph.
@@ -1381,9 +1382,9 @@ public class Toolkit extends
 	 * The adjacency matrix of a graph is a <i>n</i> times <i>n</i> matrix
 	 * {@code a}, where <i>n</i> is the number of nodes of the graph. The
 	 * element {@code a[i][j]} of this matrix is equal to the number of edges
-	 * from the node {@code graph.getNode(i)} to the node {@code
-	 * graph.getNode(j)}. An undirected edge between i-th and j-th node is
-	 * counted twice: in {@code a[i][j]} and in {@code a[j][i]}.
+	 * from the node {@code graph.getNode(i)} to the node
+	 * {@code graph.getNode(j)}. An undirected edge between i-th and j-th node
+	 * is counted twice: in {@code a[i][j]} and in {@code a[j][i]}.
 	 * 
 	 * @param graph
 	 *            A graph
@@ -1407,12 +1408,12 @@ public class Toolkit extends
 	 * number of edges of the graph. The coefficients {@code a[i][j]} of this
 	 * matrix have the following values:
 	 * <ul>
-	 * <li>-1 if {@code graph.getEdge(j)} is directed and {@code
-	 * graph.getNode(i)} is its source.</li>
-	 * <li>1 if {@code graph.getEdge(j)} is undirected and {@code
-	 * graph.getNode(i)} is its source.</li>
-	 * <li>1 if {@code graph.getNode(i)} is the target of {@code
-	 * graph.getEdge(j)}.</li>
+	 * <li>-1 if {@code graph.getEdge(j)} is directed and
+	 * {@code graph.getNode(i)} is its source.</li>
+	 * <li>1 if {@code graph.getEdge(j)} is undirected and
+	 * {@code graph.getNode(i)} is its source.</li>
+	 * <li>1 if {@code graph.getNode(i)} is the target of
+	 * {@code graph.getEdge(j)}.</li>
 	 * <li>0 otherwise.
 	 * </ul>
 	 * In the special case when the j-th edge is a loop connecting the i-th node
@@ -1450,12 +1451,12 @@ public class Toolkit extends
 	 * number of edges of the graph. The coefficients {@code a[i][j]} of this
 	 * matrix have the following values:
 	 * <ul>
-	 * <li>-1 if {@code graph.getEdge(j)} is directed and {@code
-	 * graph.getNode(i)} is its source.</li>
-	 * <li>1 if {@code graph.getEdge(j)} is undirected and {@code
-	 * graph.getNode(i)} is its source.</li>
-	 * <li>1 if {@code graph.getNode(i)} is the target of {@code
-	 * graph.getEdge(j)}.</li>
+	 * <li>-1 if {@code graph.getEdge(j)} is directed and
+	 * {@code graph.getNode(i)} is its source.</li>
+	 * <li>1 if {@code graph.getEdge(j)} is undirected and
+	 * {@code graph.getNode(i)} is its source.</li>
+	 * <li>1 if {@code graph.getNode(i)} is the target of
+	 * {@code graph.getEdge(j)}.</li>
 	 * <li>0 otherwise.</li>
 	 * </ul>
 	 * In the special case when the j-th edge is a loop connecting the i-th node
@@ -1522,5 +1523,191 @@ public class Toolkit extends
 	 */
 	public static void computeLayout(Graph g) {
 		computeLayout(g, new SpringBox(), 0.99);
+	}
+
+	/**
+	 * Returns a random subset of nodes of fixed size. Each node has the same
+	 * chance to be chosen.
+	 * 
+	 * @param graph
+	 *            A graph.
+	 * @param k
+	 *            The size of the subset.
+	 * @return A random subset of nodes of size <code>k</code>.
+	 * @throws IllegalArgumentException
+	 *             If <code>k</code> is negative or greater than the number of
+	 *             nodes.
+	 * @complexity O(<code>k</code>)
+	 */
+	public static <T extends Node> List<T> randomNodeSet(Graph graph, int k) {
+		return randomNodeSet(graph, k, new Random());
+	}
+
+	/**
+	 * Returns a random subset of nodes of fixed size. Each node has the same
+	 * chance to be chosen.
+	 * 
+	 * @param graph
+	 *            A graph.
+	 * @param k
+	 *            The size of the subset.
+	 * @param random
+	 *            A source of randomness.
+	 * @return A random subset of nodes of size <code>k</code>.
+	 * @throws IllegalArgumentException
+	 *             If <code>k</code> is negative or greater than the number of
+	 *             nodes.
+	 * @complexity O(<code>k</code>)
+	 */
+	public static <T extends Node> List<T> randomNodeSet(Graph graph, int k,
+			Random random) {
+		if (k < 0 || k > graph.getNodeCount())
+			throw new IllegalArgumentException("k must be between 0 and "
+					+ graph.getNodeCount());
+		Set<Integer> subset = RandomTools.randomKsubset(graph.getNodeCount(),
+				k, null, random);
+		List<T> result = new ArrayList<T>(subset.size());
+		for (int i : subset)
+			result.add(graph.<T> getNode(i));
+		return result;
+	}
+
+	/**
+	 * Returns a random subset of nodes. Each node is chosen with given
+	 * probability.
+	 * 
+	 * @param graph
+	 *            A graph.
+	 * @param p
+	 *            The probability to choose each node.
+	 * @return A random subset of nodes.
+	 * @throws IllegalArgumentException
+	 *             If <code>p</code> is negative or greater than one.
+	 * @complexity In average O(<code>n * p<code>), where <code>n</code> is the
+	 *             number of nodes.
+	 */
+	public static <T extends Node> List<T> randomNodeSet(Graph graph, double p) {
+		return randomNodeSet(graph, p, new Random());
+	}
+
+	/**
+	 * Returns a random subset of nodes. Each node is chosen with given
+	 * probability.
+	 * 
+	 * @param graph
+	 *            A graph.
+	 * @param p
+	 *            The probability to choose each node.
+	 * @param random
+	 *            A source of randomness.
+	 * @return A random subset of nodes.
+	 * @throws IllegalArgumentException
+	 *             If <code>p</code> is negative or greater than one.
+	 * @complexity In average O(<code>n * p<code>), where <code>n</code> is the
+	 *             number of nodes.
+	 */
+	public static <T extends Node> List<T> randomNodeSet(Graph graph, double p,
+			Random random) {
+		if (p < 0 || p > 1)
+			throw new IllegalArgumentException("p must be between 0 and 1");
+		Set<Integer> subset = RandomTools.randomPsubset(graph.getNodeCount(),
+				p, null, random);
+		List<T> result = new ArrayList<T>(subset.size());
+		for (int i : subset)
+			result.add(graph.<T> getNode(i));
+		return result;
+	}
+
+	/**
+	 * Returns a random subset of edges of fixed size. Each edge has the same
+	 * chance to be chosen.
+	 * 
+	 * @param graph
+	 *            A graph.
+	 * @param k
+	 *            The size of the subset.
+	 * @return A random subset of edges of size <code>k</code>.
+	 * @throws IllegalArgumentException
+	 *             If <code>k</code> is negative or greater than the number of
+	 *             edges.
+	 * @complexity O(<code>k</code>)
+	 */
+	public static <T extends Edge> List<T> randomEdgeSet(Graph graph, int k) {
+		return randomEdgeSet(graph, k, new Random());
+	}
+
+	/**
+	 * Returns a random subset of edges of fixed size. Each edge has the same
+	 * chance to be chosen.
+	 * 
+	 * @param graph
+	 *            A graph.
+	 * @param k
+	 *            The size of the subset.
+	 * @param random
+	 *            A source of randomness.
+	 * @return A random subset of edges of size <code>k</code>.
+	 * @throws IllegalArgumentException
+	 *             If <code>k</code> is negative or greater than the number of
+	 *             edges.
+	 * @complexity O(<code>k</code>)
+	 */
+	public static <T extends Edge> List<T> randomEdgeSet(Graph graph, int k,
+			Random random) {
+		if (k < 0 || k > graph.getEdgeCount())
+			throw new IllegalArgumentException("k must be between 0 and "
+					+ graph.getEdgeCount());
+		Set<Integer> subset = RandomTools.randomKsubset(graph.getEdgeCount(),
+				k, null, random);
+		List<T> result = new ArrayList<T>(subset.size());
+		for (int i : subset)
+			result.add(graph.<T> getEdge(i));
+		return result;
+	}
+
+	/**
+	 * Returns a random subset of edges. Each edge is chosen with given
+	 * probability.
+	 * 
+	 * @param graph
+	 *            A graph.
+	 * @param p
+	 *            The probability to choose each edge.
+	 * @return A random subset of edges.
+	 * @throws IllegalArgumentException
+	 *             If <code>p</code> is negative or greater than one.
+	 * @complexity In average O(<code>m * p<code>), where <code>m</code> is the
+	 *             number of edges.
+	 */
+	public static <T extends Edge> List<T> randomEdgeSet(Graph graph, double p) {
+		return randomEdgeSet(graph, p, new Random());
+	}
+
+	/**
+	 * Returns a random subset of edges. Each edge is chosen with given
+	 * probability.
+	 * 
+	 * @param graph
+	 *            A graph.
+	 * @param p
+	 *            The probability to choose each edge.
+	 * @param random
+	 *            A source of randomness.
+	 * @return A random subset of edges.
+	 * @throws IllegalArgumentException
+	 *             If <code>p</code> is negative or greater than one.
+	 * @complexity In average O(<code>m * p<code>), where <code>m</code> is the
+	 *             number of edges.
+	 */
+	public static <T extends Edge> List<T> randomEdgeSet(Graph graph, double p,
+			Random random) {
+		if (p < 0 || p > 1)
+			throw new IllegalArgumentException("p must be between 0 and 1");
+		Set<Integer> subset = RandomTools.randomPsubset(graph.getEdgeCount(),
+				p, null, random);
+		List<T> result = new ArrayList<T>(subset.size());
+		for (int i : subset)
+			result.add(graph.<T> getEdge(i));
+		return result;
 	}
 }
