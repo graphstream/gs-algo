@@ -155,7 +155,7 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	 *            randomly.
 	 */
 	public BaseGenerator(boolean directed, boolean randomlyDirectedEdges) {
-		super(String.format("generator-08x", generatorId++));
+		super(String.format("generator-%08x", generatorId++));
 		setDirectedEdges(directed, randomlyDirectedEdges);
 
 		nodeAttributeRange[0] = 0;
