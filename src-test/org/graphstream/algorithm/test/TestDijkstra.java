@@ -29,14 +29,15 @@
  */
 package org.graphstream.algorithm.test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import org.graphstream.algorithm.Dijkstra;
-import org.graphstream.algorithm.generator.Generator;
-import org.graphstream.algorithm.generator.OldRandomGenerator;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -195,16 +196,4 @@ public class TestDijkstra {
 		// and don't forget the special case G
 		assertFalse(d.getAllPathsIterator(g.getNode("G")).hasNext());
 	}
-	
-	
-	public static Graph randomGraph(int nodes, int degree) {
-		Graph g = new SingleGraph("random");
-		Generator generator = new OldRandomGenerator(degree, false, false, null, "length");
-		generator.addSink(g);
-		generator.begin();
-		for (int i = 1; i < nodes; i++)
-			generator.nextEvents();
-		generator.end();
-		return g;
-	}	
 }

@@ -44,7 +44,7 @@ public class TestRandomGenerator {
 		
 		int[] ddR = Toolkit.degreeDistribution(g);
 		
-		// generate Erdos-Reni graph directly
+		// generate Erdos-Renyi graph directly
 		g.clear();
 		double p = K / (N - 1);
 		Random rnd = new Random();
@@ -56,7 +56,7 @@ public class TestRandomGenerator {
 					g.addEdge(i + "_" + j, i, j);
 		int[] ddE1 = Toolkit.degreeDistribution(g);
 		
-		// generate another Erdos-Reni graph more intelligently
+		// generate another Erdos-Renyi graph more intelligently
 		// this will also test Toolkit.randomNodeSet
 		g.clear();
 		g.addNode("0");
