@@ -1710,4 +1710,23 @@ public class Toolkit extends
 			result.add(graph.<T> getEdge(i));
 		return result;
 	}
+	
+	/**
+	 * Determines if a graph is (weakly) connected.
+	 * 
+	 * @param graph A graph.
+	 * @return {@code true} if the graph is connected.
+	 * @complexity O({@code m + n}) where {@code m} is the number of edges and {@code n} is the number of nodes.
+	 */
+	public static boolean isConnected(Graph graph) {
+		if (graph.getNodeCount() == 0)
+			return true;
+		Iterator<Node> it = graph.getNode(0).getBreadthFirstIterator(false);
+		int visited = 0;
+		while (it.hasNext()) {
+			it.next();
+			visited++;
+		}
+		return visited == graph.getNodeCount();
+	}
 }
