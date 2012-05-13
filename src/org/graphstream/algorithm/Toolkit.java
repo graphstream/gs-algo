@@ -732,13 +732,21 @@ public class Toolkit extends
 		double sumE = 0, Tr = 0;
 		double communityCount = E.length;
 
-		for (int y = 0; y < communityCount; ++y) {
-			for (int x = y; x < communityCount; ++x) {
-				if (x == y)
-					Tr += E[x][y];
-
-				sumE += E[x][y] * E[x][y];
-			}
+//		for (int y = 0; y < communityCount; ++y) {
+//			for (int x = y; x < communityCount; ++x) {
+//				if (x == y)
+//					Tr += E[x][y];
+//				
+//				sumE += E[x][y] * E[x][y];
+//			}
+//		}
+		
+		for (int i = 0; i < communityCount; i++) {
+			Tr += E[i][i];
+			double a = 0;
+			for (int j = 0; j < communityCount; j++)
+				a += E[i][j];
+			sumE += a * a;
 		}
 
 		return (Tr - sumE);
