@@ -743,7 +743,17 @@ public class ConnectedComponents extends SinkAdapter implements
 	 */
 	@Override
 	public void graphCleared(String graphId, long timeId) {
-		terminate();
+		// terminate();
+		if (started) {
+			connectedComponents = 0;
+			ids.clear();
+			ids.add("");
+			components.clear();
+			components.add(new ConnectedComponent(0));
+			
+			connectedComponentsMap.clear();
+			connectedComponentsSize.clear();
+		}
 	}
 
 	/*
