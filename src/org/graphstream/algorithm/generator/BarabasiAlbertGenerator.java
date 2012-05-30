@@ -30,7 +30,8 @@
 package org.graphstream.algorithm.generator;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Scale-free graph generator using the preferential attachment rule as defined
@@ -90,24 +91,29 @@ public class BarabasiAlbertGenerator extends BaseGenerator {
 	protected ArrayList<Integer> degrees;
 
 	/**
-	 * Maximal degree at time t.
-	 */
-	protected int degreeMax = 0;
-
-	/**
-	 * Number of edges.
-	 */
-	protected int edgesCount = 0;
-
-	/**
 	 * The maximum number of links created when a new node is added.
 	 */
-	protected int maxLinksPerStep = 1;
+	protected int maxLinksPerStep;
 
 	/**
 	 * Does the generator generates exactly {@link #maxLinksPerStep}.
 	 */
 	protected boolean exactlyMaxLinksPerStep = false;
+	
+	/**
+	 * The sum of degrees of all nodes
+	 */
+	protected int sumDeg;
+	
+	/**
+	 * The sum of degrees of nodes not connected to the new node
+	 */
+	protected int sumDegRemaining;
+	
+	/**
+	 * Set of indices of nodes connected to the new node
+	 */
+	protected Set<Integer> connected;
 
 	/**
 	 * New generator.
@@ -172,16 +178,19 @@ public class BarabasiAlbertGenerator extends BaseGenerator {
 	}
 
 	/**
-	 * Start the generator. A single node is added.
+	 * Start the generator. Two nodes connected by edge are added.
 	 * 
 	 * @see org.graphstream.algorithm.generator.Generator#begin()
 	 */
 	public void begin() {
-		this.degrees = new ArrayList<Integer>();
-		this.degreeMax = 0;
-
 		addNode("0");
-		degrees.add(0);
+		addNode("1");
+		addEdge("0_1", "0", "1");
+		degrees = new ArrayList<Integer>();
+		degrees.add(1);
+		degrees.add(1);
+		sumDeg = 2;
+		connected = new HashSet<Integer>();
 	}
 
 	/**
@@ -198,80 +207,50 @@ public class BarabasiAlbertGenerator extends BaseGenerator {
 	 */
 	public boolean nextEvents() {
 		// Generate a new node.
+		int nodeCount = degrees.size();
+		String newId = nodeCount + "";
+		addNode(newId);
 
-		int index = degrees.size();
-		String id = Integer.toString(index);
+		// Attach to how many existing nodes?
 		int n = maxLinksPerStep;
-
-		addNode(id);
-		degrees.add(0);
-
 		if (!exactlyMaxLinksPerStep)
 			n = random.nextInt(n) + 1;
-
-		n = Math.min(n, degrees.size() - 1);
+		n = Math.min(n, nodeCount);
 
 		// Choose the nodes to attach to.
-
-		LinkedList<Integer> notIn = new LinkedList<Integer>();
-
-		for (int i = 0; i < n; i++) {
-			int otherIdx = chooseAnotherNode(index, notIn);
-			attachToOtherNode(i, index, id, otherIdx);
-
-			notIn.add(otherIdx);
+		sumDegRemaining = sumDeg;
+		for (int i = 0; i < n; i++)
+			chooseAnotherNode();
+		
+		for (int i : connected) {
+			addEdge(newId + "_" + i, newId, i + "");
+			degrees.set(i, degrees.get(i) + 1);
 		}
+		connected.clear();
+		degrees.add(n);
+		sumDeg += 2 * n;
 
 		// It is always possible to add an element.
-
 		return true;
 	}
-
+	
 	/**
-	 * Randomly choose a node to attach to, the node is chosen
-	 * 
-	 * @param index
-	 * @return
+	 * Choose randomly one of the remaining nodes 
 	 */
-	protected int chooseAnotherNode(int index, LinkedList<Integer> notIn) {
-		int sumDeg = (edgesCount - degrees.get(index)) * 2;
-		double sumProba = 0;
-		double rnd = random.nextDouble();
-		int otherIdx = -1;
-
-		for (int i = 0; i < notIn.size(); i++)
-			sumDeg -= degrees.get(notIn.get(i));
-
-		for (int i = 0; i < index; ++i) {
-			double proba = sumDeg == 0 ? 1 : degrees.get(i) / ((double) sumDeg);
-
-			if (notIn.contains(i))
-				continue;
-
-			sumProba += proba;
-
-			if (sumProba > rnd) {
-				otherIdx = i;
-				break;
-			}
+	protected void chooseAnotherNode() {
+		int r = random.nextInt(sumDegRemaining);
+		int runningSum = 0;
+		int i = 0;
+		while (runningSum <= r) {
+			if (!connected.contains(i))
+				runningSum += degrees.get(i);
+			i++;
 		}
-
-		return otherIdx;
+		i--;
+		connected.add(i);
+		sumDegRemaining -= degrees.get(i);
 	}
 
-	protected void attachToOtherNode(int i, int index, String id, int otherIdx) {
-		if (otherIdx >= 0) {
-			String oid = Integer.toString(otherIdx);
-			String eid = id + "_" + oid + "_" + i;
-
-			addEdge(eid, oid, id);
-			edgesCount++;
-			degrees.set(otherIdx, degrees.get(otherIdx) + 1);
-			degrees.set(index, degrees.get(index) + 1);
-		} else {
-			System.err.printf("PreferentialAttachmentGenerator: *** Aieuu!%n");
-		}
-	}
 
 	/**
 	 * Clean degrees.
@@ -282,7 +261,7 @@ public class BarabasiAlbertGenerator extends BaseGenerator {
 	public void end() {
 		degrees.clear();
 		degrees = null;
-		degreeMax = 0;
+		connected = null;
 		super.end();
 	}
 }
