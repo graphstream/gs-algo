@@ -194,10 +194,10 @@ public class AStar implements Algorithm {
 	protected Path result;
 
 	/**
-	 * Set to true if the algorithm ran, but did not found any path from the
-	 * source to the target.
+	 * Set to false if the algorithm ran, but did not found any path from the
+	 * source to the target, or if the algorithm did not run yet.
 	 */
-	protected boolean noPathFound;
+	protected boolean pathFound = false;
 
 	/**
 	 * New A* algorithm.
@@ -313,13 +313,14 @@ public class AStar implements Algorithm {
 	 * {@link #compute(String, String)}, if the {@link #getShortestPath()}
 	 * returns null, or this method return true, there is no path from the given
 	 * source node to the given target node. In other words, the graph has
-	 * several connected components.
+	 * several connected components. It also return true if the algorithm did
+	 * not run.
 	 * 
 	 * @return True if there is no possible path from the source to the
-	 *         destination.
+	 *         destination or if the algorithm did not run.
 	 */
 	public boolean noPathFound() {
-		return noPathFound;
+		return (! pathFound);
 	}
 
 	/**
@@ -385,7 +386,7 @@ public class AStar implements Algorithm {
 		closed.clear();
 
 		result = null;
-		noPathFound = false;
+		pathFound = false;
 	}
 
 	/**
@@ -403,6 +404,8 @@ public class AStar implements Algorithm {
 				new AStarNode(sourceNode, null, null, 0, costs.heuristic(
 						sourceNode, targetNode)));
 
+		pathFound = false;
+
 		while (!open.isEmpty()) {
 			AStarNode current = getNextBetterNode();
 
@@ -411,6 +414,7 @@ public class AStar implements Algorithm {
 			if (current.node == targetNode) {
 				// We found it !
 				assert current.edge != null;
+				pathFound = true;
 				result = buildPath(current);
 				return;
 			} else {
