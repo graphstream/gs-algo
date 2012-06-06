@@ -45,8 +45,10 @@ import org.graphstream.graph.Path;
  * An implementation of the A* algorithm.
  * 
  * <p>
- * A* computes the shortest path from a node to another in a graph. It can
- * eventually fail if the two nodes are in two distinct connected components.
+ * A* computes the shortest path from a node to another in a graph. It guarantees
+ * that the path found is the shortest one, given its heuristic is admissible,
+ * and a path exists between the two nodes. It will fail if the two nodes are in
+ * two distinct connected components.
  * </p>
  * 
  * <p>
@@ -63,15 +65,22 @@ import org.graphstream.graph.Path;
  * 
  * <p>
  * By default the {@link org.graphstream.algorithm.AStar.Costs} implementation
- * used uses a heuristic that returns 0 for any heuristic. This makes A* an
- * equivalent of the Dijkstra algorithm, but also makes it far less efficient.
+ * used uses a heuristic that always returns 0. This makes A* an * equivalent of
+ * the Dijkstra algorithm, but also makes it less efficient.
+ * </p>
+ * 
+ * <p>
+ * If there are several equivalent shortest paths between the two nodes, the returned
+ * one is arbitrary. Therefore this AStar algorithm works with multi-graphs but if two
+ * edges between two nodes have the same properties, the one that will be chosen will
+ * be arbitrary. 
  * </p>
  * 
  * <h2>Usage</h2>
  * 
- * <p>The basic usage is to create an instance of A*, then to ask it to compute
- * from a shortest path from one target to one destination, and finally to ask
- * for that path:
+ * <p>The basic usage is to create an instance of A* (optionally specify a {@link Costs}
+ * object), then to ask it to compute from a shortest path from one target to one
+ * destination, and finally to ask for that path:
  * </p>
  * <pre>
  * AStart astar = new AStar(graph); 
@@ -80,11 +89,11 @@ import org.graphstream.graph.Path;
  * </pre>
  * <p>
  * The advantage of A* is that it can consider any cost function to drive the
- * search. You can create your own cost functions implementing the
+ * search. You can (and should) create your own cost functions implementing the
  * {@link org.graphstream.algorithm.AStar.Costs} interface.
  * </p>
  * <p>
- * You can also test the default "distance" cost function on a graph that has
+ * You can also test the default euclidean "distance" cost function on a graph that has
  * "x" and "y" values. You specify the {@link Costs} function before calling the
  * {@link #compute(String,String)} method:
  * </p>
@@ -152,7 +161,6 @@ import org.graphstream.graph.Path;
  * }
  * </pre>
  *
- * 
  * @complexity The complexity of A* depends on the heuristic.
  */
 public class AStar implements Algorithm {
@@ -482,7 +490,6 @@ public class AStar implements Algorithm {
 	// Nested classes
 
 	/**
-	 * The definition of an heuristic. The heuristic is in charge of evaluating
 	 * the distance between the current position and the target.
 	 */
 	public interface Costs {
@@ -496,7 +503,7 @@ public class AStar implements Algorithm {
 		 * @return The estimated cost between a node and a target node.
 		 */
 		double heuristic(Node node, Node target);
-
+		
 		/**
 		 * Cost of displacement from parent to next. The next node must be
 		 * directly connected to parent, or -1 is returned.
@@ -504,6 +511,7 @@ public class AStar implements Algorithm {
 		 * @param parent
 		 *            The node we come from.
 		 * @param from
+	 * The definition of an heuristic. The heuristic is in charge of evaluating
 		 *            The edge used between the two nodes (in case this is a
 		 *            multi-graph).
 		 * @param next

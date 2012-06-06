@@ -37,6 +37,7 @@ import java.util.PriorityQueue;
 import java.util.Set;
 
 import org.graphstream.graph.Edge;
+import org.graphstream.graph.Element;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -52,12 +53,12 @@ import org.graphstream.graph.Node;
  * <h2>Usage</h2>
  * 
  * <p>
- * This algorithm, by default, stores the centrality values for each edge inside
+ * This algorithm, by default, stores the centrality values for each node inside
  * the "Cb" attribute. You can change this attribute name at construction time.
  * </p>
  * 
  * <p>
- * This algorithm does not accept multi-graphs (p-graphs with p>1) yet.
+ * <b>This algorithm does not accept multi-graphs (p-graphs with p>1) yet.</b>
  * </p>
  * 
  * <p>
@@ -159,30 +160,39 @@ import org.graphstream.graph.Node;
  * issn 0378-8733, "DOI: 10.1016/j.socnet.2007.11.001".
  */
 public class BetweennessCentrality implements Algorithm {
-	// Attribute
 
 	protected static double INFINITY = 1000000.0;
 
+	/** Store the centrality value in this attribute on nodes and edges. */
 	protected String centralityAttributeName = "Cb";
 
+	/** The predecessors. */
 	protected String predAttributeName = "brandes.P";
 
+	/** The sigma value. */
 	protected String sigmaAttributeName = "brandes.sigma";
 
+	/** The distance value. */
 	protected String distAttributeName = "brandes.d";
 
+	/** The delta value. */
 	protected String deltaAttributeName = "brandes.delta";
 
+	/** Name of the attribute used to retrieve weights on edges. */
 	protected String weightAttributeName = "weight";
 
+	/** Do not use weights ? */
 	protected boolean unweighted = true;
 
+	/** The graph to modify. */
 	protected Graph graph;
 
+	/** The progress call-back method. */
 	protected Progress progress = null;
 
-	// Construction
-
+	/** Compute the centrality of edges. */
+	protected boolean doEdges = true;
+	
 	/**
 	 * New centrality algorithm that will perform as if the graph was
 	 * unweighted. By default the centrality will be stored in a "Cb" attribute
@@ -226,8 +236,6 @@ public class BetweennessCentrality implements Algorithm {
 		this.unweighted = false;
 	}
 
-	// Access
-
 	/**
 	 * Name of the attribute used to retrieve weights on edges.
 	 */
@@ -241,8 +249,6 @@ public class BetweennessCentrality implements Algorithm {
 	public String getCentralityAttributeName() {
 		return centralityAttributeName;
 	}
-
-	// Command
 
 	/**
 	 * Specify the name of the weight attribute to retrieve edge attributes.
@@ -269,6 +275,17 @@ public class BetweennessCentrality implements Algorithm {
 	 */
 	public void setUnweighted() {
 		unweighted = true;
+	}
+	
+	/**
+	 * Activate or deactivate the centrality computation on edges. By default it is
+	 * activated. Notice that this does not change the complexity of the algorithm.
+	 * Only one more access on the edges is done to store the centrality in addition
+	 * to the node access.
+	 * @param on If true, the edges centrality is also computed.
+	 */
+	public void computeEdgeCentrality(boolean on) {
+		doEdges = on;
 	}
 
 	/**
@@ -306,13 +323,14 @@ public class BetweennessCentrality implements Algorithm {
 	}
 
 	/**
-	 * Compute the betweenness centrality on the given graph for each node. This
-	 * method is equivalent to a call in sequence to the two methods
-	 * {@link #init(Graph)} then {@link #compute()}.
+	 * Compute the betweenness centrality on the given graph for each node and
+	 * eventually edges. This method is equivalent to a call in sequence to the
+	 * two methods {@link #init(Graph)} then {@link #compute()}.
 	 */
 	public void betweennessCentrality(Graph graph) {
 		init(graph);
 		initAllNodes(graph);
+		initAllEdges(graph);
 
 		float n = graph.getNodeCount();
 		float i = 0;
@@ -326,13 +344,18 @@ public class BetweennessCentrality implements Algorithm {
 				S = dijkstraExplore2(s, graph);
 
 			// The really new things in the Brandes algorithm are here:
+			// Accumulation phase:
 
 			while (!S.isEmpty()) {
 				Node w = S.poll();
 
 				for (Node v : predecessorsOf(w)) {
-					setDelta(v, delta(v)
-							+ ((sigma(v) / sigma(w)) * (1.0 + delta(w))));
+					double c = ((sigma(v) / sigma(w)) * (1.0 + delta(w)));
+					if(doEdges) {
+						Edge e = w.getEdgeBetween(v);
+						setCentrality(e, centrality(e) + c);
+					}
+					setDelta(v, delta(v) + c);
 				}
 				if (w != s) {
 					setCentrality(w, centrality(w) + delta(w));
@@ -371,10 +394,11 @@ public class BetweennessCentrality implements Algorithm {
 			Node v = Q.removeFirst();
 
 			S.add(v);
-			Iterator<? extends Node> ww = v.getNeighborNodeIterator();
+			Iterator<? extends Edge> ww = v.getLeavingEdgeIterator();
 
 			while (ww.hasNext()) {
-				Node w = ww.next();
+				Edge l = ww.next();
+				Node w = l.getOpposite(v);//ww.next();
 
 				if (distance(w) == INFINITY) {
 					setDistance(w, distance(v) + 1);
@@ -422,10 +446,14 @@ public class BetweennessCentrality implements Algorithm {
 			} else {
 				S.add(u);
 
-				Iterator<? extends Node> k = u.getNeighborNodeIterator();
+//				Iterator<? extends Node> k = u.getNeighborNodeIterator();
+				Iterator<? extends Edge> k = u.getLeavingEdgeIterator();
 
 				while (k.hasNext()) {
-					Node v = k.next();
+//					Node v = k.next();
+					Edge l = k.next();
+					Node v = l.getOpposite(u);
+					
 					double alt = distance(u) + weight(u, v);
 
 					if (alt < distance(v)) {
@@ -488,10 +516,14 @@ public class BetweennessCentrality implements Algorithm {
 
 			S.add(v);
 
-			Iterator<? extends Node> k = v.getNeighborNodeIterator();
+			//Iterator<? extends Node> k = v.getNeighborNodeIterator();
+			Iterator<? extends Edge> k = v.getLeavingEdgeIterator();
 
 			while (k.hasNext()) {
-				Node w = k.next();
+				//Node w = k.next();
+				Edge l = k.next();
+				Node w = l.getOpposite(v);
+				
 				double alt = distance(v) + weight(v, w);
 				double dw = distance(w);
 
@@ -565,16 +597,16 @@ public class BetweennessCentrality implements Algorithm {
 	}
 
 	/**
-	 * The centrality value of the given node.
+	 * The centrality value of the given node or edge.
 	 * 
-	 * @param node
-	 *            Extract the centrality of this node.
+	 * @param elt
+	 *            Extract the centrality of this node or edge.
 	 * @return The centrality value.
 	 */
-	public double centrality(Node node) {
-		return node.getNumber(centralityAttributeName);
+	public double centrality(Element elt) {
+		return elt.getNumber(centralityAttributeName);
 	}
-
+	
 	/**
 	 * List of predecessors of the given node.
 	 * 
@@ -624,17 +656,17 @@ public class BetweennessCentrality implements Algorithm {
 	}
 
 	/**
-	 * Set the centrality of the given node.
+	 * Set the centrality of the given node or edge.
 	 * 
-	 * @param node
-	 *            The node to modify.
+	 * @param elt
+	 *            The node or edge to modify.
 	 * @param centrality
 	 *            The centrality to store on the node.
 	 */
-	public void setCentrality(Node node, double centrality) {
-		node.setAttribute(centralityAttributeName, centrality);
+	public void setCentrality(Element elt, double centrality) {
+		elt.setAttribute(centralityAttributeName, centrality);
 	}
-
+	
 	/**
 	 * Set the weight of the edge between 'from' and 'to'.
 	 * 
@@ -725,6 +757,20 @@ public class BetweennessCentrality implements Algorithm {
 	protected void initAllNodes(Graph graph) {
 		for (Node node : graph) {
 			setCentrality(node, 0.0);
+		}
+	}
+	
+	/**
+	 * Set a default centrality of 0 to all edges.
+	 *
+	 * @param graph
+	 * 			The graph to modify.
+	 */
+	protected void initAllEdges(Graph graph) {
+		if(doEdges) {
+			for(Edge edge : graph.getEachEdge()) {
+				setCentrality(edge, 0.0);
+			}
 		}
 	}
 

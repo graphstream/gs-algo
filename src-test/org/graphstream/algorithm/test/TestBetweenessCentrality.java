@@ -222,6 +222,12 @@ public class TestBetweenessCentrality {
 		assertEquals(0, (Double) graph.getNode("C").getAttribute("Cb"), 0);
 		assertEquals(2, (Double) graph.getNode("D").getAttribute("Cb"), 0);
 		assertEquals(4, (Double) graph.getNode("E").getAttribute("Cb"), 0);
+		assertEquals(8, (Double) graph.getEdge("AB").getAttribute("Cb"), 0);
+		assertEquals(8, (Double) graph.getEdge("AE").getAttribute("Cb"), 0);
+		assertEquals(0, (Double) graph.getEdge("BE").getAttribute("Cb"), 0);
+		assertEquals(4, (Double) graph.getEdge("BC").getAttribute("Cb"), 0);
+		assertEquals(4, (Double) graph.getEdge("CD").getAttribute("Cb"), 0);
+		assertEquals(8, (Double) graph.getEdge("ED").getAttribute("Cb"), 0);
 	}	
 
 	@Test

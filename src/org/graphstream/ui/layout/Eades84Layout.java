@@ -266,8 +266,8 @@ public class Eades84Layout extends PipeBase implements Layout {
 	}
 
 	public void particleMoved(Object id, double x, double y, double z) {
-		for (LayoutListener listener : listeners)
-			listener.nodeMoved((String) id, x, y, z);
+		//for (LayoutListener listener : listeners)
+		//	listener.nodeMoved((String) id, x, y, z);
 
 		Object xyz[] = new Object[3];
 		xyz[0] = x;

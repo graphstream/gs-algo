@@ -207,8 +207,8 @@ public class HierarchicalLayout extends PipeBase implements Layout {
 				sendNodeAttributeChanged(sourceId, n.getId(), "xyz", null,
 						new double[] { p.x, p.y, 0 });
 				
-				for (int i = 0; i < listeners.size(); i++)
-					listeners.get(i).nodeMoved(n.getId(), p.x, p.y, 0);
+			//	for (int i = 0; i < listeners.size(); i++)
+			//		listeners.get(i).nodeMoved(n.getId(), p.x, p.y, 0);
 			}
 		}
 	}
