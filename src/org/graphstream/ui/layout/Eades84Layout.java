@@ -90,7 +90,7 @@ public class Eades84Layout extends PipeBase implements Layout {
 		return "Eades1984";
 	}
 
-	public int getNodeMoved() {
+	public int getNodeMovedCount() {
 		return nodeMoved;
 	}
 
@@ -124,7 +124,7 @@ public class Eades84Layout extends PipeBase implements Layout {
 		return 0;
 	}
 
-	public int getQuality() {
+	public double getQuality() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -152,7 +152,7 @@ public class Eades84Layout extends PipeBase implements Layout {
 
 	}
 
-	public void setQuality(int qualityLevel) {
+	public void setQuality(double qualityLevel) {
 		// TODO Auto-generated method stub
 
 	}

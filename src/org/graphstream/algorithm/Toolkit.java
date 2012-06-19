@@ -35,7 +35,7 @@ import org.graphstream.algorithm.util.RandomTools;
 import org.graphstream.graph.*;
 import org.graphstream.stream.GraphReplay;
 import org.graphstream.ui.layout.Layout;
-import org.graphstream.ui.layout.springbox.SpringBox;
+import org.graphstream.ui.layout.springbox.implementations.SpringBox;
 
 /**
  * Lots of small often used algorithms on graphs.

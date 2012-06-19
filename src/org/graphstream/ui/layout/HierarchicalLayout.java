@@ -272,7 +272,7 @@ public class HierarchicalLayout extends PipeBase implements Layout {
 	 * 
 	 * @see org.graphstream.ui.layout.Layout#getNodeMoved()
 	 */
-	public int getNodeMoved() {
+	public int getNodeMovedCount() {
 		return nodeMoved;
 	}
 
@@ -281,7 +281,7 @@ public class HierarchicalLayout extends PipeBase implements Layout {
 	 * 
 	 * @see org.graphstream.ui.layout.Layout#getQuality()
 	 */
-	public int getQuality() {
+	public double getQuality() {
 		return 0;
 	}
 
@@ -365,7 +365,7 @@ public class HierarchicalLayout extends PipeBase implements Layout {
 	 * 
 	 * @see org.graphstream.ui.layout.Layout#setQuality(int)
 	 */
-	public void setQuality(int qualityLevel) {
+	public void setQuality(double qualityLevel) {
 	}
 
 	/*
