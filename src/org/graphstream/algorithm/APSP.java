@@ -390,7 +390,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 
 			// The Floyd-Warshall algorithm. You can easily see it is in O(n^3)..
 
-			int z = 0;
+			// int z = 0;
 			double prog = 0;
 			double max  = nodeList.size();
 			max *= max;
@@ -430,7 +430,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 					prog += 1;
 				}
 
-				z++;
+				// z++;
 				// System.err.printf( "%3.2f%%%n", (z/((double)n))*100 );
 			}
 		}
