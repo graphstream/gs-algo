@@ -66,7 +66,7 @@ public class HierarchicalLayout extends PipeBase implements Layout {
 
 	final HashMap<String, Position> nodesPosition;
 	final LinkedList<String> roots;
-	final LinkedList<LayoutListener> listeners;
+//	final LinkedList<LayoutListener> listeners;
 	final Graph internalGraph;
 
 	boolean structureChanged;
@@ -81,7 +81,7 @@ public class HierarchicalLayout extends PipeBase implements Layout {
 
 	public HierarchicalLayout() {
 		roots = new LinkedList<String>();
-		listeners = new LinkedList<LayoutListener>();
+//		listeners = new LinkedList<LayoutListener>();
 		nodesPosition = new HashMap<String, Position>();
 		internalGraph = new AdjacencyListGraph("hierarchical_layout-intern");
 		hi = new Point3();
@@ -97,9 +97,9 @@ public class HierarchicalLayout extends PipeBase implements Layout {
 		}
 	}
 
-	public void addListener(LayoutListener listener) {
-		listeners.add(listener);
-	}
+//	public void addListener(LayoutListener listener) {
+//		listeners.add(listener);
+//	}
 
 	public void clear() {
 		// TODO Auto-generated method stub
@@ -341,16 +341,16 @@ public class HierarchicalLayout extends PipeBase implements Layout {
 		throw new UnsupportedOperationException();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.graphstream.ui.layout.Layout#removeListener(org.graphstream.ui.layout
-	 * .LayoutListener)
-	 */
-	public void removeListener(LayoutListener listener) {
-		listeners.remove(listener);
-	}
+//	/*
+//	 * (non-Javadoc)
+//	 * 
+//	 * @see
+//	 * org.graphstream.ui.layout.Layout#removeListener(org.graphstream.ui.layout
+//	 * .LayoutListener)
+//	 */
+//	public void removeListener(LayoutListener listener) {
+//		listeners.remove(listener);
+//	}
 
 	/*
 	 * (non-Javadoc)

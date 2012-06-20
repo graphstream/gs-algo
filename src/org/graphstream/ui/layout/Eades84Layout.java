@@ -58,7 +58,7 @@ public class Eades84Layout extends PipeBase implements Layout {
 	Random random;
 
 	int nodeMoved = 0;
-	LinkedList<LayoutListener> listeners;
+//	LinkedList<LayoutListener> listeners;
 	double stabilization = 0;
 
 	Point3 high;
@@ -80,7 +80,7 @@ public class Eades84Layout extends PipeBase implements Layout {
 		springs = new HashMap<String, Spring>();
 		particles = new HashMap<String, EadesParticle>();
 		random = new Random();
-		listeners = new LinkedList<LayoutListener>();
+//		listeners = new LinkedList<LayoutListener>();
 
 		high = new Point3(1, 1, 1);
 		low = new Point3(-1, -1, -1);
@@ -139,13 +139,13 @@ public class Eades84Layout extends PipeBase implements Layout {
 
 	}
 
-	public void addListener(LayoutListener listener) {
-		listeners.add(listener);
-	}
-
-	public void removeListener(LayoutListener listener) {
-		listeners.remove(listener);
-	}
+//	public void addListener(LayoutListener listener) {
+//		listeners.add(listener);
+//	}
+//
+//	public void removeListener(LayoutListener listener) {
+//		listeners.remove(listener);
+//	}
 
 	public void setForce(double value) {
 		// TODO Auto-generated method stub
@@ -215,8 +215,8 @@ public class Eades84Layout extends PipeBase implements Layout {
 
 		stabilization += 1;
 
-		for (LayoutListener listener : listeners)
-			listener.stepCompletion(getStabilization());
+//		for (LayoutListener listener : listeners)
+//			listener.stepCompletion(getStabilization());
 	}
 
 	public void nodeAdded(String sourceId, long timeId, String nodeId) {
