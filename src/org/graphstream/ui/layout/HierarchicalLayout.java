@@ -136,8 +136,8 @@ public class HierarchicalLayout extends PipeBase implements Layout {
 
 				visited.add(n);
 
-				if (p.level != 0 || p.order != order) {
-					p.level = 0;
+				if (p.level != level || p.order != order) {
+					p.level = level;
 					p.order = order;
 					p.changed = true;
 				}

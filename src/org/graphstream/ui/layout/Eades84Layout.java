@@ -32,7 +32,6 @@ package org.graphstream.ui.layout;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Random;
 
 import org.graphstream.algorithm.generator.BarabasiAlbertGenerator;
@@ -358,7 +357,7 @@ public class Eades84Layout extends PipeBase implements Layout {
 			// sum.fill(0);
 
 			Iterator<EadesParticle> it = particles.values().iterator();
-			double i = 0;
+			//double i = 0;
 
 			while (it.hasNext()) {
 				EadesParticle p = it.next();
@@ -377,7 +376,7 @@ public class Eades84Layout extends PipeBase implements Layout {
 					v.scalarMult(f);
 
 					sum.add(v);
-					i++;
+					//i++;
 				}
 			}
 
