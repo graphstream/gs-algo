@@ -32,24 +32,37 @@
 
 package org.graphstream.ui.layout.test;
 
+import org.graphstream.algorithm.generator.BarabasiAlbertGenerator;
+import org.graphstream.algorithm.generator.Generator;
 import org.graphstream.algorithm.generator.GridGenerator;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.MultiGraph;
 
 public class TestLayout {
 	public static void main(String args[]) {
+		System.getProperties().put("gs.ui.layout", "org.graphstream.ui.layout.springbox.implementations.LinLog");
 		(new TestLayout()).test();
 	}
 	
 	public void test() {
 		Graph graph = new MultiGraph("test");
-		graph.addAttribute("layout.force", 0.8);
-		graph.display();
-		GridGenerator gen = new GridGenerator();
+//		int steps = 50;
+//		Generator gen = new BarabasiAlbertGenerator(2);
+		int steps = 6;
+		Generator gen = new GridGenerator();
 		
 		gen.addSink(graph);
 		gen.begin();
-		for(int i=0; i<30; i++) gen.nextEvents();
+		for(int i=0; i<steps; i++) {
+			gen.nextEvents();
+			sleep(10);
+		}
 		gen.end();
+//		try { graph.write("grid7x7.dgs"); } catch(Exception e) { }
+		graph.display();
+	}
+	
+	public static void sleep(long ms) {
+		try { Thread.sleep(ms); } catch(Exception e) {}
 	}
 }

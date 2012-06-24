@@ -1,0 +1,22 @@
+DGS004
+null 0 0
+an "A"
+an "B"
+an "C"
+
+an "X"
+
+an "I"
+an "J"
+an "K"
+
+ae "AB" "A" "B"
+ae "AC" "A" "C"
+ae "BC" "B" "C"
+
+ae "IJ" "I" "J"
+ae "IK" "I" "K"
+ae "KJ" "K" "J"
+
+ae "AX" "A" "X"
+ae "XI" "X" "I"
