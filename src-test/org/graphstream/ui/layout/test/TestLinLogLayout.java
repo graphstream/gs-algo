@@ -38,7 +38,9 @@ import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.stream.ProxyPipe;
 import org.graphstream.stream.file.FileSource;
 import org.graphstream.stream.file.FileSourceDGS;
+import org.graphstream.stream.file.FileSourceEdge;
 import org.graphstream.stream.file.FileSourceGML;
+import org.graphstream.stream.file.FileSourcePajek;
 import org.graphstream.stream.thread.ThreadProxyPipe;
 import org.graphstream.ui.geom.Point3;
 import org.graphstream.ui.graphicGraph.GraphPosLengthUtils;
@@ -61,13 +63,15 @@ import org.graphstream.ui.swingViewer.Viewer;
  */
 public class TestLinLogLayout {
 //	public static final String GRAPH = "data/dorogovtsev_mendes6000.dgs"; public static final double a= 0; public static final double r=-1.3; public static double force = 3;
-	public static final String GRAPH = "data/karate.gml";		public static double a= 0; public static double r=-1.3; public static double force = 3;
+//	public static final String GRAPH = "data/karate.gml";		public static double a= 0; public static double r=-1.3; public static double force = 3;
 //	public static final String GRAPH = "data/dolphins.gml";		public static double a= 0; public static double r=-1.2; public static double force = 8;
-//	public static final String GRAPH = "data/polbooks.gml";		public static double a= 0; public static double r=-2; public static double force = 3;
+	public static final String GRAPH = "data/polbooks.gml";		public static double a= 0; public static double r=-1.9; public static double force = 5;
 //	public static final String GRAPH = "data/triangles.dgs";	public static double a= 1; public static double r=-1; public static double force = 0.5;
 //	public static final String GRAPH = "data/FourClusters.dgs";	public static double a= 0; public static double r=-1; public static double force = 3;
 //	public static final String GRAPH = "data/grid7x7.dgs";		public static double a= 0; public static double r=-1; public static double force = 100;
-//	public static final String GRAPH = "data/imdb.dgs";			
+//	public static final String GRAPH = "data/celegansneural.gml";public static double a= 0; public static double r=-1; public static double force = 5;
+//	public static final String GRAPH = "data/USAir97.net";		public static double a= 0; public static double r=-1.9; public static double force = 8;
+//	public static final String GRAPH = "data/WorldImport1999.edge";		public static double a= 0; public static double r=-2; public static double force = 5;
 
 	protected Graph graph;
 	
@@ -98,6 +102,8 @@ public class TestLinLogLayout {
 		CC.setPosition(Units.PX, 20, 20, 0);
 		
 		layout.configure(a, r, true, force);
+		layout.setQuality(0);
+		layout.setBarnesHutTheta(0.5);
 
 		graph.addAttribute("ui.antialias");
 		graph.addAttribute("ui.stylesheet", styleSheet);
@@ -106,15 +112,23 @@ public class TestLinLogLayout {
 		graph.addSink(layout);
 		layout.addAttributeSink(graph);
 
-		FileSource dgs = GRAPH.endsWith(".gml") ? new FileSourceGML() : new FileSourceDGS();
+		FileSource dgs = null;
+		if(GRAPH.endsWith(".gml")) dgs = new FileSourceGML();
+		else if(GRAPH.endsWith(".dgs")) dgs= new FileSourceDGS();
+		else if(GRAPH.endsWith(".net")) dgs = new FileSourcePajek();
+		else if(GRAPH.endsWith(".edge")) dgs = new FileSourceEdge();
+		else throw new RuntimeException("WTF?");
 
 		dgs.addSink(graph);
 		try {
 			dgs.begin(getClass().getResourceAsStream(GRAPH));
 			for (int i = 0; i < 5000 && dgs.nextEvents(); i++) {
-//				fromViewer.pump();
-//				layout.compute();
-//				sleep(100);
+				if(i%1==0) {
+				fromViewer.pump();
+				layout.compute();
+				findCommunities(1);
+				updateCC();
+				}
 			}
 			dgs.end();
 		} catch (IOException e1) {
@@ -130,10 +144,14 @@ public class TestLinLogLayout {
 			if (graph.hasAttribute("ui.viewClosed")) {
 				loop = false;
 			} else {
-				//sleep(1000);				
+//				System.out.print(" * compute ...");
+				//sleep(1);				
 				layout.compute();
-				findCommunities(1.3);
+//				System.out.print(" communities ...");
+				findCommunities(1);
+//				System.out.print(" CC ...");
 				updateCC();
+//				System.out.println(" OK");
 			}
 		}
 

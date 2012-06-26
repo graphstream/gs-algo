@@ -40,7 +40,7 @@ import org.graphstream.graph.implementations.MultiGraph;
 
 public class TestLayout {
 	public static void main(String args[]) {
-		System.getProperties().put("gs.ui.layout", "org.graphstream.ui.layout.springbox.implementations.LinLog");
+		//System.getProperties().put("gs.ui.layout", "org.graphstream.ui.layout.springbox.implementations.LinLog");
 		(new TestLayout()).test();
 	}
 	
@@ -48,16 +48,17 @@ public class TestLayout {
 		Graph graph = new MultiGraph("test");
 //		int steps = 50;
 //		Generator gen = new BarabasiAlbertGenerator(2);
-		int steps = 6;
-		Generator gen = new GridGenerator();
+//		int steps = 6;
+//		Generator gen = new GridGenerator();
 		
-		gen.addSink(graph);
-		gen.begin();
-		for(int i=0; i<steps; i++) {
-			gen.nextEvents();
-			sleep(10);
-		}
-		gen.end();
+//		gen.addSink(graph);
+//		gen.begin();
+//		for(int i=0; i<steps; i++) {
+//			gen.nextEvents();
+//			sleep(10);
+//		}
+//		gen.end();
+		try { graph.read("src-test/org/graphstream/ui/layout/test/data/WorldImport1999.edge"); } catch(Exception e) { e.printStackTrace(); }
 //		try { graph.write("grid7x7.dgs"); } catch(Exception e) { }
 		graph.display();
 	}
