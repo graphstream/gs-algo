@@ -32,6 +32,7 @@ package org.graphstream.ui.layout.test;
 import java.io.IOException;
 
 import org.graphstream.algorithm.ConnectedComponents;
+import org.graphstream.algorithm.measure.Modularity;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.MultiGraph;
@@ -61,11 +62,11 @@ import org.graphstream.ui.swingViewer.Viewer;
  *     +--------------------+
  * </pre>
  */
-public class TestLinLogLayout {
+public class DemoLinLogLayout {
 //	public static final String GRAPH = "data/dorogovtsev_mendes6000.dgs"; public static final double a= 0; public static final double r=-1.3; public static double force = 3;
-//	public static final String GRAPH = "data/karate.gml";		public static double a= 0; public static double r=-1.3; public static double force = 3;
+	public static final String GRAPH = "data/karate.gml";		public static double a= 0; public static double r=-1.3; public static double force = 3;
 //	public static final String GRAPH = "data/dolphins.gml";		public static double a= 0; public static double r=-1.2; public static double force = 8;
-	public static final String GRAPH = "data/polbooks.gml";		public static double a= 0; public static double r=-1.9; public static double force = 5;
+//	public static final String GRAPH = "data/polbooks.gml";		public static double a= 0; public static double r=-1.9; public static double force = 5;
 //	public static final String GRAPH = "data/triangles.dgs";	public static double a= 1; public static double r=-1; public static double force = 0.5;
 //	public static final String GRAPH = "data/FourClusters.dgs";	public static double a= 0; public static double r=-1; public static double force = 3;
 //	public static final String GRAPH = "data/grid7x7.dgs";		public static double a= 0; public static double r=-1; public static double force = 100;
@@ -79,36 +80,43 @@ public class TestLinLogLayout {
 	
 	protected LinLog layout;
 	
-	protected Sprite CC;
+	protected Sprite CC, M;
 	
 	protected ConnectedComponents cc;
 	
+	protected Modularity modularity;
+	
 	public static void main(String args[]) {
-		new TestLinLogLayout();
+		new DemoLinLogLayout();
 	}
 
-	public TestLinLogLayout() {
+	public DemoLinLogLayout() {
 		boolean loop = true;
 		graph = new MultiGraph("test");
-		viewer = new Viewer(new ThreadProxyPipe(graph));
+		viewer = graph.display(false);
 		ProxyPipe fromViewer = viewer.newThreadProxyOnGraphicGraph();
 		layout = new LinLog(false);
 		SpriteManager sm = new SpriteManager(graph);
 		CC = sm.addSprite("CC");
+		M  = sm.addSprite("M");
 		cc = new ConnectedComponents(graph);
+		modularity = new Modularity("component");
 		
+		modularity.init(graph);
 		cc.setCutAttribute("cut");
+		cc.setCountAttribute("component");
 		
 		CC.setPosition(Units.PX, 20, 20, 0);
+		M.setPosition(Units.PX, 20, 40, 0);
 		
 		layout.configure(a, r, true, force);
-		layout.setQuality(0);
+		layout.setQuality(1);
 		layout.setBarnesHutTheta(0.5);
 
 		graph.addAttribute("ui.antialias");
 		graph.addAttribute("ui.stylesheet", styleSheet);
 		fromViewer.addSink(graph);
-		viewer.addDefaultView(true);
+		//viewer.addDefaultView(true);
 		graph.addSink(layout);
 		layout.addAttributeSink(graph);
 
@@ -119,16 +127,17 @@ public class TestLinLogLayout {
 		else if(GRAPH.endsWith(".edge")) dgs = new FileSourceEdge();
 		else throw new RuntimeException("WTF?");
 
+		double cutThreshold = 0.8;
+		
 		dgs.addSink(graph);
 		try {
 			dgs.begin(getClass().getResourceAsStream(GRAPH));
 			for (int i = 0; i < 5000 && dgs.nextEvents(); i++) {
-				if(i%1==0) {
 				fromViewer.pump();
 				layout.compute();
-				findCommunities(1);
+				findCommunities(cutThreshold);
 				updateCC();
-				}
+				updateM();
 			}
 			dgs.end();
 		} catch (IOException e1) {
@@ -144,14 +153,10 @@ public class TestLinLogLayout {
 			if (graph.hasAttribute("ui.viewClosed")) {
 				loop = false;
 			} else {
-//				System.out.print(" * compute ...");
-				//sleep(1);				
 				layout.compute();
-//				System.out.print(" communities ...");
-				findCommunities(1);
-//				System.out.print(" CC ...");
+				findCommunities(cutThreshold);
 				updateCC();
-//				System.out.println(" OK");
+				updateM();
 			}
 		}
 
@@ -187,6 +192,10 @@ public class TestLinLogLayout {
 		CC.setAttribute("ui.label", String.format("CC %d", cc.getConnectedComponentsCount()));
 	}
 	
+	protected void updateM() {
+		M.setAttribute("ui.label", String.format("M  %f", modularity.getMeasure()));
+	}
+	
 	protected static void sleep(long ms) {
 		try { Thread.sleep(ms); } catch(Exception e) {} 
 	}
@@ -195,5 +204,6 @@ public class TestLinLogLayout {
 		"node { size: 7px; fill-color: rgb(150,150,150); }" +
 		"edge { fill-color: rgb(255,50,50); size: 2px; }" +
 		"edge.cut { fill-color: rgba(200,200,200,128); }" +
-		"sprite#CC { size: 0px; text-color: rgb(100,100,100); text-size: 20; }";
+		"sprite#CC { size: 0px; text-color: rgb(150,100,100); text-size: 20; }" +
+		"sprite#M  { size: 0px; text-color: rgb(100,150,100); text-size: 20; }";
 }

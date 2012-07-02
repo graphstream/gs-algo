@@ -104,7 +104,6 @@ public class Modularity extends CommunityMeasure {
 	 */
 	@Override
 	public void compute() {
-
 		if (graphChanged) {
 			double[][] E = modularityMatrix(graph, communities, weightMarker);
 			M = modularity(E);

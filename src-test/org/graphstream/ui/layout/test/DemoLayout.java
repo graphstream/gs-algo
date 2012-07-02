@@ -38,10 +38,10 @@ import org.graphstream.algorithm.generator.GridGenerator;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.MultiGraph;
 
-public class TestLayout {
+public class DemoLayout {
 	public static void main(String args[]) {
 		//System.getProperties().put("gs.ui.layout", "org.graphstream.ui.layout.springbox.implementations.LinLog");
-		(new TestLayout()).test();
+		(new DemoLayout()).test();
 	}
 	
 	public void test() {
