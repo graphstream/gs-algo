@@ -41,6 +41,8 @@ import org.graphstream.graph.ElementNotFoundException;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.MultiGraph;
 import org.graphstream.stream.GraphParseException;
+import org.graphstream.ui.spriteManager.Sprite;
+import org.graphstream.ui.spriteManager.SpriteManager;
 
 public class DemoLayout {
 	public static void main(String args[]) throws ElementNotFoundException, IOException, GraphParseException {
@@ -50,7 +52,12 @@ public class DemoLayout {
 	
 	public void test() throws ElementNotFoundException, IOException, GraphParseException {
 		Graph graph = new MultiGraph("test");
+		SpriteManager sm = new SpriteManager(graph);
+		Sprite C = sm.addSprite("C");
+		C.setPosition(0, 0, 0);
+		C.setAttribute("ui.label", "(0,0)");
 		graph.display();
+		graph.addAttribute("ui.stylesheet", styleSheet);
 		graph.addAttribute("layout.stabilization-limit", 1);
 		graph.addAttribute("layout.quality", 3);
 		graph.addAttribute("layout.gravity", 0.01);
@@ -66,11 +73,15 @@ public class DemoLayout {
 //			sleep(10);
 //		}
 //		gen.end();
-		graph.read("src-test/org/graphstream/ui/layout/test/data/fourComponents.dgs");
-//		graph.read("src-test/org/graphstream/ui/layout/test/data/polbooks.gml");
+//		graph.read("src-test/org/graphstream/ui/layout/test/data/fourComponents.dgs");
+		graph.read("src-test/org/graphstream/ui/layout/test/data/polbooks.gml");
+//		graph.read("src-test/org/graphstream/ui/layout/test/data/dolphins.gml");
 	}
 	
 	public static void sleep(long ms) {
 		try { Thread.sleep(ms); } catch(Exception e) {}
 	}
+	
+	protected static final String styleSheet = 
+			"sprite#C { fill-color: red; text-color: red; }";
 }
