@@ -32,20 +32,28 @@
 
 package org.graphstream.ui.layout.test;
 
+import java.io.IOException;
+
 import org.graphstream.algorithm.generator.BarabasiAlbertGenerator;
 import org.graphstream.algorithm.generator.Generator;
 import org.graphstream.algorithm.generator.GridGenerator;
+import org.graphstream.graph.ElementNotFoundException;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.MultiGraph;
+import org.graphstream.stream.GraphParseException;
 
 public class DemoLayout {
-	public static void main(String args[]) {
+	public static void main(String args[]) throws ElementNotFoundException, IOException, GraphParseException {
 		//System.getProperties().put("gs.ui.layout", "org.graphstream.ui.layout.springbox.implementations.LinLog");
 		(new DemoLayout()).test();
 	}
 	
-	public void test() {
+	public void test() throws ElementNotFoundException, IOException, GraphParseException {
 		Graph graph = new MultiGraph("test");
+		graph.display();
+		graph.addAttribute("layout.stabilization-limit", 1);
+		graph.addAttribute("layout.quality", 3);
+		graph.addAttribute("layout.gravity", 0.01);
 //		int steps = 50;
 //		Generator gen = new BarabasiAlbertGenerator(2);
 //		int steps = 6;
@@ -58,9 +66,8 @@ public class DemoLayout {
 //			sleep(10);
 //		}
 //		gen.end();
-		try { graph.read("src-test/org/graphstream/ui/layout/test/data/WorldImport1999.edge"); } catch(Exception e) { e.printStackTrace(); }
-//		try { graph.write("grid7x7.dgs"); } catch(Exception e) { }
-		graph.display();
+		graph.read("src-test/org/graphstream/ui/layout/test/data/fourComponents.dgs");
+//		graph.read("src-test/org/graphstream/ui/layout/test/data/polbooks.gml");
 	}
 	
 	public static void sleep(long ms) {
