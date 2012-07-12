@@ -363,7 +363,7 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 		normDiff = 0;
 		for (int i = 0; i < graph.getNodeCount(); i++) {
 			Node node = graph.getNode(i);
-			double currentRank = node.getAttribute(rankAttribute);
+			double currentRank = node.getNumber(rankAttribute);
 			double newRank = newRanks.get(i) + danglingRank;
 			normDiff += Math.abs(newRank - currentRank);
 			node.addAttribute(rankAttribute, newRank);
