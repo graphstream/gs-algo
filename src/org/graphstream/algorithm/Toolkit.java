@@ -219,6 +219,135 @@ public class Toolkit extends
 	// Access
 
 	/**
+	 * Compute the weighted degree of a given node. For each entering
+	 * and leaving edge the value contained by the 'weightAttribute' is
+	 * considered. If the edge does not have such an attribute, the value
+	 * one is used instead, resolving to a normal degree. Loop edges are counted
+	 * twice. The 'weightAttribute' must contain a number or the default value
+	 * is used.
+	 * @param node The node to consider.
+	 * @param weightAttribute The name of the attribute to look for weights on edges, it must be a number.
+	 * @return The weighted degree. 
+	 */
+	public static double weightedDegree(Node node, String weightAttribute) {
+		return weightedDegree(node, weightAttribute, 1);
+	}
+
+	/**
+	 * Compute the weighted degree of a given node. For each entering
+	 * and leaving edge the value contained by the 'weightAttribute' is
+	 * considered. If the edge does not have such an attribute, the value
+	 * `defaultWeightValue` is used instead. Loop edges are counted twice.
+	 * The 'weightAttribute' must contain a number or the default value
+	 * is used.
+	 * @param node The node to consider.
+	 * @param weightAttribute The name of the attribute to look for weights on edges, it must be a number.
+	 * @param defaultWeightValue The default weight value to use if edges do not have the 'weightAttribute'.
+	 * @return The weighted degree. 
+	 */
+	public static double weightedDegree(Node node, String weightAttribute, double defaultWeightValue) {
+		double wdegree = 0;
+		
+		for(Edge edge:node.getEachEdge()) {
+			if(edge.hasNumber(weightAttribute)) {
+				if(edge.getSourceNode() == edge.getTargetNode()) 
+				     wdegree += edge.getNumber(weightAttribute) * 2;
+				else wdegree += edge.getNumber(weightAttribute);
+			} else {
+				if(edge.getSourceNode() == edge.getTargetNode())
+				     wdegree += defaultWeightValue * 2;
+				else wdegree += defaultWeightValue;
+			}
+		}
+		
+		return wdegree;
+	}
+
+	/**
+	 * Compute the weighted entering degree of a given node. For each
+	 * entering edge the value contained by the 'weightAttribute' is
+	 * considered. If the edge does not have such an attribute, the value
+	 * one is used instead, resolving to a normal degree. Loop edges are counted once
+	 * if directed, but twice if undirected. The 'weightAttribute' must
+	 * contain a number or the default value is used.
+	 * @param node The node to consider.
+	 * @param weightAttribute The name of the attribute to look on edges, it must be a number.
+	 * @param defaultWeightValue The default weight value to use if edges do not have the 'weightAttribute'.
+	 * @return The entering weighted degree.
+	 */
+	public static double enteringWeightedDegree(Node node, String weightAttribute) {
+		return enteringWeightedDegree(node, weightAttribute, 1);
+	}
+
+	/**
+	 * Compute the weighted entering degree of a given node. For each
+	 * entering edge the value contained by the 'weightAttribute' is
+	 * considered. If the edge does not have such an attribute, the value
+	 * 'defaultWeightValue' is used instead. Loop edges are counted once
+	 * if directed, but twice if undirected. The 'weightAttribute' must
+	 * contain a number or the default value is used.
+	 * @param node The node to consider.
+	 * @param weightAttribute The name of the attribute to look on edges, it must be a number.
+	 * @param defaultWeightValue The default weight value to use if edges do not have the 'weightAttribute'.
+	 * @return The entering weighted degree.
+	 */
+	public static double enteringWeightedDegree(Node node, String weightAttribute, double defaultWeightValue) {
+		double wdegree = 0;
+		
+		for(Edge edge:node.getEnteringEdgeSet()) {
+			if(edge.hasNumber(weightAttribute)) {
+				wdegree += edge.getNumber(weightAttribute);
+			} else {
+				wdegree += defaultWeightValue;
+			}
+		}
+		
+		return wdegree;
+	}
+
+	/**
+	 * Compute the weighted leaving degree of a given node. For each
+	 * leaving edge the value contained by the 'weightAttribute' is
+	 * considered. If the edge does not have such an attribute, the value
+	 * one is used instead, resolving to a normal degree. Loop edges are counted once
+	 * if directed, but twice if undirected. The 'weightAttribute' must
+	 * contain a number or the default value is used.
+	 * @param node The node to consider.
+	 * @param weightAttribute The name of the attribute to look on edges, it must be a number.
+	 * @param defaultWeightValue The default weight value to use if edges do not have the 'weightAttribute'.
+	 * @return The leaving weighted degree.
+	 */
+	public static double leavingWeightedDegree(Node node, String weightAttribute) {
+		return leavingWeightedDegree(node, weightAttribute, 1);
+	}
+
+	/**
+	 * Compute the weighted leaving degree of a given node. For each
+	 * leaving edge the value contained by the 'weightAttribute' is
+	 * considered. If the edge does not have such an attribute, the value
+	 * 'defaultWeightValue' is used instead. Loop edges are counted once
+	 * if directed, but twice if undirected. The 'weightAttribute' must
+	 * contain a number or the default value is used.
+	 * @param node The node to consider.
+	 * @param weightAttribute The name of the attribute to look on edges, it must be a number.
+	 * @param defaultWeightValue The default weight value to use if edges do not have the 'weightAttribute'.
+	 * @return The leaving weighted degree.
+	 */
+	public static double leavingWeightedDegree(Node node, String weightAttribute, double defaultWeightValue) {
+		double wdegree = 0;
+		
+		for(Edge edge:node.getLeavingEdgeSet()) {
+			if(edge.hasNumber(weightAttribute)) {
+				wdegree += edge.getNumber(weightAttribute);
+			} else {
+				wdegree += defaultWeightValue;
+			}
+		}
+		
+		return wdegree;
+	}
+	
+	/**
 	 * Compute the degree distribution of this graph. Each cell of the returned
 	 * array contains the number of nodes having degree n where n is the index
 	 * of the cell. For example cell 0 counts how many nodes have zero edges,
@@ -272,6 +401,59 @@ public class Toolkit extends
 		});
 
 		return map;
+	}
+
+	/**
+	 * Return a list of nodes sorted by their weighted degree, the larger first.
+	 *
+	 * @param graph The graph to consider.
+	 * @param weightAttribute The name of the attribute to look for weights on edges, it must be a number, or the default value is used.
+	 * @param defaultWeightValue The value to use if the weight attribute is not found on edges.
+	 * @return The degree map.
+	 * @complexity O(n log(n)) where n is the number of nodes.
+	 * @see #weightedDegree(Node, String, double)
+	 */
+	public static ArrayList<Node> weightedDegreeMap(Graph graph, String weightAttribute, double defaultWeightValue) {
+		ArrayList<Node> map = new ArrayList<Node>();
+
+		for (Node node : graph)
+			map.add(node);
+
+		Collections.sort(map, new WeightComparator(weightAttribute, defaultWeightValue));
+
+		return map;
+	}
+
+	/**
+	 * Return a list of nodes sorted by their weighted degree, the larger first.
+	 * 
+	 * @param graph The graph to consider.
+	 * @param weightAttribute The name of the attribute to look for weights on edges, it must be a number, or the default value of one is used.
+	 * @return The degree map.
+	 * @complexity O(n log(n)) where n is the number of nodes.
+	 * @see #weightedDegree(Node, String, double)
+	 */
+	public static ArrayList<Node> weightedDegreeMap(Graph graph, String weightAttribute) {
+		return weightedDegreeMap(graph, weightAttribute, 1);
+	}
+	
+	/**
+	 * Compare nodes by their weighted degree.
+	 */
+	private static class WeightComparator implements Comparator<Node> {
+		private String weightAttribute = "weight";
+		private double defaultWeightValue = 1;
+		public WeightComparator(String watt, double dwv) {
+			this.weightAttribute = watt;
+			this.defaultWeightValue = dwv;
+		}
+		public int compare(Node a, Node b) {
+			double bw = weightedDegree(b, weightAttribute, defaultWeightValue);
+			double ba = weightedDegree(a, weightAttribute, defaultWeightValue);
+			if(bw < ba) return -1;
+			else if(bw > ba) return 1;
+			else return 0;
+		}
 	}
 
 	/**
