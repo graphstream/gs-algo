@@ -236,7 +236,8 @@ public abstract class AbstractSpanningTree implements Algorithm {
 	 * Set value used to set that an edge is not in the spanning tree.
 	 * 
 	 * @param newFlagOff
-	 *            off value. If {@code null} edges out of the tree are not tagged.
+	 *            off value. If {@code null} edges out of the tree are not
+	 *            tagged.
 	 * @throws IllegalStateException
 	 *             if {@link #init(Graph)} is already called
 	 */
@@ -280,7 +281,8 @@ public abstract class AbstractSpanningTree implements Algorithm {
 	}
 
 	/**
-	 * Reset flag attribute values. All edges are tagged as being out of the tree.
+	 * Reset flag attribute values. All edges are tagged as being out of the
+	 * tree.
 	 */
 	protected void resetFlags() {
 		for (Edge edge : graph.getEachEdge())
@@ -297,13 +299,15 @@ public abstract class AbstractSpanningTree implements Algorithm {
 
 	/**
 	 * An iterator on the tree edges.
+	 * 
 	 * @return An iterator on the tree edges
 	 */
 	public abstract <T extends Edge> Iterator<T> getTreeEdgesIterator();
 
-	
 	/**
-	 * Iterable view of the spanning tree edges. This implementation uses {@link #getTreeEdgesIterator()}.
+	 * Iterable view of the spanning tree edges. This implementation uses
+	 * {@link #getTreeEdgesIterator()}.
+	 * 
 	 * @return Iterable view of the tree edges.
 	 */
 	public <T extends Edge> Iterable<T> getTreeEdges() {
@@ -312,6 +316,16 @@ public abstract class AbstractSpanningTree implements Algorithm {
 				return getTreeEdgesIterator();
 			}
 		};
+	}
+
+	/**
+	 * Removes the tags of all edges. Use this method to save memory if the
+	 * spanning tree is used no more.
+	 */
+	public void clear() {
+		if (flagAttribute != null)
+			for (Edge edge : graph.getEachEdge())
+				edge.removeAttribute(flagAttribute);
 	}
 
 	// Algorithm interface

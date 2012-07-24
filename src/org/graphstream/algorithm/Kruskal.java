@@ -40,8 +40,6 @@ import org.graphstream.algorithm.util.DisjointSets;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
-
-
 /**
  * Compute a spanning tree using the Kruskal algorithm.
  * 
@@ -54,7 +52,7 @@ import org.graphstream.graph.Node;
  * <h2>Example</h2>
  * 
  * The following example generates a graph with the Dorogovtsev-Mendes generator
- * and then compute a spanning-tree using the Kruskal algorithm. The generator
+ * and then computes a spanning-tree using the Kruskal algorithm. The generator
  * creates random weights for edges that will be used by the Kruskal algorithm.
  * 
  * If no weight is present, algorithm considers that all weights are set to 1.
@@ -100,7 +98,8 @@ import org.graphstream.graph.Node;
  * }
  * </pre>
  * 
- * @complexity m*(log(m)+3)+n+n<sup>2</sup>, m = |E|, n = |V|
+ * @complexity O(m log n) where m is the number of edges and n is the number of
+ *             nodes of the graph
  * @reference Joseph. B. Kruskal: On the Shortest Spanning Subtree of a Graph
  *            and the Traveling Salesman Problem. In: Proceedings of the
  *            American Mathematical Society, Vol 7, No. 1 (Feb, 1956), pp. 48–50
@@ -108,24 +107,37 @@ import org.graphstream.graph.Node;
  * 
  */
 public class Kruskal extends AbstractSpanningTree {
-	public static final String DEFAULT_WEIGHT_ATTRIBUTE = "weight";
-	
 	/**
-	 * Attribute which will be used to compare edges.
+	 * Default weight attribute
+	 */
+	public static final String DEFAULT_WEIGHT_ATTRIBUTE = "weight";
+
+	/**
+	 * Attribute where the weights of the edges are stored
 	 */
 	protected String weightAttribute;
-	
+
+	/**
+	 * List of the tree edges. Used by the iterator.
+	 */
 	protected List<Edge> treeEdges;
 
 	/**
-	 * Create a new Kruskal's algorithm.
+	 * The weight of the spanning tree
+	 */
+	protected double treeWeight;
+
+	/**
+	 * Create a new Kruskal's algorithm. Uses the default weight attribute and
+	 * does not tag the edges.
 	 */
 	public Kruskal() {
 		this(DEFAULT_WEIGHT_ATTRIBUTE, null);
 	}
 
 	/**
-	 * Create a new Kruskal's algorithm.
+	 * Create a new Kruskal's algorithm. The value of the flag attribute is
+	 * {@code true} for the tree edges and false for the non-tree edges.
 	 * 
 	 * @param weightAttribute
 	 *            attribute used to compare edges
@@ -137,7 +149,7 @@ public class Kruskal extends AbstractSpanningTree {
 	}
 
 	/**
-	 * Create a new Kruskal's algorithm.
+	 * Create a new Kruskal's algorithm. Uses the default weight attribute.
 	 * 
 	 * @param flagAttribute
 	 *            attribute used to set if an edge is in the spanning tree
@@ -174,12 +186,12 @@ public class Kruskal extends AbstractSpanningTree {
 	}
 
 	/**
-	 * Get key attribute used to compare edges.
+	 * Get weight attribute used to compare edges.
 	 * 
 	 * @return weight attribute
 	 */
 	public String getWeightAttribute() {
-		return this.weightAttribute;
+		return weightAttribute;
 	}
 
 	/**
@@ -198,18 +210,21 @@ public class Kruskal extends AbstractSpanningTree {
 			treeEdges = new LinkedList<Edge>();
 		else
 			treeEdges.clear();
-		
+
 		List<Edge> sortedEdges = new ArrayList<Edge>(graph.getEdgeSet());
 		Collections.sort(sortedEdges, new EdgeComparator());
-		
-		DisjointSets<Node> components = new DisjointSets<Node>(graph.getNodeCount());
+
+		DisjointSets<Node> components = new DisjointSets<Node>(
+				graph.getNodeCount());
 		for (Node node : graph)
 			components.add(node);
-		
+				
+		treeWeight = 0;
 		for (Edge edge : sortedEdges)
 			if (components.union(edge.getNode0(), edge.getNode1())) {
 				treeEdges.add(edge);
 				edgeOn(edge);
+				treeWeight += getWeight(edge);
 				if (treeEdges.size() == graph.getNodeCount() - 1)
 					break;
 			}
@@ -219,12 +234,26 @@ public class Kruskal extends AbstractSpanningTree {
 
 	@Override
 	public <T extends Edge> Iterator<T> getTreeEdgesIterator() {
-		// TODO Auto-generated method stub
-		return null;
+		return new TreeIterator<T>();
 	}
-	
-	
+
+	@Override
+	public void clear() {
+		super.clear();
+		treeEdges.clear();
+	}
+
+	/**
+	 * Returns the total weight of the minimum spanning tree
+	 * 
+	 * @return The sum of the weights of the edges in the spanning tree
+	 */
+	public double getTreeWeight() {
+		return treeWeight;
+	}
+
 	// helpers
+
 	protected double getWeight(Edge e) {
 		if (weightAttribute == null)
 			return 1.0;
@@ -233,7 +262,7 @@ public class Kruskal extends AbstractSpanningTree {
 			return 1;
 		return w;
 	}
-	
+
 	protected class EdgeComparator implements Comparator<Edge> {
 		public int compare(Edge arg0, Edge arg1) {
 			double w0 = getWeight(arg0);
@@ -243,6 +272,25 @@ public class Kruskal extends AbstractSpanningTree {
 			if (w0 > w1)
 				return 1;
 			return 0;
+		}
+	}
+
+	protected class TreeIterator<T extends Edge> implements Iterator<T> {
+
+		protected Iterator<Edge> it = treeEdges.iterator();
+
+		public boolean hasNext() {
+			return it.hasNext();
+		}
+
+		@SuppressWarnings("unchecked")
+		public T next() {
+			return (T) it.next();
+		}
+
+		public void remove() {
+			throw new UnsupportedOperationException(
+					"This iterator does not support remove.");
 		}
 	}
 }
