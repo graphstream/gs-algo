@@ -358,4 +358,10 @@ public class Kruskal extends AbstractSpanningTree {
 			return o instanceof WeightEdgeComparator;
 		}
 	}
+
+	@Override
+	public <T extends Edge> Iterator<T> getTreeEdgesIterator() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

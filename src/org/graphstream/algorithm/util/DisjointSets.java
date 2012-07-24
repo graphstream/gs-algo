@@ -114,11 +114,13 @@ public class DisjointSets<E> {
 	}
 
 	/**
-	 * Adds a new set containing only {@code e} to the structure. If {@code e} already belongs
-	 * to some of the disjoint sets, nothing happens.
+	 * Adds a new set containing only {@code e} to the structure. If {@code e}
+	 * already belongs to some of the disjoint sets, nothing happens.
 	 * 
-	 * @param e The element to add as a singleton
-	 * @return True if the new set is added and false if {@code e} already belongs to some set.
+	 * @param e
+	 *            The element to add as a singleton
+	 * @return True if the new set is added and false if {@code e} already
+	 *         belongs to some set.
 	 */
 	public boolean add(E e) {
 		Node x = map.get(e);
@@ -130,10 +132,14 @@ public class DisjointSets<E> {
 
 	/**
 	 * Checks if two elements belong to the same set.
-	 * @param e1 An element
-	 * @param e2 An element
-	 * @return True if and only if belong to the same set.
-	 * Note that if {@code e1} or {@code e2} do not belong to any set, false is returned.
+	 * 
+	 * @param e1
+	 *            An element
+	 * @param e2
+	 *            An element
+	 * @return True if and only if belong to the same set. Note that if
+	 *         {@code e1} or {@code e2} do not belong to any set, false is
+	 *         returned.
 	 */
 	public boolean inSameSet(Object e1, Object e2) {
 		Node x1 = map.get(e1);
@@ -146,10 +152,15 @@ public class DisjointSets<E> {
 	}
 
 	/**
-	 * Union of the set containing {@code e1} and the set containing {@code e2}. After this operation {@code inSameSet(e1, e2)} will return true.
-	 * If {@code e1} or {@code e2} do not belong to any set or if they already belong to the same set, nothing happens.
-	 * @param e1 An element
-	 * @param e2 An element
+	 * Union of the set containing {@code e1} and the set containing {@code e2}.
+	 * After this operation {@code inSameSet(e1, e2)} will return true. If
+	 * {@code e1} or {@code e2} do not belong to any set or if they already
+	 * belong to the same set, nothing happens.
+	 * 
+	 * @param e1
+	 *            An element
+	 * @param e2
+	 *            An element
 	 */
 	public void union(Object e1, Object e2) {
 		Node x1 = map.get(e1);
@@ -163,15 +174,18 @@ public class DisjointSets<E> {
 
 	/**
 	 * Checks if an element belongs to some of the disjoint sets.
-	 * @param e An element
+	 * 
+	 * @param e
+	 *            An element
 	 * @return True if {@code e} belongs to some set.
 	 */
 	public boolean contains(Object e) {
 		return map.get(e) != null;
 	}
-	
+
 	/**
-	 * Reinitializes the structure. After this operation the structure contains no sets.
+	 * Reinitializes the structure. After this operation the structure contains
+	 * no sets.
 	 */
 	public void clear() {
 		for (Node node : map.values())
