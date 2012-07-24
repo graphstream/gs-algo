@@ -72,11 +72,11 @@ public class DisjointSets<E> {
 			return parent;
 		}
 
-		protected void join(Node node) {
+		protected boolean join(Node node) {
 			Node x = root();
 			Node y = node.root();
 			if (x == y)
-				return;
+				return false;
 			if (x.rank > y.rank)
 				y.parent = x;
 			else {
@@ -84,6 +84,7 @@ public class DisjointSets<E> {
 				if (x.rank == y.rank)
 					y.rank++;
 			}
+			return true;
 		}
 	}
 
@@ -161,15 +162,16 @@ public class DisjointSets<E> {
 	 *            An element
 	 * @param e2
 	 *            An element
+	 * @return {@code true} if and only if {@code e1} and {@code e2} belong to different sets at the beginning
 	 */
-	public void union(Object e1, Object e2) {
+	public boolean union(Object e1, Object e2) {
 		Node x1 = map.get(e1);
 		if (x1 == null)
-			return;
+			return false;
 		Node x2 = map.get(e2);
 		if (x2 == null)
-			return;
-		x1.join(x2);
+			return false;
+		return x1.join(x2);
 	}
 
 	/**

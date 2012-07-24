@@ -29,13 +29,18 @@
  */
 package org.graphstream.algorithm;
 
-import org.graphstream.graph.Edge;
-import org.graphstream.graph.Node;
-
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+import org.graphstream.algorithm.util.DisjointSets;
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.Node;
+
+
 
 /**
  * Compute a spanning tree using the Kruskal algorithm.
@@ -103,26 +108,20 @@ import java.util.Iterator;
  * 
  */
 public class Kruskal extends AbstractSpanningTree {
+	public static final String DEFAULT_WEIGHT_ATTRIBUTE = "weight";
+	
 	/**
 	 * Attribute which will be used to compare edges.
 	 */
 	protected String weightAttribute;
-
-	/**
-	 * Attribute used to clusterize the graph.
-	 */
-	protected String clusterAttribute = "Kruskal.cluster";
-
-	/**
-	 * List of edges that will be added to the tree.
-	 */
-	protected LinkedList<Edge> edgesToTreat;
+	
+	protected List<Edge> treeEdges;
 
 	/**
 	 * Create a new Kruskal's algorithm.
 	 */
 	public Kruskal() {
-		this("weight", "Kruskal.flag");
+		this(DEFAULT_WEIGHT_ATTRIBUTE, null);
 	}
 
 	/**
@@ -150,7 +149,7 @@ public class Kruskal extends AbstractSpanningTree {
 	 *            spanning tree
 	 */
 	public Kruskal(String flagAttribute, Object flagOn, Object flagOff) {
-		this("weight", flagAttribute, flagOn, flagOff);
+		this(DEFAULT_WEIGHT_ATTRIBUTE, flagAttribute, flagOn, flagOff);
 	}
 
 	/**
@@ -172,7 +171,6 @@ public class Kruskal extends AbstractSpanningTree {
 		super(flagAttribute, flagOn, flagOff);
 
 		this.weightAttribute = weightAttribute;
-		this.edgesToTreat = new LinkedList<Edge>();
 	}
 
 	/**
@@ -194,174 +192,57 @@ public class Kruskal extends AbstractSpanningTree {
 		this.weightAttribute = newWeightAttribute;
 	}
 
-	// Protected Access
-
-	/**
-	 * Sort edges using <i>weightAttribute</i> to compare.
-	 */
-	protected void sortEdgesByWeight() {
-		Collections.sort(edgesToTreat, new WeightEdgeComparator());
-	}
-
-	/**
-	 * Create the <i>edgesToTreat</i> list. Also check if all edges as a
-	 * <i>weightAttribute</i> which is an instance of Comparable.
-	 * 
-	 * @see java.lang.Comparable
-	 */
-	protected void buildAndCheck() {
-		Iterator<? extends Edge> iteE;
-		boolean error = false;
-
-		edgesToTreat.clear();
-
-		iteE = this.graph.getEdgeIterator();
-
-		while (iteE.hasNext()) {
-			edgesToTreat.addLast(iteE.next());
-			if (!edgesToTreat.getLast().hasAttribute(weightAttribute,
-					Comparable.class)) {
-				error = true;
-			}
-		}
-
-		if (error) {
-			System.err
-					.printf("*** error *** Kruskal's algorithm: some weight are not comparable%n");
-		}
-	}
-
-	/**
-	 * Reset cluster and flag attribute values.
-	 */
-	@Override
-	protected void resetFlags() {
-		super.resetFlags();
-
-		Iterator<? extends Node> iteN;
-		int cluster = 0;
-
-		iteN = this.graph.getNodeIterator();
-
-		while (iteN.hasNext()) {
-			iteN.next().setAttribute(clusterAttribute, cluster++);
-		}
-	}
-
-	/**
-	 * Get weight of an edge.
-	 * 
-	 * @param e
-	 *            an edge
-	 * @return weight of <i>e</i>
-	 */
-	protected Double getWeight(Edge e) {
-		if (!e.hasNumber(weightAttribute))
-			return Double.valueOf(1);
-
-		return e.getNumber(weightAttribute);
-	}
-
-	/**
-	 * Get cluster of a node.
-	 * 
-	 * @param n
-	 *            a node
-	 * @return cluster of <i>n</i>
-	 */
-	protected int getCluster(Node n) {
-		return (Integer) n.getAttribute(clusterAttribute);
-	}
-
-	/**
-	 * Build the spanning tree.
-	 */
 	@Override
 	protected void makeTree() {
-		buildAndCheck();
-		sortEdgesByWeight();
-
-		int treeSize = 0, c1, c2;
-		Edge e = null;
-
-		while (treeSize < graph.getNodeCount() - 1) {
-			if (edgesToTreat.size() == 0) {
-				System.err
-						.printf("*** warning *** Kruskal's algorithm: error while making tree%n");
-				break;
+		if (treeEdges == null)
+			treeEdges = new LinkedList<Edge>();
+		else
+			treeEdges.clear();
+		
+		List<Edge> sortedEdges = new ArrayList<Edge>(graph.getEdgeSet());
+		Collections.sort(sortedEdges, new EdgeComparator());
+		
+		DisjointSets<Node> components = new DisjointSets<Node>(graph.getNodeCount());
+		for (Node node : graph)
+			components.add(node);
+		
+		for (Edge edge : sortedEdges)
+			if (components.union(edge.getNode0(), edge.getNode1())) {
+				treeEdges.add(edge);
+				edgeOn(edge);
+				if (treeEdges.size() == graph.getNodeCount() - 1)
+					break;
 			}
-
-			e = edgesToTreat.poll();
-			c1 = getCluster(e.getNode0());
-			c2 = getCluster(e.getNode1());
-
-			if (c1 != c2) {
-				edgeOn(e);
-				treeSize++;
-				mergeClusters(e.getNode0(), e.getNode1());
-			}
-		}
-	}
-
-	/**
-	 * Merge two clusters.
-	 * 
-	 * @param n0
-	 *            first node
-	 * @param n1
-	 *            second node
-	 */
-	protected void mergeClusters(Node n0, Node n1) {
-		int c1 = getCluster(n0);
-		int c2 = getCluster(n1);
-
-		LinkedList<Node> pool = new LinkedList<Node>();
-		Node current = null;
-		Iterator<? extends Node> iteN = null;
-
-		pool.add(n1);
-
-		while (pool.size() > 0) {
-			current = pool.poll();
-			current.setAttribute(clusterAttribute, c1);
-
-			iteN = current.getNeighborNodeIterator();
-			while (iteN.hasNext()) {
-				current = iteN.next();
-				if (getCluster(current) == c2 && !pool.contains(current)) {
-					pool.add(current);
-				}
-			}
-		}
-	}
-
-	// Stuff needed to work
-
-	/**
-	 * A comparator which uses the <i>weightAttribute</i> of its parent's class
-	 * to compare edges.
-	 */
-	private final class WeightEdgeComparator implements Comparator<Edge> {
-		/**
-		 * Compare two edges.
-		 * 
-		 * @return an integer less than 0 if e1 less than e2, more than 0 if e1
-		 *         more than e2
-		 */
-		@SuppressWarnings("all")
-		public int compare(Edge e1, Edge e2) {
-			return getWeight(e1).compareTo(getWeight(e2));
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			return o instanceof WeightEdgeComparator;
-		}
+		sortedEdges.clear();
+		components.clear();
 	}
 
 	@Override
 	public <T extends Edge> Iterator<T> getTreeEdgesIterator() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	
+	// helpers
+	protected double getWeight(Edge e) {
+		if (weightAttribute == null)
+			return 1.0;
+		double w = e.getNumber(weightAttribute);
+		if (Double.isNaN(w))
+			return 1;
+		return w;
+	}
+	
+	protected class EdgeComparator implements Comparator<Edge> {
+		public int compare(Edge arg0, Edge arg1) {
+			double w0 = getWeight(arg0);
+			double w1 = getWeight(arg1);
+			if (w0 < w1)
+				return -1;
+			if (w0 > w1)
+				return 1;
+			return 0;
+		}
 	}
 }
