@@ -29,13 +29,11 @@
  */
 package org.graphstream.algorithm;
 
+import java.util.LinkedList;
+
+import org.graphstream.algorithm.util.FibonacciHeap;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
-
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Comparator;
-import java.util.Collections;
 
 /**
  * Compute a spanning tree using the Prim algorithm.
@@ -68,54 +66,53 @@ import java.util.Collections;
  * import org.graphstream.algorithm.generator.DorogovtsevMendesGenerator;
  * 
  * public class PrimTest {
- *  
- * 	public static void main(String ... args) {
- * 		DorogovtsevMendesGenerator gen = new DorogovtsevMendesGenerator();
- * 		Graph graph = new DefaultGraph("Prim Test");
  * 
- *  	String css = "edge .notintree {size:1px;fill-color:gray;} " +
- *  				 "edge .intree {size:3px;fill-color:black;}";
- *  
- * 		graph.addAttribute("ui.stylesheet", css);
+ * 	public static void main(String... args) {
+ * 		DorogovtsevMendesGenerator gen = new DorogovtsevMendesGenerator();
+ * 		Graph graph = new DefaultGraph(&quot;Prim Test&quot;);
+ * 
+ * 		String css = &quot;edge .notintree {size:1px;fill-color:gray;} &quot;
+ * 				+ &quot;edge .intree {size:3px;fill-color:black;}&quot;;
+ * 
+ * 		graph.addAttribute(&quot;ui.stylesheet&quot;, css);
  * 		graph.display();
  * 
- * 		gen.addEdgeAttribute("weight");
+ * 		gen.addEdgeAttribute(&quot;weight&quot;);
  * 		gen.setEdgeAttributesRange(1, 100);
  * 		gen.addSink(graph);
  * 		gen.begin();
- * 		for (int i = 0; i < 100 && gen.nextEvents(); i++)
+ * 		for (int i = 0; i &lt; 100 &amp;&amp; gen.nextEvents(); i++)
  * 			;
  * 		gen.end();
  * 
- * 		Prim prim = new Prim("ui.class", "intree", "notintree");
+ * 		Prim prim = new Prim(&quot;ui.class&quot;, &quot;intree&quot;, &quot;notintree&quot;);
  * 
  * 		prim.init(graph);
  * 		prim.compute();
- *  }
+ * 	}
  * }
  * </pre>
  * 
- * @complexity 0(m+m<sup>2</sup>log(m)), where m = |E|
+ * @complexity 0(m + n log n), where m is the number of edges and n is the
+ *             number of nodes in the graph
  * @reference R. C. Prim: Shortest connection networks and some generalizations.
  *            In: Bell System Technical Journal, 36 (1957), pp. 1389–1401
  * @see org.graphstream.algorithm.AbstractSpanningTree
  * 
  */
-public class Prim extends AbstractSpanningTree {
-	/**
-	 * Attribute key which will be used to compare edges.
-	 */
-	protected String weightAttribute;
+public class Prim extends Kruskal {
 
 	/**
-	 * Create a new Prim's algorithm.
+	 * Create a new Prim's algorithm. Uses the default weight attribute and
+	 * does not tag the edges.
 	 */
 	public Prim() {
-		this("weight", "Kruskal.flag");
+		super();
 	}
 
 	/**
-	 * Create a new Prim's algorithm.
+	 * Create a new Prim's algorithm. The value of the flag attribute is
+	 * {@code true} for the tree edges and false for the non-tree edges.
 	 * 
 	 * @param weightAttribute
 	 *            attribute used to compare edges
@@ -123,11 +120,11 @@ public class Prim extends AbstractSpanningTree {
 	 *            attribute used to set if an edge is in the spanning tree
 	 */
 	public Prim(String weightAttribute, String flagAttribute) {
-		this(weightAttribute, flagAttribute, true, false);
+		super(weightAttribute, flagAttribute);
 	}
 
 	/**
-	 * Create a new Prim's algorithm.
+	 * Create a new Prim's algorithm. Uses the default weight attribute.
 	 * 
 	 * @param flagAttribute
 	 *            attribute used to set if an edge is in the spanning tree
@@ -139,7 +136,7 @@ public class Prim extends AbstractSpanningTree {
 	 *            spanning tree
 	 */
 	public Prim(String flagAttribute, Object flagOn, Object flagOff) {
-		this("weight", flagAttribute, flagOn, flagOff);
+		super(flagAttribute, flagOn, flagOff);
 	}
 
 	/**
@@ -158,202 +155,53 @@ public class Prim extends AbstractSpanningTree {
 	 */
 	public Prim(String weightAttribute, String flagAttribute, Object flagOn,
 			Object flagOff) {
-		super(flagAttribute, flagOn, flagOff);
-
-		this.weightAttribute = weightAttribute;
+		super(weightAttribute, flagAttribute, flagOn, flagOff);
 	}
 
-	/**
-	 * Get key attribute used to compare edges.
-	 * 
-	 * @return weight attribute
-	 */
-	public String getWeightAttribute() {
-		return this.weightAttribute;
-	}
-
-	/**
-	 * Set the weight attribute.
-	 * 
-	 * @param newWeightAttribute
-	 *            new attribute used
-	 */
-	public void setWeightAttribute(String newWeightAttribute) {
-		this.weightAttribute = newWeightAttribute;
-	}
-
-	/**
-	 * Get weight of an edge.
-	 * 
-	 * @param e
-	 *            an edge
-	 * @return weight of <i>n</i>
-	 */
-	protected Double getWeight(Edge e) {
-		if (!e.hasNumber(weightAttribute))
-			return Double.valueOf(1);
-
-		return e.getNumber(weightAttribute);
-	}
-
-	/**
-	 * Check if all edges have a weight attribute and that this attribute is an
-	 * instance of Comparable.
-	 * 
-	 * @see java.lang.Comparable
-	 */
-	protected void checkWeights() {
-		Iterator<? extends Edge> iteE;
-		boolean error = false;
-
-		iteE = this.graph.getEdgeIterator();
-
-		while (iteE.hasNext()) {
-			if (!iteE.next().hasAttribute(weightAttribute, Comparable.class)) {
-				error = true;
-			}
-		}
-
-		if (error) {
-			System.err
-					.printf("*** error *** Prim's algorithm: some edges seem to not have a weigth.");
-		}
-	}
-
-	/**
-	 * Build the tree.
-	 */
 	@Override
 	protected void makeTree() {
-		checkWeights();
+		if (treeEdges == null)
+			treeEdges = new LinkedList<Edge>();
+		else
+			treeEdges.clear();
 
-		Iterator<? extends Edge> iteE;
-		Node current;
-		Edge e;
-		LinkedList<Node> pool = new LinkedList<Node>();
-		LinkedList<Edge> epool = new LinkedList<Edge>();
-		WeightEdgeComparator cmp = new WeightEdgeComparator();
-		boolean resort = false;
-
-		current = this.graph.getNodeIterator().next();
-
-		pool.add(current);
-		iteE = current.getLeavingEdgeIterator();
-		while (iteE.hasNext()) {
-			epool.add(iteE.next());
+		int n = graph.getNodeCount();
+		Data[] data = new Data[n];
+		FibonacciHeap<Double, Node> heap = new FibonacciHeap<Double, Node>();
+		for (int i = 0; i < n; i++) {
+			data[i] = new Data();
+			data[i].edgeToTree = null;
+			data[i].fn = heap.add(Double.POSITIVE_INFINITY, graph.getNode(i));
 		}
 
-		Collections.sort(epool, cmp);
-
-		while (pool.size() < graph.getNodeCount()) {
-
-			if (epool.size() == 0) {
-				//
-				// This case is triggered is there are several connected
-				// components in the graph. A node which has not been used
-				// is selected to continue the process.
-				//
-				Iterator<? extends Node> nodes = this.graph.getNodeIterator();
-				Node toAdd = null;
-
-				while (toAdd == null && nodes.hasNext()) {
-					toAdd = nodes.next();
-
-					if (pool.contains(toAdd.getId()))
-						toAdd = null;
-
-					if (toAdd != null && toAdd.getDegree() == 0) {
-						pool.add(toAdd);
-						toAdd = null;
-					}
-				}
-
-				if (toAdd != null) {
-					pool.add(toAdd);
-
-					iteE = toAdd.getLeavingEdgeIterator();
-					while (iteE.hasNext()) {
-						epool.add(iteE.next());
-					}
-				}
+		treeWeight = 0;
+		while (!heap.isEmpty()) {
+			Node u = heap.extractMin();
+			Data dataU = data[u.getIndex()];
+			data[u.getIndex()] = null;
+			if (dataU.edgeToTree != null) {
+				treeEdges.add(dataU.edgeToTree);
+				edgeOn(dataU.edgeToTree);
+				treeWeight += dataU.fn.getKey();
+				dataU.edgeToTree = null;
 			}
-
-			e = epool.poll();
-
-			if (e == null)
-				throw new NullPointerException();
-
-			current = null;
-
-			if (!pool.contains(e.getNode0()))
-				current = e.getNode0();
-			if (!pool.contains(e.getNode1()))
-				current = e.getNode1();
-
-			if (current == null)
-				continue;
-
-			edgeOn(e);
-			pool.add(current);
-
-			for (int i = 0; i < epool.size();) {
-				Edge tmp = epool.get(i);
-				if (tmp.getNode0().equals(current)
-						|| tmp.getNode1().equals(current)) {
-					epool.remove(i);
-				} else
-					i++;
-			}
-
-			iteE = current.getLeavingEdgeIterator();
-			resort = false;
-			while (iteE.hasNext()) {
-				e = iteE.next();
-
-				if ((!pool.contains(e.getNode0()) && pool
-						.contains(e.getNode1()))
-						|| (pool.contains(e.getNode0()) && !pool.contains(e
-								.getNode1()))) {
-					epool.add(e);
-					resort = true;
+			dataU.fn = null;
+			for (Edge e : u) {
+				Node v = e.getOpposite(u);
+				Data dataV = data[v.getIndex()];
+				if (dataV == null)
+					continue;
+				double w = getWeight(e);
+				if (w < dataV.fn.getKey()) {
+					heap.decreaseKey(dataV.fn, w);
+					dataV.edgeToTree = e;
 				}
-			}
-
-			if (resort) {
-				Collections.sort(epool, cmp);
 			}
 		}
 	}
 
-	// Stuff needed to work
-
-	/**
-	 * A comparator which uses the <i>weightAttribute</i> of its parent's class
-	 * to compare edges.
-	 * 
-	 * @author Guilhelm Savin
-	 */
-	private final class WeightEdgeComparator implements Comparator<Edge> {
-		/**
-		 * Compare two edges.
-		 * 
-		 * @return an integer less than 0 if e1 less than e2, more than 0 if e1
-		 *         more than e2
-		 */
-		@SuppressWarnings("all")
-		public int compare(Edge e1, Edge e2) {
-			return getWeight(e1).compareTo(getWeight(e2));
-		}
-
-		@Override
-		public boolean equals(Object o) {
-			return o instanceof WeightEdgeComparator;
-		}
-	}
-
-	@Override
-	public <T extends Edge> Iterator<T> getTreeEdgesIterator() {
-		// TODO Auto-generated method stub
-		return null;
+	protected static class Data {
+		Edge edgeToTree;
+		FibonacciHeap<Double, Node>.Node fn;
 	}
 }
