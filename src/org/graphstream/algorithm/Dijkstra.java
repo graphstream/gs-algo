@@ -149,7 +149,7 @@ import org.graphstream.graph.Path;
  * 
  * @author Stefan Balev
  */
-public class Dijkstra implements Algorithm {
+public class Dijkstra extends AbstractSpanningTree {
 	protected static class Data {
 		FibonacciHeap<Double, Node>.Node fn;
 		Edge edgeFromParent;
@@ -180,7 +180,6 @@ public class Dijkstra implements Algorithm {
 	protected Element element;
 	protected String resultAttribute;
 	protected String lengthAttribute;
-	protected Graph graph;
 	protected Node source;
 
 	// *** Helpers ***
@@ -208,7 +207,7 @@ public class Dijkstra implements Algorithm {
 	// *** Constructors ***
 
 	/**
-	 * Constructs an instance with the specified parameters.
+	 * Constructs an instance with the specified parameters. The edges of the shortest path tree are not tagged.
 	 * 
 	 * @param element
 	 *            Graph elements (edges or/and nodes) used to compute the path
@@ -225,20 +224,49 @@ public class Dijkstra implements Algorithm {
 	 */
 	public Dijkstra(Element element, String resultAttribute,
 			String lengthAttribute) {
+		this(element, resultAttribute, lengthAttribute, null, null, null);
+	}
+
+	/**
+	 * Constructs an instance in which the length of the path is considered to
+	 * be the number of edges. Unique result attribute is chosen automatically. The edges of the shortest path tree are not tagged.
+	 */
+	public Dijkstra() {
+		this(null, null, null, null, null, null);
+	}
+	
+	/**
+	 * Constructs an instance with the specified parameters.
+	 * 
+	 * @param element
+	 *            Graph elements (edges or/and nodes) used to compute the path
+	 *            lengths. If {@code null}, the length of the path is computed
+	 *            using edges.
+	 * @param resultAttribute
+	 *            Attribute name used to store internal solution data in the
+	 *            nodes of the graph. If {@code null}, a unique name is chosen
+	 *            automatically.
+	 * @param lengthAttribute
+	 *            Attribute name used to define individual element lengths. If
+	 *            {@code null} the length of the elements is considered to be
+	 *            one.
+	 * @param flagAttribute
+	 *            attribute used to set if an edge is in the spanning tree
+	 * @param flagOn
+	 *            value of the <i>flagAttribute</i> if edge is in the spanning
+	 *            tree
+	 * @param flagOff
+	 *            value of the <i>flagAttribute</i> if edge is not in the
+	 *            spanning tree
+	 */
+	public Dijkstra(Element element, String resultAttribute, String lengthAttribute, String flagAttribute, Object flagOn, Object flagOff) {
+		super(flagAttribute, flagOn, flagOff);
 		this.element = element == null ? Element.EDGE : element;
 		this.resultAttribute = resultAttribute == null ? toString()
 				+ "_result_" : resultAttribute;
 		this.lengthAttribute = lengthAttribute;
 		graph = null;
 		source = null;
-	}
-
-	/**
-	 * Constructs an instance in which the length of the path is considered to
-	 * be the number of edges. Unique result attribute is chosen automatically.
-	 */
-	public Dijkstra() {
-		this(null, null, null);
 	}
 
 	// *** Some basic methods ***
@@ -272,7 +300,9 @@ public class Dijkstra implements Algorithm {
 	 * of the graph. Use this method to free memory. Solution access methods
 	 * must not be used after calling this method.
 	 */
+	@Override
 	public void clear() {
+		super.clear();
 		for (Node node : graph) {
 			Data data = node.getAttribute(resultAttribute);
 			if (data != null) {
@@ -285,15 +315,6 @@ public class Dijkstra implements Algorithm {
 
 	// *** Methods of Algorithm interface ***
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
-	 */
-	public void init(Graph graph) {
-		this.graph = graph;
-	}
 
 	/**
 	 * Computes the shortest paths from the source node to all nodes in the
@@ -308,6 +329,7 @@ public class Dijkstra implements Algorithm {
 	 *             the number of edges and <em>n</em> is the number of nodes in
 	 *             the graph.
 	 */
+	@Override
 	public void compute() {
 		// check if computation can start
 		if (graph == null)
@@ -316,7 +338,12 @@ public class Dijkstra implements Algorithm {
 		if (source == null)
 			throw new IllegalStateException(
 					"No source specified. Call setSource() first.");
-
+		resetFlags();
+		makeTree();
+	}
+	
+	@Override
+	protected void makeTree() {
 		// initialization
 		FibonacciHeap<Double, Node> heap = new FibonacciHeap<Double, Node>();
 		for (Node node : graph) {
@@ -334,6 +361,8 @@ public class Dijkstra implements Algorithm {
 			Data dataU = u.getAttribute(resultAttribute);
 			dataU.distance = dataU.fn.getKey();
 			dataU.fn = null;
+			if (dataU.edgeFromParent != null)
+				edgeOn(dataU.edgeFromParent);
 			for (Edge e : u.getEachLeavingEdge()) {
 				Node v = e.getOpposite(u);
 				Data dataV = v.getAttribute(resultAttribute);
@@ -345,7 +374,7 @@ public class Dijkstra implements Algorithm {
 					heap.decreaseKey(dataV.fn, tryDist);
 				}
 			}
-		}
+		}		
 	}
 
 	// *** Iterators ***
@@ -714,25 +743,11 @@ public class Dijkstra implements Algorithm {
 	 * @complexity Each call of {@link java.util.Iterator#next()} of this
 	 *             iterator takes O(1) time
 	 */
+	@Override
 	public <T extends Edge> Iterator<T> getTreeEdgesIterator() {
 		return new TreeIterator<T>();
 	}
 
-	/**
-	 * Dijkstra's algorithm produces a shortest path tree rooted in the source
-	 * node. This method provides an iterable view of the edges of this tree.
-	 * Uses {@link #getTreeEdgesIterator()}
-	 * 
-	 * @return an iterable view of the edges of the shortest path tree
-	 * @see #getTreeEdgesIterator()
-	 */
-	public <T extends Edge> Iterable<T> getTreeEdges() {
-		return new Iterable<T>() {
-			public Iterator<T> iterator() {
-				return getTreeEdgesIterator();
-			}
-		};
-	}
 
 	/**
 	 * Returns the shortest path from the source node to a given target node. If

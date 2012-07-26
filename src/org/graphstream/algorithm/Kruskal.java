@@ -213,7 +213,7 @@ public class Kruskal extends AbstractSpanningTree {
 
 		List<Edge> sortedEdges = new ArrayList<Edge>(graph.getEdgeSet());
 		Collections.sort(sortedEdges, new EdgeComparator());
-
+		
 		DisjointSets<Node> components = new DisjointSets<Node>(
 				graph.getNodeCount());
 		for (Node node : graph)
