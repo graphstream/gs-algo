@@ -40,20 +40,25 @@ import org.graphstream.graph.Graph;
  * <p>
  * The result is stored in an edge attribute which name is defined by
  * {@link #flagAttribute} and value is {@link #flagOn} if the edge is in the
- * tree or {@link #flagOff} if not.
+ * tree or {@link #flagOff} if not. If {@link #flagAttribute} is {@code null}
+ * nothing is stored in the edges. If {@link #flagOn} is {@code null} edges in
+ * the tree are not tagged. If {@link #flagOff} is {@code null} edges out of the
+ * tree are not tagged.
  * </p>
+ * 
  * 
  * <h2>Creating a spanning tree algorithm</h2>
  * 
  * <p>
  * Spanning tree algorithms have to extend this class and to implements the
- * {@link #makeTree()} method. {@link #edgeOn(Edge)} and {@link #edgeOff(Edge)}
- * methods have to be used to properly tag edge.
+ * {@link #makeTree()} and {@link #getTreeEdgesIterator()} methods.
+ * {@link #edgeOn(Edge)} and {@link #edgeOff(Edge)} methods have to be used to
+ * properly tag edges.
  * </p>
  * 
  * <p>
  * A call to compute reset the values of edges attribute. Then a call to
- * {@link #makeTree()} is done.
+ * {@link #makeTree()} is made.
  * </p>
  * 
  * <h2>Highlight the spanning tree in viewer</h2>
@@ -106,7 +111,11 @@ import org.graphstream.graph.Graph;
  * ..
  * </pre>
  */
-public abstract class AbstractSpanningTree implements Algorithm {
+/**
+ * @author stefan
+ *
+ */
+public abstract class AbstractSpanningTree implements SpanningTree {
 	/**
 	 * The graph on which algorithm try to extract a spanning tree.
 	 */
@@ -130,14 +139,16 @@ public abstract class AbstractSpanningTree implements Algorithm {
 	protected Object flagOff;
 
 	/**
-	 * Create a new SpanningTree algorithm.
+	 * Create a new SpanningTree algorithm. By default edges are not tagged.
 	 */
 	public AbstractSpanningTree() {
-		this("SpanningTree.flag");
+		this(null, null, null);
 	}
 
 	/**
-	 * Create a new SpanningTree algorithm.
+	 * Create a new SpanningTree algorithm. Default flag attribute values are
+	 * {@code true} for edges in the tree and {@code false} for the remaining
+	 * edges.
 	 * 
 	 * @param flagAttribute
 	 *            attribute used to compare edges
@@ -160,71 +171,62 @@ public abstract class AbstractSpanningTree implements Algorithm {
 	 */
 	public AbstractSpanningTree(String flagAttribute, Object flagOn,
 			Object flagOff) {
+		graph = null;
 		this.flagAttribute = flagAttribute;
-
 		this.flagOn = flagOn;
 		this.flagOff = flagOff;
 	}
 
-	/**
-	 * Get key attribute which will be used to set if edges are in the spanning
-	 * tree, or not.
-	 * 
-	 * @return flag attribute
+	/* (non-Javadoc)
+	 * @see org.graphstream.algorithm.SpanningTree#getFlagAttribute()
 	 */
 	public String getFlagAttribute() {
-		return this.flagAttribute;
+		return flagAttribute;
 	}
 
-	/**
-	 * Set the flag attribute.
-	 * 
-	 * @param newFlagAttribute
-	 *            new attribute used
+	/* (non-Javadoc)
+	 * @see org.graphstream.algorithm.SpanningTree#setFlagAttribute(java.lang.String)
 	 */
-	public void setFlagAttribute(String newFlagAttribute) {
-		this.flagAttribute = newFlagAttribute;
+	public void setFlagAttribute(String flagAttribute) {
+		if (graph != null)
+			throw new IllegalStateException(
+					"Flag attribute can be set only before the algorithm is initialized");
+		this.flagAttribute = flagAttribute;
 	}
 
-	/**
-	 * Get value used to set that an edge is in the spanning tree.
-	 * 
-	 * @return on value
-	 */
 
+	/* (non-Javadoc)
+	 * @see org.graphstream.algorithm.SpanningTree#getFlagOn()
+	 */
 	public Object getFlagOn() {
-		return this.flagOn;
+		return flagOn;
 	}
 
-	/**
-	 * Set value used to set that an edge is in the spanning tree.
-	 * 
-	 * @param newFlagOn
-	 *            on value
+	/* (non-Javadoc)
+	 * @see org.graphstream.algorithm.SpanningTree#setFlagOn(java.lang.Object)
 	 */
-	public void setFlagOn(Object newFlagOn) {
-		if (!this.flagOff.equals(newFlagOn))
-			this.flagOn = newFlagOn;
+	public void setFlagOn(Object flagOn) {
+		if (graph != null)
+			throw new IllegalStateException(
+					"Flag values can be set only before the algorithm is initialized");
+		this.flagOn = flagOn;
 	}
 
-	/**
-	 * Get value used to set that an edge is not in the spanning tree.
-	 * 
-	 * @return off value
+	/* (non-Javadoc)
+	 * @see org.graphstream.algorithm.SpanningTree#getFlagOff()
 	 */
 	public Object getFlagOff() {
-		return this.flagOff;
+		return flagOff;
 	}
 
-	/**
-	 * Set value used to set that an edge is not in the spanning tree.
-	 * 
-	 * @param newFlagOff
-	 *            off value
+	/* (non-Javadoc)
+	 * @see org.graphstream.algorithm.SpanningTree#setFlagOff(java.lang.Object)
 	 */
-	public void setFlagOff(Object newFlagOff) {
-		if (!this.flagOn.equals(newFlagOff))
-			this.flagOff = newFlagOff;
+	public void setFlagOff(Object flagOff) {
+		if (graph != null)
+			throw new IllegalStateException(
+					"Flag values can be set only before the algorithm is initialized");
+		this.flagOff = flagOff;
 	}
 
 	// Protected Access
@@ -236,7 +238,12 @@ public abstract class AbstractSpanningTree implements Algorithm {
 	 *            edge to add
 	 */
 	protected void edgeOn(Edge e) {
-		e.changeAttribute(flagAttribute, flagOn);
+		if (flagAttribute != null) {
+			if (flagOn != null)
+				e.changeAttribute(flagAttribute, flagOn);
+			else
+				e.removeAttribute(flagAttribute);
+		}
 	}
 
 	/**
@@ -246,26 +253,55 @@ public abstract class AbstractSpanningTree implements Algorithm {
 	 *            edge to remove
 	 */
 	protected void edgeOff(Edge e) {
-		e.changeAttribute(flagAttribute, flagOff);
+		if (flagAttribute != null) {
+			if (flagOff != null)
+				e.changeAttribute(flagAttribute, flagOff);
+			else
+				e.removeAttribute(flagAttribute);
+		}
 	}
 
 	/**
-	 * Reset cluster and flag attribute values.
+	 * Reset flag attribute values. All edges are tagged as being out of the
+	 * tree.
 	 */
 	protected void resetFlags() {
-		Iterator<? extends Edge> iteE;
-
-		iteE = graph.getEdgeIterator();
-
-		while (iteE.hasNext())
-			edgeOff(iteE.next());
+		for (Edge edge : graph.getEachEdge())
+			edgeOff(edge);
 	}
+
+	// Abstract methods to be implemented by subclasses
 
 	/**
 	 * Method that will be implemented by spanning tree's algorithms to build
 	 * the tree.
 	 */
 	protected abstract void makeTree();
+
+	/* (non-Javadoc)
+	 * @see org.graphstream.algorithm.SpanningTree#getTreeEdgesIterator()
+	 */
+	public abstract <T extends Edge> Iterator<T> getTreeEdgesIterator();
+
+	/* (non-Javadoc)
+	 * @see org.graphstream.algorithm.SpanningTree#getTreeEdges()
+	 */
+	public <T extends Edge> Iterable<T> getTreeEdges() {
+		return new Iterable<T>() {
+			public Iterator<T> iterator() {
+				return getTreeEdgesIterator();
+			}
+		};
+	}
+
+	/* (non-Javadoc)
+	 * @see org.graphstream.algorithm.SpanningTree#clear()
+	 */
+	public void clear() {
+		if (flagAttribute != null)
+			for (Edge edge : graph.getEachEdge())
+				edge.removeAttribute(flagAttribute);
+	}
 
 	// Algorithm interface
 
