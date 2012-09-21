@@ -71,7 +71,7 @@ public class TestKruskalPrim {
 		assertEquals(expectedWeight, k.getTreeWeight(), 0);
 		int edgeCount = 0;
 		for (Edge e : k.getTreeEdges()) {
-			boolean b = e.getAttribute(k.getFlagAttribute()); 
+			Boolean b = e.getAttribute(k.getFlagAttribute()); 
 			assertTrue(b);
 			edgeCount++;
 		}
@@ -80,7 +80,7 @@ public class TestKruskalPrim {
 		edgeCount = 0;
 		double treeWeight = 0;
 		for (Edge e : g.getEachEdge()) {
-			boolean b = e.getAttribute(k.getFlagAttribute());
+			Boolean b = e.getAttribute(k.getFlagAttribute());
 			if (b) {
 				edgeCount++;
 				treeWeight += e.getNumber("weight");
