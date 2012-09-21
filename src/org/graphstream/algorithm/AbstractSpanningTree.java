@@ -111,7 +111,11 @@ import org.graphstream.graph.Graph;
  * ..
  * </pre>
  */
-public abstract class AbstractSpanningTree implements Algorithm {
+/**
+ * @author stefan
+ *
+ */
+public abstract class AbstractSpanningTree implements SpanningTree {
 	/**
 	 * The graph on which algorithm try to extract a spanning tree.
 	 */
@@ -173,23 +177,15 @@ public abstract class AbstractSpanningTree implements Algorithm {
 		this.flagOff = flagOff;
 	}
 
-	/**
-	 * Get key attribute which will be used to set if edges are in the spanning
-	 * tree, or not.
-	 * 
-	 * @return flag attribute
+	/* (non-Javadoc)
+	 * @see org.graphstream.algorithm.SpanningTree#getFlagAttribute()
 	 */
 	public String getFlagAttribute() {
 		return flagAttribute;
 	}
 
-	/**
-	 * Set the flag attribute.
-	 * 
-	 * @param flagAttribute
-	 *            New attribute used. If {@code null} edges are not tagged.
-	 * @throws IllegalStateException
-	 *             if {@link #init(Graph)} is already called
+	/* (non-Javadoc)
+	 * @see org.graphstream.algorithm.SpanningTree#setFlagAttribute(java.lang.String)
 	 */
 	public void setFlagAttribute(String flagAttribute) {
 		if (graph != null)
@@ -198,23 +194,16 @@ public abstract class AbstractSpanningTree implements Algorithm {
 		this.flagAttribute = flagAttribute;
 	}
 
-	/**
-	 * Get value used to set that an edge is in the spanning tree.
-	 * 
-	 * @return on value
-	 */
 
+	/* (non-Javadoc)
+	 * @see org.graphstream.algorithm.SpanningTree#getFlagOn()
+	 */
 	public Object getFlagOn() {
 		return flagOn;
 	}
 
-	/**
-	 * Set value used to set that an edge is in the spanning tree.
-	 * 
-	 * @param flagOn
-	 *            on value. If {@code null} edges in the tree are not tagged.
-	 * @throws IllegalStateException
-	 *             if {@link #init(Graph)} is already called
+	/* (non-Javadoc)
+	 * @see org.graphstream.algorithm.SpanningTree#setFlagOn(java.lang.Object)
 	 */
 	public void setFlagOn(Object flagOn) {
 		if (graph != null)
@@ -223,23 +212,15 @@ public abstract class AbstractSpanningTree implements Algorithm {
 		this.flagOn = flagOn;
 	}
 
-	/**
-	 * Get value used to set that an edge is not in the spanning tree.
-	 * 
-	 * @return off value
+	/* (non-Javadoc)
+	 * @see org.graphstream.algorithm.SpanningTree#getFlagOff()
 	 */
 	public Object getFlagOff() {
 		return flagOff;
 	}
 
-	/**
-	 * Set value used to set that an edge is not in the spanning tree.
-	 * 
-	 * @param newFlagOff
-	 *            off value. If {@code null} edges out of the tree are not
-	 *            tagged.
-	 * @throws IllegalStateException
-	 *             if {@link #init(Graph)} is already called
+	/* (non-Javadoc)
+	 * @see org.graphstream.algorithm.SpanningTree#setFlagOff(java.lang.Object)
 	 */
 	public void setFlagOff(Object flagOff) {
 		if (graph != null)
@@ -297,18 +278,13 @@ public abstract class AbstractSpanningTree implements Algorithm {
 	 */
 	protected abstract void makeTree();
 
-	/**
-	 * An iterator on the tree edges.
-	 * 
-	 * @return An iterator on the tree edges
+	/* (non-Javadoc)
+	 * @see org.graphstream.algorithm.SpanningTree#getTreeEdgesIterator()
 	 */
 	public abstract <T extends Edge> Iterator<T> getTreeEdgesIterator();
 
-	/**
-	 * Iterable view of the spanning tree edges. This implementation uses
-	 * {@link #getTreeEdgesIterator()}.
-	 * 
-	 * @return Iterable view of the tree edges.
+	/* (non-Javadoc)
+	 * @see org.graphstream.algorithm.SpanningTree#getTreeEdges()
 	 */
 	public <T extends Edge> Iterable<T> getTreeEdges() {
 		return new Iterable<T>() {
@@ -318,9 +294,8 @@ public abstract class AbstractSpanningTree implements Algorithm {
 		};
 	}
 
-	/**
-	 * Removes the tags of all edges. Use this method to save memory if the
-	 * spanning tree is used no more.
+	/* (non-Javadoc)
+	 * @see org.graphstream.algorithm.SpanningTree#clear()
 	 */
 	public void clear() {
 		if (flagAttribute != null)
