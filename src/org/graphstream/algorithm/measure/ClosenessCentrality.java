@@ -33,8 +33,6 @@ package org.graphstream.algorithm.measure;
 
 import org.graphstream.algorithm.APSP;
 import org.graphstream.algorithm.APSP.APSPInfo;
-import org.graphstream.algorithm.NotInitializedException;
-import org.graphstream.algorithm.Algorithm;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -42,7 +40,7 @@ import org.graphstream.graph.Node;
  * Compute closeness centrality.
  * 
  */
-public class ClosenessCentrality implements Algorithm {
+public class ClosenessCentrality extends AbstractCentrality {
 	/**
 	 * Flag indicating if APSP should be computed in this algorithm. If false,
 	 * user needs to compute APSP himself to provide {@link APSPInfo} object in
@@ -51,27 +49,10 @@ public class ClosenessCentrality implements Algorithm {
 	protected boolean computeAPSP;
 
 	/**
-	 * Flag indicating if centrality results should be normalized between 0 and
-	 * 1.
-	 */
-	protected boolean normalize;
-
-	/**
-	 * Attribute name where centrality value will be stored.
-	 */
-	protected String centralityAttribute;
-
-	/**
 	 * Flag indicating if computation should use Dangalchev method rather than
 	 * the classical method. This method is more adapted for disconnected graph.
 	 */
 	protected boolean useDangalchevMethod = false;
-
-	// Allow reusing same array.
-	private double[] data;
-
-	// Graph being used by this algorithm.
-	private Graph graph;
 
 	// APSP algorithm if computed in this algorithm.
 	private APSP apsp;
@@ -121,43 +102,30 @@ public class ClosenessCentrality implements Algorithm {
 	 */
 	public ClosenessCentrality(String centralityAttribute, boolean normalize,
 			boolean computeAPSP, boolean useDangalchevMethod) {
+		super(centralityAttribute, normalize);
 		this.computeAPSP = computeAPSP;
-		this.centralityAttribute = centralityAttribute;
-		this.normalize = normalize;
+		this.useDangalchevMethod = useDangalchevMethod;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
-	 */
+	@Override
 	public void init(Graph graph) {
-		if (graph == null)
-			throw new NullPointerException();
-
-		this.graph = graph;
-
+		super.init(graph);
+		
 		if (computeAPSP) {
 			apsp = new APSP();
 			apsp.init(graph);
 		}
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.graphstream.algorithm.Algorithm#compute()
+	 * @see
+	 * org.graphstream.algorithm.measure.AbstractCentrality#computeCentrality()
 	 */
-	public void compute() {
-		if (graph == null)
-			throw new NotInitializedException(this);
-
+	protected void computeCentrality() {
 		int count = graph.getNodeCount();
 		Node node, other;
-
-		if (data == null || data.length != count)
-			data = new double[count];
 
 		if (computeAPSP)
 			apsp.compute();
@@ -193,18 +161,5 @@ public class ClosenessCentrality implements Algorithm {
 			if (!useDangalchevMethod)
 				data[idx] = 1 / data[idx];
 		}
-
-		if (normalize) {
-			double max = data[0];
-
-			for (int idx = 1; idx < count; idx++)
-				max = Math.max(max, data[idx]);
-
-			for (int idx = 0; idx < count; idx++)
-				data[idx] /= max;
-		}
-
-		for (int idx = 0; idx < count; idx++)
-			graph.getNode(idx).setAttribute(centralityAttribute, data[idx]);
 	}
 }
