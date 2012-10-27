@@ -33,31 +33,92 @@ package org.graphstream.algorithm.measure;
 
 import org.graphstream.algorithm.APSP;
 import org.graphstream.algorithm.APSP.APSPInfo;
-import org.graphstream.algorithm.generator.BarabasiAlbertGenerator;
+import org.graphstream.algorithm.NotInitializedException;
 import org.graphstream.algorithm.Algorithm;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.AdjacencyListGraph;
 
 /**
  * Compute closeness centrality.
- *
+ * 
  */
 public class ClosenessCentrality implements Algorithm {
+	/**
+	 * Flag indicating if APSP should be computed in this algorithm. If false,
+	 * user needs to compute APSP himself to provide {@link APSPInfo} object in
+	 * nodes attribute {@link APSPInfo#ATTRIBUTE_NAME}.
+	 */
 	protected boolean computeAPSP;
 
+	/**
+	 * Flag indicating if centrality results should be normalized between 0 and
+	 * 1.
+	 */
 	protected boolean normalize;
 
+	/**
+	 * Attribute name where centrality value will be stored.
+	 */
 	protected String centralityAttribute;
 
-	protected Graph graph;
-
-	private double[] data;
-
+	/**
+	 * Flag indicating if computation should use Dangalchev method rather than
+	 * the classical method. This method is more adapted for disconnected graph.
+	 */
 	protected boolean useDangalchevMethod = false;
 
-	protected APSP apsp;
+	// Allow reusing same array.
+	private double[] data;
 
+	// Graph being used by this algorithm.
+	private Graph graph;
+
+	// APSP algorithm if computed in this algorithm.
+	private APSP apsp;
+
+	/**
+	 * Default construtor. Same as calling `ClosenessCentrality("closeness")`.
+	 */
+	public ClosenessCentrality() {
+		this("closeness");
+	}
+
+	/**
+	 * Construtor allowing to configure centrality attribute. Same as calling
+	 * `ClosenessCentrality(attribute, false)`.
+	 * 
+	 * @param attribute
+	 *            attribute where centrality will be stored
+	 */
+	public ClosenessCentrality(String attribute) {
+		this(attribute, false);
+	}
+
+	/**
+	 * Constructor allowing to configure attribute and normalize flag. Same as
+	 * calling `ClosenessCentrality(attribute, normalize, true, false)`.
+	 * 
+	 * @param attribute
+	 *            attribute where centrality will be stored
+	 * @param normalize
+	 *            if true, values will be normalized between 0 and 1
+	 */
+	public ClosenessCentrality(String attribute, boolean normalize) {
+		this(attribute, normalize, true, false);
+	}
+
+	/**
+	 * Fully configurable construtor.
+	 * 
+	 * @param centralityAttribute
+	 *            attribute where centrality will be stored
+	 * @param normalize
+	 *            if true, centrality values will be normalized between 0 and 1
+	 * @param computeAPSP
+	 *            if true, apsp will be computed in this algorithm
+	 * @param useDangalchevMethod
+	 *            if true, Dangelchev method will be used in this algorithm
+	 */
 	public ClosenessCentrality(String centralityAttribute, boolean normalize,
 			boolean computeAPSP, boolean useDangalchevMethod) {
 		this.computeAPSP = computeAPSP;
@@ -65,7 +126,16 @@ public class ClosenessCentrality implements Algorithm {
 		this.normalize = normalize;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
+	 */
 	public void init(Graph graph) {
+		if (graph == null)
+			throw new NullPointerException();
+
 		this.graph = graph;
 
 		if (computeAPSP) {
@@ -74,7 +144,15 @@ public class ClosenessCentrality implements Algorithm {
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.graphstream.algorithm.Algorithm#compute()
+	 */
 	public void compute() {
+		if (graph == null)
+			throw new NotInitializedException(this);
+
 		int count = graph.getNodeCount();
 		Node node, other;
 
@@ -128,23 +206,5 @@ public class ClosenessCentrality implements Algorithm {
 
 		for (int idx = 0; idx < count; idx++)
 			graph.getNode(idx).setAttribute(centralityAttribute, data[idx]);
-	}
-
-	public static void main(String... args) {
-		Graph g = new AdjacencyListGraph("g");
-		g.addAttribute("ui.stylesheet",
-				"node {fill-mode: dyn-plain; fill-color: blue,yellow;}");
-		BarabasiAlbertGenerator gen = new BarabasiAlbertGenerator();
-		gen.addSink(g);
-		gen.begin();
-		for (int i = 0; i < 1000; i++)
-			gen.nextEvents();
-		gen.end();
-
-		ClosenessCentrality cc = new ClosenessCentrality("ui.color", true, true, true);
-		cc.init(g);
-		cc.compute();
-		
-		g.display();
 	}
 }
