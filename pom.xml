@@ -261,6 +261,12 @@
 			<optional>false</optional>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-math3</artifactId>
+			<version>3.0</version>
+			<optional>false</optional>
+		</dependency>
+		<dependency>
 			<groupId>org.graphstream</groupId>
 			<artifactId>gs-core</artifactId>
 			<version>1.2-git</version>
