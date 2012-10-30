@@ -31,32 +31,76 @@
  */
 package org.graphstream.algorithm.measure;
 
-import org.graphstream.algorithm.Spectrum;
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.Node;
+
+import scala.actors.threadpool.Arrays;
 
 public class EigenvectorCentrality extends AbstractCentrality {
 
+	public static final int DEFAULT_MAX_ITER = 100;
+
+	protected int maxIter;
+	protected String weightAttribute;
+
 	public EigenvectorCentrality(String attribute, boolean normalize) {
+		this(attribute, normalize, DEFAULT_MAX_ITER, "weight");
+	}
+
+	public EigenvectorCentrality(String attribute, boolean normalize,
+			int maxIter, String weightAttribute) {
 		super(attribute, normalize);
+		
+		this.maxIter = maxIter;
+		this.weightAttribute = weightAttribute;
 	}
 
 	@Override
 	protected void computeCentrality() {
-		Spectrum spectrum = new Spectrum();
-		spectrum.init(graph);
-		spectrum.compute();
+		int n = graph.getNodeCount();
+		double[] x1 = new double[n];
+		double[] x2 = new double[n];
+		double[] t;
+		double f, s;
+		int iter = maxIter;
+		Node node;
+		Edge edge;
 
-		double[] eigenvalues = spectrum.getEigenvalues();
-		double k1 = Double.MIN_VALUE;
-		int k1idx = -1;
-		
-		for (int i = 0; i < eigenvalues.length; i++) {
-			if (eigenvalues[i] > k1) {
-				k1idx = i;
-				k1 = eigenvalues [i];
+		Arrays.fill(x2, 1.0 / n);
+
+		while (iter-- > 0) {
+			//
+			// Swap x1 and x2
+			//
+			t = x1;
+			x1 = x2;
+			x2 = t;
+
+			Arrays.fill(x2, 0);
+			s = 0;
+
+			for (int idx = 0; idx < n; idx++) {
+				node = graph.getNode(idx);
+
+				for (int i = 0; i < node.getDegree(); i++) {
+					edge = node.getEdge(i);
+					f = 1;
+
+					if (edge.hasNumber(weightAttribute))
+						f = edge.getNumber(weightAttribute);
+
+					x2[idx] += x1[edge.getOpposite(node).getIndex()] * f;
+				}
+
+				s += x2[idx] * x2[idx];
 			}
+
+			s = s == 0 ? 1.0 : 1.0 / Math.sqrt(s);
+			for (int idx = 0; idx < n; idx++)
+				x2[idx] *= s;
 		}
-		
-		data = spectrum.getEigenvector(k1idx);
+
+		data = x2;
 	}
 
 }
