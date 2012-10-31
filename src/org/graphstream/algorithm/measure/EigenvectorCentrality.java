@@ -31,10 +31,10 @@
  */
 package org.graphstream.algorithm.measure;
 
+import java.util.Arrays;
+
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
-
-import scala.actors.threadpool.Arrays;
 
 public class EigenvectorCentrality extends AbstractCentrality {
 

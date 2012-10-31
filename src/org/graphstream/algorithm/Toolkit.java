@@ -1682,14 +1682,16 @@ public class Toolkit extends
 
 		stab = Math.min(stab, 1);
 
+		g.addAttributeSink(layout);
 		r.addSink(layout);
 		r.replay(g);
 
 		layout.shake();
 		layout.compute();
 
-		while (layout.getStabilization() < stab)
+		do
 			layout.compute();
+		while (layout.getStabilization() < stab);
 	}
 
 	/**
