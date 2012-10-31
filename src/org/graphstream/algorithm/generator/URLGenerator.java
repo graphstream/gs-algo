@@ -72,6 +72,7 @@ public class URLGenerator extends BaseGenerator {
 	protected LinkedList<URLFilter> filters;
 	protected double step;
 	protected boolean printProgress;
+	protected int depthLimit;
 	protected final ReentrantLock lock;
 
 	public URLGenerator(String... startFrom) {
@@ -84,10 +85,11 @@ public class URLGenerator extends BaseGenerator {
 		directed = false;
 		step = 0;
 		printProgress = false;
+		depthLimit = 0;
 		lock = new ReentrantLock();
 
 		declineMatchingURL("^(javascript:|mailto:|#).*");
-		declineMatchingURL(".*[.](avi|tar|gz|zip|mp3|mpg|jpg|jpeg|png|ogg|flv)$");
+		declineMatchingURL(".*[.](avi|tar|gz|zip|mp3|mpg|jpg|jpeg|png|ogg|flv|ico|svg)$");
 
 		setUseInternalGraph(true);
 
@@ -112,10 +114,10 @@ public class URLGenerator extends BaseGenerator {
 	 * @see org.graphstream.algorithm.generator.Generator#nextEvents()
 	 */
 	public boolean nextEvents() {
-		sendStepBegins(sourceId, step++);
+		sendStepBegins(sourceId, step);
 		sendGraphAttributeChanged(sourceId, "urls.parsed", null, urls.size());
-		sendGraphAttributeChanged(sourceId, "urls.remaining", null, stepUrls
-				.size());
+		sendGraphAttributeChanged(sourceId, "urls.remaining", null,
+				stepUrls.size());
 
 		if (printProgress)
 			progress();
@@ -138,15 +140,16 @@ public class URLGenerator extends BaseGenerator {
 				try {
 					parseUrl(url);
 				} catch (IOException e) {
-					System.err.printf("Failed to parse \"%s\" : %s\n", url, e
-							.getMessage());
+					System.err.printf("Failed to parse \"%s\" : %s\n", url,
+							e.getMessage());
 				}
 			}
 		}
 
 		stepUrls.clear();
 		stepUrls.addAll(newUrls);
-
+		step++;
+		
 		return newUrls.size() > 0;
 	}
 
@@ -216,6 +219,15 @@ public class URLGenerator extends BaseGenerator {
 	 */
 	public void setThreadCount(int count) {
 		this.threads = count;
+	}
+
+	/**
+	 * Set the maximum steps before stop. If 0 or less, limit is disabled.
+	 * 
+	 * @param depthLimit
+	 */
+	public void setDepthLimit(int depthLimit) {
+		this.depthLimit = depthLimit;
 	}
 
 	public void enableProgression(boolean on) {
@@ -386,8 +398,8 @@ public class URLGenerator extends BaseGenerator {
 				href = href.trim();
 
 				if (href.charAt(0) == '/')
-					href = String.format("%s://%s%s", uri.getScheme(), uri
-							.getHost(), href);
+					href = String.format("%s://%s%s", uri.getScheme(),
+							uri.getHost(), href);
 
 				if (href.charAt(0) == '.')
 					href = String.format("%s%s", url, href);
@@ -396,13 +408,19 @@ public class URLGenerator extends BaseGenerator {
 					continue;
 
 				try {
-					synchronizedOperation(href, null);
-					synchronizedOperation(url, href);
+					if (depthLimit == 0 || step < depthLimit) {
+						synchronizedOperation(href, null);
+						synchronizedOperation(url, href);
+					} else {
+						if (urls.contains(href))
+							synchronizedOperation(url, href);
+					}
 				} catch (URISyntaxException e) {
 					throw new IOException(e);
 				}
 
-				if (!urls.contains(href))
+				if (!urls.contains(href)
+						&& (depthLimit == 0 || step < depthLimit))
 					localUrls.add(href);
 			}
 		}
@@ -414,7 +432,7 @@ public class URLGenerator extends BaseGenerator {
 		} finally {
 			lock.unlock();
 		}
-		
+
 		localUrls.clear();
 		localUrls = null;
 
@@ -445,11 +463,16 @@ public class URLGenerator extends BaseGenerator {
 			break;
 		case FULL:
 			nodeId = String.format("%s://%s%s%s", uri.getScheme(), uri
-					.getHost(), uri.getPath(), uri.getQuery());
+					.getHost(), uri.getPath(), uri.getQuery() == null ? ""
+					: uri.getQuery());
 			break;
 		}
 
 		return nodeId;
+	}
+
+	protected String getNodeLabel(String url) throws URISyntaxException {
+		return url;
 	}
 
 	protected String getEdgeId(String nodeId1, String nodeId2) {
@@ -474,7 +497,7 @@ public class URLGenerator extends BaseGenerator {
 
 		if (internalGraph.getNode(nodeId) == null) {
 			addNode(nodeId);
-			sendNodeAttributeAdded(sourceId, nodeId, "label", nodeId);
+			sendNodeAttributeAdded(sourceId, nodeId, "label", getNodeLabel(url));
 			// System.out.printf("> new url '%s' --> '%s'\n", url, nodeId);
 		}
 
@@ -544,8 +567,8 @@ public class URLGenerator extends BaseGenerator {
 				try {
 					parseUrl(urls.get(i));
 				} catch (IOException e) {
-					System.err.printf("Failed to parse \"%s\" : %s\n", urls
-							.get(i), e.getMessage());
+					System.err.printf("Failed to parse \"%s\" : %s\n",
+							urls.get(i), e.getMessage());
 				}
 			}
 		}
