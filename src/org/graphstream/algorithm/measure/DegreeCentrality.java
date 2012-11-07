@@ -36,11 +36,17 @@ public class DegreeCentrality extends AbstractCentrality {
 		INOUT, IN, OUT
 	}
 
+	public static final String DEFAULT_ATTRIBUTE_KEY = "degree";
+
 	/**
 	 * Defines which degree should be used. It only get a sense with directed
 	 * graph.
 	 */
 	protected Mode mode;
+
+	public DegreeCentrality() {
+		this(DEFAULT_ATTRIBUTE_KEY, NormalizationMode.NONE);
+	}
 
 	/**
 	 * Constructor allowing configuration of centrality attribute and
@@ -49,9 +55,9 @@ public class DegreeCentrality extends AbstractCentrality {
 	 * @param attribute
 	 *            name of the attribute where centrality values will be stored
 	 * @param normalize
-	 *            if true, centrality values will be normalized between 0 and 1
+	 *            defines the normalization mode
 	 */
-	public DegreeCentrality(String attribute, boolean normalize) {
+	public DegreeCentrality(String attribute, NormalizationMode normalize) {
 		this(attribute, normalize, Mode.INOUT);
 	}
 
@@ -62,12 +68,13 @@ public class DegreeCentrality extends AbstractCentrality {
 	 * @param attribute
 	 *            name of the attribute where centrality values will be stored
 	 * @param normalize
-	 *            if true, centrality values will be normalized between 0 and 1
+	 *            defines the normalization mode
 	 * @param mode
 	 *            set which degree should be used (in degree, out degree or
 	 *            both)
 	 */
-	public DegreeCentrality(String attribute, boolean normalize, Mode mode) {
+	public DegreeCentrality(String attribute, NormalizationMode normalize,
+			Mode mode) {
 		super(attribute, normalize);
 		this.mode = mode;
 	}

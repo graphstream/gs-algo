@@ -33,6 +33,7 @@ package org.graphstream.algorithm.measure.demo;
 
 import org.graphstream.algorithm.generator.BarabasiAlbertGenerator;
 import org.graphstream.algorithm.measure.DegreeCentrality;
+import org.graphstream.algorithm.measure.AbstractCentrality.NormalizationMode;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.AdjacencyListGraph;
 
@@ -59,7 +60,7 @@ public class DegreeCentralityDemo {
 			gen.nextEvents();
 		gen.end();
 
-		DegreeCentrality dc = new DegreeCentrality("ui.color", true);
+		DegreeCentrality dc = new DegreeCentrality("ui.color", NormalizationMode.MAX_1_MIN_0);
 		dc.init(g);
 		dc.compute();
 

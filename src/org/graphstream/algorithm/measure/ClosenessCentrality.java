@@ -41,6 +41,8 @@ import org.graphstream.graph.Node;
  * 
  */
 public class ClosenessCentrality extends AbstractCentrality {
+	public static final String DEFAULT_ATTRIBUTE_KEY = "closeness";
+	
 	/**
 	 * Flag indicating if APSP should be computed in this algorithm. If false,
 	 * user needs to compute APSP himself to provide {@link APSPInfo} object in
@@ -56,12 +58,12 @@ public class ClosenessCentrality extends AbstractCentrality {
 
 	// APSP algorithm if computed in this algorithm.
 	private APSP apsp;
-
+	
 	/**
 	 * Default construtor. Same as calling `ClosenessCentrality("closeness")`.
 	 */
 	public ClosenessCentrality() {
-		this("closeness");
+		this(DEFAULT_ATTRIBUTE_KEY);
 	}
 
 	/**
@@ -72,7 +74,7 @@ public class ClosenessCentrality extends AbstractCentrality {
 	 *            attribute where centrality will be stored
 	 */
 	public ClosenessCentrality(String attribute) {
-		this(attribute, false);
+		this(attribute, NormalizationMode.NONE);
 	}
 
 	/**
@@ -82,9 +84,9 @@ public class ClosenessCentrality extends AbstractCentrality {
 	 * @param attribute
 	 *            attribute where centrality will be stored
 	 * @param normalize
-	 *            if true, values will be normalized between 0 and 1
+	 *            defines the normalization mode
 	 */
-	public ClosenessCentrality(String attribute, boolean normalize) {
+	public ClosenessCentrality(String attribute, NormalizationMode normalize) {
 		this(attribute, normalize, true, false);
 	}
 
@@ -94,13 +96,13 @@ public class ClosenessCentrality extends AbstractCentrality {
 	 * @param centralityAttribute
 	 *            attribute where centrality will be stored
 	 * @param normalize
-	 *            if true, centrality values will be normalized between 0 and 1
+	 *            defines the normalization mode
 	 * @param computeAPSP
 	 *            if true, apsp will be computed in this algorithm
 	 * @param useDangalchevMethod
 	 *            if true, Dangelchev method will be used in this algorithm
 	 */
-	public ClosenessCentrality(String centralityAttribute, boolean normalize,
+	public ClosenessCentrality(String centralityAttribute, NormalizationMode normalize,
 			boolean computeAPSP, boolean useDangalchevMethod) {
 		super(centralityAttribute, normalize);
 		this.computeAPSP = computeAPSP;

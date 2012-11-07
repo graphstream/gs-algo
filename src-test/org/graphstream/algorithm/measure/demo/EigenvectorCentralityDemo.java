@@ -32,6 +32,7 @@
 package org.graphstream.algorithm.measure.demo;
 
 import org.graphstream.algorithm.generator.BarabasiAlbertGenerator;
+import org.graphstream.algorithm.measure.AbstractCentrality.NormalizationMode;
 import org.graphstream.algorithm.measure.EigenvectorCentrality;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.AdjacencyListGraph;
@@ -55,11 +56,11 @@ public class EigenvectorCentralityDemo {
 		BarabasiAlbertGenerator gen = new BarabasiAlbertGenerator();
 		gen.addSink(g);
 		gen.begin();
-		for (int i = 0; i < 200; i++)
+		for (int i = 0; i < 100; i++)
 			gen.nextEvents();
 		gen.end();
 
-		EigenvectorCentrality dc = new EigenvectorCentrality("ui.color", true);
+		EigenvectorCentrality dc = new EigenvectorCentrality("ui.color", NormalizationMode.MAX_1_MIN_0);
 		dc.init(g);
 		dc.compute();
 

@@ -37,17 +37,22 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
 public class EigenvectorCentrality extends AbstractCentrality {
-
+	public static final String DEFAULT_ATTRIBUTE_KEY = "eigenvector";
+	
 	public static final int DEFAULT_MAX_ITER = 100;
 
 	protected int maxIter;
 	protected String weightAttribute;
 
-	public EigenvectorCentrality(String attribute, boolean normalize) {
+	public EigenvectorCentrality() {
+		this("DEFAULT_ATTRIBUTE_KEY", NormalizationMode.NONE);
+	}
+	
+	public EigenvectorCentrality(String attribute, NormalizationMode normalize) {
 		this(attribute, normalize, DEFAULT_MAX_ITER, "weight");
 	}
 
-	public EigenvectorCentrality(String attribute, boolean normalize,
+	public EigenvectorCentrality(String attribute, NormalizationMode normalize,
 			int maxIter, String weightAttribute) {
 		super(attribute, normalize);
 		
