@@ -41,6 +41,10 @@ import org.graphstream.graph.Graph;
  * {@link #data}.
  */
 public abstract class AbstractCentrality implements Algorithm {
+	public static enum NormalizationMode {
+		NONE, SUM_IS_1, MAX_1_MIN_0
+	}
+
 	/**
 	 * Attribute name where centrality value will be stored.
 	 */
@@ -50,7 +54,7 @@ public abstract class AbstractCentrality implements Algorithm {
 	 * Flag indicating if centrality values should be normalized between 0 and
 	 * 1.
 	 */
-	protected boolean normalize;
+	protected NormalizationMode normalize;
 
 	/**
 	 * Array containing centrality values computed by centrality algorithms.
@@ -68,9 +72,9 @@ public abstract class AbstractCentrality implements Algorithm {
 	 * @param attribute
 	 *            attribute where centrality will be stored
 	 * @param normalize
-	 *            if true, centrality values will be normalized between 0 and 1
+	 *            define the normalization mode
 	 */
-	protected AbstractCentrality(String attribute, boolean normalize) {
+	protected AbstractCentrality(String attribute, NormalizationMode normalize) {
 		this.centralityAttribute = attribute;
 		this.normalize = normalize;
 	}
@@ -103,19 +107,106 @@ public abstract class AbstractCentrality implements Algorithm {
 			data = new double[count];
 
 		computeCentrality();
+		copyValuesTo(centralityAttribute, normalize);
+	}
 
-		if (normalize) {
-			double max = data[0];
+	/**
+	 * Copy values previously computed to a specific attribute. The
+	 * {@link #compute()} method needs to have been call before calling this
+	 * one.
+	 * 
+	 * @param attribute
+	 *            destination attribute where values of centrality will be
+	 *            stored
+	 */
+	public void copyValuesTo(String attribute) {
+		copyValuesTo(attribute, NormalizationMode.NONE);
+	}
 
-			for (int idx = 1; idx < count; idx++)
-				max = Math.max(max, data[idx]);
+	/**
+	 * Copy values previously computed to a specific attribute. The
+	 * {@link #compute()} method needs to have been call before calling this
+	 * one.
+	 * 
+	 * @param attribute
+	 *            destination attribute where values of centrality will be
+	 *            stored
+	 * @param normalize
+	 *            defines the way that values have to be normalized
+	 */
+	public void copyValuesTo(String attribute, NormalizationMode normalize) {
+		int count = graph.getNodeCount();
+
+		switch (normalize) {
+		case SUM_IS_1:
+			double s = 0;
 
 			for (int idx = 0; idx < count; idx++)
-				data[idx] /= max;
-		}
+				s += data[idx];
+			for (int idx = 0; idx < count; idx++)
+				graph.getNode(idx).setAttribute(centralityAttribute,
+						data[idx] / s);
 
-		for (int idx = 0; idx < count; idx++)
-			graph.getNode(idx).setAttribute(centralityAttribute, data[idx]);
+			break;
+		case MAX_1_MIN_0:
+			double max = data[0];
+			double min = max;
+
+			for (int idx = 1; idx < count; idx++) {
+				max = max < data[idx] ? data[idx] : max;
+				min = min > data[idx] ? data[idx] : min;
+			}
+
+			for (int idx = 0; idx < count; idx++) {
+				graph.getNode(idx).setAttribute(centralityAttribute,
+						(data[idx] - min) / (max - min));
+			}
+
+			break;
+		case NONE:
+			for (int idx = 0; idx < count; idx++)
+				graph.getNode(idx).setAttribute(centralityAttribute, data[idx]);
+
+			break;
+		}
+	}
+
+	/**
+	 * Getter for {@link #centralityAttribute}.
+	 * 
+	 * @return {@link #centralityAttribute}
+	 */
+	public String getCentralityAttribute() {
+		return centralityAttribute;
+	}
+
+	/**
+	 * Setter for {@link #centralityAttribute}.
+	 * 
+	 * @param centralityAttribute
+	 *            new value of {@link #centralityAttribute}
+	 */
+	public void setCentralityAttribute(String centralityAttribute) {
+		this.centralityAttribute = centralityAttribute;
+	}
+
+	/**
+	 * Getter for {@link #normalize}.
+	 * 
+	 * @return {@link #normalize}
+	 */
+	public NormalizationMode getNormalizationMode() {
+		return normalize;
+	}
+
+	/**
+	 * Setter for {@link #normalize}.
+	 * 
+	 * @param normalize
+	 *            new value of {@link #normalize}
+	 */
+	public void setNormalizationMode(NormalizationMode normalize) {
+		this.normalize = normalize;
 	}
 
 	/**
