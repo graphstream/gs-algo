@@ -29,11 +29,16 @@
  */
 package org.graphstream.algorithm;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.InvalidPropertiesFormatException;
 import java.util.LinkedList;
+import java.util.Properties;
 
 import org.graphstream.algorithm.DefineParameter;
 import org.graphstream.algorithm.InvalidParameterException;
@@ -81,17 +86,92 @@ public class Parameter {
 		pp.process();
 	}
 
+	public static void processParameters(Object env, Properties prop)
+			throws InvalidParameterException, MissingParameterException {
+		//
+		// Create a new ParametersProcessor to process the parameters and
+		// run it.
+		//
+		ParametersProcessor pp = new ParametersProcessor(env, prop);
+		pp.process();
+	}
+
+	public static void processParameters(Object env, String propertiesPath)
+			throws InvalidParameterException, MissingParameterException, InvalidPropertiesFormatException, IOException {
+		boolean xml = propertiesPath.endsWith(".xml");
+		FileInputStream in = new FileInputStream(propertiesPath);
+		
+		processParameters(env, in, xml);
+		
+		in.close();
+	}
+	public static void processParameters(Object env, InputStream in, boolean xml)
+	throws InvalidParameterException, MissingParameterException, InvalidPropertiesFormatException, IOException {
+		Properties prop = new Properties();
+		
+		if (xml)
+			prop.loadFromXML(in);
+		else
+			prop.load(in);
+		
+		processParameters(env, prop);
+	}
+
+	public static Properties exportParameters(Object env) {
+		ParametersProcessor pp = new ParametersProcessor(env);
+		Properties prop = new Properties();
+		
+		for (Field f : pp.fields.keySet()) {
+			DefineParameter dp = f.getAnnotation(DefineParameter.class);
+			
+			try {
+				f.setAccessible(true);
+			} catch (Exception e) {
+				// Can't change permission...
+				// Trying anyway to continue !
+			}
+			
+			try {
+				prop.setProperty(dp.name(), f.get(env).toString());
+			} catch (IllegalArgumentException e) {
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return prop;
+	}
+
 	/**
 	 * Defines the object which will process parameters.
 	 * 
 	 */
 	public static class ParametersProcessor {
+		HashMap<String, Field> definedParameters;
 		HashMap<Field, Object> fields;
 		HashMap<String, Object> params;
 
+		public ParametersProcessor(Object obj) {
+			init(obj);
+		}
+		
+		public ParametersProcessor(Object obj, Properties prop) {
+			init(obj);
+			buildParametersMap(prop);
+		}
+
 		public ParametersProcessor(Object obj, Parameter... parameters) {
+			init(obj);
+
+			if (parameters != null)
+				buildParametersMap(parameters);
+		}
+
+		private void init(Object obj) {
 			fields = new HashMap<Field, Object>();
 			params = new HashMap<String, Object>();
+			definedParameters = new HashMap<String, Field>();
 
 			if (obj.getClass().isArray()) {
 				Object[] objects = (Object[]) obj;
@@ -101,8 +181,6 @@ public class Parameter {
 			} else {
 				buildFields(obj);
 			}
-
-			buildParametersMap(parameters);
 		}
 
 		/**
@@ -155,8 +233,8 @@ public class Parameter {
 				String uneatenParams = "";
 
 				for (String s : remainingParameters)
-					uneatenParams += String.format("%s\"%s\"",
-							(uneatenParams.length() > 0 ? ", " : ""), s);
+					uneatenParams += String.format("%s\"%s\"", (uneatenParams
+							.length() > 0 ? ", " : ""), s);
 
 				throw new InvalidParameterException(
 						"some parameters does not exist : %s", uneatenParams);
@@ -176,9 +254,15 @@ public class Parameter {
 				Field[] clsFields = cls.getDeclaredFields();
 
 				if (clsFields != null) {
-					for (Field f : clsFields)
-						if (f.getAnnotation(DefineParameter.class) != null)
+					for (Field f : clsFields) {
+						DefineParameter dp = f
+								.getAnnotation(DefineParameter.class);
+
+						if (dp != null) {
 							fields.put(f, obj);
+							definedParameters.put(dp.name(), f);
+						}
+					}
 				}
 
 				cls = cls.getSuperclass();
@@ -194,6 +278,40 @@ public class Parameter {
 		protected void buildParametersMap(Parameter... parameters) {
 			for (Parameter p : parameters)
 				params.put(p.getKey(), p.getValue());
+		}
+
+		protected void buildParametersMap(Properties prop) {
+			for (String key : prop.stringPropertyNames()) {
+				Field f = definedParameters.get(key);
+				String v = prop.getProperty(key);
+
+				Class<?> type = f.getType();
+
+				if (type.equals(String.class))
+					params.put(key, v);
+				else if (type.equals(Double.class) || type.equals(Double.TYPE))
+					params.put(key, Double.valueOf(v));
+				else if (type.equals(Float.class) || type.equals(Float.TYPE))
+					params.put(key, Float.valueOf(v));
+				else if (type.equals(Integer.class) || type.equals(Integer.TYPE))
+					params.put(key, Integer.valueOf(v));
+				else if (type.equals(Long.class) || type.equals(Long.TYPE))
+					params.put(key, Long.valueOf(v));
+				else if (type.equals(Boolean.class) || type.equals(Boolean.TYPE))
+					params.put(key, Boolean.valueOf(v));
+				else if (type.isEnum()) {
+					@SuppressWarnings("unchecked")
+					Class<? extends Enum<?>> e = (Class<? extends Enum<?>>) type;
+					
+					for (Enum<?> en : e.getEnumConstants()) {
+						if (en.name().equals(v)) {
+							params.put(key, en);
+							break;
+						}
+					}
+				} else
+					throw new UnsupportedOperationException(type.getName());
+			}
 		}
 
 		/**
@@ -281,13 +399,13 @@ public class Parameter {
 
 				if (dp.min() != Double.NaN && n.doubleValue() < dp.min())
 					throw new InvalidParameterException(String.format(
-							"bad value for \"%s\", %f < min", dp.name(),
-							n.doubleValue()));
+							"bad value for \"%s\", %f < min", dp.name(), n
+									.doubleValue()));
 
 				if (dp.max() != Double.NaN && n.doubleValue() > dp.max())
 					throw new InvalidParameterException(String.format(
-							"bad value for \"%s\", %f > max", dp.name(),
-							n.doubleValue()));
+							"bad value for \"%s\", %f > max", dp.name(), n
+									.doubleValue()));
 			}
 
 			//
@@ -391,8 +509,8 @@ public class Parameter {
 				break;
 			default:
 				throw new InvalidParameterException(
-						"bad argument count in 'setter' '%s()' for %s",
-						dp.setter(), dp.name());
+						"bad argument count in 'setter' '%s()' for %s", dp
+								.setter(), dp.name());
 			}
 
 			try {
@@ -407,8 +525,8 @@ public class Parameter {
 						dp.setter(), dp.name());
 			} catch (InvocationTargetException e) {
 				throw new InvalidParameterException(
-						"invocation error of 'setter' '%s()' for %s",
-						dp.setter(), dp.name());
+						"invocation error of 'setter' '%s()' for %s", dp
+								.setter(), dp.name());
 			}
 		}
 
