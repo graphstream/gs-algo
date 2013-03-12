@@ -1,0 +1,40 @@
+DGS004
+null 0 0
+
+st 1
+
+an A meta.index:1
+an B meta.index:1
+an C meta.index:1
+an D meta.index:1
+
+an E meta.index:2
+an F meta.index:2
+an G meta.index:2
+an H meta.index:2
+
+an I meta.index:3
+an J meta.index:3
+an K meta.index:3
+
+ae AB A B
+ae AC A C
+ae AD A D
+ae BC B C
+ae BD B D
+ae CD C D
+
+ae EF E F
+ae EG E G
+ae FH F H
+ae GH G H
+
+ae IJ I J
+ae IK I K
+ae JK J K
+
+ae BJ B J
+ae DE D E
+ae FK F K
+
+cg "expectedvalue":17.16034
