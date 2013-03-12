@@ -67,6 +67,8 @@ public class ChartMinMaxAverageSeriesMeasure extends ChartSeries2DMeasure {
 
 		min = new XYSeries("min");
 		max = new XYSeries("max");
+		min.setMaximumItemCount(DEFAULT_WINDOW_SIZE);
+		max.setMaximumItemCount(DEFAULT_WINDOW_SIZE);
 
 		separateMinMaxAxis = true;
 	}
