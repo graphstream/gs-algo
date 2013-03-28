@@ -1,11 +1,13 @@
 /*
- * Copyright 2006 - 2012
- *      Stefan Balev       <stefan.balev@graphstream-project.org>
- *      Julien Baudry	<julien.baudry@graphstream-project.org>
- *      Antoine Dutot	<antoine.dutot@graphstream-project.org>
- *      Yoann Pigné	<yoann.pigne@graphstream-project.org>
- *      Guilhelm Savin	<guilhelm.savin@graphstream-project.org>
- *  
+ * Copyright 2006 - 2013
+ *     Stefan Balev     <stefan.balev@graphstream-project.org>
+ *     Julien Baudry    <julien.baudry@graphstream-project.org>
+ *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
+ *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
+ *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
+ * 
+ * This file is part of GraphStream <http://graphstream-project.org>.
+ * 
  * GraphStream is a library whose purpose is to handle static or dynamic
  * graph, create them from scratch, file or any source and display them.
  * 
@@ -42,7 +44,6 @@ import org.graphstream.stream.file.FileSourceDGS;
 import org.graphstream.stream.file.FileSourceEdge;
 import org.graphstream.stream.file.FileSourceGML;
 import org.graphstream.stream.file.FileSourcePajek;
-import org.graphstream.stream.thread.ThreadProxyPipe;
 import org.graphstream.ui.geom.Point3;
 import org.graphstream.ui.graphicGraph.GraphPosLengthUtils;
 import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Units;
