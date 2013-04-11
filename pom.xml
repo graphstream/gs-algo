@@ -276,7 +276,7 @@
 		<dependency>
 			<groupId>org.graphstream</groupId>
 			<artifactId>gs-core</artifactId>
-			<version>1.2-git</version>
+			<version>1.2-SNAPSHOT</version>
 			<optional>false</optional>
 		</dependency>
 		<dependency>
