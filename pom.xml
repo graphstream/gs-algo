@@ -24,9 +24,15 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
+
 	<groupId>org.graphstream</groupId>
 	<artifactId>gs-algo</artifactId>
-	<version>1.2-git</version>
+	<version>1.2-SNAPSHOT</version>
 
 	<name>gs-algo</name>
 	<description>
@@ -39,6 +45,7 @@
 	<!-- Source code of GraphStream is hosted on GitHub. -->
 	<scm>
 		<connection>scm:git:git://github.com/graphstream/gs-algo.git</connection>
+		<developerConnection>scm:git:git://github.com/graphstream/gs-algo.git</developerConnection>
 		<url>https://github.com/graphstream/gs-algo</url>
 	</scm>
 

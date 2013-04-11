@@ -136,7 +136,7 @@ public class HierarchicalLayout extends PipeBase implements Layout {
 		LinkedList<Node> roots = new LinkedList<Node>(), roots2 = new LinkedList<Node>();
 
 		if (this.roots.size() > 0) {
-			for (int i = 0; i < roots.size(); i++)
+			for (int i = 0; i < this.roots.size(); i++)
 				roots.add(internalGraph.getNode(this.roots.get(i)));
 		}
 
