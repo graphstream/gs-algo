@@ -1684,9 +1684,10 @@ public class Toolkit extends
 
 		stab = Math.min(stab, 1);
 
-		g.addAttributeSink(layout);
+		layout.addAttributeSink(g);
 		r.addSink(layout);
 		r.replay(g);
+		r.removeSink(layout);
 
 		layout.shake();
 		layout.compute();
@@ -1694,6 +1695,8 @@ public class Toolkit extends
 		do
 			layout.compute();
 		while (layout.getStabilization() < stab);
+		
+		layout.removeAttributeSink(g);
 	}
 
 	/**
