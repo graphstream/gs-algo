@@ -144,7 +144,7 @@ public abstract class AbstractCentrality implements Algorithm {
 			for (int idx = 0; idx < count; idx++)
 				s += data[idx];
 			for (int idx = 0; idx < count; idx++)
-				graph.getNode(idx).setAttribute(centralityAttribute,
+				graph.getNode(idx).setAttribute(attribute,
 						data[idx] / s);
 
 			break;
@@ -158,14 +158,14 @@ public abstract class AbstractCentrality implements Algorithm {
 			}
 
 			for (int idx = 0; idx < count; idx++) {
-				graph.getNode(idx).setAttribute(centralityAttribute,
+				graph.getNode(idx).setAttribute(attribute,
 						(data[idx] - min) / (max - min));
 			}
 
 			break;
 		case NONE:
 			for (int idx = 0; idx < count; idx++)
-				graph.getNode(idx).setAttribute(centralityAttribute, data[idx]);
+				graph.getNode(idx).setAttribute(attribute, data[idx]);
 
 			break;
 		}
