@@ -31,12 +31,10 @@
  */
 package org.graphstream.algorithm.coloring;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.PriorityQueue;
+import java.util.LinkedList;
 
 import org.graphstream.algorithm.Algorithm;
+import org.graphstream.algorithm.util.FibonacciHeap;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -76,72 +74,44 @@ import org.graphstream.graph.Node;
  * <p>
  * After computation (using {@link #compute()}, the algorithm result for the
  * computation, the chromatic number, is accessible with the
- * {@link #getChromaticNumber()} method.  Colors (of "Integer" type) are stored in the graph as attributes (one for each node).
- * By default the attribute name is "WelshPowell.color", but you can optional choose the
- * attribute name.
+ * {@link #getChromaticNumber()} method. Colors (of "Integer" type) are stored
+ * in the graph as attributes (one for each node). By default the attribute name
+ * is "WelshPowell.color", but you can optional choose the attribute name.
  * </p>
  * 
  * 
  * 
- * <h2>Example</h2>
- * import java.io.IOException;
- * import java.io.StringReader;
+ * <h2>Example</h2> import java.io.IOException; import java.io.StringReader;
  * 
- * import org.graphstream.algorithm.coloring.WelshPowell;
- * import org.graphstream.graph.ElementNotFoundException;
- * import org.graphstream.graph.Graph;
- * import org.graphstream.graph.Node;
- * import org.graphstream.graph.implementations.DefaultGraph;
- * import org.graphstream.stream.GraphParseException;
- * import org.graphstream.stream.file.FileSourceDGS;
+ * import org.graphstream.algorithm.coloring.WelshPowell; import
+ * org.graphstream.graph.ElementNotFoundException; import
+ * org.graphstream.graph.Graph; import org.graphstream.graph.Node; import
+ * org.graphstream.graph.implementations.DefaultGraph; import
+ * org.graphstream.stream.GraphParseException; import
+ * org.graphstream.stream.file.FileSourceDGS;
  * 
- * public class WelshPowellTest {
- * 	//     B-(1)-C
- * 	//    /       \
- * 	//  (1)       (10)
- * 	//  /           \
- * 	// A             F
- * 	//  \           /
- * 	//  (1)       (1)
- * 	//    \       /
- * 	//     D-(1)-E
- * 	static String my_graph = 
- * 		"DGS004\n" 
- * 		+ "my 0 0\n" 
- * 		+ "an A \n" 
- * 		+ "an B \n"
- * 		+ "an C \n"
- * 		+ "an D \n"
- * 		+ "an E \n"
- * 		+ "an F \n"
- * 		+ "ae AB A B weight:1 \n"
- * 		+ "ae AD A D weight:1 \n"
- * 		+ "ae BC B C weight:1 \n"
- * 		+ "ae CF C F weight:10 \n"
- * 		+ "ae DE D E weight:1 \n"
- * 		+ "ae EF E F weight:1 \n"
- * 		;
- * 	public static void main(String[] args) throws IOException, ElementNotFoundException, GraphParseException {
- * 		Graph graph = new DefaultGraph("Welsh Powell Test");
- * 		StringReader reader  = new StringReader(my_graph);
- * 		
- * 		FileSourceDGS source = new FileSourceDGS();
- * 		source.addSink(graph);
- * 		source.readAll(reader);
- * 		
- * 		WelshPowell wp = new WelshPowell("color");
- * 		wp.init(graph);
- * 		wp.compute();
- * 		
- * 		System.out.println("The chromatic number of this graph is : "+wp.getChromaticNumber());
- * 		for(Node n : graph){
- * 			System.out.println("Node "+n.getId()+ " : color " +n.getAttribute("color"));
- * 		}		
- * 	}
- * }
- * </pre>
+ * public class WelshPowellTest { // B-(1)-C // / \ // (1) (10) // / \ // A F //
+ * \ / // (1) (1) // \ / // D-(1)-E static String my_graph = "DGS004\n" +
+ * "my 0 0\n" + "an A \n" + "an B \n" + "an C \n" + "an D \n" + "an E \n" +
+ * "an F \n" + "ae AB A B weight:1 \n" + "ae AD A D weight:1 \n" +
+ * "ae BC B C weight:1 \n" + "ae CF C F weight:10 \n" + "ae DE D E weight:1 \n"
+ * + "ae EF E F weight:1 \n" ; public static void main(String[] args) throws
+ * IOException, ElementNotFoundException, GraphParseException { Graph graph =
+ * new DefaultGraph("Welsh Powell Test"); StringReader reader = new
+ * StringReader(my_graph);
+ * 
+ * FileSourceDGS source = new FileSourceDGS(); source.addSink(graph);
+ * source.readAll(reader);
+ * 
+ * WelshPowell wp = new WelshPowell("color"); wp.init(graph); wp.compute();
+ * 
+ * System.out.println("The chromatic number of this graph is : "+wp.
+ * getChromaticNumber()); for(Node n : graph){
+ * System.out.println("Node "+n.getId()+ " : color " +n.getAttribute("color"));
+ * } } } </pre>
  * 
  * This shall return:
+ * 
  * <pre>
  * The chromatic number of this graph is : 3
  * Node D : color 0
@@ -156,33 +126,33 @@ import org.graphstream.graph.Node;
  * <h2>Extra Feature</h2>
  * 
  * <p>
- * Consider you what to display the result of they coloring algorithm on a displayed graph, 
- * then adding the following code to the previous example may help you:
+ * Consider you what to display the result of they coloring algorithm on a
+ * displayed graph, then adding the following code to the previous example may
+ * help you:
  * </p>
  * 
  * <pre>
  * Color[] cols = new Color[wp.getChromaticNumber()];
- * for(int i=0;i< wp.getChromaticNumber();i++){
- * 	cols[i]=Color.getHSBColor((float) (Math.random()), 0.8f, 0.9f);
+ * for (int i = 0; i &lt; wp.getChromaticNumber(); i++) {
+ * 	cols[i] = Color.getHSBColor((float) (Math.random()), 0.8f, 0.9f);
  * }
- * for(Node n : graph){
- * 	int col = (int) n.getNumber("color");
- * 	n.addAttribute("ui.style", "fill-color:rgba("+cols[col].getRed()+","+cols[col].getGreen()+","+cols[col].getBlue()+",200);" );
+ * for (Node n : graph) {
+ * 	int col = (int) n.getNumber(&quot;color&quot;);
+ * 	n.addAttribute(&quot;ui.style&quot;, &quot;fill-color:rgba(&quot; + cols[col].getRed() + &quot;,&quot;
+ * 			+ cols[col].getGreen() + &quot;,&quot; + cols[col].getBlue() + &quot;,200);&quot;);
  * }
  * 
  * graph.display();
  * </pre>
-
- *
  * 
- * @complexity
- * 			This algorithm is known to use at most d(G)+1 colors where d(G) represents
- * 			the largest value of the degree in the graph G.
  * 
- * @reference
- * 			Welsh, D. J. A.; Powell, M. B. (1967), 
- * 			"An upper bound for the chromatic number of a graph and its application to timetabling problems", 
- * 			The Computer Journal 10 (1): 85–86, doi:10.1093/comjnl/10.1.85
+ * 
+ * @complexity This algorithm is known to use at most d(G)+1 colors where d(G)
+ *             represents the largest value of the degree in the graph G.
+ * 
+ * @reference Welsh, D. J. A.; Powell, M. B. (1967),
+ *            "An upper bound for the chromatic number of a graph and its application to timetabling problems"
+ *            , The Computer Journal 10 (1): 85–86, doi:10.1093/comjnl/10.1.85
  * 
  * @version 0.1 30/08/2007
  * @author Frédéric Guinand
@@ -220,8 +190,8 @@ public class WelshPowell implements Algorithm {
 	}
 
 	/**
-	 * New Welsh and Powell coloring algorithm, using "WelshPowell.color" as the attribute
-	 * name. 
+	 * New Welsh and Powell coloring algorithm, using "WelshPowell.color" as the
+	 * attribute name.
 	 * 
 	 */
 	public WelshPowell() {
@@ -251,7 +221,6 @@ public class WelshPowell implements Algorithm {
 		this.attrName = attrName;
 	}
 
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -277,84 +246,53 @@ public class WelshPowell implements Algorithm {
 		// the algorithm requires the use of a sorted list using
 		// degree values for sorting them.
 
-		Comparator<Node> degreeComparator = new Comparator<Node>() {
-			public int compare(Node ni, Node nj) {
-				int returnValue = 0;
-				int diff = ni.getDegree() - nj.getDegree();
-
-				if (diff > 0) {
-					returnValue = -1;
-				} else if (diff < 0) {
-					returnValue = 1;
-				}
-
-				return returnValue;
-			}
-		};
-
-		PriorityQueue<Node> pq = new PriorityQueue<Node>(g.getNodeCount(),
-				degreeComparator);
-		Iterator<? extends Node> nodes = g.getNodeIterator();
-
-		while (nodes.hasNext()) {
-			pq.add(nodes.next());
-		}
-
-		ArrayList<Node> sortedNodes = new ArrayList<Node>();
+		LinkedList<Node> sortedNodes = new LinkedList<Node>();
+		FibonacciHeap<Integer, Node> heap = new FibonacciHeap<Integer, Node>();
 
 		for (int i = 0; i < g.getNodeCount(); i++) {
-			sortedNodes.add(pq.poll());
+			Node n = g.getNode(i);
+			heap.add(n.getDegree(), n);
 		}
+
+		while (!heap.isEmpty())
+			sortedNodes.addFirst(heap.extractMin());
+
+		heap = null;
 
 		// ------ STEP 2 --------
 		// color initialization
 
-		ArrayList<Integer> allColors = new ArrayList<Integer>();
-		Integer col;
 		int nbColors = 0;
-
-		for (int i = 0; i < g.getNodeCount(); i++) {
-			col = i;
-			allColors.add(col);
-		}
 
 		// ------- STEP 3 --------
 
-		Integer currentColor = allColors.remove(0);
-		nbColors++;
+		while (sortedNodes.size() > 0) {
+			Node root = sortedNodes.poll();
+			LinkedList<Node> myGroup = new LinkedList<Node>();
+			myGroup.add(root);
 
-		while (!sortedNodes.isEmpty()) {
-			int index = 0;
+			root.addAttribute(attributeName, nbColors);
 
-			while (index < sortedNodes.size()) {
-				Node n = sortedNodes.get(index);
-				Iterator<? extends Node> neighbors = n
-						.getNeighborNodeIterator();
+			for (int i = 0; i < sortedNodes.size();) {
+				Node p = sortedNodes.get(i);
 				boolean conflict = false;
 
-				while (neighbors.hasNext() && !conflict) {
-					Node neighb = neighbors.next();
+				for (int j = 0; !conflict && j < myGroup.size(); j++)
+					conflict = p.getEdgeBetween(myGroup.get(j).getIndex()) != null;
 
-					if (neighb.hasAttribute(attributeName)) {
-						if (((neighb.getAttribute(attributeName)))
-								.equals(currentColor)) {
-							conflict = true;
-						}
-					}
-				}
-
-				if (!conflict) {
-					n.addAttribute(attributeName, currentColor);
-					sortedNodes.remove(index);
-				} else {
-					index++;
+				if (conflict)
+					i++;
+				else {
+					p.addAttribute(attributeName, nbColors);
+					myGroup.add(p);
+					sortedNodes.remove(i);
 				}
 			}
 
-			currentColor = allColors.remove(0);
+			myGroup.clear();
 			nbColors++;
 		}
 
-		chromaticNumber = nbColors-1;
+		chromaticNumber = nbColors;
 	}
 }
