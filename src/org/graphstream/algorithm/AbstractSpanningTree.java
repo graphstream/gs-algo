@@ -113,10 +113,6 @@ import org.graphstream.graph.Graph;
  * ..
  * </pre>
  */
-/**
- * @author stefan
- *
- */
 public abstract class AbstractSpanningTree implements SpanningTree {
 	/**
 	 * The graph on which algorithm try to extract a spanning tree.
