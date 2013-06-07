@@ -1,0 +1,1414 @@
+commit 903c000
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2013-06-04
+
+    Small javadoc modification
+
+src/org/graphstream/algorithm/AbstractSpanningTree.java
+
+commit a07ee7a
+Author: Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+Date:   2013-05-27
+
+    Fix WelshPowell algorithm
+
+src-test/org/graphstream/algorithm/coloring/test/WelshPowellDemo.java
+src/org/graphstream/algorithm/coloring/WelshPowell.java
+
+commit 46be959
+Author: Yoann Pigné <yoann.pigne@gmail.com>
+Date:   2013-05-04
+
+    copyValueTo should actually copy values to the attribute given in paramater, not to the centralityAttribute.
+
+src/org/graphstream/algorithm/measure/AbstractCentrality.java
+
+commit 78d362a
+Author: Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+Date:   2013-04-16
+
+    Fix Toolkit method computeLayout()
+
+src/org/graphstream/algorithm/Toolkit.java
+
+commit 715a077
+Author: Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+Date:   2013-04-11
+
+    Update POM
+
+pom.xml
+
+commit b77f991
+Author: Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+Date:   2013-04-11
+
+    Update pom. Fix #78.
+
+pom.xml
+src/org/graphstream/ui/layout/HierarchicalLayout.java
+
+commit d420a01
+Author: Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+Date:   2013-03-28
+
+    Update licence preamble
+
+src-test/org/graphstream/algorithm/flow/test/TestEdmondsKarpAlgorithm.java
+src-test/org/graphstream/algorithm/flow/test/TestFlowAlgorithm.java
+src-test/org/graphstream/algorithm/flow/test/TestFordFulkersonAlgorithm.java
+src-test/org/graphstream/algorithm/generator/demo/LifeGeneratorDemo.java
+src-test/org/graphstream/algorithm/generator/test/TestRandomGenerator.java
+src-test/org/graphstream/algorithm/measure/demo/ClosenessCentralityDemo.java
+src-test/org/graphstream/algorithm/measure/demo/DegreeCentralityDemo.java
+src-test/org/graphstream/algorithm/measure/demo/EigenvectorCentralityDemo.java
+src-test/org/graphstream/algorithm/measure/test/TestConnectivityMeasure.java
+src-test/org/graphstream/algorithm/measure/test/TestSimultaneousElementCount.java
+src-test/org/graphstream/algorithm/measure/test/TestSurpriseMeasure.java
+src-test/org/graphstream/algorithm/networksimplex/test/Benchmark.java
+src-test/org/graphstream/algorithm/networksimplex/test/TestDynamicOneToAllShortestPath.java
+src-test/org/graphstream/algorithm/networksimplex/test/TestNetworkSimplex.java
+src-test/org/graphstream/algorithm/test/DemoPageRank.java
+src-test/org/graphstream/algorithm/test/TestAPSP.java
+src-test/org/graphstream/algorithm/test/TestAStar.java
+src-test/org/graphstream/algorithm/test/TestBetweenessCentrality.java
+src-test/org/graphstream/algorithm/test/TestDijkstra.java
+src-test/org/graphstream/algorithm/test/TestGenerator.java
+src-test/org/graphstream/algorithm/test/TestKruskalPrim.java
+src-test/org/graphstream/algorithm/test/TestPageRank.java
+src-test/org/graphstream/algorithm/test/TestToolkit.java
+src-test/org/graphstream/ui/layout/test/DemoLayout.java
+src-test/org/graphstream/ui/layout/test/DemoLinLogLayout.java
+src/org/graphstream/algorithm/APSP.java
+src/org/graphstream/algorithm/AStar.java
+src/org/graphstream/algorithm/AbstractSpanningTree.java
+src/org/graphstream/algorithm/Algorithm.java
+src/org/graphstream/algorithm/AlgorithmComputationTrigger.java
+src/org/graphstream/algorithm/BellmanFord.java
+src/org/graphstream/algorithm/BetweennessCentrality.java
+src/org/graphstream/algorithm/Centroid.java
+src/org/graphstream/algorithm/ConnectedComponents.java
+src/org/graphstream/algorithm/DStar.java
+src/org/graphstream/algorithm/DefineParameter.java
+src/org/graphstream/algorithm/Dijkstra.java
+src/org/graphstream/algorithm/DynamicAlgorithm.java
+src/org/graphstream/algorithm/Eccentricity.java
+src/org/graphstream/algorithm/FixedArrayList.java
+src/org/graphstream/algorithm/InvalidParameterException.java
+src/org/graphstream/algorithm/Kruskal.java
+src/org/graphstream/algorithm/MissingParameterException.java
+src/org/graphstream/algorithm/NotInitializedException.java
+src/org/graphstream/algorithm/PageRank.java
+src/org/graphstream/algorithm/Parameter.java
+src/org/graphstream/algorithm/Prim.java
+src/org/graphstream/algorithm/SpanningTree.java
+src/org/graphstream/algorithm/Spectrum.java
+src/org/graphstream/algorithm/TarjanStronglyConnectedComponents.java
+src/org/graphstream/algorithm/Toolkit.java
+src/org/graphstream/algorithm/coloring/WelshPowell.java
+src/org/graphstream/algorithm/coloring/package-info.java
+src/org/graphstream/algorithm/community/Community.java
+src/org/graphstream/algorithm/community/DecentralizedCommunityAlgorithm.java
+src/org/graphstream/algorithm/community/EpidemicCommunityAlgorithm.java
+src/org/graphstream/algorithm/community/Leung.java
+src/org/graphstream/algorithm/community/SyncEpidemicCommunityAlgorithm.java
+src/org/graphstream/algorithm/community/package-info.java
+src/org/graphstream/algorithm/flow/EdmondsKarpAlgorithm.java
+src/org/graphstream/algorithm/flow/FlowAlgorithm.java
+src/org/graphstream/algorithm/flow/FlowAlgorithmBase.java
+src/org/graphstream/algorithm/flow/FordFulkersonAlgorithm.java
+src/org/graphstream/algorithm/generator/BananaTreeGenerator.java
+src/org/graphstream/algorithm/generator/BarabasiAlbertGenerator.java
+src/org/graphstream/algorithm/generator/BaseGenerator.java
+src/org/graphstream/algorithm/generator/ChvatalGenerator.java
+src/org/graphstream/algorithm/generator/DorogovtsevMendesGenerator.java
+src/org/graphstream/algorithm/generator/FlowerSnarkGenerator.java
+src/org/graphstream/algorithm/generator/FullGenerator.java
+src/org/graphstream/algorithm/generator/Generator.java
+src/org/graphstream/algorithm/generator/GridGenerator.java
+src/org/graphstream/algorithm/generator/IncompleteGridGenerator.java
+src/org/graphstream/algorithm/generator/LCFGenerator.java
+src/org/graphstream/algorithm/generator/LifeGenerator.java
+src/org/graphstream/algorithm/generator/LobsterGenerator.java
+src/org/graphstream/algorithm/generator/PetersenGraphGenerator.java
+src/org/graphstream/algorithm/generator/PointsOfInterestGenerator.java
+src/org/graphstream/algorithm/generator/PreferentialAttachmentGenerator.java
+src/org/graphstream/algorithm/generator/RandomEuclideanGenerator.java
+src/org/graphstream/algorithm/generator/RandomFixedDegreeDynamicGraphGenerator.java
+src/org/graphstream/algorithm/generator/RandomGenerator.java
+src/org/graphstream/algorithm/generator/URLGenerator.java
+src/org/graphstream/algorithm/generator/WattsStrogatzGenerator.java
+src/org/graphstream/algorithm/generator/WikipediaGenerator.java
+src/org/graphstream/algorithm/generator/lcf/Balaban10CageGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/Balaban11CageGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/BidiakisCubeGenerator.java
+src/org/graphstream/algorithm/generator/lcf/BiggsSmithGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/CubicalGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/DesarguesGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/DodecahedralGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/DyckGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/F26AGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/FosterGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/FranklinGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/FruchtGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/GrayGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/HarriesGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/HarriesWongGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/HeawoodGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/LjubljanaGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/McGeeGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/MobiusKantorGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/NauruGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/PappusGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/TetrahedralGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/TruncatedCubicalGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/TruncatedDodecahedralGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/TruncatedOctahedralGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/TruncatedTetrahedralGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/Tutte12CageGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/TutteCoxeterGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/UtilityGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/WagnerGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/package-info.java
+src/org/graphstream/algorithm/generator/package-info.java
+src/org/graphstream/algorithm/measure/AbstractCentrality.java
+src/org/graphstream/algorithm/measure/ChartConnectivityMeasure.java
+src/org/graphstream/algorithm/measure/ChartMeasure.java
+src/org/graphstream/algorithm/measure/ChartMinMaxAverageSeriesMeasure.java
+src/org/graphstream/algorithm/measure/ChartSeries1DMeasure.java
+src/org/graphstream/algorithm/measure/ChartSeries2DMeasure.java
+src/org/graphstream/algorithm/measure/ChartSeriesMeasure.java
+src/org/graphstream/algorithm/measure/ClosenessCentrality.java
+src/org/graphstream/algorithm/measure/CommunityDistribution.java
+src/org/graphstream/algorithm/measure/CommunityMeasure.java
+src/org/graphstream/algorithm/measure/CommunityRelativeMeasure.java
+src/org/graphstream/algorithm/measure/ConnectivityMeasure.java
+src/org/graphstream/algorithm/measure/DegreeCentrality.java
+src/org/graphstream/algorithm/measure/DegreeMeasure.java
+src/org/graphstream/algorithm/measure/EigenvectorCentrality.java
+src/org/graphstream/algorithm/measure/ElementCountMeasure.java
+src/org/graphstream/algorithm/measure/MaxSimultaneousEdgeCount.java
+src/org/graphstream/algorithm/measure/MaxSimultaneousNodeCount.java
+src/org/graphstream/algorithm/measure/Modularity.java
+src/org/graphstream/algorithm/measure/NormalizedMutualInformation.java
+src/org/graphstream/algorithm/measure/SurpriseMeasure.java
+src/org/graphstream/algorithm/measure/VariationOfInformation.java
+src/org/graphstream/algorithm/measure/package-info.java
+src/org/graphstream/algorithm/networksimplex/BigMNumber.java
+src/org/graphstream/algorithm/networksimplex/DynamicOneToAllShortestPath.java
+src/org/graphstream/algorithm/networksimplex/NetworkSimplex.java
+src/org/graphstream/algorithm/package-info.java
+src/org/graphstream/algorithm/randomWalk/Entity.java
+src/org/graphstream/algorithm/randomWalk/RandomWalk.java
+src/org/graphstream/algorithm/randomWalk/TabuEntity.java
+src/org/graphstream/algorithm/util/DisjointSets.java
+src/org/graphstream/algorithm/util/FibonacciHeap.java
+src/org/graphstream/algorithm/util/RandomTools.java
+src/org/graphstream/algorithm/util/package-info.java
+src/org/graphstream/ui/layout/Eades84Layout.java
+src/org/graphstream/ui/layout/HierarchicalLayout.java
+
+commit 68dcb6c
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2013-03-12
+
+    Minor changes
+
+src/org/graphstream/algorithm/measure/ChartMinMaxAverageSeriesMeasure.java
+src/org/graphstream/ui/layout/HierarchicalLayout.java
+
+commit 2b8db26
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2013-03-12
+
+    Minor change
+
+src/org/graphstream/algorithm/Parameter.java
+
+commit 70511d0
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2013-03-12
+
+    Add Surprise measure
+
+src-test/org/graphstream/algorithm/measure/test/TestSurpriseMeasure.java
+src-test/org/graphstream/algorithm/measure/test/data/TestSurpriseMeasure.dgs
+src/org/graphstream/algorithm/measure/SurpriseMeasure.java
+
+commit d393c23
+Author: Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+Date:   2012-11-08
+
+    Add new generator based on Game of Life
+
+src-test/org/graphstream/algorithm/generator/demo/LifeGeneratorDemo.java
+src-test/org/graphstream/algorithm/generator/demo/life-demo.png
+src/org/graphstream/algorithm/generator/LifeGenerator.java
+
+commit 3d71ad7
+Author: Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+Date:   2012-11-08
+
+    Fix the centrality adding the forgotten abstract centrality class in the last commit.
+
+src/org/graphstream/algorithm/measure/AbstractCentrality.java
+
+commit 23fdb7c
+Author: Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+Date:   2012-11-07
+
+    Add more option for normalization in centrality measures.
+
+src-test/org/graphstream/algorithm/measure/demo/ClosenessCentralityDemo.java
+src-test/org/graphstream/algorithm/measure/demo/DegreeCentralityDemo.java
+src-test/org/graphstream/algorithm/measure/demo/EigenvectorCentralityDemo.java
+src/org/graphstream/algorithm/measure/ClosenessCentrality.java
+src/org/graphstream/algorithm/measure/DegreeCentrality.java
+src/org/graphstream/algorithm/measure/EigenvectorCentrality.java
+
+commit ed28f22
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-10-31
+
+    Add Wikipedia generator
+
+src/org/graphstream/algorithm/generator/URLGenerator.java
+src/org/graphstream/algorithm/generator/WikipediaGenerator.java
+
+commit 8a625ea
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-10-31
+
+    Fix Eigenvector centrality
+
+src/org/graphstream/algorithm/Toolkit.java
+src/org/graphstream/algorithm/measure/EigenvectorCentrality.java
+
+commit ed42f52
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-10-30
+
+    Fix eigenvector centrality
+
+src/org/graphstream/algorithm/measure/EigenvectorCentrality.java
+
+commit ecc9ad4
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-10-28
+
+    Add Eigenvector centrality + demo
+
+pom.xml
+src-test/org/graphstream/algorithm/measure/demo/EigenvectorCentralityDemo.java
+src/org/graphstream/algorithm/Spectrum.java
+src/org/graphstream/algorithm/measure/EigenvectorCentrality.java
+
+commit 319f670
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-10-27
+
+    Fix closeness
+
+src/org/graphstream/algorithm/measure/ClosenessCentrality.java
+
+commit 2f01aa4
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-10-27
+
+    Add abstract centrality
+
+src/org/graphstream/algorithm/measure/AbstractCentrality.java
+
+commit 3f5e74b
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-10-27
+
+    Add degree centrality measure with demo.
+
+src-test/org/graphstream/algorithm/measure/demo/DegreeCentralityDemo.java
+src/org/graphstream/algorithm/measure/DegreeCentrality.java
+
+commit 110cbf9
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-10-27
+
+    Update Closeness centrality documentation. Add demo.
+
+src-test/org/graphstream/algorithm/measure/demo/ClosenessCentralityDemo.java
+src/org/graphstream/algorithm/NotInitializedException.java
+src/org/graphstream/algorithm/measure/ClosenessCentrality.java
+
+commit 345188e
+Author: Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+Date:   2012-10-25
+
+    Add Closeness centrality measure. No doc yet.
+
+src/org/graphstream/algorithm/measure/ClosenessCentrality.java
+
+commit fa6e4a3
+Author: Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+Date:   2012-09-21
+
+    Minor fix in tests
+
+src-test/org/graphstream/algorithm/test/TestKruskalPrim.java
+
+commit abbde18
+Merge: 08a84a7 2676557
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-09-21
+
+    Merge branch 'spanningtree'
+
+commit 2676557
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-09-21
+
+    Added an interface for spanning tree algorithms.
+
+src/org/graphstream/algorithm/AbstractSpanningTree.java
+src/org/graphstream/algorithm/SpanningTree.java
+
+commit b0a18c8
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-07-26
+
+    Dijkstra extends AbstractSpanningTree now
+
+src/org/graphstream/algorithm/Dijkstra.java
+src/org/graphstream/algorithm/Kruskal.java
+
+commit 581a9c5
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-07-25
+
+    Unit tests for Kruskal and Prim
+
+src-test/org/graphstream/algorithm/test/TestKruskalPrim.java
+
+commit 643c5f4
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-07-25
+
+    New version of Prim.
+    On my benchmark graph reduces the running time from 8 days (estimated time)
+    to 1.5 s.
+
+src/org/graphstream/algorithm/Prim.java
+
+commit c68fc39
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-07-24
+
+    (Almost) definitive version of Kruskal.
+    On my benchmark graph with 4680 nodes and ~2.4M edges
+    reduces the running time from 1 h to 10 s.
+
+src/org/graphstream/algorithm/AbstractSpanningTree.java
+src/org/graphstream/algorithm/Kruskal.java
+
+commit 6504509
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-07-24
+
+    Draft version of Kruskal
+
+src/org/graphstream/algorithm/Kruskal.java
+src/org/graphstream/algorithm/util/DisjointSets.java
+
+commit 643d1f0
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-07-24
+
+    Modified and extended AbstractSpanningTree
+
+src/org/graphstream/algorithm/AbstractSpanningTree.java
+src/org/graphstream/algorithm/Kruskal.java
+src/org/graphstream/algorithm/Prim.java
+src/org/graphstream/algorithm/util/DisjointSets.java
+
+commit a79a609
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-07-23
+
+    A data structure maintaining disjoint sets
+
+src/org/graphstream/algorithm/util/DisjointSets.java
+
+commit 08a84a7
+Author: Antoine <antoine.dutot@gmail.com>
+Date:   2012-07-23
+
+    Added some weighted degree computation methods in Toolkit.
+
+src/org/graphstream/algorithm/Toolkit.java
+
+commit c55fd31
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-07-13
+
+    Changed getAttribute to getNumber because autobuild didn't work.
+    Although it compiles on my machine :)
+
+src/org/graphstream/algorithm/PageRank.java
+
+commit 9f949bc
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-07-12
+
+    PageRank implementation
+
+src-test/org/graphstream/algorithm/test/DemoPageRank.java
+src-test/org/graphstream/algorithm/test/TestPageRank.java
+src/org/graphstream/algorithm/PageRank.java
+
+commit fae4e2a
+Author: Antoine <antoine.dutot@gmail.com>
+Date:   2012-07-11
+
+    Modification on Layout tests.
+
+src-test/org/graphstream/ui/layout/test/DemoLayout.java
+
+commit 75a393e
+Author: Antoine <antoine.dutot@gmail.com>
+Date:   2012-07-11
+
+    Changed Layout tests.
+
+src-test/org/graphstream/ui/layout/test/DemoLayout.java
+src-test/org/graphstream/ui/layout/test/data/dolphins.gml
+src-test/org/graphstream/ui/layout/test/data/fourComponents.dgs
+src-test/org/graphstream/ui/layout/test/data/polbooks.gml
+
+commit b0f904e
+Author: Antoine <antoine.dutot@gmail.com>
+Date:   2012-07-02
+
+    Changed some tests in demos.
+
+src-test/org/graphstream/ui/layout/test/DemoLayout.java
+src-test/org/graphstream/ui/layout/test/DemoLinLogLayout.java
+src-test/org/graphstream/ui/layout/test/TestLayout.java
+src-test/org/graphstream/ui/layout/test/TestLinLogLayout.java
+src/org/graphstream/algorithm/measure/Modularity.java
+
+commit 112acab
+Author: Antoine <antoine.dutot@gmail.com>
+Date:   2012-06-26
+
+    Changes for the LinLog layout.
+
+src-test/org/graphstream/ui/layout/test/TestLayout.java
+src-test/org/graphstream/ui/layout/test/TestLinLogLayout.java
+src-test/org/graphstream/ui/layout/test/data/8Clusters.txt
+src-test/org/graphstream/ui/layout/test/data/USAir97.net
+src-test/org/graphstream/ui/layout/test/data/WorldImport1999.edge
+src-test/org/graphstream/ui/layout/test/data/adjnoun.gml
+src-test/org/graphstream/ui/layout/test/data/astro-ph.gml
+src-test/org/graphstream/ui/layout/test/data/celegansneural.gml
+src-test/org/graphstream/ui/layout/test/data/football.gml
+src-test/org/graphstream/ui/layout/test/data/power.gml
+
+commit d1e1dc0
+Author: Antoine <antoine.dutot@gmail.com>
+Date:   2012-06-24
+
+    Added a test for the LinLog layout.
+    
+    The LinLog layout is in core but needs components in this package.
+
+src-test/org/graphstream/ui/layout/test/TestLayout.java
+src-test/org/graphstream/ui/layout/test/TestLinLogLayout.java
+src-test/org/graphstream/ui/layout/test/data/FourClusters.dgs
+src-test/org/graphstream/ui/layout/test/data/dolphins.gml
+src-test/org/graphstream/ui/layout/test/data/dorogovtsev_mendes6000.dgs
+src-test/org/graphstream/ui/layout/test/data/grid6x6.dgs
+src-test/org/graphstream/ui/layout/test/data/grid7x7.dgs
+src-test/org/graphstream/ui/layout/test/data/imdb.dgs
+src-test/org/graphstream/ui/layout/test/data/karate.gml
+src-test/org/graphstream/ui/layout/test/data/polbooks.gml
+src-test/org/graphstream/ui/layout/test/data/triangles.dgs
+
+commit d68658c
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-06-20
+
+    Remove warnings
+
+src/org/graphstream/algorithm/APSP.java
+src/org/graphstream/algorithm/Kruskal.java
+src/org/graphstream/algorithm/Prim.java
+
+commit a8c7da2
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-06-20
+
+    Minor fix and warnings removal
+
+src/org/graphstream/ui/layout/Eades84Layout.java
+src/org/graphstream/ui/layout/HierarchicalLayout.java
+
+commit 2e34e7c
+Author: Antoine <antoine.dutot@gmail.com>
+Date:   2012-06-20
+
+    Reflect the changes in the ui.layout of core.
+
+src/org/graphstream/ui/layout/Eades84Layout.java
+src/org/graphstream/ui/layout/HierarchicalLayout.java
+
+commit ec6e719
+Author: Antoine <antoine.dutot@gmail.com>
+Date:   2012-06-19
+
+    Adapt to the changes in core ui.layout.
+
+src-test/org/graphstream/ui/layout/test/TestLayout.java
+src/org/graphstream/algorithm/Toolkit.java
+src/org/graphstream/ui/layout/Eades84Layout.java
+src/org/graphstream/ui/layout/HierarchicalLayout.java
+
+commit ad69736
+Author: Antoine <antoine.dutot@gmail.com>
+Date:   2012-06-06
+
+    Added edge-betweeness centrality and edge direction.
+    
+    Thanks to the contribution of Thibaut Démare.
+
+src-test/org/graphstream/algorithm/test/TestBetweenessCentrality.java
+src/org/graphstream/algorithm/AStar.java
+src/org/graphstream/algorithm/BetweennessCentrality.java
+src/org/graphstream/ui/layout/Eades84Layout.java
+src/org/graphstream/ui/layout/HierarchicalLayout.java
+
+commit 86d05e5
+Merge: 332fae9 c443c9e
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-05-30
+
+    Merge branch 'master' of github.com:graphstream/gs-algo
+
+commit 332fae9
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-05-30
+
+    Fixed the "Aieuu!" bug
+
+src/org/graphstream/algorithm/generator/BarabasiAlbertGenerator.java
+
+commit c443c9e
+Author: Antoine <antoine.dutot@gmail.com>
+Date:   2012-05-25
+
+    Fixes #63
+
+src/org/graphstream/algorithm/AStar.java
+
+commit c382562
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-05-18
+
+    Fix #62
+
+src/org/graphstream/algorithm/ConnectedComponents.java
+
+commit b65ee66
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-05-13
+
+    Quick fix for #60.
+    I leave it open, all this modularity stuff needs to be rewritten.
+
+src/org/graphstream/algorithm/Toolkit.java
+
+commit f1b4622
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-04-24
+
+    A simple method to determine if a graph is (weakly) connected.
+
+src/org/graphstream/algorithm/Toolkit.java
+
+commit 6935b59
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-04-21
+
+    Fix #56
+    The old random generator is completely replaced by the new one.
+
+src-test/org/graphstream/algorithm/generator/test/TestRandomGenerator.java
+src-test/org/graphstream/algorithm/test/TestDijkstra.java
+src-test/org/graphstream/algorithm/test/TestGenerator.java
+src/org/graphstream/algorithm/generator/OldRandomGenerator.java
+
+commit b9d6748
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-04-20
+
+    More unit tests
+
+src-test/org/graphstream/algorithm/generator/test/TestRandomGenerator.java
+
+commit 71d5a39
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-04-20
+
+    Unit tests for the new generator
+
+src-test/org/graphstream/algorithm/generator/test/TestRandomGenerator.java
+
+commit 65e08d3
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-04-19
+
+    Insidious bug: all BaseGenerators have the same sourceId. Fixed.
+
+src/org/graphstream/algorithm/generator/BaseGenerator.java
+
+commit 7afaec3
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-04-19
+
+    New version of RandomGenerator
+    For the moment I keep the old version (OldRandomGenerator).
+    Still need it for tests
+
+src-test/org/graphstream/algorithm/test/TestDijkstra.java
+src-test/org/graphstream/algorithm/test/TestGenerator.java
+src/org/graphstream/algorithm/generator/OldRandomGenerator.java
+src/org/graphstream/algorithm/generator/RandomGenerator.java
+
+commit a99a213
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-04-19
+
+    * Added new package org.graphstream.algorithm.util
+    * Moved FibonacciHeap there
+    * Added a class RandomTools with methods generating random stuff
+    * On the fly, added in Toolkit several useful methods for picking random
+      subsets of nodes/edges
+
+src/org/graphstream/algorithm/Dijkstra.java
+src/org/graphstream/algorithm/FibonacciHeap.java
+src/org/graphstream/algorithm/Toolkit.java
+src/org/graphstream/algorithm/util/FibonacciHeap.java
+src/org/graphstream/algorithm/util/RandomTools.java
+src/org/graphstream/algorithm/util/package-info.java
+
+commit 369ce4d
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2012-04-19
+
+    Old uncommited test
+
+src-test/org/graphstream/algorithm/networksimplex/test/Benchmark.java
+
+commit 6ce144d
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-04-17
+
+    Fix the way where a node is selected to be connected to the new one.
+
+src/org/graphstream/algorithm/generator/RandomGenerator.java
+
+commit 69d5d27
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-03-26
+
+    Add methods to compute layout easily
+
+src/org/graphstream/algorithm/Toolkit.java
+
+commit 0dd009c
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-28
+
+    Fix bug in edge connectivity when there is less than 2 nodes.
+
+src/org/graphstream/algorithm/measure/ConnectivityMeasure.java
+
+commit e8e1c06
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-28
+
+    Update clustering coefficient computation.
+
+pom.xml
+src-test/org/graphstream/algorithm/test/TestToolkit.java
+src/org/graphstream/algorithm/Toolkit.java
+
+commit 1240daa
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-27
+
+    Change edge-vertex-connectivity computation to use EdmondsKarp algorithm.
+
+src/org/graphstream/algorithm/measure/ConnectivityMeasure.java
+
+commit a9eddb2
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-27
+
+    Add new flow algorithm Edmonds-Karp.
+
+src-test/org/graphstream/algorithm/flow/test/TestEdmondsKarpAlgorithm.java
+src-test/org/graphstream/algorithm/flow/test/TestFlowAlgorithm.java
+src-test/org/graphstream/algorithm/flow/test/TestFordFulkersonAlgorithm.java
+src/org/graphstream/algorithm/flow/EdmondsKarpAlgorithm.java
+src/org/graphstream/algorithm/flow/FordFulkersonAlgorithm.java
+
+commit 7a5e4b6
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-21
+
+    Add new chart measure for connectivity.
+
+src/org/graphstream/algorithm/measure/ChartConnectivityMeasure.java
+
+commit b990a1f
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-21
+
+    Update POM to include test data.
+
+pom.xml
+
+commit 4896990
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-21
+
+    Add a way to trigger computation of an algorithm according to the reception of an event.
+
+src/org/graphstream/algorithm/AlgorithmComputationTrigger.java
+
+commit f69836b
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-20
+
+    Change the way capacities are loaded in flow algorithm.
+
+src-test/org/graphstream/algorithm/flow/test/TestFordFulkersonAlgorithm.java
+src-test/org/graphstream/algorithm/flow/test/data/TestFordFulkersonAlgorithm.dgs
+src/org/graphstream/algorithm/flow/FlowAlgorithm.java
+src/org/graphstream/algorithm/flow/FlowAlgorithmBase.java
+src/org/graphstream/algorithm/flow/FordFulkersonAlgorithm.java
+
+commit 9ddb5af
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-18
+
+    Update connectivity measure to include edge-connectivity.
+
+src-test/org/graphstream/algorithm/measure/test/TestConnectivityMeasure.java
+src-test/org/graphstream/algorithm/measure/test/data/TestConnectivityMeasure.dgs
+src/org/graphstream/algorithm/flow/FlowAlgorithmBase.java
+src/org/graphstream/algorithm/measure/ConnectivityMeasure.java
+
+commit f8ca436
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-18
+
+    Add Ford-Fulkerson flow algorithm. Add base for flow algorithm.
+
+src-test/org/graphstream/algorithm/flow/test/TestFordFulkersonAlgorithm.java
+src-test/org/graphstream/algorithm/flow/test/data/TestFordFulkersonAlgorithm.dgs
+src/org/graphstream/algorithm/flow/FlowAlgorithm.java
+src/org/graphstream/algorithm/flow/FlowAlgorithmBase.java
+src/org/graphstream/algorithm/flow/FordFulkersonAlgorithm.java
+src/org/graphstream/algorithm/measure/ConnectivityMeasure.java
+src/org/graphstream/algorithm/measure/VertexConnectivityMeasure.java
+
+commit ff445b8
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-18
+
+    Start a measure to compute vertex-connectivity-degree of a graph. Only a isKConnected(Graph,int) method is actually available.
+
+src/org/graphstream/algorithm/measure/VertexConnectivityMeasure.java
+
+commit 91c46cc
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-15
+
+    Add new degree measure.
+
+src/org/graphstream/algorithm/measure/DegreeMeasure.java
+
+commit 1122736
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-15
+
+    Add new measure to plot min/average/max values.
+
+src/org/graphstream/algorithm/measure/ChartMinMaxAverageSeriesMeasure.java
+
+commit 7a4a798
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-15
+
+    Make some improvements.
+
+src/org/graphstream/algorithm/measure/ChartMeasure.java
+src/org/graphstream/algorithm/measure/ChartSeries1DMeasure.java
+src/org/graphstream/algorithm/measure/ChartSeries2DMeasure.java
+src/org/graphstream/algorithm/measure/ChartSeriesMeasure.java
+
+commit abd6205
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-10
+
+    Remove main()
+
+src/org/graphstream/algorithm/measure/ElementCountMeasure.java
+
+commit ddf0187
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-10
+
+    Add a new measure to stat count of elements in a graph.
+
+src/org/graphstream/algorithm/measure/ElementCountMeasure.java
+
+commit 801d1b2
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-10
+
+    Allow dynamic plotting
+
+src/org/graphstream/algorithm/measure/ChartMeasure.java
+src/org/graphstream/algorithm/measure/ChartSeries1DMeasure.java
+src/org/graphstream/algorithm/measure/ChartSeries2DMeasure.java
+src/org/graphstream/algorithm/measure/ChartSeriesMeasure.java
+
+commit 02bb783
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-10
+
+    Add jfreechart to deps in POM.
+
+pom.xml
+
+commit 515e8e4
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-10
+
+    Remove main().
+
+src/org/graphstream/algorithm/measure/ChartMeasure.java
+
+commit 7424651
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-10
+
+    Improve chart measures.
+
+src/org/graphstream/algorithm/measure/ChartMeasure.java
+src/org/graphstream/algorithm/measure/ChartSeries2DMeasure.java
+
+commit 2d0f0d8
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-10
+
+    Improve chart measures.
+
+src/org/graphstream/algorithm/measure/ChartMeasure.java
+src/org/graphstream/algorithm/measure/ChartSeries1DMeasure.java
+src/org/graphstream/algorithm/measure/ChartSeries2DMeasure.java
+src/org/graphstream/algorithm/measure/ChartSeriesMeasure.java
+
+commit 4964870
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-02-10
+
+    Add new base for measure with plot feature.
+
+src/org/graphstream/algorithm/measure/ChartMeasure.java
+src/org/graphstream/algorithm/measure/ChartSeriesMeasure.java
+
+commit 1b6b043
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-01-24
+
+    Start a hierarchical layout.
+
+src/org/graphstream/ui/layout/HierarchicalLayout.java
+
+commit 2f30eda
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-01-19
+
+    Add missing coordinates for nodes.
+
+src/org/graphstream/algorithm/generator/IncompleteGridGenerator.java
+
+commit 4265b20
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-01-13
+
+    Update licence preamble.
+
+COPYING
+src-test/org/graphstream/algorithm/measure/test/TestSimultaneousElementCount.java
+src-test/org/graphstream/algorithm/networksimplex/test/TestDynamicOneToAllShortestPath.java
+src-test/org/graphstream/algorithm/networksimplex/test/TestNetworkSimplex.java
+src-test/org/graphstream/algorithm/test/TestAPSP.java
+src-test/org/graphstream/algorithm/test/TestAStar.java
+src-test/org/graphstream/algorithm/test/TestBetweenessCentrality.java
+src-test/org/graphstream/algorithm/test/TestDijkstra.java
+src-test/org/graphstream/algorithm/test/TestGenerator.java
+src-test/org/graphstream/algorithm/test/TestToolkit.java
+src/org/graphstream/algorithm/APSP.java
+src/org/graphstream/algorithm/AStar.java
+src/org/graphstream/algorithm/AbstractSpanningTree.java
+src/org/graphstream/algorithm/Algorithm.java
+src/org/graphstream/algorithm/BellmanFord.java
+src/org/graphstream/algorithm/BetweennessCentrality.java
+src/org/graphstream/algorithm/Centroid.java
+src/org/graphstream/algorithm/ConnectedComponents.java
+src/org/graphstream/algorithm/DStar.java
+src/org/graphstream/algorithm/DefineParameter.java
+src/org/graphstream/algorithm/Dijkstra.java
+src/org/graphstream/algorithm/DynamicAlgorithm.java
+src/org/graphstream/algorithm/Eccentricity.java
+src/org/graphstream/algorithm/FibonacciHeap.java
+src/org/graphstream/algorithm/FixedArrayList.java
+src/org/graphstream/algorithm/InvalidParameterException.java
+src/org/graphstream/algorithm/Kruskal.java
+src/org/graphstream/algorithm/MissingParameterException.java
+src/org/graphstream/algorithm/Parameter.java
+src/org/graphstream/algorithm/Prim.java
+src/org/graphstream/algorithm/TarjanStronglyConnectedComponents.java
+src/org/graphstream/algorithm/Toolkit.java
+src/org/graphstream/algorithm/coloring/WelshPowell.java
+src/org/graphstream/algorithm/coloring/package-info.java
+src/org/graphstream/algorithm/community/Community.java
+src/org/graphstream/algorithm/community/DecentralizedCommunityAlgorithm.java
+src/org/graphstream/algorithm/community/EpidemicCommunityAlgorithm.java
+src/org/graphstream/algorithm/community/Leung.java
+src/org/graphstream/algorithm/community/SyncEpidemicCommunityAlgorithm.java
+src/org/graphstream/algorithm/community/package-info.java
+src/org/graphstream/algorithm/generator/BananaTreeGenerator.java
+src/org/graphstream/algorithm/generator/BarabasiAlbertGenerator.java
+src/org/graphstream/algorithm/generator/BaseGenerator.java
+src/org/graphstream/algorithm/generator/ChvatalGenerator.java
+src/org/graphstream/algorithm/generator/DorogovtsevMendesGenerator.java
+src/org/graphstream/algorithm/generator/FlowerSnarkGenerator.java
+src/org/graphstream/algorithm/generator/FullGenerator.java
+src/org/graphstream/algorithm/generator/Generator.java
+src/org/graphstream/algorithm/generator/GridGenerator.java
+src/org/graphstream/algorithm/generator/IncompleteGridGenerator.java
+src/org/graphstream/algorithm/generator/LCFGenerator.java
+src/org/graphstream/algorithm/generator/LobsterGenerator.java
+src/org/graphstream/algorithm/generator/PetersenGraphGenerator.java
+src/org/graphstream/algorithm/generator/PointsOfInterestGenerator.java
+src/org/graphstream/algorithm/generator/PreferentialAttachmentGenerator.java
+src/org/graphstream/algorithm/generator/RandomEuclideanGenerator.java
+src/org/graphstream/algorithm/generator/RandomFixedDegreeDynamicGraphGenerator.java
+src/org/graphstream/algorithm/generator/RandomGenerator.java
+src/org/graphstream/algorithm/generator/URLGenerator.java
+src/org/graphstream/algorithm/generator/WattsStrogatzGenerator.java
+src/org/graphstream/algorithm/generator/lcf/Balaban10CageGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/Balaban11CageGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/BidiakisCubeGenerator.java
+src/org/graphstream/algorithm/generator/lcf/BiggsSmithGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/CubicalGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/DesarguesGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/DodecahedralGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/DyckGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/F26AGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/FosterGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/FranklinGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/FruchtGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/GrayGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/HarriesGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/HarriesWongGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/HeawoodGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/LjubljanaGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/McGeeGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/MobiusKantorGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/NauruGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/PappusGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/TetrahedralGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/TruncatedCubicalGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/TruncatedDodecahedralGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/TruncatedOctahedralGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/TruncatedTetrahedralGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/Tutte12CageGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/TutteCoxeterGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/UtilityGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/WagnerGraphGenerator.java
+src/org/graphstream/algorithm/generator/lcf/package-info.java
+src/org/graphstream/algorithm/generator/package-info.java
+src/org/graphstream/algorithm/measure/CommunityDistribution.java
+src/org/graphstream/algorithm/measure/CommunityMeasure.java
+src/org/graphstream/algorithm/measure/CommunityRelativeMeasure.java
+src/org/graphstream/algorithm/measure/MaxSimultaneousEdgeCount.java
+src/org/graphstream/algorithm/measure/MaxSimultaneousNodeCount.java
+src/org/graphstream/algorithm/measure/Modularity.java
+src/org/graphstream/algorithm/measure/NormalizedMutualInformation.java
+src/org/graphstream/algorithm/measure/VariationOfInformation.java
+src/org/graphstream/algorithm/measure/package-info.java
+src/org/graphstream/algorithm/networksimplex/BigMNumber.java
+src/org/graphstream/algorithm/networksimplex/DynamicOneToAllShortestPath.java
+src/org/graphstream/algorithm/networksimplex/NetworkSimplex.java
+src/org/graphstream/algorithm/package-info.java
+src/org/graphstream/algorithm/randomWalk/Entity.java
+src/org/graphstream/algorithm/randomWalk/RandomWalk.java
+src/org/graphstream/algorithm/randomWalk/TabuEntity.java
+src/org/graphstream/ui/layout/Eades84Layout.java
+
+commit 2c818d7
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-01-12
+
+    Minor fix in CC
+
+src/org/graphstream/algorithm/ConnectedComponents.java
+
+commit 2884f1d
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-01-12
+
+    Minor fix in CC
+
+src/org/graphstream/algorithm/ConnectedComponents.java
+
+commit 1852128
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-01-06
+
+    Move Filter* to util in gs-core.
+
+src/org/graphstream/algorithm/ConnectedComponents.java
+src/org/graphstream/algorithm/Filter.java
+src/org/graphstream/algorithm/FilteredEdgeIterator.java
+src/org/graphstream/algorithm/FilteredNodeIterator.java
+
+commit 501c362
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2012-01-06
+
+    Update ConnectedComponents to allow iteration over nodes and edges of each component. This is still in work.
+
+src/org/graphstream/algorithm/ConnectedComponents.java
+src/org/graphstream/algorithm/Filter.java
+src/org/graphstream/algorithm/FilteredEdgeIterator.java
+src/org/graphstream/algorithm/FilteredNodeIterator.java
+
+commit 7f7978f
+Author: Ant01n3 <antoine.dutot@gmail.com>
+Date:   2011-12-28
+
+    Corrections in AStar JavaDoc.
+    
+    Suggested by Frédéric.
+
+src/org/graphstream/algorithm/AStar.java
+
+commit 3969e39
+Author: Guilhelm Savin <guilhelm.savin@litislab.fr>
+Date:   2011-12-24
+
+    Update pom.xml
+
+pom.xml
+
+commit 4f172c6
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-20
+
+    Avoid pricing for some events.
+    Avoid pricing artificial arcs when the objective value is finite.
+
+src-test/org/graphstream/algorithm/networksimplex/test/TestNetworkSimplex.java
+src/org/graphstream/algorithm/networksimplex/NetworkSimplex.java
+
+commit 35a1df6
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-20
+
+    Constructs initial BFS from Dijkstra when possible.
+    Much faster for big graphs.
+
+src/org/graphstream/algorithm/networksimplex/DynamicOneToAllShortestPath.java
+src/org/graphstream/algorithm/networksimplex/NetworkSimplex.java
+
+commit 4bdef09
+Merge: ca53143 1ea2a91
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-16
+
+    Merge branch 'master' of github.com:graphstream/gs-algo
+
+commit ca53143
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-16
+
+    Code optimization.
+    Different way to handle artificial arcs. They don't appear in arcs and
+    nonbasicArcs anymore. Instead they are stored as node attributs.
+    Saves memory and makes pricing faster.
+
+src/org/graphstream/algorithm/networksimplex/NetworkSimplex.java
+
+commit 1ea2a91
+Merge: 3af9142 7f1a0ac
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2011-12-16
+
+    Merge branch 'master' of github.com:graphstream/gs-algo
+
+commit 3af9142
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2011-12-16
+
+    Add new measures to get the maximum count of nodes/edges appearing simultaneously in a dynamic graph.
+
+pom.xml
+src-test/org/graphstream/algorithm/measure/test/TestSimultaneousElementCount.java
+src/org/graphstream/algorithm/measure/MaxSimultaneousEdgeCount.java
+src/org/graphstream/algorithm/measure/MaxSimultaneousNodeCount.java
+
+commit 7f1a0ac
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-15
+
+    Added methods to retrieve the adjacency and the incidence matrices of a graph.
+
+src/org/graphstream/algorithm/Toolkit.java
+
+commit 6edea3a
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2011-12-15
+
+    Remove @Override in iterator implementation.
+
+src/org/graphstream/algorithm/networksimplex/DynamicOneToAllShortestPath.java
+
+commit e2308f5
+Merge: 3a3a5de 4a727e0
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2011-12-15
+
+    Merge branch 'master' of github.com:graphstream/gs-algo
+
+commit 3a3a5de
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2011-12-15
+
+    Add a feature to handle attributes in algorithm. This does not change the behavior of algorithms but it can be used for those needing it !
+
+src/org/graphstream/algorithm/DefineParameter.java
+src/org/graphstream/algorithm/InvalidParameterException.java
+src/org/graphstream/algorithm/MissingParameterException.java
+src/org/graphstream/algorithm/Parameter.java
+
+commit 4a727e0
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-11
+
+    New dynamic one-to-all shortest path algorithm based on NS
+
+src-test/org/graphstream/algorithm/networksimplex/test/TestDynamicOneToAllShortestPath.java
+src-test/org/graphstream/algorithm/networksimplex/test/TestNetworkSimplex.java
+src/org/graphstream/algorithm/networksimplex/DynamicOneToAllShortestPath.java
+src/org/graphstream/algorithm/networksimplex/NetworkSimplex.java
+
+commit 4c6b925
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-10
+
+    Rearranged a bit solution access methods
+
+src-test/org/graphstream/algorithm/networksimplex/test/TestNetworkSimplex.java
+src/org/graphstream/algorithm/networksimplex/NetworkSimplex.java
+
+commit 014ba16
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-10
+
+    Added support for clearing graph
+    Now all the graph events are supported and the algorithm is fully dynamical!
+    TODO:
+     * more tests
+     * rework solution access methods
+     * documentation
+
+src-test/org/graphstream/algorithm/networksimplex/test/TestNetworkSimplex.java
+src/org/graphstream/algorithm/networksimplex/NetworkSimplex.java
+
+commit 615a445
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-10
+
+    Added support for adding and removing nodes
+
+src-test/org/graphstream/algorithm/networksimplex/test/TestNetworkSimplex.java
+src/org/graphstream/algorithm/networksimplex/NetworkSimplex.java
+
+commit 4b9e0f4
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-09
+
+    Added support for adding and removing edges.
+
+src-test/org/graphstream/algorithm/networksimplex/test/TestNetworkSimplex.java
+src/org/graphstream/algorithm/networksimplex/NetworkSimplex.java
+
+commit e1bded1
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-09
+
+    Added support for edge capacity change.
+    Now all attribute events are supported.
+
+src-test/org/graphstream/algorithm/networksimplex/test/TestNetworkSimplex.java
+src/org/graphstream/algorithm/networksimplex/NetworkSimplex.java
+
+commit 2e77e55
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-08
+
+    Added support for node supply changes
+
+src-test/org/graphstream/algorithm/networksimplex/test/TestNetworkSimplex.java
+src/org/graphstream/algorithm/networksimplex/NetworkSimplex.java
+
+commit 8b41606
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-08
+
+    Some more unit tests for changing arc costs
+
+src-test/org/graphstream/algorithm/networksimplex/test/TestNetworkSimplex.java
+
+commit 64448e8
+Merge: 01f9ead 5e0533f
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-08
+
+    Merge branch 'master' of github.com:graphstream/gs-algo
+
+commit 01f9ead
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-08
+
+    NS supports changes of edge costs!
+
+src-test/org/graphstream/algorithm/networksimplex/test/TestNetworkSimplex.java
+src/org/graphstream/algorithm/networksimplex/NetworkSimplex.java
+
+commit 01ca8c2
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-07
+
+    Added "animation mode" for visual testing and debugging
+
+src/org/graphstream/algorithm/networksimplex/NetworkSimplex.java
+
+commit 5e0533f
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2011-12-06
+
+    Switch README to reStructuredText.
+
+README
+README.rst
+
+commit fa68b4c
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-06
+
+    Some more solution access methods and tests
+
+src-test/org/graphstream/algorithm/networksimplex/test/TestNetworkSimplex.java
+src/org/graphstream/algorithm/networksimplex/NetworkSimplex.java
+
+commit f9751b2
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-06
+
+    The whole NS thing becomes more and more operational
+    but dynamics is still not supported.
+    
+    Finished simplex engine, added some solution access methods.
+    Started some unit tests.
+
+src-test/org/graphstream/algorithm/networksimplex/test/TestNetworkSimplex.java
+
+commit a2ccd3c
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-04
+
+    Unsaved file
+
+src/org/graphstream/algorithm/networksimplex/NetworkSimplex.java
+
+commit 052f107
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-12-04
+
+    Started implementation of network simplex method.
+    Not functional yet.
+
+src/org/graphstream/algorithm/networksimplex/BigMNumber.java
+src/org/graphstream/algorithm/networksimplex/NetworkSimplex.java
+
+commit df0b7c6
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-11-29
+
+    Minor fixes in javadoc
+
+src/org/graphstream/algorithm/Prim.java
+src/org/graphstream/algorithm/generator/GridGenerator.java
+
+commit 75c4212
+Merge: 7ef1f44 d0e1ac3
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-11-29
+
+    Merge branch 'master' of github.com:graphstream/gs-algo
+
+commit 7ef1f44
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-11-29
+
+    Minor bug fix in javadoc
+
+src/org/graphstream/algorithm/Prim.java
+
+commit b9ef16d
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-11-28
+
+    Inappropriate representation. Starting NS from scratch.
+
+src/org/graphstream/algorithm/NetworkSimplex.java
+
+commit 40298d4
+Author: sbalev <stefan.balev@gmail.com>
+Date:   2011-11-25
+
+    Started network simplex implementation. Only some stubs for the moment.
+
+src/org/graphstream/algorithm/NetworkSimplex.java
+
+commit d0e1ac3
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2011-11-15
+
+    Add missing tag in POM.
+
+pom.xml
+
+commit 27f7dd4
+Author: gsavin <guilhelm.savin@graphstream-project.org>
+Date:   2011-11-11
+
+    Add Changelog between 1.0 and 1.1
+
+Changelog-1.0-1.1
