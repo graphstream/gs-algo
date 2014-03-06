@@ -792,6 +792,45 @@ public class BetweennessCentrality implements Algorithm {
 	}
 
 	/**
+	 * Delete attributes used by this algorithm in nodes and edges of the graph
+	 */
+	public void cleanGraph(){
+		cleanElement(graph.getEachEdge());
+		cleanElement(graph.getEachNode());
+	}
+
+	/**
+	 * Delete attributes used by this algorithm in nodes of the graph
+	 */
+	public void cleanNodes(){
+		cleanElement(graph.getEachNode());
+	}
+
+	/**
+	 * Delete attributes used by this algorithm in edges of the graph
+	 */
+	public void cleanEdges(){
+		cleanElement(graph.getEachEdge());
+	}
+
+	/**
+	 * Delete attributes used by this algorithm in elements of a graph
+	 * @param it the list of elements
+	 */
+	private void cleanElement(Iterable<? extends Element> it){
+		for(Element e : it){
+			if(e.hasAttribute(predAttributeName))
+				e.removeAttribute(predAttributeName);
+			if(e.hasAttribute(sigmaAttributeName))
+				e.removeAttribute(sigmaAttributeName);
+			if(e.hasAttribute(distAttributeName))
+				e.removeAttribute(distAttributeName);
+			if(e.hasAttribute(deltaAttributeName))
+				e.removeAttribute(deltaAttributeName);
+		}
+	}
+
+	/**
 	 * Increasing comparator used for priority queues.
 	 */
 	protected class BrandesNodeComparatorLargerFirst implements
