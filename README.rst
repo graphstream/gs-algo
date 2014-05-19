@@ -20,16 +20,16 @@ Authors
 
 The GraphStream team:
 
-Julien Baudry <julien.baudry@graphstream-project.org>
-Antoine Dutot <antoine.dutot@graphstream-project.org>
-Yoann Pigné <yoann.pigne@graphstream-project.org> 
-Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+- Julien Baudry <julien.baudry@graphstream-project.org>
+- Antoine Dutot <antoine.dutot@graphstream-project.org>
+- Yoann Pigné <yoann.pigne@graphstream-project.org> 
+- Guilhelm Savin <guilhelm.savin@graphstream-project.org>
 
 
 Contributors:
 
-Frédéric Guinand <frederic.guinand@univ-lehavre.fr>
-Guillaume-Jean Herbiet <guillaume-jean@herbiet.net>
+- Frédéric Guinand <frederic.guinand@univ-lehavre.fr>
+- Guillaume-Jean Herbiet <guillaume-jean@herbiet.net>
 
 
 Help
