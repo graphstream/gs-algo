@@ -253,6 +253,7 @@ public abstract class ChartMeasure {
 
 			JFrame frame = new JFrame(params.title);
 			frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+			frame.setLocationRelativeTo(null);
 			frame.add(panel);
 			frame.pack();
 			frame.setVisible(true);
