@@ -10,9 +10,9 @@ friendly, see the website (www.graphstream-project.org) for more information.
 Installing GraphStream
 ----------------------
 
-The release comes with a pre-packaged jar file named gs-algo.jar that
+The release comes with a pre-packaged jar file named **gs-algo.jar** that
 contains the GraphStream classes related to various graph-based algorithms. 
-To start using GraphStream, simply put this jar file and the gs-core.jar 
+To start using GraphStream, simply put this jar file and the **gs-core.jar** 
 in your class path.
 
 Authors
