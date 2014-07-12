@@ -211,7 +211,7 @@ public abstract class ChartMeasure {
 	 * @throws PlotException
 	 */
 	public static void outputPlot(PlotParameters params, ChartMeasure measure)
-                                                         throws PlotException {
+                                                            throws PlotException {
 		if (measure == null) {
 			throw new PlotException("No measure");
 		}
@@ -231,7 +231,7 @@ public abstract class ChartMeasure {
 	 * @throws PlotException
 	 */
 	public static void outputPlot(PlotParameters params, JFreeChart chart)
-                                                         throws PlotException {
+                                                            throws PlotException {
 		if (chart == null) {
 			throw new PlotException("No chart");
 		}
