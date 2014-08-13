@@ -31,13 +31,6 @@
  */
 package org.graphstream.ui.layout;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedList;
-
 import org.graphstream.algorithm.Prim;
 import org.graphstream.algorithm.SpanningTree;
 import org.graphstream.algorithm.generator.BarabasiAlbertGenerator;
@@ -48,7 +41,14 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.AdjacencyListGraph;
 import org.graphstream.stream.PipeBase;
 import org.graphstream.ui.geom.Point3;
-import org.graphstream.ui.swingViewer.Viewer;
+import org.graphstream.ui.view.Viewer;
+
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.LinkedList;
 
 public class HierarchicalLayout extends PipeBase implements Layout {
 

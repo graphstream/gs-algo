@@ -31,8 +31,6 @@
  */
 package org.graphstream.ui.layout.test;
 
-import java.io.IOException;
-
 import org.graphstream.algorithm.ConnectedComponents;
 import org.graphstream.algorithm.measure.Modularity;
 import org.graphstream.graph.Edge;
@@ -50,7 +48,9 @@ import org.graphstream.ui.graphicGraph.stylesheet.StyleConstants.Units;
 import org.graphstream.ui.layout.springbox.implementations.LinLog;
 import org.graphstream.ui.spriteManager.Sprite;
 import org.graphstream.ui.spriteManager.SpriteManager;
-import org.graphstream.ui.swingViewer.Viewer;
+import org.graphstream.ui.view.Viewer;
+
+import java.io.IOException;
 
 /**
  * This test creates a layout (instead of using the default layout of
