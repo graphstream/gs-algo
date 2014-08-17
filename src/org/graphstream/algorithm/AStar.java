@@ -31,17 +31,17 @@
  */
 package org.graphstream.algorithm;
 
-import static org.graphstream.algorithm.Toolkit.edgeLength;
-import static org.graphstream.algorithm.Toolkit.nodePosition;
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
+import org.graphstream.graph.Path;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.graphstream.graph.Edge;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-import org.graphstream.graph.Path;
+import static org.graphstream.algorithm.Toolkit.edgeLength;
+import static org.graphstream.algorithm.Toolkit.nodePosition;
 
 /**
  * An implementation of the A* algorithm.
@@ -587,7 +587,7 @@ public class AStar implements Algorithm {
 			// Edge choice = parent.getEdgeToward( next.getId() );
 
 			if (edge != null && edge.hasNumber(weightAttribute))
-				return ((Number) edge.getNumber(weightAttribute)).doubleValue();
+				return edge.getDouble(weightAttribute);
 
 			return 1;
 		}

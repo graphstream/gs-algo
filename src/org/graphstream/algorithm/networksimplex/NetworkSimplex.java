@@ -1351,7 +1351,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		 */
 		NSNode(Node node) {
 			id = node.getId();
-			double v = node.getNumber(supplyName);
+			double v = node.getDouble(supplyName);
 			if (Double.isNaN(v))
 				v = 0;
 			supply = (int) v;
@@ -1540,12 +1540,12 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 						"Edge ids must not start with " + PREFIX);
 			id = (sameDirection ? "" : PREFIX + "REVERSE_") + edge.getId();
 
-			double v = edge.getNumber(capacityName);
+			double v = edge.getDouble(capacityName);
 			if (Double.isNaN(v) || v < 0)
 				v = INFINITE_CAPACITY;
 			capacity = (int) v;
 
-			v = edge.getNumber(costName);
+			v = edge.getDouble(costName);
 			if (Double.isNaN(v))
 				v = 1;
 			cost = new BigMNumber((int) v);

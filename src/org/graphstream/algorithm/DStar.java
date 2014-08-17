@@ -31,12 +31,6 @@
  */
 package org.graphstream.algorithm;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Random;
-
 import org.graphstream.algorithm.generator.DorogovtsevMendesGenerator;
 import org.graphstream.algorithm.generator.Generator;
 import org.graphstream.graph.Edge;
@@ -44,6 +38,12 @@ import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.AdjacencyListGraph;
 import org.graphstream.stream.Sink;
+
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Random;
 
 /**
  * An implementation of the D* algorithm.
@@ -257,7 +257,7 @@ public class DStar implements DynamicAlgorithm, Sink {
 
 		if (e != null) {
 			if (e.hasNumber(COST_ATTRIBUTE))
-				return e.getNumber(COST_ATTRIBUTE);
+				return e.getDouble(COST_ATTRIBUTE);
 			else
 				return defaultEdgeWeight;
 		}

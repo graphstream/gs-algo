@@ -253,8 +253,8 @@ public class Toolkit extends
 		for(Edge edge:node.getEachEdge()) {
 			if(edge.hasNumber(weightAttribute)) {
 				if(edge.getSourceNode() == edge.getTargetNode()) 
-				     wdegree += edge.getNumber(weightAttribute) * 2;
-				else wdegree += edge.getNumber(weightAttribute);
+				     wdegree += edge.getDouble(weightAttribute) * 2;
+				else wdegree += edge.getDouble(weightAttribute);
 			} else {
 				if(edge.getSourceNode() == edge.getTargetNode())
 				     wdegree += defaultWeightValue * 2;
@@ -298,7 +298,7 @@ public class Toolkit extends
 		
 		for(Edge edge:node.getEnteringEdgeSet()) {
 			if(edge.hasNumber(weightAttribute)) {
-				wdegree += edge.getNumber(weightAttribute);
+				wdegree += edge.getDouble(weightAttribute);
 			} else {
 				wdegree += defaultWeightValue;
 			}
@@ -340,7 +340,7 @@ public class Toolkit extends
 		
 		for(Edge edge:node.getLeavingEdgeSet()) {
 			if(edge.hasNumber(weightAttribute)) {
-				wdegree += edge.getNumber(weightAttribute);
+				wdegree += edge.getDouble(weightAttribute);
 			} else {
 				wdegree += defaultWeightValue;
 			}

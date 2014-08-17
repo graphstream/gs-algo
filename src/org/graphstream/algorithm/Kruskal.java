@@ -31,16 +31,16 @@
  */
 package org.graphstream.algorithm;
 
+import org.graphstream.algorithm.util.DisjointSets;
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.Node;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.graphstream.algorithm.util.DisjointSets;
-import org.graphstream.graph.Edge;
-import org.graphstream.graph.Node;
 
 /**
  * Compute a spanning tree using the Kruskal algorithm.
@@ -259,7 +259,7 @@ public class Kruskal extends AbstractSpanningTree {
 	protected double getWeight(Edge e) {
 		if (weightAttribute == null)
 			return 1.0;
-		double w = e.getNumber(weightAttribute);
+		double w = e.getDouble(weightAttribute);
 		if (Double.isNaN(w))
 			return 1;
 		return w;

@@ -67,7 +67,7 @@ public class ClosenessCentralityDemo {
 
 		for (int i = 0; i < g.getNodeCount(); i++)
 			g.getNode(i).addAttribute("ui.size",
-					g.getNode(i).getNumber("ui.color") * 25 + 5);
+					g.getNode(i).getDouble("ui.color") * 25 + 5);
 
 		g.display();
 	}

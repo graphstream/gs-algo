@@ -31,14 +31,14 @@
  */
 package org.graphstream.algorithm.randomWalk;
 
-import static org.graphstream.algorithm.Toolkit.randomNode;
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.Node;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.graphstream.graph.Edge;
-import org.graphstream.graph.Node;
+import static org.graphstream.algorithm.Toolkit.randomNode;
 
 /**
  * A basic entity that chooses edges at random eventually
@@ -164,8 +164,8 @@ public class TabuEntity extends Entity {
 	 * @param n The node.
 	 */
 	protected void addPass(Edge e, Node n) {
-		e.setAttribute(context.passesAttribute, e.getNumber(context.passesAttribute) + 1);
-		n.setAttribute(context.passesAttribute, n.getNumber(context.passesAttribute) + 1);
+		e.setAttribute(context.passesAttribute, e.getInteger(context.passesAttribute) + 1);
+		n.setAttribute(context.passesAttribute, n.getInteger(context.passesAttribute) + 1);
 	}
 
 	/**

@@ -31,19 +31,19 @@
  */
 package org.graphstream.algorithm.randomWalk;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Comparator;
-import java.util.Random;
-
 import org.graphstream.algorithm.DynamicAlgorithm;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.stream.SinkAdapter;
 
-import static org.graphstream.algorithm.Toolkit.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.Random;
+
+import static org.graphstream.algorithm.Toolkit.randomNode;
 
 /**
  * A random walk on a graph.
@@ -452,7 +452,7 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 * @return The number of passes on the edge.
 	 */
 	public double getPasses(Edge edge) {
-		return edge.getNumber(context.passesAttribute);
+		return edge.getDouble(context.passesAttribute);
 	}
 
 	/**
@@ -461,7 +461,7 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 * @return The number of passes on the node.
 	 */
 	public double getPasses(Node node) {
-		return node.getNumber(context.passesAttribute);
+		return node.getDouble(context.passesAttribute);
 	}
 
 	/**
@@ -562,10 +562,10 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 */
 	protected void evaporate() {
 		for(Edge edge: context.graph.getEachEdge()) {
-			edge.setAttribute(context.passesAttribute, edge.getNumber(context.passesAttribute)*evaporation);
+			edge.setAttribute(context.passesAttribute, edge.getDouble(context.passesAttribute)*evaporation);
 		}
 		for(Node node: context.graph) {
-			node.setAttribute(context.passesAttribute, node.getNumber(context.passesAttribute)*evaporation);
+			node.setAttribute(context.passesAttribute, node.getDouble(context.passesAttribute)*evaporation);
 		}
 	}
 
@@ -606,8 +606,8 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 
 		Collections.sort(edges, new Comparator<Edge>() {
 			public int compare(Edge e1, Edge e2) {
-				int n1 = (int) e1.getNumber(context.passesAttribute);
-				int n2 = (int) e2.getNumber(context.passesAttribute);
+				int n1 = e1.getInteger(context.passesAttribute);
+				int n2 = e2.getInteger(context.passesAttribute);
 
 				return (n1 - n2);
 			}
@@ -633,8 +633,8 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 
 		Collections.sort(nodes, new Comparator<Node>() {
 			public int compare(Node e1, Node e2) {
-				int n1 = (int) e1.getNumber(context.passesAttribute);
-				int n2 = (int) e2.getNumber(context.passesAttribute);
+				int n1 = e1.getInteger(context.passesAttribute);
+				int n2 = e2.getInteger(context.passesAttribute);
 
 				return (n1 - n2);
 			}

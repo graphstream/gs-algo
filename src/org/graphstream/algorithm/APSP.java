@@ -31,13 +31,14 @@
  */
 package org.graphstream.algorithm;
 
-import java.util.*;
-
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.Path;
 import org.graphstream.stream.SinkAdapter;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * All-pair shortest paths lengths.
@@ -496,7 +497,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 				Node other = edge.getOpposite(node);
 
 				if (edge.hasAttribute(weightAttributeName))
-					weight = edge.getNumber(weightAttributeName);
+					weight = edge.getDouble(weightAttributeName);
 
 				targets.put(other.getId(), new TargetPath(other, weight, null));
 			}

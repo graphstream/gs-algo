@@ -31,17 +31,17 @@
  */
 package org.graphstream.algorithm;
 
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.Element;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
+
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Set;
-
-import org.graphstream.graph.Edge;
-import org.graphstream.graph.Element;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
 
 /**
  * Compute the "betweenness" centrality of each vertex of a given graph.
@@ -573,7 +573,7 @@ public class BetweennessCentrality implements Algorithm {
 	 * @return The sigma value.
 	 */
 	protected double sigma(Node node) {
-		return node.getNumber(sigmaAttributeName);
+		return node.getDouble(sigmaAttributeName);
 	}
 
 	/**
@@ -584,7 +584,7 @@ public class BetweennessCentrality implements Algorithm {
 	 * @return The distance value.
 	 */
 	protected double distance(Node node) {
-		return node.getNumber(distAttributeName);
+		return node.getDouble(distAttributeName);
 	}
 
 	/**
@@ -595,7 +595,7 @@ public class BetweennessCentrality implements Algorithm {
 	 * @return The delta value.
 	 */
 	protected double delta(Node node) {
-		return node.getNumber(deltaAttributeName);
+		return node.getDouble(deltaAttributeName);
 	}
 
 	/**
@@ -606,7 +606,7 @@ public class BetweennessCentrality implements Algorithm {
 	 * @return The centrality value.
 	 */
 	public double centrality(Element elt) {
-		return elt.getNumber(centralityAttributeName);
+		return elt.getDouble(centralityAttributeName);
 	}
 	
 	/**
@@ -699,7 +699,7 @@ public class BetweennessCentrality implements Algorithm {
 
 		if (edge != null) {
 			if (edge.hasAttribute(weightAttributeName))
-				return edge.getNumber(weightAttributeName);
+				return edge.getDouble(weightAttributeName);
 			else
 				return 1.0;
 		} else {

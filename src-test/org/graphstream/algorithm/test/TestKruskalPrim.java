@@ -32,15 +32,15 @@
 package org.graphstream.algorithm.test;
 
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import org.graphstream.algorithm.Kruskal;
 import org.graphstream.algorithm.Prim;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class TestKruskalPrim {
 //       B-----8-----C-----7-----D
@@ -114,7 +114,7 @@ public class TestKruskalPrim {
 			Boolean b = e.getAttribute(k.getFlagAttribute());
 			if (b) {
 				edgeCount++;
-				treeWeight += e.getNumber("weight");
+				treeWeight += e.getDouble("weight");
 			}
 		}
 		assertEquals(expectedWeight, treeWeight, 0);

@@ -268,25 +268,25 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 		double d = 0.0;
 
 		if (dimension == 2) {
-			double x1 = internalGraph.getNode(n1).getNumber("x");
-			double y1 = internalGraph.getNode(n1).getNumber("y");
-			double x2 = internalGraph.getNode(n2).getNumber("x");
-			double y2 = internalGraph.getNode(n2).getNumber("y");
+			double x1 = internalGraph.getNode(n1).getDouble("x");
+			double y1 = internalGraph.getNode(n1).getDouble("y");
+			double x2 = internalGraph.getNode(n2).getDouble("x");
+			double y2 = internalGraph.getNode(n2).getDouble("y");
 
 			d = Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2);
 		} else if (dimension == 3) {
-			double x1 = internalGraph.getNode(n1).getNumber("x");
-			double y1 = internalGraph.getNode(n1).getNumber("y");
-			double x2 = internalGraph.getNode(n2).getNumber("x");
-			double y2 = internalGraph.getNode(n2).getNumber("y");
-			double z1 = internalGraph.getNode(n1).getNumber("z");
-			double z2 = internalGraph.getNode(n2).getNumber("z");
+			double x1 = internalGraph.getNode(n1).getDouble("x");
+			double y1 = internalGraph.getNode(n1).getDouble("y");
+			double x2 = internalGraph.getNode(n2).getDouble("x");
+			double y2 = internalGraph.getNode(n2).getDouble("y");
+			double z1 = internalGraph.getNode(n1).getDouble("z");
+			double z2 = internalGraph.getNode(n2).getDouble("z");
 
 			d = Math.pow(z1 - z2, 2) + Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2);
 		} else {
 			for (int i = 0; i < dimension; i++) {
-				double xi1 = internalGraph.getNode(n1).getNumber("x" + i);
-				double xi2 = internalGraph.getNode(n2).getNumber("x" + i);
+				double xi1 = internalGraph.getNode(n1).getDouble("x" + i);
+				double xi2 = internalGraph.getNode(n2).getDouble("x" + i);
 
 				d += Math.pow(xi1 - xi2, 2);
 			}

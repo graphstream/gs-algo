@@ -72,7 +72,7 @@ public abstract class TestFlowAlgorithm {
 			flowAlgo.compute();
 
 			maximumFlow = flowAlgo.getMaximumFlow();
-			assertTrue(maximumFlow == g.getNumber("expected maximum flow"));
+			assertTrue(maximumFlow == g.getDouble("expected maximum flow"));
 		}
 	}
 }
