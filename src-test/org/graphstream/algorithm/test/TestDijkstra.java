@@ -31,14 +31,6 @@
  */
 package org.graphstream.algorithm.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import org.graphstream.algorithm.Dijkstra;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -46,6 +38,14 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.Path;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.junit.Test;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class TestDijkstra {
 	
@@ -85,7 +85,7 @@ public class TestDijkstra {
 		for (Node n : g)
 			n.addAttribute("label", n.getId());
 		for (Edge e : g.getEachEdge())
-			e.addAttribute("label", "" + (int) e.getNumber("length"));
+			e.addAttribute("label", Double.toString(e.getDouble("length")));
 		return g;
 	}
 	

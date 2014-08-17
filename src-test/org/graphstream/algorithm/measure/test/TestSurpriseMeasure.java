@@ -31,14 +31,14 @@
  */
 package org.graphstream.algorithm.measure.test;
 
-import java.io.IOException;
-
 import org.graphstream.algorithm.measure.SurpriseMeasure;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.AdjacencyListGraph;
 import org.graphstream.stream.file.FileSourceDGS;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.IOException;
 
 public class TestSurpriseMeasure {
 	protected static final double DELTA = 0.0001;
@@ -95,7 +95,6 @@ public class TestSurpriseMeasure {
 		surprise.init(g);
 		surprise.compute();
 
-		Assert.assertEquals(g.getNumber("expectedvalue"),
-				g.getNumber(SurpriseMeasure.ATTRIBUTE), DELTA);
+		Assert.assertEquals(g.getDouble("expectedvalue"), g.getDouble(SurpriseMeasure.ATTRIBUTE), DELTA);
 	}
 }

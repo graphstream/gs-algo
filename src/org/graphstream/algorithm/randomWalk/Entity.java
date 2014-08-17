@@ -72,6 +72,6 @@ public abstract class Entity {
 		if (!e.hasAttribute(context.weightAttribute))
 			return 1.0;
 
-		return e.getNumber(context.weightAttribute);
+		return e.getDouble(context.weightAttribute);
 	}
 }

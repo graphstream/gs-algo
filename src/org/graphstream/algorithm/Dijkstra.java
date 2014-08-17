@@ -31,17 +31,17 @@
  */
 package org.graphstream.algorithm;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Stack;
-
 import org.graphstream.algorithm.util.FibonacciHeap;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.Path;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Stack;
 
 /**
  * <p>
@@ -187,23 +187,23 @@ public class Dijkstra extends AbstractSpanningTree {
 	// *** Helpers ***
 
 	protected double getLength(Edge edge, Node dest) {
-		double lenght = 0;
+		double length = 0;
 		if (element != Element.NODE)
-			lenght += lengthAttribute == null ? 1 : edge
-					.getNumber(lengthAttribute);
+            length += lengthAttribute == null ? 1 : edge
+					.getDouble(lengthAttribute);
 		if (element != Element.EDGE)
-			lenght += lengthAttribute == null ? 1 : dest
-					.getNumber(lengthAttribute);
-		if (lenght < 0)
+            length += lengthAttribute == null ? 1 : dest
+					.getDouble(lengthAttribute);
+		if (length < 0)
 			throw new IllegalStateException("Edge " + edge.getId()
-					+ " has negative lenght " + lenght);
-		return lenght;
+					+ " has negative length " + length + ".");
+		return length;
 	}
 
 	protected double getSourceLength() {
 		if (element == Element.EDGE)
 			return 0;
-		return lengthAttribute == null ? 1 : source.getNumber(lengthAttribute);
+		return lengthAttribute == null ? 1 : source.getDouble(lengthAttribute);
 	}
 
 	// *** Constructors ***

@@ -224,11 +224,10 @@ public class HierarchicalLayout extends PipeBase implements Layout {
 
 		for (int idx = 0; idx < internalGraph.getNodeCount(); idx++) {
 			Node n = internalGraph.getNode(idx);
-			double y = n.getNumber("y");
-			double x = n.getNumber("x");
+			double y = n.getDouble("y");
+			double x = n.getDouble("x");
 
-			if (!n.hasNumber("oldX") || n.getNumber("oldX") != x
-					|| !n.hasNumber("oldY") || n.getNumber("oldY") != y) {
+			if (!n.hasNumber("oldX") || n.getDouble("oldX") != x || !n.hasNumber("oldY") || n.getDouble("oldY") != y) {
 				n.setAttribute("oldX", x);
 				n.setAttribute("oldY", y);
 				n.addAttribute("changed");
@@ -309,8 +308,8 @@ public class HierarchicalLayout extends PipeBase implements Layout {
 		if (box.parent != null) {
 			Box parentBox = getBox(box.parent);
 
-			dx = box.parent.getNumber("x");
-			dy = box.parent.getNumber("y");
+			dx = box.parent.getDouble("x");
+			dy = box.parent.getDouble("y");
 
 			switch (renderingType) {
 			case VERTICAL:
@@ -339,7 +338,7 @@ public class HierarchicalLayout extends PipeBase implements Layout {
 				n.removeAttribute("changed");
 
 				sendNodeAttributeChanged(sourceId, n.getId(), "xyz", null,
-						new double[] { n.getNumber("x"), n.getNumber("y"), 0 });
+						new double[] { n.getDouble("x"), n.getDouble("y"), 0 });
 			}
 		}
 	}
@@ -608,15 +607,15 @@ public class HierarchicalLayout extends PipeBase implements Layout {
 			height *= sy;
 
 			for (int i = 0; i < size(); i++) {
-				get(i).setAttribute("x", sx * get(i).getNumber("x"));
-				get(i).setAttribute("y", sy * get(i).getNumber("y"));
+				get(i).setAttribute("x", sx * get(i).getDouble("x"));
+				get(i).setAttribute("y", sy * get(i).getDouble("y"));
 			}
 		}
 
 		void translate(double dx, double dy) {
 			for (int i = 0; i < size(); i++) {
-				get(i).setAttribute("x", dx + get(i).getNumber("x"));
-				get(i).setAttribute("y", dy + get(i).getNumber("y"));
+				get(i).setAttribute("x", dx + get(i).getDouble("x"));
+				get(i).setAttribute("y", dy + get(i).getDouble("y"));
 			}
 		}
 	}

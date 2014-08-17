@@ -92,7 +92,7 @@ public class EigenvectorCentrality extends AbstractCentrality {
 					f = 1;
 
 					if (edge.hasNumber(weightAttribute))
-						f = edge.getNumber(weightAttribute);
+						f = edge.getDouble(weightAttribute);
 
 					x2[idx] += x1[edge.getOpposite(node).getIndex()] * f;
 				}

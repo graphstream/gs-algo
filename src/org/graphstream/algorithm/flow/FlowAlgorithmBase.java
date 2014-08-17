@@ -31,11 +31,12 @@
  */
 package org.graphstream.algorithm.flow;
 
-import java.util.List;
-
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Base for flow algorithms. Provides features to handle capacities and flows.
@@ -384,11 +385,9 @@ public abstract class FlowAlgorithmBase implements FlowAlgorithm {
 			e = flowGraph.getEdge(i);
 
 			if (e.hasNumber(capacityAttribute)) {
-				capacities[i] = e.getNumber(capacityAttribute);
+				capacities[i] = e.getDouble(capacityAttribute);
 			} else if (e.hasVector(capacityAttribute)) {
-				List<? extends Number> capVect = flowGraph.getEdge(i)
-						.getVector(capacityAttribute);
-
+				List<? extends Number> capVect = new ArrayList<>(flowGraph.getEdge(i).getVector(capacityAttribute));
 				if (capVect.size() > 0)
 					capacities[i] = capVect.get(0).doubleValue();
 				if (capVect.size() > 1)

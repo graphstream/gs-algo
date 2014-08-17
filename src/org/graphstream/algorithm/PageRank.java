@@ -31,12 +31,12 @@
  */
 package org.graphstream.algorithm;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.stream.ElementSink;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * <p>
@@ -347,12 +347,10 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 
 	public void nodeRemoved(String sourceId, long timeId, String nodeId) {
 		// removed node will give equal parts of its rank to the others
-		double part = graph.getNode(nodeId).getNumber(rankAttribute)
-				/ (graph.getNodeCount() - 1);
+		double part = graph.getNode(nodeId).getDouble(rankAttribute) / (graph.getNodeCount() - 1);
 		for (Node node : graph)
 			if (!node.getId().equals(nodeId))
-				node.addAttribute(rankAttribute, node.getNumber(rankAttribute)
-						+ part);
+				node.addAttribute(rankAttribute, node.getDouble(rankAttribute) + part);
 		upToDate = false;
 	}
 
@@ -383,18 +381,18 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 			double sum = 0;
 			for (int j = 0; j < node.getInDegree(); j++) {
 				Node other = node.getEnteringEdge(j).getOpposite(node);
-				sum += other.getNumber(rankAttribute) / other.getOutDegree();
+				sum += other.getDouble(rankAttribute) / other.getOutDegree();
 			}
 			newRanks.add(dampingTerm + dampingFactor * sum);
 			if (node.getOutDegree() == 0)
-				danglingRank += node.getNumber(rankAttribute);
+				danglingRank += node.getDouble(rankAttribute);
 		}
 		danglingRank *= dampingFactor / graph.getNodeCount();
 
 		normDiff = 0;
 		for (int i = 0; i < graph.getNodeCount(); i++) {
 			Node node = graph.getNode(i);
-			double currentRank = node.getNumber(rankAttribute);
+			double currentRank = node.getDouble(rankAttribute);
 			double newRank = newRanks.get(i) + danglingRank;
 			normDiff += Math.abs(newRank - currentRank);
 			node.addAttribute(rankAttribute, newRank);
@@ -414,7 +412,7 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 	 */
 	public double getRank(Node node) {
 		compute();
-		return node.getNumber(rankAttribute);
+		return node.getDouble(rankAttribute);
 	}
 
 	/**

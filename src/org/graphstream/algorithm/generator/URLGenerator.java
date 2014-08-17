@@ -341,8 +341,6 @@ public class URLGenerator extends BaseGenerator {
 	 * 
 	 * @param url
 	 *            the url to parse
-	 * @param newUrls
-	 *            the set where extracted links will be added
 	 * @throws IOException
 	 */
 	protected void parseUrl(String url) throws IOException {
@@ -500,14 +498,13 @@ public class URLGenerator extends BaseGenerator {
 		if (internalGraph.getNode(nodeId) == null) {
 			addNode(nodeId);
 			sendNodeAttributeAdded(sourceId, nodeId, "label", getNodeLabel(url));
-			// System.out.printf("> new url '%s' --> '%s'\n", url, nodeId);
 		}
 
 		Node n = internalGraph.getNode(nodeId);
 		double w;
 
 		if (n.hasNumber(nodeWeight))
-			w = n.getNumber(nodeWeight);
+			w = n.getDouble(nodeWeight);
 		else
 			w = 0;
 
@@ -537,7 +534,7 @@ public class URLGenerator extends BaseGenerator {
 			double w;
 
 			if (e.hasNumber(edgeWeight))
-				w = e.getNumber(edgeWeight);
+				w = e.getDouble(edgeWeight);
 			else
 				w = 0;
 

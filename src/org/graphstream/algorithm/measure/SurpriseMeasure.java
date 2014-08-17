@@ -193,7 +193,7 @@ public class SurpriseMeasure implements Algorithm {
 			throw new RuntimeException(
 					"No surprise value found. Have you called the compute() method ?");
 
-		return graph.getNumber(surpriseAttributeKey);
+		return graph.getDouble(surpriseAttributeKey);
 	}
 
 	/**
