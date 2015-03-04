@@ -34,8 +34,8 @@ package org.graphstream.algorithm.generator.demo;
 import org.graphstream.algorithm.generator.LifeGenerator;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.AdjacencyListGraph;
-import org.graphstream.ui.swingViewer.util.Camera;
-import org.graphstream.ui.swingViewer.Viewer;
+import org.graphstream.ui.view.Camera;
+import org.graphstream.ui.view.Viewer;
 
 public class LifeGeneratorDemo {
 

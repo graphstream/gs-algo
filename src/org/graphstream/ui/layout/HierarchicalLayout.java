@@ -48,7 +48,7 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.AdjacencyListGraph;
 import org.graphstream.stream.PipeBase;
 import org.graphstream.ui.geom.Point3;
-import org.graphstream.ui.swingViewer.Viewer;
+import org.graphstream.ui.view.Viewer;
 
 public class HierarchicalLayout extends PipeBase implements Layout {
 

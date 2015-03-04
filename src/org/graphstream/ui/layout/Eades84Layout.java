@@ -40,7 +40,7 @@ import org.graphstream.algorithm.generator.BarabasiAlbertGenerator;
 import org.graphstream.graph.implementations.DefaultGraph;
 import org.graphstream.stream.PipeBase;
 import org.graphstream.ui.geom.Point3;
-import org.miv.pherd.geom.Vector3;
+import org.graphstream.ui.geom.Vector3;
 
 public class Eades84Layout extends PipeBase implements Layout {
 

@@ -43,9 +43,9 @@ import org.graphstream.algorithm.generator.RandomEuclideanGenerator;
 import org.graphstream.algorithm.generator.RandomGenerator;
 import org.graphstream.graph.implementations.DefaultGraph;
 import org.graphstream.stream.Pipe;
-import org.graphstream.ui.swingViewer.Viewer;
-
+import org.graphstream.ui.view.Viewer;
 import org.junit.Test;
+
 import static org.junit.Assert.assertTrue;
 
 public class TestGenerator {
