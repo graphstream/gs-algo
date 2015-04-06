@@ -42,25 +42,25 @@ import org.graphstream.stream.*;
 import org.junit.*;
 import static org.junit.Assert.*;
 
-
 /**
  * Test the APSP algorithm.
  */
 public class TestAPSP {
 	public static void main(String args[]) {
 		try {
-			new TestAPSP(args);
+			TestAPSP t = new TestAPSP();
+			t.init(args);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 	}
-	
+
 	public TestAPSP() {
-		
+
 	}
 
-	public TestAPSP(String args[]) throws IOException, GraphParseException {
+	public void init(String args[]) throws IOException, GraphParseException {
 		String filename = null;
 
 		if (args.length > 0)
@@ -96,7 +96,8 @@ public class TestAPSP {
 		}
 
 		if (G.getNode("A") != null && G.getNode("E") != null) {
-			APSP.APSPInfo info = G.getNode("A").getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
+			APSP.APSPInfo info = G.getNode("A").getAttribute(
+					APSP.APSPInfo.ATTRIBUTE_NAME);
 			Path path = info.getShortestPathTo("E");
 
 			System.out.printf("Path A -> E:%n    ");
@@ -107,7 +108,7 @@ public class TestAPSP {
 
 		G.display();
 	}
-	
+
 	@Test
 	public void Test1() {
 		Graph G = new SingleGraph("Test APSP 1", false, true);
@@ -123,7 +124,7 @@ public class TestAPSP {
 		Node C = G.getNode("C");
 		Node D = G.getNode("D");
 		Node E = G.getNode("E");
-		
+
 		APSP.APSPInfo info = A.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
 		Path path = info.getShortestPathTo("E");
 		Object npath[] = path.getNodePath().toArray();
@@ -136,115 +137,115 @@ public class TestAPSP {
 		assertEquals(1.0, info.getLengthTo("C"), 0);
 		assertEquals(1.5, info.getLengthTo("D"), 0);
 		assertEquals(2.0, info.getLengthTo("E"), 0);
-		
+
 		path = info.getShortestPathTo("C");
 		npath = path.getNodePath().toArray();
 		Object npath2[] = { A, B, C };
-		
+
 		assertEquals(3, path.getNodeCount(), 0);
 		assertArrayEquals(npath2, npath);
-		
+
 		info = E.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
 		path = info.getShortestPathTo("C");
 		npath = path.getNodePath().toArray();
 		Object npath3[] = { E, D, B, C };
-		
+
 		assertEquals(4, path.getNodeCount(), 0);
 		assertArrayEquals(npath3, npath);
 
 		assertEquals(2.0, info.getLengthTo("A"), 0);
 		assertEquals(1.0, info.getLengthTo("B"), 0);
 		assertEquals(1.5, info.getLengthTo("C"), 0);
-		assertEquals(0.5, info.getLengthTo("D"), 0);		
+		assertEquals(0.5, info.getLengthTo("D"), 0);
 	}
-	
+
 	@Test
 	public void Test2() {
 		Graph G = new SingleGraph("Test APSP 2", false, true);
-		
+
 		buildGraph2(G);
-		
+
 		APSP apsp = new APSP(G, "weight", true);
-		
+
 		apsp.compute();
-		
+
 		Node A = G.getNode("A");
 		Node B = G.getNode("B");
 		Node C = G.getNode("C");
 		Node D = G.getNode("D");
-		
+
 		APSP.APSPInfo info = A.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
 		Path path = info.getShortestPathTo("C");
 		Object npath[] = path.getNodePath().toArray();
 		Object npath1[] = { A, D, C };
-		
+
 		assertEquals(3, path.getNodeCount(), 0);
 		assertArrayEquals(npath, npath1);
-		
+
 		assertEquals(1.0, info.getLengthTo("B"), 0);
 		assertEquals(2.0, info.getLengthTo("C"), 0);
 		assertEquals(1.0, info.getLengthTo("D"), 0);
-		
+
 		info = B.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
 		path = info.getShortestPathTo("C");
 		npath = path.getNodePath().toArray();
 		Object npath2[] = { B, A, D, C };
-		
+
 		assertEquals(4, path.getNodeCount(), 0);
 		assertArrayEquals(npath, npath2);
-		
+
 		assertEquals(1.0, info.getLengthTo("A"), 0);
 		assertEquals(3.0, info.getLengthTo("C"), 0);
 		assertEquals(2.0, info.getLengthTo("D"), 0);
 	}
-	
+
 	@Test
 	@SuppressWarnings("unused")
 	public void Test3() {
 		Graph G = new SingleGraph("Test APSP 3", false, true);
-		
+
 		buildGraph3(G);
-		
+
 		APSP apsp = new APSP(G, "weight", true);
-		
+
 		apsp.compute();
-		
+
 		Node A = G.getNode("A");
 		Node B = G.getNode("B");
 		Node C = G.getNode("C");
 		Node D = G.getNode("D");
 		Node E = G.getNode("E");
-		
+
 		APSP.APSPInfo info = A.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
 		Path path = info.getShortestPathTo("B");
 		Object npath[] = path.getNodePath().toArray();
-		Object npath1[] = { A, D, B };	// ? Or A, D, E, B ? There are two paths.
+		Object npath1[] = { A, D, B }; // ? Or A, D, E, B ? There are two paths.
 
 		assertEquals(3, path.getNodeCount(), 0);
 		assertArrayEquals(npath, npath1);
-		
+
 		assertEquals(5.0, info.getLengthTo("B"), 0);
 		assertEquals(3.0, info.getLengthTo("C"), 0);
 		assertEquals(1.0, info.getLengthTo("D"), 0);
 		assertEquals(2.0, info.getLengthTo("E"), 0);
-		
+
 		path = info.getShortestPathTo("C");
 		npath = path.getNodePath().toArray();
 		Object npath2[] = { A, C };
-		
+
 		assertEquals(2, path.getNodeCount(), 0);
 		assertArrayEquals(npath, npath2);
 	}
 
 	protected void buildGraph1(Graph G) {
-		// 
-		//  +--0.5-->B<--0.5--+
-		//  |        |        |
-		// 0.5      0.5      0.5
-		//  |        v        |
-		//  A<--0.5--C--0.5-->D--0.5--E
 		//
-		
+		// +--0.5-->B<--0.5--+
+		// | | |
+		// 0.5 0.5 0.5
+		// | v |
+		// A<--0.5--C--0.5-->D--0.5--E
+		//
+
 		Edge AB = G.addEdge("AB", "A", "B", true);
 		Edge AC = G.addEdge("AC", "C", "A", true);
 		Edge BC = G.addEdge("BC", "B", "C", true);
@@ -270,13 +271,13 @@ public class TestAPSP {
 		//
 		// Weighted graph (edge BC=10, others=1):
 		//
-		//    B
-		//   / \10
-		//  /   \
-		// A     C
-		//  \   /
-		//   \ /
-		//    D
+		// B
+		// / \10
+		// / \
+		// A C
+		// \ /
+		// \ /
+		// D
 
 		Node A = graph.addNode("A");
 		Node B = graph.addNode("B");
@@ -302,14 +303,15 @@ public class TestAPSP {
 
 	@SuppressWarnings("unused")
 	protected static void buildGraph3(Graph graph) {
-		//    B---     A-B = 10, A-C = 3, A-D = 1
-		//   /|\  \    B-C = 6,  B-D = 4, B-E = 3
-		//  / | \  \   C-D = 2,  C-E = 10
-		// A--+--\--D  D-E = 1
-		//  \ | __\/|  This graph allows mutliple shortest paths between several nodes. 
-		//   \|/   \|  
-		//    C-----E  
-		
+		// B--- A-B = 10, A-C = 3, A-D = 1
+		// /|\ \ B-C = 6, B-D = 4, B-E = 3
+		// / | \ \ C-D = 2, C-E = 10
+		// A--+--\--D D-E = 1
+		// \ | __\/| This graph allows mutliple shortest paths between several
+		// nodes.
+		// \|/ \|
+		// C-----E
+
 		Node A = graph.addNode("A");
 		Node B = graph.addNode("B");
 		Node C = graph.addNode("C");
