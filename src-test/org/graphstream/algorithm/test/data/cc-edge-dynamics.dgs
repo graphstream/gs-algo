@@ -1,0 +1,15 @@
+DGS004
+null 0 0
+
+st 1
+
+ae AD A D
+
+st 2
+
+de AB
+de AC
+de BC
+de DE
+de DF
+ae CD C D
