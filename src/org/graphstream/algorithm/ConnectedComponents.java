@@ -31,22 +31,19 @@
  */
 package org.graphstream.algorithm;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
+import java.util.Set;
 
-import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 import org.graphstream.stream.SinkAdapter;
 import org.graphstream.util.Filter;
 import org.graphstream.util.FilteredEdgeIterator;
 import org.graphstream.util.FilteredNodeIterator;
-import org.graphstream.util.Filters;
-
-//import org.graphstream.util.set.FixedArrayList;
 
 /**
  * Compute and update the number of connected components of a dynamic graph.
@@ -58,8 +55,8 @@ import org.graphstream.util.Filters;
  * direction of the edges) between them. Therefore, the algorithm does not
  * consider the direction of the edges. The number of connected components of an
  * undirected graph is equal to the number of connected components of the same
- * directed graph. See <a
- * href="http://en.wikipedia.org/wiki/Connected_component_%28graph_theory%29"
+ * directed graph. See
+ * <a href="http://en.wikipedia.org/wiki/Connected_component_%28graph_theory%29"
  * >wikipedia</a> for details.
  * </p>
  * 
@@ -115,13 +112,11 @@ import org.graphstream.util.Filters;
  * 		ConnectedComponents cc = new ConnectedComponents();
  * 		cc.init(graph);
  * 
- * 		System.out.printf(&quot;%d connected component(s) in this graph, so far.%n&quot;,
- * 				cc.getConnectedComponentsCount());
+ * 		System.out.printf(&quot;%d connected component(s) in this graph, so far.%n&quot;, cc.getConnectedComponentsCount());
  * 
  * 		graph.removeEdge(&quot;AC&quot;);
  * 
- * 		System.out.printf(&quot;Eventually, there are %d.%n&quot;, cc
- * 				.getConnectedComponentsCount());
+ * 		System.out.printf(&quot;Eventually, there are %d.%n&quot;, cc.getConnectedComponentsCount());
  * 
  * 	}
  * }
@@ -178,6 +173,7 @@ import org.graphstream.util.Filters;
  * @author Yoann Pigné
  * @author Antoine Dutot
  * @author Guillaume-Jean Herbiet
+ * @author Guilhelm Savin
  * 
  * @since June 26 2007
  * 
@@ -186,53 +182,34 @@ import org.graphstream.util.Filters;
  *             the number of nodes concerned by the changes (k <= n), the
  *             complexity is O(k).
  */
-public class ConnectedComponents extends SinkAdapter implements
-		DynamicAlgorithm, Iterable<ConnectedComponents.ConnectedComponent> {
-
-	/**
-	 * Map of connected components.
-	 */
-	private HashMap<Node, Integer> connectedComponentsMap;
-
-	/**
-	 * The Graph the algorithm is working on.
-	 */
+public class ConnectedComponents extends SinkAdapter
+		implements DynamicAlgorithm, Iterable<ConnectedComponents.ConnectedComponent> {
+	protected HashSet<ConnectedComponent> components;
+	protected HashMap<Node, ConnectedComponent> componentsMap;
 	protected Graph graph;
-
-	/**
-	 * The number of connected components
-	 */
-	protected int connectedComponents = 0;
-
-	/**
-	 * Size of each connected component
-	 */
-	protected HashMap<Integer, Integer> connectedComponentsSize;
-
-	/**
-	 * Single IDs to identify the connected components.
-	 */
-	protected FixedArrayList<String> ids = new FixedArrayList<String>();
-
-	protected FixedArrayList<ConnectedComponent> components = new FixedArrayList<ConnectedComponent>();
-
-	/**
-	 * A token to decide whether or not the algorithm is started.
-	 */
-	protected boolean started = false;
-
-	/**
-	 * Optional edge attribute that make it "invisible". The algorithm will find
-	 * two connected components if such an edge is the only link between two
-	 * node groups.
-	 */
-	protected String cutAttribute = null;
 
 	/**
 	 * Optional attribute to set on each node of a given component. This
 	 * attribute will have for value an index different for each component.
 	 */
-	protected String countAttribute = null;
+	protected String countAttribute;
+	/**
+	 * Optional edge attribute that make it "invisible". The algorithm will find
+	 * two connected components if such an edge is the only link between two
+	 * node groups.
+	 */
+	protected String cutAttribute;
+
+	/**
+	 * Flag used to tell if the {@link #compute()} method has already been
+	 * called.
+	 */
+	protected boolean started;
+
+	/**
+	 * Used to get components index.
+	 */
+	protected int currentComponentId;
 
 	/**
 	 * Construction of an instance with no parameter. The process is not
@@ -245,7 +222,7 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * invoked.
 	 */
 	public ConnectedComponents() {
-		this(null);
+		this.started = false;
 	}
 
 	/**
@@ -257,44 +234,171 @@ public class ConnectedComponents extends SinkAdapter implements
 	 *            The graph who's connected components will be computed.
 	 */
 	public ConnectedComponents(Graph graph) {
-		ids.add(""); // The dummy first identifier (since zero is a special
-		// value).
+		this();
 
-		if (graph != null)
+		if (graph != null) {
 			init(graph);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
+	 */
+	@Override
+	public void init(Graph graph) {
+		if (this.graph != null)
+			this.graph.removeSink(this);
+
+		this.graph = graph;
+		this.graph.addSink(this);
+
+		components = new HashSet<ConnectedComponent>();
+		componentsMap = new HashMap<Node, ConnectedComponent>();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.graphstream.algorithm.Algorithm#compute()
+	 */
+	@Override
+	public void compute() {
+		started = true;
+
+		components.clear();
+		componentsMap.clear();
+
+		Iterator<? extends Node> nodes = graph.getNodeIterator();
+
+		while (nodes.hasNext()) {
+			Node n = nodes.next();
+
+			if (!componentsMap.containsKey(n)) {
+				ConnectedComponent cc = new ConnectedComponent();
+				computeConnectedComponent(cc, n, null);
+
+				components.add(cc);
+			}
+		}
 	}
 
 	/**
-	 * Computes a list of nodes that belong to the biggest connected component.
+	 * Compute the connected component containing `from`.
 	 * 
-	 * @return nodes of the biggest CC.
+	 * We use here the {@link ConnectedComponent#registerNode(Node)} method
+	 * which will update the {@link #componentsMap}, the size of the new
+	 * connected component, the size of the old connected component of `from`
+	 * (if any), and set the node attribute if {@link #countAttribute} is set.
+	 * 
+	 * @param cc
+	 *            The connected component being computed
+	 * @param from
+	 *            The node we start from
+	 * @param drop
+	 *            Do not consider this edge is not null. This is mainly used
+	 *            when an edge has been deleted but the change is not effective
+	 *            in the graph structure.
 	 */
-	public List<Node> getGiantComponent() {
-		if (!started) {
-			compute();
-		}
+	protected void computeConnectedComponent(ConnectedComponent cc, Node from, Edge drop) {
+		LinkedList<Node> open = new LinkedList<Node>();
 
-		// Get the biggest component
-		int maxSize = Integer.MIN_VALUE;
-		int maxIndex = -1;
-		for (Integer c : connectedComponentsSize.keySet()) {
-			if (connectedComponentsSize.get(c) > maxSize) {
-				maxSize = connectedComponentsSize.get(c);
-				maxIndex = c;
-			}
-		}
-		// Get the list of nodes within this component
-		if (maxIndex != -1) {
-			ArrayList<Node> giant = new ArrayList<Node>();
-			for (Node n : graph.getNodeSet()) {
-				if (connectedComponentsMap.get(n) == maxIndex) {
-					giant.add(n);
+		open.add(from);
+		cc.registerNode(from);
+
+		while (!open.isEmpty()) {
+			Node n = open.poll();
+
+			Iterator<? extends Edge> edges = n.getEdgeIterator();
+
+			while (edges.hasNext()) {
+				Edge e = edges.next();
+
+				if (e != drop && !isCutEdge(e)) {
+					Node n2 = e.getOpposite(n);
+
+					if (componentsMap.get(n2) != cc) {
+						open.add(n2);
+						cc.registerNode(n2);
+					}
 				}
 			}
-			return giant;
-		} else {
-			return null;
 		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.graphstream.algorithm.DynamicAlgorithm#terminate()
+	 */
+	@Override
+	public void terminate() {
+		if (graph != null) {
+			graph.removeSink(this);
+
+			graph = null;
+			started = false;
+
+			components.clear();
+			componentsMap.clear();
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Iterable#iterator()
+	 */
+	@Override
+	public Iterator<ConnectedComponent> iterator() {
+		return components.iterator();
+	}
+
+	/**
+	 * Publish the index of the connected component where the node belongs.
+	 * 
+	 * This is more efficient than using the {@link #setCountAttribute(String)}
+	 * method. The latter will update the attribute at each change, implying a
+	 * bigger complexity cost, while this method is a one shot call, so you can
+	 * use it only when you need to manipulate the connected component indexes.
+	 * 
+	 * @param nodeAttribute
+	 *            id of the attribute where the index of the connected component
+	 *            will be stored.
+	 */
+	public void publish(String nodeAttribute) {
+		if (graph == null) {
+			return;
+		}
+
+		for (Node n : graph) {
+			ConnectedComponent cc = componentsMap.get(n);
+			assert cc != null;
+
+			n.setAttribute(countAttribute, cc.id);
+		}
+	}
+
+	/**
+	 * Get the connected component that contains the biggest number of nodes.
+	 * 
+	 * @return the biggest CC.
+	 */
+	public ConnectedComponent getGiantComponent() {
+		checkStarted();
+
+		int maxSize = Integer.MIN_VALUE;
+		ConnectedComponent maxCC = null;
+
+		for (ConnectedComponent cc : components) {
+			if (cc.size > maxSize) {
+				maxCC = cc;
+			}
+		}
+
+		return maxCC;
 	}
 
 	/**
@@ -303,7 +407,9 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * @return the number of connected components in this graph.
 	 */
 	public int getConnectedComponentsCount() {
-		return getConnectedComponentsCount(1);
+		checkStarted();
+
+		return components.size();
 	}
 
 	/**
@@ -336,63 +442,60 @@ public class ConnectedComponents extends SinkAdapter implements
 	 *         graph.
 	 */
 	public int getConnectedComponentsCount(int sizeThreshold, int sizeCeiling) {
-		if (!started) {
-			compute();
-		}
+		checkStarted();
 
+		//
 		// Simplest case : threshold is lesser than or equal to 1 and
 		// no ceiling is specified, we return all the counted components
+		//
 		if (sizeThreshold <= 1 && sizeCeiling <= 0) {
-			return connectedComponents;
-		}
-
-		// Otherwise, parse the connected components size map to consider only
-		// the components whose size is in [sizeThreshold ; sizeCeiling [
-		else {
+			return components.size();
+		} else {
 			int count = 0;
-			for (Integer c : connectedComponentsSize.keySet()) {
-				if (connectedComponentsSize.get(c) >= sizeThreshold
-						&& (sizeCeiling <= 0 || connectedComponentsSize.get(c) < sizeCeiling)) {
+
+			for (ConnectedComponent cc : components) {
+				if (cc.size >= sizeThreshold && (sizeCeiling <= 0 || cc.size < sizeCeiling)) {
 					count++;
 				}
 			}
+
 			return count;
 		}
 	}
 
-	public Iterator<ConnectedComponent> iterator() {
-		while (components.size() > connectedComponents)
-			components.remove(components.getLastIndex());
-
-		return components.iterator();
+	/**
+	 * Return the connected component where a node belonged. The validity of the
+	 * result ends if any new computation is done. So you will have to call this
+	 * method again to be sure you are manipulating the good component.
+	 * 
+	 * @param n
+	 *            a node
+	 * @return the connected component containing `n`
+	 */
+	public ConnectedComponent getConnectedComponentOf(Node n) {
+		return n == null ? null : componentsMap.get(n);
 	}
 
 	/**
-	 * Allocate a new identifier for a connected component.
+	 * Same as {@link #getConnectedComponentOf(Node)} but using the node id.
 	 * 
-	 * @return The new component identifier.
+	 * @param nodeId
+	 *            a node id
+	 * @return the connected component containing the node `nodeId`
 	 */
-	protected int addIdentifier() {
-		ids.add("");
-		return ids.getLastIndex();
+	public ConnectedComponent getConnectedComponentOf(String nodeId) {
+		return getConnectedComponentOf(graph.getNode(nodeId));
 	}
 
 	/**
-	 * Remove a identifier that is no more used.
+	 * Same as {@link #getConnectedComponentOf(Node)} but using the node index.
 	 * 
-	 * @param identifier
-	 *            The identifier to remove.
+	 * @param nodeIndex
+	 *            a node index
+	 * @return the connected component containing the node `nodeIndex`
 	 */
-	protected void removeIdentifier(int identifier) {
-		/*
-		 * // Eventual verification to ensure no used identifier is removed.
-		 * 
-		 * for( Node node: graph.getNodeSet() ) { if(
-		 * connectedComponentsMap.get( node ) == identifier ) System.err.printf(
-		 * "     **** ID %d STILL USED BY node %s%n", identifier, node.getId()
-		 * ); }
-		 */
-		ids.remove(identifier);
+	public ConnectedComponent getConnectedComponentOf(int nodeIndex) {
+		return getConnectedComponentOf(graph.getNode(nodeIndex));
 	}
 
 	/**
@@ -408,7 +511,9 @@ public class ConnectedComponents extends SinkAdapter implements
 	public void setCutAttribute(String cutAttribute) {
 		this.cutAttribute = cutAttribute;
 
-		compute();
+		if (graph != null) {
+			compute();
+		}
 	}
 
 	/**
@@ -421,174 +526,24 @@ public class ConnectedComponents extends SinkAdapter implements
 	 *            disable this feature).
 	 */
 	public void setCountAttribute(String countAttribute) {
-		removeMarks();
+		if (this.countAttribute != null && graph != null) {
+			for (Node n : graph) {
+				n.removeAttribute(countAttribute);
+			}
+		}
+
 		this.countAttribute = countAttribute;
-		remapMarks();
+
+		publish(countAttribute);
 	}
 
-	protected void removeMarks() {
-		Iterator<? extends Node> nodes = graph.getNodeIterator();
-
-		while (nodes.hasNext()) {
-			Node node = nodes.next();
-
-			if (countAttribute == null)
-				node.removeAttribute(countAttribute);
-		}
+	protected boolean isCutEdge(Edge e) {
+		return cutAttribute != null && e.hasAttribute(cutAttribute);
 	}
 
-	protected void remapMarks() {
-
-		if (countAttribute != null && connectedComponentsMap != null) {
-			Iterator<? extends Node> nodes = graph.getNodeIterator();
-
-			while (nodes.hasNext()) {
-				Node v = nodes.next();
-				int id = connectedComponentsMap.get(v);
-
-				v.addAttribute(countAttribute, id - 1);
-			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.graphstream.algorithm.Algorithm#init(org.graphstream.graph.Graph)
-	 */
-	public void init(Graph graph) {
-		if (this.graph != null)
-			this.graph.removeSink(this);
-
-		this.graph = graph;
-
-		this.graph.addSink(this);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.graphstream.algorithm.Algorithm#compute()
-	 */
-	public void compute() {
-		connectedComponents = 0;
-		started = true;
-
-		ids.clear();
-		ids.add(""); // The dummy first identifier (since zero is a special
-		// value).
-		components.add(new ConnectedComponent(0));
-
-		connectedComponentsMap = new HashMap<Node, Integer>();
-
-		// Initialize the size count structure
-		connectedComponentsSize = new HashMap<Integer, Integer>();
-
-		Iterator<? extends Node> nodes = graph.getNodeIterator();
-
-		while (nodes.hasNext()) {
-			connectedComponentsMap.put(nodes.next(), 0);
-		}
-
-		nodes = graph.getNodeIterator();
-
-		while (nodes.hasNext()) {
-			Node v = nodes.next();
-
-			if (connectedComponentsMap.get(v) == 0) {
-				connectedComponents++;
-
-				int newIdentifier = addIdentifier();
-				int size = computeConnectedComponent(v, newIdentifier, null);
-
-				if (size > 0)
-					components.add(new ConnectedComponent(newIdentifier));
-
-				// Initial size count of all connected components
-				connectedComponentsSize.put(newIdentifier, size);
-			}
-		}
-
-		remapMarks();
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.graphstream.algorithm.DynamicAlgorithm#terminate()
-	 */
-	public void terminate() {
-		if (graph != null) {
-			graph.removeSink(this);
-
-			graph = null;
-			started = false;
-
-			connectedComponents = 0;
-			connectedComponentsSize.clear();
-		}
-	}
-
-	/**
-	 * Goes recursively (depth first) into the connected component and assigns
-	 * each node an id.
-	 * 
-	 * @param v
-	 *            The considered node.
-	 * @param id
-	 *            The id to assign to the given node.
-	 * @param exception
-	 *            An optional edge that may not be considered (useful when
-	 *            receiving a {@link #edgeRemoved(String, long, String)} event.
-	 * @return size The size (number of elements) of the connected component
-	 */
-	private int computeConnectedComponent(Node v, int id, Edge exception) {
-		int size = 0;
-
-		LinkedList<Node> open = new LinkedList<Node>();
-
-		open.add(v);
-
-		while (!open.isEmpty()) {
-			Node n = open.remove();
-
-			connectedComponentsMap.put(n, id);
-			size++;
-
-			markNode(n, id);
-
-			Iterator<? extends Edge> edges = n.getEdgeIterator();
-
-			while (edges.hasNext()) {
-				Edge e = edges.next();
-
-				if (e != exception) {
-					if ((cutAttribute != null) ? (!e.hasAttribute(cutAttribute))
-							: true) {
-						Node n2 = e.getOpposite(n);
-
-						if (connectedComponentsMap.get(n2) != id) {
-							open.add(n2);
-							connectedComponentsMap.put(n2, id);
-							markNode(n2, id); /* useless */
-						}
-						// Also work with (but slower):
-						/*
-						 * if( connectedComponentsMap.get( n2 ) != id && !
-						 * open.contains(n2) ) { open.add( n2 ); }
-						 */
-
-					}
-				}
-			}
-		}
-		return size;
-	}
-
-	protected void markNode(Node node, int id) {
-		if (countAttribute != null) {
-			node.addAttribute(countAttribute, id - 1);
+	protected void checkStarted() {
+		if (!started && graph != null) {
+			compute();
 		}
 	}
 
@@ -599,30 +554,53 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * java.lang.String, java.lang.String, java.lang.String, boolean)
 	 */
 	@Override
-	public void edgeAdded(String graphId, long timeId, String edgeId,
-			String fromNodeId, String toNodeId, boolean directed) {
+	public void edgeAdded(String graphId, long timeId, String edgeId, String fromNodeId, String toNodeId,
+			boolean directed) {
 		if (!started && graph != null) {
 			compute();
 		} else if (started) {
 			Edge edge = graph.getEdge(edgeId);
 
 			if (edge != null) {
-				if (!(connectedComponentsMap.get(edge.getNode0())
-						.equals(connectedComponentsMap.get(edge.getNode1())))) {
-					connectedComponents--;
+				Node n0 = edge.getNode0();
+				Node n1 = edge.getNode1();
 
-					int id0 = connectedComponentsMap.get(edge.getNode0());
-					int id1 = connectedComponentsMap.get(edge.getNode1());
+				ConnectedComponent cc0 = componentsMap.get(n0);
+				ConnectedComponent cc1 = componentsMap.get(n1);
 
-					computeConnectedComponent(edge.getNode1(), id0, edge);
-					removeIdentifier(id1);
+				if (cc0 != cc1) {
+					computeConnectedComponent(cc0, n1, null);
+					assert cc1.size == 0;
+				}
+			}
+		}
+	}
 
-					// Merge the size of the two connected components
-					// and remove the entry for the dismissed identifier
-					connectedComponentsSize.put(id0, connectedComponentsSize
-							.get(id0)
-							+ connectedComponentsSize.get(id1));
-					connectedComponentsSize.remove(id1);
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.graphstream.stream.SinkAdapter#edgeRemoved(java.lang.String,
+	 * long, java.lang.String)
+	 */
+	@Override
+	public void edgeRemoved(String graphId, long timeId, String edgeId) {
+		checkStarted();
+
+		if (started) {
+			Edge edge = graph.getEdge(edgeId);
+
+			if (edge != null) {
+				Node n0 = edge.getNode0();
+				Node n1 = edge.getNode1();
+
+				ConnectedComponent cc0 = componentsMap.get(n0);
+				ConnectedComponent cc1 = componentsMap.get(n1);
+
+				if (cc0 == cc1) {
+					ConnectedComponent ccN = new ConnectedComponent();
+					computeConnectedComponent(ccN, n1, edge);
+
+					components.add(ccN);
 				}
 			}
 		}
@@ -642,70 +620,10 @@ public class ConnectedComponents extends SinkAdapter implements
 			Node node = graph.getNode(nodeId);
 
 			if (node != null) {
-				connectedComponents++;
+				ConnectedComponent ccN = new ConnectedComponent();
+				computeConnectedComponent(ccN, node, null);
 
-				int id = addIdentifier();
-
-				connectedComponentsMap.put(node, id);
-				markNode(node, id);
-
-				// Node is a new connected component
-				connectedComponentsSize.put(id, 1);
-			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.graphstream.stream.SinkAdapter#edgeRemoved(java.lang.String,
-	 * long, java.lang.String)
-	 */
-	@Override
-	public void edgeRemoved(String graphId, long timeId, String edgeId) {
-		if (!started && graph != null) {
-			compute();
-		}
-
-		if (started) {
-			Edge edge = graph.getEdge(edgeId);
-
-			if (edge != null) {
-				int id = addIdentifier();
-				int oldId = connectedComponentsMap.get(edge.getNode0());
-
-				// Get the size of the "old" component
-				int oldSize = connectedComponentsSize.get(oldId);
-				int newSize = computeConnectedComponent(edge.getNode0(), id,
-						edge);
-
-				if (!(connectedComponentsMap.get(edge.getNode0())
-						.equals(connectedComponentsMap.get(edge.getNode1())))) {
-
-					// Two new connected components are created
-					// we need to get the size of each of them
-					if (newSize > 0) {
-						connectedComponentsSize.put(id, newSize);
-						connectedComponents++;
-					}
-
-					if (oldSize - newSize > 0) {
-						connectedComponentsSize.put(oldId, oldSize - newSize);
-
-					} else {
-						connectedComponentsSize.remove(oldId);
-						connectedComponents--;
-					}
-
-				} else {
-					removeIdentifier(oldId);
-
-					// No new connected component, simply "translate" the entry
-					connectedComponentsSize.put(id, connectedComponentsSize
-							.get(oldId));
-					connectedComponentsSize.remove(oldId);
-
-				}
+				components.add(ccN);
 			}
 		}
 	}
@@ -718,43 +636,18 @@ public class ConnectedComponents extends SinkAdapter implements
 	 */
 	@Override
 	public void nodeRemoved(String graphId, long timeId, String nodeId) {
-		if (!started && graph != null) {
-			compute();
-		}
+		checkStarted();
 
 		if (started) {
 			Node node = graph.getNode(nodeId);
 
 			if (node != null) {
+				ConnectedComponent cc = componentsMap.remove(node);
 
-				// Delete the entry corresponding to this node
-				connectedComponentsSize
-						.remove(connectedComponentsMap.get(node));
-
-				connectedComponents--;
-				removeIdentifier(connectedComponentsMap.get(node));
+				if (cc != null) {
+					cc.unregisterNode(node);
+				}
 			}
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.graphstream.stream.SinkAdapter#graphCleared(java.lang.String,
-	 * long)
-	 */
-	@Override
-	public void graphCleared(String graphId, long timeId) {
-		// terminate();
-		if (started) {
-			connectedComponents = 0;
-			ids.clear();
-			ids.add("");
-			components.clear();
-			components.add(new ConnectedComponent(0));
-			
-			connectedComponentsMap.clear();
-			connectedComponentsSize.clear();
 		}
 	}
 
@@ -766,8 +659,7 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * long, java.lang.String, java.lang.String, java.lang.Object)
 	 */
 	@Override
-	public void edgeAttributeAdded(String graphId, long timeId, String edgeId,
-			String attribute, Object value) {
+	public void edgeAttributeAdded(String graphId, long timeId, String edgeId, String attribute, Object value) {
 		if (cutAttribute != null && attribute.equals(cutAttribute)) {
 			if (!started && graph != null)
 				compute();
@@ -776,38 +668,19 @@ public class ConnectedComponents extends SinkAdapter implements
 
 			// The attribute is added. Do as if the edge was removed.
 
-			int id = addIdentifier();
-			int oldId = connectedComponentsMap.get(edge.getNode0());
+			if (edge != null) {
+				Node n0 = edge.getNode0();
+				Node n1 = edge.getNode1();
 
-			// Get the size of the "old" component
-			int oldSize = connectedComponentsSize.get(oldId);
-			int newSize = computeConnectedComponent(edge.getNode0(), id, edge);
+				ConnectedComponent cc0 = componentsMap.get(n0);
+				ConnectedComponent cc1 = componentsMap.get(n1);
 
-			if (!connectedComponentsMap.get(edge.getNode0()).equals(
-					connectedComponentsMap.get(edge.getNode1()))) {
+				if (cc0 == cc1) {
+					ConnectedComponent ccN = new ConnectedComponent();
+					computeConnectedComponent(ccN, n1, edge);
 
-				// Two new connected components are created
-				// we need to get the size of each of them
-				if (newSize > 0) {
-					connectedComponentsSize.put(id, newSize);
-					connectedComponents++;
+					components.add(ccN);
 				}
-
-				if (oldSize - newSize > 0) {
-					connectedComponentsSize.put(oldId, oldSize - newSize);
-
-				} else {
-					connectedComponentsSize.remove(oldId);
-					connectedComponents--;
-				}
-
-			} else {
-				removeIdentifier(oldId);
-
-				// No new connected component, simply "translate" the entry
-				connectedComponentsSize.put(id, connectedComponentsSize
-						.get(oldId));
-				connectedComponentsSize.remove(oldId);
 			}
 		}
 	}
@@ -820,8 +693,7 @@ public class ConnectedComponents extends SinkAdapter implements
 	 * long, java.lang.String, java.lang.String)
 	 */
 	@Override
-	public void edgeAttributeRemoved(String graphId, long timeId,
-			String edgeId, String attribute) {
+	public void edgeAttributeRemoved(String graphId, long timeId, String edgeId, String attribute) {
 		if (cutAttribute != null && attribute.equals(cutAttribute)) {
 			if (!started && graph != null)
 				compute();
@@ -830,83 +702,205 @@ public class ConnectedComponents extends SinkAdapter implements
 
 			// The attribute is removed. Do as if the edge was added.
 
-			if (!(connectedComponentsMap.get(edge.getNode0())
-					.equals(connectedComponentsMap.get(edge.getNode1())))) {
-				connectedComponents--;
+			if (edge != null) {
+				Node n0 = edge.getNode0();
+				Node n1 = edge.getNode1();
 
-				int id0 = connectedComponentsMap.get(edge.getNode0());
-				int id1 = connectedComponentsMap.get(edge.getNode1());
+				ConnectedComponent cc0 = componentsMap.get(n0);
+				ConnectedComponent cc1 = componentsMap.get(n1);
 
-				computeConnectedComponent(edge.getNode1(), id0, edge);
-				removeIdentifier(id1);
-
-				// Merge the size of the two connected components
-				// and remove the entry for the dismissed identifier
-				connectedComponentsSize.put(id0, connectedComponentsSize
-						.get(id0)
-						+ connectedComponentsSize.get(id1));
-				connectedComponentsSize.remove(id1);
+				if (cc0 != cc1) {
+					computeConnectedComponent(cc0, n1, null);
+					assert cc1.size == 0;
+				}
 			}
 		}
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see org.graphstream.stream.SinkAdapter#graphCleared(java.lang.String,
+	 * long)
+	 */
+	@Override
+	public void graphCleared(String graphId, long timeId) {
+		if (started) {
+			components.clear();
+			componentsMap.clear();
+		}
+	}
+
+	/**
+	 * A representation of a connected component. These objects are used to
+	 * store informations about components and to allow to iterate over all
+	 * nodes of a same component.
+	 * 
+	 * You can retrieve these objects using the
+	 * {@link ConnectedComponents#getConnectedComponentOf(Node)} methods of the
+	 * algorithm.
+	 *
+	 */
 	public class ConnectedComponent implements Iterable<Node> {
-		public final Integer id;
+		/**
+		 * The unique id of this component.
+		 * 
+		 * The uniqueness of the id is local to an instance of the
+		 * {@link ConnectedComponents} algorithm.
+		 */
+		public final int id = currentComponentId++;
+
+		int size;
 		Filter<Node> nodeFilter;
 		Filter<Edge> edgeFilter;
 		Iterable<Edge> eachEdge;
 
-		public ConnectedComponent(Integer id) {
-			this.id = id;
-			this.nodeFilter = null;
-			this.edgeFilter = null;
-			this.eachEdge = null;
+		ConnectedComponent() {
+			this.size = 0;
+
+			nodeFilter = new Filter<Node>() {
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see
+				 * org.graphstream.util.Filter#isAvailable(org.graphstream.graph
+				 * .Element)
+				 */
+				@Override
+				public boolean isAvailable(Node e) {
+					return componentsMap.get(e) == ConnectedComponent.this;
+				}
+			};
+
+			edgeFilter = new Filter<Edge>() {
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see
+				 * org.graphstream.util.Filter#isAvailable(org.graphstream.graph
+				 * .Element)
+				 */
+				@Override
+				public boolean isAvailable(Edge e) {
+					return nodeFilter.isAvailable(e.getNode0()) && nodeFilter.isAvailable(e.getNode1())
+							&& !isCutEdge(e);
+				}
+
+			};
+
+			eachEdge = new Iterable<Edge>() {
+				public Iterator<Edge> iterator() {
+					return getEdgeIterator();
+				}
+			};
 		}
 
-		public Iterator<Node> iterator() {
-			if (nodeFilter == null)
-				nodeFilter = Filters.byAttributeFilter(countAttribute, id);
+		void registerNode(Node n) {
+			ConnectedComponent old = componentsMap.put(n, this);
 
+			if (countAttribute != null) {
+				n.setAttribute(countAttribute, id);
+			}
+
+			if (old != this) {
+				size++;
+
+				if (old != null) {
+					old.unregisterNode(n);
+				}
+			}
+		}
+
+		void unregisterNode(Node n) {
+			size--;
+
+			if (size == 0) {
+				components.remove(this);
+			}
+		}
+
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Iterable#iterator()
+		 */
+		@Override
+		public Iterator<Node> iterator() {
 			return new FilteredNodeIterator<Node>(graph, nodeFilter);
 		}
 
+		/**
+		 * Return an iterable over the nodes of this component.
+		 * 
+		 * Since a {@link ConnectedComponent} is already an iterable, you should
+		 * not have to use this method.
+		 * 
+		 * @return an iterable over the nodes of this component
+		 */
 		public Iterable<Node> getEachNode() {
 			return this;
 		}
 
-		public Iterable<Edge> getEachEdge() {
-			if (eachEdge == null) {
-				eachEdge = new Iterable<Edge>() {
-					public Iterator<Edge> iterator() {
-						return getEdgeIterator();
-					}
-				};
+		/**
+		 * Get a set containing all the nodes of this component.
+		 * 
+		 * A new set is built for each call to this method, so handle with care.
+		 * 
+		 * @return a new set of nodes belonging to this component
+		 */
+		public Set<Node> getNodeSet() {
+			HashSet<Node> nodes = new HashSet<Node>();
+
+			for (Node n : this) {
+				nodes.add(n);
 			}
 
+			return nodes;
+		}
+
+		/**
+		 * Return an iterable over the edge of this component.
+		 * 
+		 * An edge is in the component if the two ends of this edges are in the
+		 * component and the edge does not have the cut attribute. Note that,
+		 * using cut attribute, some edges can be in none of the components.
+		 * 
+		 * @return an iterable over the edges of this component
+		 */
+		public Iterable<Edge> getEachEdge() {
 			return eachEdge;
 		}
 
+		/**
+		 * The iterator over the edges of this component.
+		 * 
+		 * See {@see #getEachEdge()} for details.
+		 * 
+		 * @return iterator over the edges of this component
+		 */
 		public Iterator<Edge> getEdgeIterator() {
-			if (edgeFilter == null) {
-				if (nodeFilter == null)
-					nodeFilter = Filters.byAttributeFilter(countAttribute, id);
-
-				edgeFilter = new EdgeFilter(nodeFilter);
-			}
-
 			return new FilteredEdgeIterator<Edge>(graph, edgeFilter);
 		}
-	}
 
-	private static class EdgeFilter implements Filter<Edge> {
-		Filter<Node> f;
-
-		public EdgeFilter(Filter<Node> f) {
-			this.f = f;
+		/**
+		 * Test if this component contains a given node.
+		 * 
+		 * @param n
+		 *            a node
+		 * @return true if the node is in this component
+		 */
+		public boolean contains(Node n) {
+			return componentsMap.get(n) == this;
 		}
 
-		public boolean isAvailable(Edge e) {
-			return f.isAvailable(e.getNode0()) && f.isAvailable(e.getNode1());
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
+		public String toString() {
+			return String.format("ConnectedComponent#%d", id);
 		}
 	}
 }
