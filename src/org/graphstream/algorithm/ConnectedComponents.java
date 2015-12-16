@@ -668,7 +668,20 @@ public class ConnectedComponents extends SinkAdapter
 				}
 			};
 
-			edgeFilter = new EdgeFilter(nodeFilter);
+			edgeFilter = new Filter<Edge>() {
+				/*
+				 * (non-Javadoc)
+				 * 
+				 * @see
+				 * org.graphstream.util.Filter#isAvailable(org.graphstream.graph
+				 * .Element)
+				 */
+				@Override
+				public boolean isAvailable(Edge e) {
+					return nodeFilter.isAvailable(e.getNode0()) && nodeFilter.isAvailable(e.getNode1());
+				}
+
+			};
 
 			eachEdge = new Iterable<Edge>() {
 				public Iterator<Edge> iterator() {
@@ -739,18 +752,6 @@ public class ConnectedComponents extends SinkAdapter
 
 		public String toString() {
 			return String.format("ConnectedComponent#%d", id);
-		}
-	}
-
-	private static class EdgeFilter implements Filter<Edge> {
-		Filter<Node> f;
-
-		public EdgeFilter(Filter<Node> f) {
-			this.f = f;
-		}
-
-		public boolean isAvailable(Edge e) {
-			return f.isAvailable(e.getNode0()) && f.isAvailable(e.getNode1());
 		}
 	}
 }
