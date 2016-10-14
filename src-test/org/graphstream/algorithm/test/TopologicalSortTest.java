@@ -35,6 +35,8 @@ public class TopologicalSortTest {
     @Test
     public void testTopologicalSortSmallGraph() {
         List<String> allPossibleTopologicalSort = new ArrayList<>();
+
+        //all possible topological orderings
         allPossibleTopologicalSort.add("[4, 5, 0, 2, 3, 1]");
         allPossibleTopologicalSort.add("[4, 5, 2, 0, 3, 1]");
         allPossibleTopologicalSort.add("[4, 5, 2. 3. 0, 1]");
@@ -53,6 +55,8 @@ public class TopologicalSortTest {
         TopologicalSort sort = new TopologicalSort();
         sort.init(graph);
         sort.compute();
+
+        //check if algorithm gets one of the possible ordering
         Assert.assertTrue(allPossibleTopologicalSort.contains(Arrays.toString(sort.getSortedNodes().toArray())));
     }
 

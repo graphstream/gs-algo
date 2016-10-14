@@ -7,12 +7,31 @@ import org.graphstream.graph.implementations.SingleGraph;
 
 import java.util.*;
 
+/**
+ * Implementation of Kahn's algorithm for a topological sort of a directed acyclic graph (DAG).
+ * Every DAG has at least one topological ordering and this is a algorithm known for constructing a
+ * topological ordering in linear time.
+ *
+ * @reference Kahn, Arthur B. (1962), "Topological sorting of large networks", Communications of the ACM, 5 (11): 558–562
+ * @complexity O(VxE) time, where V and E are the number of vertices and edges
+ * respectively.
+ */
 public class TopologicalSort implements Algorithm {
 
+    /**
+     * graph to calculate a topological ordering
+     */
     private Graph graph;
-    private List<Node> sortedNodes;
-    private Set<Node> sourceNodes;
 
+    /**
+     * collection containing sorted nodes after calculation
+     */
+    private List<Node> sortedNodes;
+
+    /**
+     * collection containing all source nodes (inDegree=00)
+     */
+    private Set<Node> sourceNodes;
 
     @Override
     public void init(Graph theGraph) {
@@ -22,6 +41,12 @@ public class TopologicalSort implements Algorithm {
 
     }
 
+    /**
+     * makes a deep copy of the graph to not modify the original graph
+     *
+     * @param theGraph graph to calculate topological ordering
+     * @return copy of graph
+     */
     private Graph getCopyOfGraph(Graph theGraph) {
         Graph aGraphCopy = new SingleGraph("TopoSort");
         for (Node aNode : theGraph.getEachNode()) {
@@ -68,6 +93,10 @@ public class TopologicalSort implements Algorithm {
         }
     }
 
+    /**
+     * calculates the source nodes
+     * @return set of source nodes
+     */
     private Set<Node> calculateSourceNodes() {
         Set<Node> aSourceNodeSet = new HashSet<>();
         for (Node aNode : graph.getEachNode()) {
@@ -81,10 +110,17 @@ public class TopologicalSort implements Algorithm {
         return aSourceNodeSet;
     }
 
+    /**
+     * throws exception if given graph is no directed acyclic graph (DAG)
+     */
     private void throwExeeption() {
         throw new IllegalStateException("graph is no DAG");
     }
 
+    /**
+     * gets sorted list of the given graph
+     * @return topological sorted list of nodes
+     */
     public List<Node> getSortedNodes() {
         return sortedNodes;
     }
