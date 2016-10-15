@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class TopologicalSortTest {
+public class TestTopologicalSort {
 
     Graph graph;
 
