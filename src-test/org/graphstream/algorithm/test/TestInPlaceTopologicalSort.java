@@ -1,6 +1,7 @@
 package org.graphstream.algorithm.test;
 
 import org.graphstream.algorithm.InPlaceTopologicalSort;
+import org.graphstream.algorithm.TopologicalSort;
 import org.graphstream.graph.Graph;
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,28 +15,28 @@ public class TestInPlaceTopologicalSort {
         Graph graph = TestTopologicalSort.getTestDigraph();
         List<String> allPossibleTopologicalSort = TestTopologicalSort.getTestDigraphPossibleTopologicalSorts();
 
-        InPlaceTopologicalSort sort = new InPlaceTopologicalSort();
+        TopologicalSort sort = new InPlaceTopologicalSort();
         sort.init(graph);
         sort.compute();
 
         //check if algorithm gets one of the possible ordering
-        Assert.assertTrue(allPossibleTopologicalSort.contains(Arrays.toString(sort.getTopologicalSort())));
+        Assert.assertTrue(allPossibleTopologicalSort.contains(Arrays.toString(sort.getSortedNodes().toArray())));
     }
 
-    @Test(expected = InPlaceTopologicalSort.GraphHasCycleException.class)
+    @Test(expected = IllegalStateException.class)
     public void testGraphWithCyclesShouldThrowException() {
         Graph graph = TestTopologicalSort.getTestCycleDigraph();
 
-        InPlaceTopologicalSort sort = new InPlaceTopologicalSort();
+        TopologicalSort sort = new InPlaceTopologicalSort();
         sort.init(graph);
         sort.compute();
     }
 
-    @Test(expected = InPlaceTopologicalSort.GraphHasCycleException.class)
+    @Test(expected = IllegalStateException.class)
     public void testGraphWithNonDirectedEdgeShouldThrowException() {
         Graph graph = TestTopologicalSort.getTestNondirectedGraph();
 
-        InPlaceTopologicalSort sort = new InPlaceTopologicalSort();
+        TopologicalSort sort = new InPlaceTopologicalSort();
         sort.init(graph);
         sort.compute();
     }

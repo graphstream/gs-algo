@@ -21,8 +21,8 @@ import java.util.List;
  * @complexity O(<em>v</em> + <em>e</em>), where <em>v</em> is the number of
  * vertices in the graph and <em>e</em> is the number of edges.
  */
-public class InPlaceTopologicalSort implements Algorithm {
-    public class GraphHasCycleException extends RuntimeException {}
+public class InPlaceTopologicalSort extends TopologicalSort {
+    public class GraphHasCycleException extends IllegalStateException {}
 
     private final static int MARK_UNMARKED = 0;
     private final static int MARK_TEMP = 1;
@@ -48,6 +48,7 @@ public class InPlaceTopologicalSort implements Algorithm {
      * Initialise algorithm with a graph to operate on.
      * @param graph Graph to be topologically sorted
      */
+    @Override
     public void init(Graph graph) {
         this.graph = graph;
     }
@@ -55,6 +56,7 @@ public class InPlaceTopologicalSort implements Algorithm {
     /**
      * Find a topological sort.
      */
+    @Override
     public void compute() {
         if (graph == null) {
             throw new NotInitializedException(this);
@@ -114,6 +116,7 @@ public class InPlaceTopologicalSort implements Algorithm {
      *
      * @return Topologically sorted list of nodes
      */
+    @Override
     public List<Node> getSortedNodes() {
         return new ArrayList<>(Arrays.asList(sortedNodes));
     }
