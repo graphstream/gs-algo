@@ -13,7 +13,7 @@ import java.util.*;
  * topological ordering in linear time.
  *
  * @reference Kahn, Arthur B. (1962), "Topological sorting of large networks", Communications of the ACM, 5 (11): 558–562
- * @complexity O(VxE) time, where V and E are the number of vertices and edges
+ * @complexity O(V+E) time, where V and E are the number of vertices and edges
  * respectively.
  */
 public class TopologicalSort implements Algorithm {
