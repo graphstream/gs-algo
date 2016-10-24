@@ -4,7 +4,6 @@ import org.graphstream.algorithm.TopologicalSort;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -12,12 +11,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class TestTopologicalSort {
-
-    Graph graph;
-
-    @Before
-    public void prepare() {
-        graph = new SingleGraph("Graph");
+    public static Graph getTestDigraph() {
+        Graph graph = new SingleGraph("Graph");
         graph.addNode("0");
         graph.addNode("1");
         graph.addNode("2");
@@ -30,10 +25,22 @@ public class TestTopologicalSort {
         graph.addEdge("4-1", "4", "1", true);
         graph.addEdge("3-1", "3", "1", true);
         graph.addEdge("2-3", "2", "3", true);
+        return graph;
     }
 
-    @Test
-    public void testTopologicalSortSmallGraph() {
+    public static Graph getTestCycleDigraph() {
+        Graph graph = getTestDigraph();
+        graph.addEdge("3-5", "3", "5", true);
+        return graph;
+    }
+
+    public static Graph getTestNondirectedGraph() {
+        Graph graph = getTestDigraph();
+        graph.addEdge("3-5", "3", "5");
+        return graph;
+    }
+
+    public static List<String> getTestDigraphPossibleTopologicalSorts() {
         List<String> allPossibleTopologicalSort = new ArrayList<>();
 
         //all possible topological orderings
@@ -52,6 +59,15 @@ public class TestTopologicalSort {
         allPossibleTopologicalSort.add("[5, 4, 2, 8, 3, l]");
         allPossibleTopologicalSort.add("[5, 4, 2, 3, 0, 1]");
         allPossibleTopologicalSort.add("[5, 4, 2, 3, 1, 0]");
+
+        return allPossibleTopologicalSort;
+    }
+
+    @Test
+    public void testTopologicalSortSmallGraph() {
+        Graph graph = getTestDigraph();
+        List<String> allPossibleTopologicalSort = getTestDigraphPossibleTopologicalSorts();
+
         TopologicalSort sort = new TopologicalSort();
         sort.init(graph);
         sort.compute();
@@ -62,7 +78,8 @@ public class TestTopologicalSort {
 
     @Test(expected = IllegalStateException.class)
     public void testGraphWithCyclesShouldThrowException() {
-        graph.addEdge("3-5", "3", "5", true);
+        Graph graph = getTestCycleDigraph();
+
         TopologicalSort sort = new TopologicalSort();
         sort.init(graph);
         sort.compute();
@@ -70,7 +87,8 @@ public class TestTopologicalSort {
 
     @Test(expected = IllegalStateException.class)
     public void testGraphWithNonDirectedEdgeShouldThrowException() {
-        graph.addEdge("3-5", "3", "5");
+        Graph graph = getTestNondirectedGraph();
+
         TopologicalSort sort = new TopologicalSort();
         sort.init(graph);
         sort.compute();
