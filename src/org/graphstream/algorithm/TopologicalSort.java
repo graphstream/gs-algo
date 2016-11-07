@@ -42,6 +42,12 @@ public class TopologicalSort implements Algorithm {
 
     @Override
     public void compute() {
+        sortedNodes.clear();
+
+        computeKahns();
+    }
+
+    public void computeKahns() {
         while (!sourceNodes.isEmpty()) {
             Node aSourceNode = sourceNodes.iterator().next();
             sourceNodes.remove(aSourceNode);
