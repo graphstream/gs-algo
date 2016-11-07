@@ -3,7 +3,7 @@ package org.graphstream.algorithm;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.graph.implementations.Graphs;
 
 import java.util.*;
 
@@ -35,33 +35,10 @@ public class TopologicalSort implements Algorithm {
 
     @Override
     public void init(Graph theGraph) {
-        graph = getCopyOfGraph(theGraph);
+        graph = Graphs.clone(theGraph);
         sortedNodes = new ArrayList<>();
         sourceNodes = calculateSourceNodes();
-
     }
-
-    /**
-     * makes a deep copy of the graph to not modify the original graph
-     *
-     * @param theGraph graph to calculate topological ordering
-     * @return copy of graph
-     */
-    private Graph getCopyOfGraph(Graph theGraph) {
-        Graph aGraphCopy = new SingleGraph("TopoSort");
-        for (Node aNode : theGraph.getEachNode()) {
-            aGraphCopy.addNode(aNode.getId());
-        }
-        for (Edge anEdge : theGraph.getEachEdge()) {
-            if (anEdge.isDirected()) {
-                aGraphCopy.addEdge(anEdge.getId(), anEdge.getSourceNode().getId(), anEdge.getTargetNode().getId(), true);
-            } else {
-                throwExeeption();
-            }
-        }
-        return aGraphCopy;
-    }
-
 
     @Override
     public void compute() {
