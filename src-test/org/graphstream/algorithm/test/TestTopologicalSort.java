@@ -64,11 +64,11 @@ public class TestTopologicalSort {
     }
 
     @Test
-    public void testTopologicalSortSmallGraph() {
+    public void testKahnTopologicalSortSmallGraph() {
         Graph graph = getTestDigraph();
         List<String> allPossibleTopologicalSort = getTestDigraphPossibleTopologicalSorts();
 
-        TopologicalSort sort = new TopologicalSort();
+        TopologicalSort sort = new TopologicalSort(TopologicalSort.SortAlgorithm.KAHN);
         sort.init(graph);
         sort.compute();
 
@@ -77,19 +77,50 @@ public class TestTopologicalSort {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testGraphWithCyclesShouldThrowException() {
+    public void testKahnGraphWithCyclesShouldThrowException() {
         Graph graph = getTestCycleDigraph();
 
-        TopologicalSort sort = new TopologicalSort();
+        TopologicalSort sort = new TopologicalSort(TopologicalSort.SortAlgorithm.KAHN);
         sort.init(graph);
         sort.compute();
     }
 
     @Test(expected = IllegalStateException.class)
-    public void testGraphWithNonDirectedEdgeShouldThrowException() {
+    public void testKahnGraphWithNonDirectedEdgeShouldThrowException() {
         Graph graph = getTestNondirectedGraph();
 
-        TopologicalSort sort = new TopologicalSort();
+        TopologicalSort sort = new TopologicalSort(TopologicalSort.SortAlgorithm.KAHN);
+        sort.init(graph);
+        sort.compute();
+    }
+
+    @Test
+    public void testDFSTopologicalSortSmallGraph() {
+        Graph graph = TestTopologicalSort.getTestDigraph();
+        List<String> allPossibleTopologicalSort = TestTopologicalSort.getTestDigraphPossibleTopologicalSorts();
+
+        TopologicalSort sort = new TopologicalSort(TopologicalSort.SortAlgorithm.DEPTH_FIRST);
+        sort.init(graph);
+        sort.compute();
+
+        //check if algorithm gets one of the possible ordering
+        Assert.assertTrue(allPossibleTopologicalSort.contains(Arrays.toString(sort.getSortedNodes().toArray())));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testDFSGraphWithCyclesShouldThrowException() {
+        Graph graph = TestTopologicalSort.getTestCycleDigraph();
+
+        TopologicalSort sort = new TopologicalSort(TopologicalSort.SortAlgorithm.DEPTH_FIRST);
+        sort.init(graph);
+        sort.compute();
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testDFSGraphWithNonDirectedEdgeShouldThrowException() {
+        Graph graph = TestTopologicalSort.getTestNondirectedGraph();
+
+        TopologicalSort sort = new TopologicalSort(TopologicalSort.SortAlgorithm.DEPTH_FIRST);
         sort.init(graph);
         sort.compute();
     }

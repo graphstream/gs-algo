@@ -17,6 +17,21 @@ import java.util.*;
  * respectively.
  */
 public class TopologicalSort implements Algorithm {
+    public class GraphHasCycleException extends IllegalStateException {}
+
+    public enum SortAlgorithm {
+        KAHN,
+        DEPTH_FIRST
+    }
+
+    private final static int MARK_UNMARKED = 0;
+    private final static int MARK_TEMP = 1;
+    private final static int MARK_PERM = 2;
+
+    /**
+     * The algorithm that will be used for topological sorting
+     */
+    private final SortAlgorithm algorithm;
 
     /**
      * graph to calculate a topological ordering
@@ -33,21 +48,38 @@ public class TopologicalSort implements Algorithm {
      */
     private Set<Node> sourceNodes;
 
+    public TopologicalSort() {
+        this(SortAlgorithm.DEPTH_FIRST);
+    }
+
+    public TopologicalSort(SortAlgorithm algorithm) {
+        this.algorithm = algorithm;
+    }
+
     @Override
     public void init(Graph theGraph) {
-        graph = Graphs.clone(theGraph);
         sortedNodes = new ArrayList<>();
-        sourceNodes = calculateSourceNodes();
+
+        if (algorithm == SortAlgorithm.KAHN) {
+            graph = Graphs.clone(theGraph);
+            sourceNodes = calculateSourceNodes();
+        } else {
+            graph = theGraph;
+        }
     }
 
     @Override
     public void compute() {
         sortedNodes.clear();
 
-        computeKahns();
+        if (algorithm == SortAlgorithm.KAHN) {
+            computeKahns();
+        } else {
+            computeDFS();
+        }
     }
 
-    public void computeKahns() {
+    private void computeKahns() {
         while (!sourceNodes.isEmpty()) {
             Node aSourceNode = sourceNodes.iterator().next();
             sourceNodes.remove(aSourceNode);
@@ -89,6 +121,49 @@ public class TopologicalSort implements Algorithm {
             throwExeeption();
         }
         return aSourceNodeSet;
+    }
+
+    private void computeDFS() {
+        if (graph == null) {
+            throw new NotInitializedException(this);
+        }
+
+        int[] marks = new int[graph.getNodeCount()];
+        Node n;
+
+        while ((n = getUnmarkedNode(marks)) != null) {
+            visitNode(n, marks);
+        }
+
+        // DFS returns reverse topological order
+        Collections.reverse(sortedNodes);
+    }
+
+    private Node getUnmarkedNode(int[] marks) {
+        for (int i = 0; i < marks.length; i++) {
+            if (marks[i] == MARK_UNMARKED) {
+                return graph.getNode(i);
+            }
+        }
+
+        return null;
+    }
+
+    private void visitNode(Node node, int[] marks) {
+        int mark = marks[node.getIndex()];
+
+        if (mark == MARK_TEMP) {
+            throw new GraphHasCycleException();
+        } else if (mark == MARK_UNMARKED) {
+            marks[node.getIndex()] = MARK_TEMP;
+
+            for (Edge edge : node.getEachLeavingEdge()) {
+                visitNode(edge.getOpposite(node), marks);
+            }
+
+            marks[node.getIndex()] = MARK_PERM;
+            sortedNodes.add(node);
+        }
     }
 
     /**
