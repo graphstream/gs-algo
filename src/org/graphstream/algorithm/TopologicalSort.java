@@ -88,8 +88,6 @@ public class TopologicalSort implements Algorithm {
         }
         if (hasCycle) {
             throwExeeption();
-        } else {
-            System.out.println("TopologicalSortedNodes:" + Arrays.toString(sortedNodes.toArray()));
         }
     }
 
