@@ -8,11 +8,15 @@ import org.graphstream.graph.implementations.Graphs;
 import java.util.*;
 
 /**
- * Implementation of Kahn's algorithm for a topological sort of a directed acyclic graph (DAG).
- * Every DAG has at least one topological ordering and this is a algorithm known for constructing a
+ * Implementation of DFS and Kahn's algorithms for topological sorting of a directed acyclic graph (DAG).
+ * Every DAG has at least one topological ordering and these are algorithms known for constructing a
  * topological ordering in linear time.
  *
+ * DFS sorting is the default, as Kahn's algorithm requires the graph to be copied or for the original to
+ * be modified, which can be expensive. DFS works in place and with constant memory.
+ *
  * @reference Kahn, Arthur B. (1962), "Topological sorting of large networks", Communications of the ACM, 5 (11): 558–562
+ *
  * @complexity O(V+E) time, where V and E are the number of vertices and edges
  * respectively.
  */
@@ -79,6 +83,8 @@ public class TopologicalSort implements Algorithm {
             index = 0;
             computeKahns();
         } else {
+            // DFS gives reverse topological order, so it's fastest to just
+            // fill the array in reverse
             index = sortedNodes.length - 1;
             computeDFS();
         }
@@ -110,7 +116,7 @@ public class TopologicalSort implements Algorithm {
             }
         }
         if (hasCycle) {
-            throwExeeption();
+            throw new GraphHasCycleException();
         }
     }
 
@@ -126,7 +132,7 @@ public class TopologicalSort implements Algorithm {
             }
         }
         if (aSourceNodeSet.isEmpty()) {
-            throwExeeption();
+            throw new GraphHasCycleException();
         }
         return aSourceNodeSet;
     }
@@ -171,13 +177,6 @@ public class TopologicalSort implements Algorithm {
             sortedNodes[index] = node;
             index--;
         }
-    }
-
-    /**
-     * throws exception if given graph is no directed acyclic graph (DAG)
-     */
-    private void throwExeeption() {
-        throw new IllegalStateException("graph is no DAG");
     }
 
     /**

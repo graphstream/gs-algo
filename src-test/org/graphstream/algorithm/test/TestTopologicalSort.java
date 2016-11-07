@@ -76,7 +76,7 @@ public class TestTopologicalSort {
         Assert.assertTrue(allPossibleTopologicalSort.contains(Arrays.toString(sort.getSortedNodes().toArray())));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = TopologicalSort.GraphHasCycleException.class)
     public void testKahnGraphWithCyclesShouldThrowException() {
         Graph graph = getTestCycleDigraph();
 
@@ -85,7 +85,7 @@ public class TestTopologicalSort {
         sort.compute();
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = TopologicalSort.GraphHasCycleException.class)
     public void testKahnGraphWithNonDirectedEdgeShouldThrowException() {
         Graph graph = getTestNondirectedGraph();
 
@@ -107,7 +107,7 @@ public class TestTopologicalSort {
         Assert.assertTrue(allPossibleTopologicalSort.contains(Arrays.toString(sort.getSortedNodes().toArray())));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = TopologicalSort.GraphHasCycleException.class)
     public void testDFSGraphWithCyclesShouldThrowException() {
         Graph graph = TestTopologicalSort.getTestCycleDigraph();
 
@@ -116,7 +116,7 @@ public class TestTopologicalSort {
         sort.compute();
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test(expected = TopologicalSort.GraphHasCycleException.class)
     public void testDFSGraphWithNonDirectedEdgeShouldThrowException() {
         Graph graph = TestTopologicalSort.getTestNondirectedGraph();
 
