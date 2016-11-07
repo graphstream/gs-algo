@@ -41,7 +41,12 @@ public class TopologicalSort implements Algorithm {
     /**
      * collection containing sorted nodes after calculation
      */
-    private List<Node> sortedNodes;
+    private Node[] sortedNodes;
+
+    /**
+     * Next index to populated in sortedNodes
+     */
+    private int index;
 
     /**
      * collection containing all source nodes (inDegree=00)
@@ -58,7 +63,7 @@ public class TopologicalSort implements Algorithm {
 
     @Override
     public void init(Graph theGraph) {
-        sortedNodes = new ArrayList<>();
+        sortedNodes = new Node[theGraph.getNodeCount()];
 
         if (algorithm == SortAlgorithm.KAHN) {
             graph = Graphs.clone(theGraph);
@@ -70,11 +75,11 @@ public class TopologicalSort implements Algorithm {
 
     @Override
     public void compute() {
-        sortedNodes.clear();
-
         if (algorithm == SortAlgorithm.KAHN) {
+            index = 0;
             computeKahns();
         } else {
+            index = sortedNodes.length - 1;
             computeDFS();
         }
     }
@@ -83,7 +88,10 @@ public class TopologicalSort implements Algorithm {
         while (!sourceNodes.isEmpty()) {
             Node aSourceNode = sourceNodes.iterator().next();
             sourceNodes.remove(aSourceNode);
-            sortedNodes.add(aSourceNode);
+
+            sortedNodes[index] = aSourceNode;
+            index++;
+
             for (Iterator<Edge> it = aSourceNode.getLeavingEdgeIterator(); it.hasNext(); ) {
                 Edge aLeavingEdge = it.next();
                 Node aTargetNode = aLeavingEdge.getTargetNode();
@@ -134,9 +142,6 @@ public class TopologicalSort implements Algorithm {
         while ((n = getUnmarkedNode(marks)) != null) {
             visitNode(n, marks);
         }
-
-        // DFS returns reverse topological order
-        Collections.reverse(sortedNodes);
     }
 
     private Node getUnmarkedNode(int[] marks) {
@@ -162,7 +167,9 @@ public class TopologicalSort implements Algorithm {
             }
 
             marks[node.getIndex()] = MARK_PERM;
-            sortedNodes.add(node);
+
+            sortedNodes[index] = node;
+            index--;
         }
     }
 
@@ -178,6 +185,6 @@ public class TopologicalSort implements Algorithm {
      * @return topological sorted list of nodes
      */
     public List<Node> getSortedNodes() {
-        return sortedNodes;
+        return Arrays.asList(sortedNodes);
     }
 }
