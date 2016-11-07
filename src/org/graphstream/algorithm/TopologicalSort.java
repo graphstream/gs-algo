@@ -186,4 +186,11 @@ public class TopologicalSort implements Algorithm {
     public List<Node> getSortedNodes() {
         return Arrays.asList(sortedNodes);
     }
+
+    /**
+     * @return Topologically sorted nodes in array form
+     */
+    public Node[] getSortedArray() {
+        return sortedNodes;
+    }
 }

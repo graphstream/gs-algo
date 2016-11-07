@@ -73,7 +73,7 @@ public class TestTopologicalSort {
         sort.compute();
 
         //check if algorithm gets one of the possible ordering
-        Assert.assertTrue(allPossibleTopologicalSort.contains(Arrays.toString(sort.getSortedNodes().toArray())));
+        Assert.assertTrue(allPossibleTopologicalSort.contains(Arrays.toString(sort.getSortedArray())));
     }
 
     @Test(expected = TopologicalSort.GraphHasCycleException.class)
@@ -104,7 +104,7 @@ public class TestTopologicalSort {
         sort.compute();
 
         //check if algorithm gets one of the possible ordering
-        Assert.assertTrue(allPossibleTopologicalSort.contains(Arrays.toString(sort.getSortedNodes().toArray())));
+        Assert.assertTrue(allPossibleTopologicalSort.contains(Arrays.toString(sort.getSortedArray())));
     }
 
     @Test(expected = TopologicalSort.GraphHasCycleException.class)
