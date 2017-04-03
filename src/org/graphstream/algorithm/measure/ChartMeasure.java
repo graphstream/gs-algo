@@ -206,43 +206,35 @@ public abstract class ChartMeasure {
 	 * @see #outputPlot(PlotParameters, JFreeChart...)
 	 * @param params
 	 *            set of parameters used to output the plot
-	 * @param measures
-	 *            measures to plot
+	 * @param measure
+	 *            measure to plot
 	 * @throws PlotException
 	 */
-	public static void outputPlot(PlotParameters params,
-			ChartMeasure... measures) throws PlotException {
-		if (measures == null || measures.length == 0)
-			throw new PlotException("no measure");
+	public static void outputPlot(PlotParameters params, ChartMeasure measure)
+                                                            throws PlotException {
+		if (measure == null) {
+			throw new PlotException("No measure");
+		}
 
-		JFreeChart[] charts = new JFreeChart[measures.length];
-
-		for (int i = 0; i < measures.length; i++)
-			charts[i] = measures[i].createChart(params);
-
-		outputPlot(params, charts);
+		outputPlot(params, measure.createChart(params));
 	}
 
 	/**
-	 * Output some charts according to a set of parameters. Actually, only one
-	 * chart is supported. According to {@link PlotParameters#outputType}, plot
-	 * is displayed on screen or saved in a file.
+	 * Output chart according to a set of parameters. According to
+	 * {@link PlotParameters#outputType}, plot is displayed on screen or saved
+	 * in a file.
 	 * 
 	 * @param params
 	 *            parameters used to plot
-	 * @param charts
-	 *            charts to output
+	 * @param chart
+	 *            chart to output
 	 * @throws PlotException
 	 */
-	public static void outputPlot(PlotParameters params, JFreeChart... charts)
-			throws PlotException {
-		if (charts == null || charts.length == 0)
-			throw new PlotException("no chart");
-
-		if (charts.length > 1)
-			throw new PlotException("multiple charts not yet supported");
-
-		JFreeChart chart = charts[0];
+	public static void outputPlot(PlotParameters params, JFreeChart chart)
+                                                            throws PlotException {
+		if (chart == null) {
+			throw new PlotException("No chart");
+		}
 
 		switch (params.outputType) {
 		case SCREEN:
