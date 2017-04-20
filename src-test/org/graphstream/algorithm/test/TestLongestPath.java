@@ -2,6 +2,7 @@ package org.graphstream.algorithm.test;
 
 import org.graphstream.algorithm.TopologicalSort;
 import org.graphstream.algorithm.LongestPath;
+import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
@@ -20,14 +21,23 @@ public class TestLongestPath {
         graph.addNode("C");
         graph.addNode("D");
         graph.addNode("E");
-        graph.addEdge("S-A", "S", "A", true);
-        graph.addEdge("S-C", "S", "C", true);
-        graph.addEdge("A-B", "A", "B", true);
-        graph.addEdge("B-D", "B", "D", true);
-        graph.addEdge("B-E", "B", "E", true);
-        graph.addEdge("C-A", "C", "A", true);
-        graph.addEdge("C-D", "C", "D", true);
-        graph.addEdge("D-E", "D", "E", true);
+        Edge sa = graph.addEdge("S-A", "S", "A", true);
+        sa.setAttribute("weight", 1.0);
+        Edge sc = graph.addEdge("S-C", "S", "C", true);
+        sc.setAttribute("weight", 1.0);
+        Edge ab = graph.addEdge("A-B", "A", "B", true);
+        ab.setAttribute("weight", 1.0);
+        Edge bd = graph.addEdge("B-D", "B", "D", true);
+        bd.setAttribute("weight", 1.0);
+        Edge be = graph.addEdge("B-E", "B", "E", true);
+        be.setAttribute("weight", 1.0);
+        Edge ca = graph.addEdge("C-A", "C", "A", true);
+        ca.setAttribute("weight", 1.0);
+        Edge cd = graph.addEdge("C-D", "C", "D", true);
+        cd.setAttribute("weight", 1.0);
+        Edge de = graph.addEdge("D-E", "D", "E", true);
+        de.setAttribute("weight", 1.0);
+        double w = de.getNumber("weight");
         return graph;
     }
 
