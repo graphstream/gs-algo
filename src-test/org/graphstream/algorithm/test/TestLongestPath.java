@@ -11,7 +11,7 @@ import java.util.List;
 
 public class TestLongestPath {
 
-    private static Graph getTestDigraph() {
+    private static Graph getTestSmallDigraph() {
         Graph graph = new SingleGraph("Graph");
         graph.addNode("S");
         graph.addNode("A");
@@ -30,7 +30,7 @@ public class TestLongestPath {
         return graph;
     }
 
-    private static Graph getTestDigraphWeighted() {
+    private static Graph getTestBiggerDigraph() {
         Graph graph = new SingleGraph("Graph");
         graph.addNode("A");
         graph.addNode("B");
@@ -58,7 +58,7 @@ public class TestLongestPath {
 
     @Test
     public void testLongestPathSmallGraph() {
-        Graph graph = TestLongestPath.getTestDigraph();
+        Graph graph = TestLongestPath.getTestSmallDigraph();
         LongestPath path = new LongestPath();
         path.init(graph);
         path.compute();
@@ -68,7 +68,7 @@ public class TestLongestPath {
 
     @Test
     public void testLongestPathBiggerGraph() {
-        Graph graph = TestLongestPath.getTestDigraphWeighted();
+        Graph graph = TestLongestPath.getTestBiggerDigraph();
         LongestPath path = new LongestPath();
         path.init(graph);
         path.compute();
