@@ -23,6 +23,8 @@ public class LongestPath implements Algorithm {
     private Map<Node, Integer> distanceMap;
 
     private List<Node>         longestPath;
+    
+    private Map.Entry<Node, Integer> longestPathNode;
 
     public void init(Graph theGraph) {
         graph = Graphs.clone(theGraph);
@@ -46,6 +48,7 @@ public class LongestPath implements Algorithm {
             }
         }
         Map.Entry<Node, Integer> maxEntry = getMaxEntryOfMap();
+        longestPathNode = maxEntry;
         longestPath.add(maxEntry.getKey());
         getMaxNeigbourgh(maxEntry.getKey());
         Collections.reverse(longestPath);
@@ -86,5 +89,9 @@ public class LongestPath implements Algorithm {
 
     public List<Node> getLongestPath() {
         return longestPath;
+    }
+    
+    public Integer getLongestPathHops() {
+        return longestPathNode.getValue();
     }
 }

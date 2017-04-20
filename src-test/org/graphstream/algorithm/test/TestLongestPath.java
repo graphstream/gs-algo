@@ -76,7 +76,7 @@ public class TestLongestPath {
         List<Node> longestPath = path.getLongestPath();
         Assert.assertEquals("[A, B, D, E, G, H, I]", longestPath.toString());
     }
-    
+
     @Test(expected = TopologicalSort.GraphHasCycleException.class)
     public void testCycledGraph() {
         Graph graph = TestLongestPath.getTestBiggerDigraph();
@@ -84,5 +84,14 @@ public class TestLongestPath {
         LongestPath path = new LongestPath();
         path.init(graph);
         path.compute();
+    }
+
+    @Test
+    public void testLongestPathHops() {
+        Graph graph = TestLongestPath.getTestBiggerDigraph();
+        LongestPath path = new LongestPath();
+        path.init(graph);
+        path.compute();
+        Assert.assertEquals(Integer.valueOf(6), path.getLongestPathHops());
     }
 }
