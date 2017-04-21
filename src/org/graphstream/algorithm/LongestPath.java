@@ -38,7 +38,8 @@ public class LongestPath implements Algorithm {
         aTopoSortAlgorithm.init(graph);
         aTopoSortAlgorithm.compute();
         Node[] aSortedArray = aTopoSortAlgorithm.getSortedArray();
-
+        // first check if graph weigthed
+        // second change this to different method rest should be same
         for (Node aNode : aSortedArray) {
             for (Edge anEdge : aNode.getEachEnteringEdge()) {
                 Node aSourceNode = anEdge.getSourceNode();
@@ -91,7 +92,7 @@ public class LongestPath implements Algorithm {
         return longestPath;
     }
     
-    public Integer getLongestPathHops() {
+    public Integer getLongestPathValue() {
         return longestPathNode.getValue();
     }
 }
