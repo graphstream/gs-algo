@@ -1,7 +1,7 @@
 package org.graphstream.algorithm.test;
 
-import org.graphstream.algorithm.TopologicalSort;
 import org.graphstream.algorithm.LongestPath;
+import org.graphstream.algorithm.TopologicalSort;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -56,7 +56,6 @@ public class TestLongestPath {
         cd.setAttribute("weight", 3.0);
         Edge de = graph.addEdge("D-E", "D", "E", true);
         de.setAttribute("weight", 1.0);
-        double w = de.getNumber("weight");
         return graph;
     }
 
@@ -122,5 +121,15 @@ public class TestLongestPath {
         path.init(graph);
         path.compute();
         Assert.assertEquals(Integer.valueOf(6), path.getLongestPathValue());
+    }
+
+    @Test
+    public void testLongestPathSmallGraphWeighted() {
+        Graph graph = TestLongestPath.getTestSmallDigraphWeighted();
+        LongestPath path = new LongestPath();
+        path.init(graph);
+        path.compute();
+        List<Node> longestPath = path.getLongestPath();
+        Assert.assertEquals("[S, C, A, B, D, E]", longestPath.toString());
     }
 }

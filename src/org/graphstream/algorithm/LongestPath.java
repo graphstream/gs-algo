@@ -26,6 +26,8 @@ public class LongestPath implements Algorithm {
     
     private Map.Entry<Node, Integer> longestPathNode;
 
+    private boolean weighted = true;
+
     public void init(Graph theGraph) {
         graph = Graphs.clone(theGraph);
         distanceMap = new HashMap<>();
@@ -33,14 +35,29 @@ public class LongestPath implements Algorithm {
     }
 
     public void compute() {
-        initializeDistanceMap();
+        initializeAlgorithm();
         TopologicalSort aTopoSortAlgorithm = new TopologicalSort(TopologicalSort.SortAlgorithm.DEPTH_FIRST);
         aTopoSortAlgorithm.init(graph);
         aTopoSortAlgorithm.compute();
         Node[] aSortedArray = aTopoSortAlgorithm.getSortedArray();
-        // first check if graph weigthed
-        // second change this to different method rest should be same
-        for (Node aNode : aSortedArray) {
+        if (weighted) {
+            fillDistanceMapWeighted(aSortedArray);
+        } else {
+            fillDistanceMapUnweighted(aSortedArray);
+        }
+        Map.Entry<Node, Integer> maxEntry = getMaxEntryOfMap();
+        longestPathNode = maxEntry;
+        longestPath.add(maxEntry.getKey());
+        getMaxNeigbourgh(maxEntry.getKey());
+        Collections.reverse(longestPath);
+    }
+
+    private void fillDistanceMapWeighted(Node[] aSortedArray) {
+        System.out.println("weighted version");
+    }
+
+    private void fillDistanceMapUnweighted(Node[] theSortedArray) {
+        for (Node aNode : theSortedArray) {
             for (Edge anEdge : aNode.getEachEnteringEdge()) {
                 Node aSourceNode = anEdge.getSourceNode();
                 Node aTargetNode = anEdge.getTargetNode();
@@ -48,11 +65,6 @@ public class LongestPath implements Algorithm {
                 distanceMap.put(aTargetNode, aMaxDistance);
             }
         }
-        Map.Entry<Node, Integer> maxEntry = getMaxEntryOfMap();
-        longestPathNode = maxEntry;
-        longestPath.add(maxEntry.getKey());
-        getMaxNeigbourgh(maxEntry.getKey());
-        Collections.reverse(longestPath);
     }
 
     private Map.Entry<Node, Integer> getMaxEntryOfMap() {
@@ -82,8 +94,14 @@ public class LongestPath implements Algorithm {
 
     }
 
-    private void initializeDistanceMap() {
+    private void initializeAlgorithm() {
         for (Node aNode : graph.getEachNode()) {
+            for (Edge anEdge : aNode.getEachEdge()) {
+                double aWeight = anEdge.getNumber("weight");
+                if (Double.isNaN(aWeight)) {
+                    weighted = false;
+                }
+            }
             distanceMap.put(aNode, 0);
         }
     }
