@@ -31,8 +31,8 @@ public class TestLongestPath {
         graph.addEdge("D-E", "D", "E", true);
         return graph;
     }
-    
-        private static Graph getTestSmallDigraphWeighted() {
+
+    private static Graph getTestSmallDigraphWeighted() {
         Graph graph = new SingleGraph("Graph");
         graph.addNode("S");
         graph.addNode("A");
@@ -120,7 +120,7 @@ public class TestLongestPath {
         LongestPath path = new LongestPath();
         path.init(graph);
         path.compute();
-        Assert.assertEquals(Integer.valueOf(6), path.getLongestPathValue());
+        Assert.assertEquals(Double.valueOf(6.0), path.getLongestPathValue());
     }
 
     @Test
@@ -131,5 +131,14 @@ public class TestLongestPath {
         path.compute();
         List<Node> longestPath = path.getLongestPath();
         Assert.assertEquals("[S, C, A, B, D, E]", longestPath.toString());
+    }
+
+    @Test
+    public void testLongestPathWeighted() {
+        Graph graph = TestLongestPath.getTestSmallDigraphWeighted();
+        LongestPath path = new LongestPath();
+        path.init(graph);
+        path.compute();
+        Assert.assertEquals(Double.valueOf(6.0), path.getLongestPathValue());
     }
 }

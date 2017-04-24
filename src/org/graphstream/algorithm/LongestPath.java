@@ -18,15 +18,15 @@ public class LongestPath implements Algorithm {
     /**
      * graph to calculate longest path
      */
-    private Graph              graph;
+    private Graph                    graph;
 
-    private Map<Node, Integer> distanceMap;
+    private Map<Node, Double>       distanceMap;
 
-    private List<Node>         longestPath;
-    
-    private Map.Entry<Node, Integer> longestPathNode;
+    private List<Node>               longestPath;
 
-    private boolean weighted = true;
+    private Map.Entry<Node, Double> longestPathNode;
+
+    private boolean                  weighted = true;
 
     public void init(Graph theGraph) {
         graph = Graphs.clone(theGraph);
@@ -45,15 +45,23 @@ public class LongestPath implements Algorithm {
         } else {
             fillDistanceMapUnweighted(aSortedArray);
         }
-        Map.Entry<Node, Integer> maxEntry = getMaxEntryOfMap();
+        Map.Entry<Node, Double> maxEntry = getMaxEntryOfMap();
         longestPathNode = maxEntry;
         longestPath.add(maxEntry.getKey());
         getMaxNeigbourgh(maxEntry.getKey());
         Collections.reverse(longestPath);
     }
 
-    private void fillDistanceMapWeighted(Node[] aSortedArray) {
-        System.out.println("weighted version");
+    private void fillDistanceMapWeighted(Node[] theSortedArray) {
+        for (Node aNode : theSortedArray) {
+            for (Edge anEdge : aNode.getEachEnteringEdge()) {
+                Node aSourceNode = anEdge.getSourceNode();
+                Node aTargetNode = anEdge.getTargetNode();
+                double aWeight = anEdge.getNumber("weight");
+                Double aMaxDistance = Math.max(distanceMap.get(aTargetNode), distanceMap.get(aSourceNode)) + aWeight;
+                distanceMap.put(aTargetNode, aMaxDistance);
+            }
+        }
     }
 
     private void fillDistanceMapUnweighted(Node[] theSortedArray) {
@@ -61,15 +69,15 @@ public class LongestPath implements Algorithm {
             for (Edge anEdge : aNode.getEachEnteringEdge()) {
                 Node aSourceNode = anEdge.getSourceNode();
                 Node aTargetNode = anEdge.getTargetNode();
-                int aMaxDistance = Math.max(distanceMap.get(aTargetNode), distanceMap.get(aSourceNode)) + 1;
+                Double aMaxDistance = Math.max(distanceMap.get(aTargetNode), distanceMap.get(aSourceNode)) + 1;
                 distanceMap.put(aTargetNode, aMaxDistance);
             }
         }
     }
 
-    private Map.Entry<Node, Integer> getMaxEntryOfMap() {
-        Map.Entry<Node, Integer> maxEntry = null;
-        for (Map.Entry<Node, Integer> entry : distanceMap.entrySet()) {
+    private Map.Entry<Node, Double> getMaxEntryOfMap() {
+        Map.Entry<Node, Double> maxEntry = null;
+        for (Map.Entry<Node, Double> entry : distanceMap.entrySet()) {
             if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0) {
                 maxEntry = entry;
             }
@@ -79,7 +87,7 @@ public class LongestPath implements Algorithm {
 
     private void getMaxNeigbourgh(Node theNode) {
         Node aMaxNode = null;
-        int aMaxDistance = 0;
+        double aMaxDistance = 0.0;
         for (Edge anEdge : theNode.getEachEnteringEdge()) {
             Node aSourceNode = anEdge.getSourceNode();
             if (distanceMap.get(aSourceNode) >= aMaxDistance) {
@@ -102,15 +110,15 @@ public class LongestPath implements Algorithm {
                     weighted = false;
                 }
             }
-            distanceMap.put(aNode, 0);
+            distanceMap.put(aNode, 0.0);
         }
     }
 
     public List<Node> getLongestPath() {
         return longestPath;
     }
-    
-    public Integer getLongestPathValue() {
+
+    public Double getLongestPathValue() {
         return longestPathNode.getValue();
     }
 }
