@@ -139,6 +139,6 @@ public class TestLongestPath {
         LongestPath path = new LongestPath();
         path.init(graph);
         path.compute();
-        Assert.assertEquals(Double.valueOf(6.0), path.getLongestPathValue());
+        Assert.assertEquals(Double.valueOf(14.0), path.getLongestPathValue());
     }
 }

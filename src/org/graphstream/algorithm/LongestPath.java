@@ -58,7 +58,7 @@ public class LongestPath implements Algorithm {
                 Node aSourceNode = anEdge.getSourceNode();
                 Node aTargetNode = anEdge.getTargetNode();
                 double aWeight = anEdge.getNumber("weight");
-                Double aMaxDistance = Math.max(distanceMap.get(aTargetNode), distanceMap.get(aSourceNode)) + aWeight;
+                Double aMaxDistance = Math.max(distanceMap.get(aTargetNode), distanceMap.get(aSourceNode) + aWeight);
                 distanceMap.put(aTargetNode, aMaxDistance);
             }
         }
