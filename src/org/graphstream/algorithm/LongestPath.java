@@ -10,23 +10,34 @@ import java.util.*;
 /**
  * Implementation of longest path algorithm in a DAG (directed acyclic graph) using topologicalSort
  *
- * @complexity O(V+E) time, where V and E are the number of vertices and edges
- * respectively.
+ * @complexity yet to be calculated
  */
 public class LongestPath implements Algorithm {
 
     /**
      * graph to calculate longest path
      */
-    private Graph                    graph;
+    private Graph graph;
 
-    private Map<Node, Double>       distanceMap;
+    /**
+     * map with all disctances from starting point
+     */
+    private Map<Node, Double> distanceMap;
 
-    private List<Node>               longestPath;
+    /**
+     * calculated longest path
+     */
+    private List<Node> longestPath;
 
+    /**
+     * node and value at the end of the longest path
+     */
     private Map.Entry<Node, Double> longestPathNode;
 
-    private boolean                  weighted = true;
+    /**
+     * weighted or unweighted graph
+     */
+    private boolean weighted = true;
 
     public void init(Graph theGraph) {
         graph = Graphs.clone(theGraph);
@@ -114,10 +125,19 @@ public class LongestPath implements Algorithm {
         }
     }
 
+    /**
+     * gets sorted list of the longest path
+     * @return sorted list of nodes in longest path
+     */
     public List<Node> getLongestPath() {
         return longestPath;
     }
 
+    /**
+     * get value of longest path
+     * if unweighted value = hops
+     * @return value of longest path
+     */
     public Double getLongestPathValue() {
         return longestPathNode.getValue();
     }
