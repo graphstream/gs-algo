@@ -143,21 +143,12 @@ public class TopologicalSort implements Algorithm {
         }
 
         int[] marks = new int[graph.getNodeCount()];
-        Node n;
-
-        while ((n = getUnmarkedNode(marks)) != null) {
-            visitNode(n, marks);
-        }
-    }
-
-    private Node getUnmarkedNode(int[] marks) {
+        
         for (int i = 0; i < marks.length; i++) {
             if (marks[i] == MARK_UNMARKED) {
-                return graph.getNode(i);
+                visitNode(graph.getNode(i), marks);
             }
         }
-
-        return null;
     }
 
     private void visitNode(Node node, int[] marks) {
