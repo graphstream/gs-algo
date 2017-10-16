@@ -432,7 +432,8 @@ public class AStar implements Algorithm {
 				closed.put(current.node, current);
 
 				// For each successor of the current node :
-
+				/*
+				// Iterator
 				Iterator<? extends Edge> nexts = current.node
 						.getLeavingEdgeIterator();
 
@@ -462,6 +463,33 @@ public class AStar implements Algorithm {
 					closed.remove(next);
 					open.put(next, new AStarNode(next, edge, current, g, h));
 				}
+				*/
+				
+				// Stream
+				current.node.leavingEdges().forEach(edge -> {
+					Node next = edge.getOpposite(current.node);
+					double h = costs.heuristic(next, targetNode);
+					double g = current.g + costs.cost(current.node, edge, next);
+					double f = g + h;
+
+					// If the node is already in open with a better rank, we
+					// skip it.
+
+					AStarNode alreadyInOpen = open.get(next);
+
+					if (!(alreadyInOpen != null && alreadyInOpen.rank <= f)) {
+						
+						// If the node is already in closed with a better rank; we
+						// skip it.
+						AStarNode alreadyInClosed = closed.get(next);
+
+						if (!(alreadyInClosed != null && alreadyInClosed.rank <= f)){
+
+							closed.remove(next);
+							open.put(next, new AStarNode(next, edge, current, g, h));
+						}
+					}
+				});
 			}
 		}
 	}
