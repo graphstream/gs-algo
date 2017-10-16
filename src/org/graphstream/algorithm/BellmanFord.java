@@ -349,9 +349,9 @@ public class BellmanFord implements Algorithm {
 		
 		for (Node n : graph) {
 			if (n == source)
-				n.addAttribute(identifier+".distance", 0.0);
+				n.setAttribute(identifier+".distance", 0.0);
 			else
-				n.addAttribute(identifier+".distance", Double.POSITIVE_INFINITY);
+				n.setAttribute(identifier+".distance", Double.POSITIVE_INFINITY);
 
 			//n.addAttribute(identifier+".predecessors",(Object)null);
 		}
@@ -374,7 +374,7 @@ public class BellmanFord implements Algorithm {
 
 				if (d0 != null) {
 					if (d1 == null || d1 >= d0 + we) {
-						n1.addAttribute(identifier+".distance", d0 + we);
+						n1.setAttribute(identifier+".distance", d0 + we);
 						ArrayList<Edge> predecessors = (ArrayList<Edge>) n1
 								.getAttribute(identifier+".predecessors");
 
@@ -389,7 +389,7 @@ public class BellmanFord implements Algorithm {
 							predecessors.add(e);
 						}
 
-						n1.addAttribute(identifier+".predecessors",
+						n1.setAttribute(identifier+".predecessors",
 								predecessors);
 					}
 				}

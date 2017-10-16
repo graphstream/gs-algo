@@ -49,9 +49,9 @@ public class ClosenessCentralityDemo {
 
 		Graph g = new AdjacencyListGraph("g");
 
-		g.addAttribute("ui.quality");
-		g.addAttribute("ui.antialias");
-		g.addAttribute("ui.stylesheet", STYLE);
+		g.setAttribute("ui.quality");
+		g.setAttribute("ui.antialias");
+		g.setAttribute("ui.stylesheet", STYLE);
 
 		BarabasiAlbertGenerator gen = new BarabasiAlbertGenerator();
 		gen.addSink(g);
@@ -66,7 +66,7 @@ public class ClosenessCentralityDemo {
 		cc.compute();
 
 		for (int i = 0; i < g.getNodeCount(); i++)
-			g.getNode(i).addAttribute("ui.size",
+			g.getNode(i).setAttribute("ui.size",
 					g.getNode(i).getNumber("ui.color") * 25 + 5);
 
 		g.display();

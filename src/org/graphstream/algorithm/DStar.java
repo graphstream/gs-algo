@@ -246,7 +246,7 @@ public class DStar implements DynamicAlgorithm, Sink {
 
 		if (s == null) {
 			s = new State(n);
-			n.addAttribute(STATE_ATTRIBUTE, s);
+			n.setAttribute(STATE_ATTRIBUTE, s);
 		}
 
 		return s;
@@ -479,7 +479,7 @@ public class DStar implements DynamicAlgorithm, Sink {
 		boolean alive = true;
 
 		g
-				.addAttribute(
+				.setAttribute(
 						"ui.stylesheet",
 						"node.on { fill-color: red; } node.off { fill-color: black; } edge.on { fill-color: red; } edge.off { fill-color: black; }");
 

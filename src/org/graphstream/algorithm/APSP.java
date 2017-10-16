@@ -385,7 +385,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 			ArrayList<Node> nodeList = new ArrayList<Node>();
 
 			for (Node node : graph) {
-				node.addAttribute(APSPInfo.ATTRIBUTE_NAME, new APSPInfo(node,
+				node.setAttribute(APSPInfo.ATTRIBUTE_NAME, new APSPInfo(node,
 						weightAttributeName, directed));
 				nodeList.add(node);
 			}

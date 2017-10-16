@@ -238,7 +238,7 @@ public abstract class AbstractSpanningTree implements SpanningTree {
 	protected void edgeOn(Edge e) {
 		if (flagAttribute != null) {
 			if (flagOn != null)
-				e.changeAttribute(flagAttribute, flagOn);
+				e.setAttribute(flagAttribute, flagOn);
 			else
 				e.removeAttribute(flagAttribute);
 		}
@@ -253,7 +253,7 @@ public abstract class AbstractSpanningTree implements SpanningTree {
 	protected void edgeOff(Edge e) {
 		if (flagAttribute != null) {
 			if (flagOff != null)
-				e.changeAttribute(flagAttribute, flagOff);
+				e.setAttribute(flagAttribute, flagOff);
 			else
 				e.removeAttribute(flagAttribute);
 		}

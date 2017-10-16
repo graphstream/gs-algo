@@ -56,10 +56,10 @@ public class DemoLayout {
 		C.setPosition(0, 0, 0);
 		C.setAttribute("ui.label", "(0,0)");
 		graph.display();
-		graph.addAttribute("ui.stylesheet", styleSheet);
-		graph.addAttribute("layout.stabilization-limit", 1);
-		graph.addAttribute("layout.quality", 3);
-		graph.addAttribute("layout.gravity", 0.01);
+		graph.setAttribute("ui.stylesheet", styleSheet);
+		graph.setAttribute("layout.stabilization-limit", 1);
+		graph.setAttribute("layout.quality", 3);
+		graph.setAttribute("layout.gravity", 0.01);
 //		int steps = 50;
 //		Generator gen = new BarabasiAlbertGenerator(2);
 //		int steps = 6;

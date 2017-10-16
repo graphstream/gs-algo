@@ -1669,8 +1669,8 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 					uiClass = "demand";
 				uiClass += flow == 0 ? "_balanced" : "_unbalanced";
 				Node x = graph.getNode(node.id);
-				x.addAttribute("label", target == root ? flow : -flow);
-				x.addAttribute("ui.class", uiClass);
+				x.setAttribute("label", target == root ? flow : -flow);
+				x.setAttribute("ui.class", uiClass);
 			} else {
 				String uiClass = "basic";
 				if (status == ArcStatus.NONBASIC_LOWER)
@@ -1679,8 +1679,8 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 					uiClass = "nonbasic_upper";
 
 				Edge e = graph.getEdge(getOriginalId());
-				e.addAttribute("label", flow);
-				e.addAttribute("ui.class", uiClass);
+				e.setAttribute("label", flow);
+				e.setAttribute("ui.class", uiClass);
 			}
 		}
 

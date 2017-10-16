@@ -354,7 +354,7 @@ public class Dijkstra extends AbstractSpanningTree {
 					: Double.POSITIVE_INFINITY;
 			data.fn = heap.add(v, node);
 			data.edgeFromParent = null;
-			node.addAttribute(resultAttribute, data);
+			node.setAttribute(resultAttribute, data);
 		}
 
 		// main loop

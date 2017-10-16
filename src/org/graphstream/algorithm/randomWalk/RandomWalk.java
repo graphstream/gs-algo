@@ -433,12 +433,12 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	public void setPassesAttribute(String name) {
 		if (context.graph != null) {
 			for (Edge e : context.graph.getEachEdge()) {
-				e.addAttribute(name, e.getNumber(context.passesAttribute));
+				e.setAttribute(name, e.getNumber(context.passesAttribute));
 				e.removeAttribute(context.passesAttribute);
 			}
 
 			for (Node n : context.graph) {
-				n.addAttribute(name, n.getNumber(context.passesAttribute));
+				n.setAttribute(name, n.getNumber(context.passesAttribute));
 				n.removeAttribute(context.passesAttribute);
 			}
 		}
@@ -581,11 +581,11 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 
 	protected void equipGraph() {
 		for (Edge e : context.graph.getEachEdge()) {
-			e.addAttribute(context.passesAttribute, 0.0);
+			e.setAttribute(context.passesAttribute, 0.0);
 		}
 
 		for (Node n : context.graph) {
-			n.addAttribute(context.passesAttribute, 0.0);
+			n.setAttribute(context.passesAttribute, 0.0);
 		}
 	}
 
@@ -650,14 +650,14 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 		Edge edge = context.graph.getEdge(edgeId);
 
 		if (edge != null)
-			edge.addAttribute(context.passesAttribute, 0.0);
+			edge.setAttribute(context.passesAttribute, 0.0);
 	}
 
 	@Override
 	public void nodeAdded(String graphId, long timeId, String nodeId) {
 		Node node = context.graph.getNode(nodeId);
 
-		node.addAttribute(context.passesAttribute, 0.0);
+		node.setAttribute(context.passesAttribute, 0.0);
 	}
 }
 

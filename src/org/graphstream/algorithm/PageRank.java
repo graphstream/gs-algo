@@ -312,7 +312,7 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 		graph.addElementSink(this);
 		double initialRank = 1.0 / graph.getNodeCount();
 		for (Node node : graph)
-			node.addAttribute(rankAttribute, initialRank);
+			node.setAttribute(rankAttribute, initialRank);
 		newRanks = new ArrayList<Double>(graph.getNodeCount());
 		upToDate = false;
 		iterationCount = 0;
@@ -340,7 +340,7 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 
 	public void nodeAdded(String sourceId, long timeId, String nodeId) {
 		// the initial rank of the new node will be 0
-		graph.getNode(nodeId).addAttribute(rankAttribute,
+		graph.getNode(nodeId).setAttribute(rankAttribute,
 				graph.getNodeCount() == 1 ? 1.0 : 0.0);
 		upToDate = false;
 	}
@@ -351,7 +351,7 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 				/ (graph.getNodeCount() - 1);
 		for (Node node : graph)
 			if (!node.getId().equals(nodeId))
-				node.addAttribute(rankAttribute, node.getNumber(rankAttribute)
+				node.setAttribute(rankAttribute, node.getNumber(rankAttribute)
 						+ part);
 		upToDate = false;
 	}
@@ -397,7 +397,7 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 			double currentRank = node.getNumber(rankAttribute);
 			double newRank = newRanks.get(i) + danglingRank;
 			normDiff += Math.abs(newRank - currentRank);
-			node.addAttribute(rankAttribute, newRank);
+			node.setAttribute(rankAttribute, newRank);
 		}
 		iterationCount++;
 	}
