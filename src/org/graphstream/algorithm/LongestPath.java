@@ -40,7 +40,7 @@ public class LongestPath implements Algorithm {
     private boolean weighted = true;
 
     public void init(Graph theGraph) {
-        graph = Graphs.clone(theGraph);
+        graph = theGraph;
         distanceMap = new HashMap<>();
         longestPath = new ArrayList<>();
     }
