@@ -292,7 +292,7 @@ public class BellmanFord implements Algorithm {
 	 *         path.
 	 */
 	public double getShortestPathValue(Node target) {
-		Double d = target.getAttribute(identifier+".distance");
+		Double d = (double) target.getAttribute(identifier+".distance");
 		if (d != null)
 			return d;
 		return Double.POSITIVE_INFINITY;
@@ -345,9 +345,14 @@ public class BellmanFord implements Algorithm {
 		Node source = graph.getNode(this.source_id);
 
 		// Step 1: Initialize graph
-
+		graph.nodes().forEach(n -> {
+			if (n == source)
+				n.setAttribute(identifier+".distance", 0.0);
+			else
+				n.setAttribute(identifier+".distance", Double.POSITIVE_INFINITY);
+		});
 		
-		for (Node n : graph) {
+		/*for (Node n : graph) {
 			if (n == source)
 				n.setAttribute(identifier+".distance", 0.0);
 			else
@@ -355,12 +360,49 @@ public class BellmanFord implements Algorithm {
 
 			//n.addAttribute(identifier+".predecessors",(Object)null);
 		}
+		*/
 	
 		
 		// Step 2: relax edges repeatedly
+		graph.nodes().forEach(n -> {
+			graph.edges().forEach(e -> {
+				Node n0 = e.getNode0();
+				Node n1 = e.getNode1();
+				Double d0 = (Double) n0.getAttribute(identifier+".distance");
+				Double d1 = (Double) n1.getAttribute(identifier+".distance");
 
-		for (int i = 0; i < graph.getNodeCount(); i++) {
-			for (Edge e : graph.getEachEdge()) {
+				Double we = (Double) e.getAttribute(weightAttribute);
+				if (we == null)
+					throw new NumberFormatException(
+							"org.graphstream.algorithm.BellmanFord: Problem with attribute \""
+									+ weightAttribute + "\" on edge " + e);
+
+				if (d0 != null) {
+					if (d1 == null || d1 >= d0 + we) {
+						n1.setAttribute(identifier+".distance", d0 + we);
+						ArrayList<Edge> predecessors = (ArrayList<Edge>) n1
+								.getAttribute(identifier+".predecessors");
+
+						if (d1 != null && d1 == d0 + we) {
+							if (predecessors == null) {
+								predecessors = new ArrayList<Edge>();
+							}
+						} else {
+							predecessors = new ArrayList<Edge>();
+						}
+						if (!predecessors.contains(e)) {
+							predecessors.add(e);
+						}
+
+						n1.setAttribute(identifier+".predecessors",
+								predecessors);
+					}
+				}
+			});
+		});
+		/*
+		 for (int i = 0; i < graph.getNodeCount(); i++) {
+		 	for (Edge e : graph.getEachEdge()) {
 				Node n0 = e.getNode0();
 				Node n1 = e.getNode1();
 				Double d0 = (Double) n0.getAttribute(identifier+".distance");
@@ -395,9 +437,32 @@ public class BellmanFord implements Algorithm {
 				}
 			}
 		}
-
+		*/
 		// Step 3: check for negative-weight cycles
+		graph.edges().forEach(e -> {
+			Node n0 = e.getNode0();
+			Node n1 = e.getNode1();
+			Double d0 = (Double) n0.getAttribute(identifier+".distance");
+			Double d1 = (Double) n1.getAttribute(identifier+".distance");
 
+			Double we = (Double) e.getAttribute(weightAttribute);
+
+			if (we == null) {
+				throw new NumberFormatException(
+						String.format(
+								"%s: Problem with attribute \"%s\" on edge \"%s\"",
+								BellmanFord.class.getName(), weightAttribute,
+								e.getId()));
+			}
+
+			if (d1 > d0 + we) {
+				throw new NumberFormatException(
+						String.format(
+								"%s: Problem: negative weight, cycle detected on edge \"%s\"",
+								BellmanFord.class.getName(), e.getId()));
+			}
+		});
+		/*
 		for (Edge e : graph.getEachEdge()) {
 			Node n0 = e.getNode0();
 			Node n1 = e.getNode1();
@@ -421,5 +486,6 @@ public class BellmanFord implements Algorithm {
 								BellmanFord.class.getName(), e.getId()));
 			}
 		}
+		*/
 	}
 }

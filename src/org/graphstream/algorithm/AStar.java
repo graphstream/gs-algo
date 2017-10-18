@@ -523,8 +523,8 @@ public class AStar implements Algorithm {
 		
 		// Stream
 		theChosenOne = open.values().stream()
-									.min((n,m) -> Double.compare(n.rank, m.rank))
-									.get();
+				.min((n,m) -> Double.compare(n.rank, m.rank))
+				.get();
 		
 		min = theChosenOne.rank ;
 
