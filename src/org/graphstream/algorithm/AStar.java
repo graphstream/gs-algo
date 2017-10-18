@@ -37,6 +37,7 @@ import static org.graphstream.algorithm.Toolkit.nodePosition;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map.Entry;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -506,13 +507,26 @@ public class AStar implements Algorithm {
 
 		double min = Float.MAX_VALUE;
 		AStarNode theChosenOne = null;
-
+		
+		/*
+		// Iterator
 		for (AStarNode node : open.values()) {
 			if (node.rank < min) {
 				theChosenOne = node;
 				min = node.rank;
 			}
 		}
+		
+		System.out.println("theChosenOne : "+theChosenOne.node.getId());
+		System.out.println("min : "+min);
+		*/
+		
+		// Stream
+		theChosenOne = open.values().stream()
+									.min((n,m) -> Double.compare(n.rank, m.rank))
+									.get();
+		
+		min = theChosenOne.rank ;
 
 		return theChosenOne;
 	}

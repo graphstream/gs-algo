@@ -264,8 +264,11 @@ public abstract class AbstractSpanningTree implements SpanningTree {
 	 * tree.
 	 */
 	protected void resetFlags() {
-		for (Edge edge : graph.getEachEdge())
+		graph.edges().forEach(edge -> {
 			edgeOff(edge);
+		});
+		/*for (Edge edge : graph.getEachEdge())
+			edgeOff(edge);*/
 	}
 
 	// Abstract methods to be implemented by subclasses
@@ -297,8 +300,15 @@ public abstract class AbstractSpanningTree implements SpanningTree {
 	 */
 	public void clear() {
 		if (flagAttribute != null)
+			graph.edges().forEach(edge -> {
+				edge.removeAttribute(flagAttribute);
+			});
+			
+		/*
+		if (flagAttribute != null)
 			for (Edge edge : graph.getEachEdge())
 				edge.removeAttribute(flagAttribute);
+		*/
 	}
 
 	// Algorithm interface
