@@ -5,6 +5,7 @@ import org.graphstream.algorithm.TopologicalSort;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
+import org.graphstream.graph.Path;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.junit.Assert;
 import org.junit.Test;
@@ -91,7 +92,7 @@ public class TestLongestPath {
         LongestPath path = new LongestPath();
         path.init(graph);
         path.compute();
-        List<Node> longestPath = path.getLongestPath();
+        List<Node> longestPath = path.getLongestPathList();
         Assert.assertEquals("[S, C, A, B, D, E]", longestPath.toString());
     }
 
@@ -101,7 +102,7 @@ public class TestLongestPath {
         LongestPath path = new LongestPath();
         path.init(graph);
         path.compute();
-        List<Node> longestPath = path.getLongestPath();
+        List<Node> longestPath = path.getLongestPathList();
         Assert.assertEquals("[A, B, D, E, G, H, I]", longestPath.toString());
     }
 
@@ -129,7 +130,7 @@ public class TestLongestPath {
         LongestPath path = new LongestPath();
         path.init(graph);
         path.compute();
-        List<Node> longestPath = path.getLongestPath();
+        List<Node> longestPath = path.getLongestPathList();
         Assert.assertEquals("[S, C, A, B, D, E]", longestPath.toString());
     }
 
@@ -140,5 +141,15 @@ public class TestLongestPath {
         path.init(graph);
         path.compute();
         Assert.assertEquals(Double.valueOf(14.0), path.getLongestPathValue());
+    }
+
+    @Test
+    public void testLongestPathSmallGraphType() {
+        Graph graph = TestLongestPath.getTestSmallDigraph();
+        LongestPath path = new LongestPath();
+        path.init(graph);
+        path.compute();
+        Path longestPath = path.getLongestPath();
+        Assert.assertEquals("[S, C, A, B, D, E]", longestPath.toString());
     }
 }

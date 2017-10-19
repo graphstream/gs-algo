@@ -3,7 +3,7 @@ package org.graphstream.algorithm;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
-import org.graphstream.graph.implementations.Graphs;
+import org.graphstream.graph.Path;
 
 import java.util.*;
 
@@ -129,8 +129,30 @@ public class LongestPath implements Algorithm {
      * gets sorted list of the longest path
      * @return sorted list of nodes in longest path
      */
-    public List<Node> getLongestPath() {
+    public List<Node> getLongestPathList() {
         return longestPath;
+    }
+
+    /**
+     * gets longest path
+     *
+     * @return longest path
+     */
+    public Path getLongestPath() {
+        Path path = new Path();
+        for (int i = 0; i < longestPath.size(); i++) {
+            for (Edge edge : graph.getEachEdge()) {
+                if (!edge.getSourceNode().equals(longestPath.get(i))) {
+                    continue;
+                }
+                if (!edge.getTargetNode().equals(longestPath.get(i + 1))) {
+                    continue;
+                }
+                path.add(edge.getSourceNode(), edge);
+
+            }
+        }
+        return path;
     }
 
     /**
