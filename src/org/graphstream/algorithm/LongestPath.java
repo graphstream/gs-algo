@@ -15,6 +15,11 @@ import java.util.*;
 public class LongestPath implements Algorithm {
 
     /**
+     * Default weight attribute
+     */
+    public static final String DEFAULT_WEIGHT_ATTRIBUTE = "weight";
+
+    /**
      * graph to calculate longest path
      */
     private Graph graph;
@@ -38,6 +43,11 @@ public class LongestPath implements Algorithm {
      * weighted or unweighted graph
      */
     private boolean weighted = true;
+
+    /**
+     * Attribute where the weights of the edges are stored
+     */
+    protected String weightAttribute;
 
     public void init(Graph theGraph) {
         graph = theGraph;
@@ -68,7 +78,7 @@ public class LongestPath implements Algorithm {
             for (Edge anEdge : aNode.getEachEnteringEdge()) {
                 Node aSourceNode = anEdge.getSourceNode();
                 Node aTargetNode = anEdge.getTargetNode();
-                double aWeight = anEdge.getNumber("weight");
+                double aWeight = anEdge.getNumber(weightAttribute == null ? DEFAULT_WEIGHT_ATTRIBUTE : weightAttribute);
                 Double aMaxDistance = Math.max(distanceMap.get(aTargetNode), distanceMap.get(aSourceNode) + aWeight);
                 distanceMap.put(aTargetNode, aMaxDistance);
             }
@@ -162,5 +172,13 @@ public class LongestPath implements Algorithm {
      */
     public Double getLongestPathValue() {
         return longestPathNode.getValue();
+    }
+
+    public String getWeightAttribute() {
+        return weightAttribute;
+    }
+
+    public void setWeightAttribute(String weightAttribute) {
+        this.weightAttribute = weightAttribute;
     }
 }

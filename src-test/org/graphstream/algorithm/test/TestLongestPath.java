@@ -152,4 +152,30 @@ public class TestLongestPath {
         Path longestPath = path.getLongestPath();
         Assert.assertEquals("[S, C, A, B, D, E]", longestPath.toString());
     }
+
+    @Test
+    public void testSetWeightAttribute() {
+        String weigthAttribute = "test";
+        Graph graph = TestLongestPath.getTestSmallDigraphWeighted();
+        LongestPath path = new LongestPath();
+        path.setWeightAttribute(weigthAttribute);
+        path.init(graph);
+        path.compute();
+        Path longestPath = path.getLongestPath();
+        for (Edge edge : longestPath.getEdgeSet()) {
+            Assert.assertTrue(edge.hasAttribute(weigthAttribute));
+        }
+    }
+
+    @Test
+    public void testDefaultWeightAttribute() {
+        Graph graph = TestLongestPath.getTestSmallDigraphWeighted();
+        LongestPath path = new LongestPath();
+        path.init(graph);
+        path.compute();
+        Path longestPath = path.getLongestPath();
+        for (Edge edge : longestPath.getEdgeSet()) {
+            Assert.assertTrue(edge.hasAttribute(LongestPath.DEFAULT_WEIGHT_ATTRIBUTE));
+        }
+    }
 }
