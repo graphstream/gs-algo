@@ -78,7 +78,7 @@ public class LongestPath implements Algorithm {
             for (Edge anEdge : aNode.getEachEnteringEdge()) {
                 Node aSourceNode = anEdge.getSourceNode();
                 Node aTargetNode = anEdge.getTargetNode();
-                double aWeight = anEdge.getNumber(weightAttribute == null ? DEFAULT_WEIGHT_ATTRIBUTE : weightAttribute);
+                double aWeight = anEdge.getNumber(getWeightAttribute());
                 Double aMaxDistance = Math.max(distanceMap.get(aTargetNode), distanceMap.get(aSourceNode) + aWeight);
                 distanceMap.put(aTargetNode, aMaxDistance);
             }
@@ -126,7 +126,7 @@ public class LongestPath implements Algorithm {
     private void initializeAlgorithm() {
         for (Node aNode : graph.getEachNode()) {
             for (Edge anEdge : aNode.getEachEdge()) {
-                double aWeight = anEdge.getNumber("weight");
+                double aWeight = anEdge.getNumber(getWeightAttribute());
                 if (Double.isNaN(aWeight)) {
                     weighted = false;
                 }
@@ -159,7 +159,6 @@ public class LongestPath implements Algorithm {
                     continue;
                 }
                 path.add(edge.getSourceNode(), edge);
-
             }
         }
         return path;
@@ -175,7 +174,7 @@ public class LongestPath implements Algorithm {
     }
 
     public String getWeightAttribute() {
-        return weightAttribute;
+        return weightAttribute == null ? DEFAULT_WEIGHT_ATTRIBUTE : weightAttribute;
     }
 
     public void setWeightAttribute(String weightAttribute) {

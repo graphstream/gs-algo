@@ -14,7 +14,7 @@ import java.util.List;
 
 public class TestLongestPath {
 
-    private static Graph getTestSmallDigraph() {
+    private Graph getTestSmallDigraph() {
         Graph graph = new SingleGraph("Graph");
         graph.addNode("S");
         graph.addNode("A");
@@ -33,7 +33,7 @@ public class TestLongestPath {
         return graph;
     }
 
-    private static Graph getTestSmallDigraphWeighted() {
+    private Graph getTestSmallDigraphWeighted(String weightAttribute) {
         Graph graph = new SingleGraph("Graph");
         graph.addNode("S");
         graph.addNode("A");
@@ -42,25 +42,25 @@ public class TestLongestPath {
         graph.addNode("D");
         graph.addNode("E");
         Edge sa = graph.addEdge("S-A", "S", "A", true);
-        sa.setAttribute("weight", 1.0);
+        sa.setAttribute(weightAttribute, 1.0);
         Edge sc = graph.addEdge("S-C", "S", "C", true);
-        sc.setAttribute("weight", 2.0);
+        sc.setAttribute(weightAttribute, 2.0);
         Edge ab = graph.addEdge("A-B", "A", "B", true);
-        ab.setAttribute("weight", 6.0);
+        ab.setAttribute(weightAttribute, 6.0);
         Edge bd = graph.addEdge("B-D", "B", "D", true);
-        bd.setAttribute("weight", 1.0);
+        bd.setAttribute(weightAttribute, 1.0);
         Edge be = graph.addEdge("B-E", "B", "E", true);
-        be.setAttribute("weight", 2.0);
+        be.setAttribute(weightAttribute, 2.0);
         Edge ca = graph.addEdge("C-A", "C", "A", true);
-        ca.setAttribute("weight", 4.0);
+        ca.setAttribute(weightAttribute, 4.0);
         Edge cd = graph.addEdge("C-D", "C", "D", true);
-        cd.setAttribute("weight", 3.0);
+        cd.setAttribute(weightAttribute, 3.0);
         Edge de = graph.addEdge("D-E", "D", "E", true);
-        de.setAttribute("weight", 1.0);
+        de.setAttribute(weightAttribute, 1.0);
         return graph;
     }
 
-    private static Graph getTestBiggerDigraph() {
+    private Graph getTestBiggerDigraph() {
         Graph graph = new SingleGraph("Graph");
         graph.addNode("A");
         graph.addNode("B");
@@ -88,7 +88,7 @@ public class TestLongestPath {
 
     @Test
     public void testLongestPathSmallGraph() {
-        Graph graph = TestLongestPath.getTestSmallDigraph();
+        Graph graph = getTestSmallDigraph();
         LongestPath path = new LongestPath();
         path.init(graph);
         path.compute();
@@ -98,7 +98,7 @@ public class TestLongestPath {
 
     @Test
     public void testLongestPathBiggerGraph() {
-        Graph graph = TestLongestPath.getTestBiggerDigraph();
+        Graph graph = getTestBiggerDigraph();
         LongestPath path = new LongestPath();
         path.init(graph);
         path.compute();
@@ -108,7 +108,7 @@ public class TestLongestPath {
 
     @Test(expected = TopologicalSort.GraphHasCycleException.class)
     public void testCycledGraph() {
-        Graph graph = TestLongestPath.getTestBiggerDigraph();
+        Graph graph = getTestBiggerDigraph();
         graph.addEdge("H-G", "H", "G", true);
         LongestPath path = new LongestPath();
         path.init(graph);
@@ -117,7 +117,7 @@ public class TestLongestPath {
 
     @Test
     public void testLongestPathHops() {
-        Graph graph = TestLongestPath.getTestBiggerDigraph();
+        Graph graph = getTestBiggerDigraph();
         LongestPath path = new LongestPath();
         path.init(graph);
         path.compute();
@@ -126,7 +126,7 @@ public class TestLongestPath {
 
     @Test
     public void testLongestPathSmallGraphWeighted() {
-        Graph graph = TestLongestPath.getTestSmallDigraphWeighted();
+        Graph graph = getTestSmallDigraphWeighted(LongestPath.DEFAULT_WEIGHT_ATTRIBUTE);
         LongestPath path = new LongestPath();
         path.init(graph);
         path.compute();
@@ -136,7 +136,7 @@ public class TestLongestPath {
 
     @Test
     public void testLongestPathWeighted() {
-        Graph graph = TestLongestPath.getTestSmallDigraphWeighted();
+        Graph graph = getTestSmallDigraphWeighted(LongestPath.DEFAULT_WEIGHT_ATTRIBUTE);
         LongestPath path = new LongestPath();
         path.init(graph);
         path.compute();
@@ -145,7 +145,7 @@ public class TestLongestPath {
 
     @Test
     public void testLongestPathSmallGraphType() {
-        Graph graph = TestLongestPath.getTestSmallDigraph();
+        Graph graph = getTestSmallDigraph();
         LongestPath path = new LongestPath();
         path.init(graph);
         path.compute();
@@ -156,7 +156,7 @@ public class TestLongestPath {
     @Test
     public void testSetWeightAttribute() {
         String weigthAttribute = "test";
-        Graph graph = TestLongestPath.getTestSmallDigraphWeighted();
+        Graph graph = getTestSmallDigraphWeighted(weigthAttribute);
         LongestPath path = new LongestPath();
         path.setWeightAttribute(weigthAttribute);
         path.init(graph);
@@ -169,7 +169,7 @@ public class TestLongestPath {
 
     @Test
     public void testDefaultWeightAttribute() {
-        Graph graph = TestLongestPath.getTestSmallDigraphWeighted();
+        Graph graph = getTestSmallDigraphWeighted(LongestPath.DEFAULT_WEIGHT_ATTRIBUTE);
         LongestPath path = new LongestPath();
         path.init(graph);
         path.compute();
@@ -178,4 +178,5 @@ public class TestLongestPath {
             Assert.assertTrue(edge.hasAttribute(LongestPath.DEFAULT_WEIGHT_ATTRIBUTE));
         }
     }
+
 }
