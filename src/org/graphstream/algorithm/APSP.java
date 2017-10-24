@@ -31,7 +31,10 @@
  */
 package org.graphstream.algorithm;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -383,58 +386,56 @@ public class APSP extends SinkAdapter implements Algorithm {
 			// are no weights on edges.
 
 			ArrayList<Node> nodeList = new ArrayList<Node>();
-
-			for (Node node : graph) {
-				node.setAttribute(APSPInfo.ATTRIBUTE_NAME, new APSPInfo(node,
-						weightAttributeName, directed));
-				nodeList.add(node);
-			}
-
+			
+			graph.nodes().forEach(n -> {
+				n.setAttribute(APSPInfo.ATTRIBUTE_NAME, new APSPInfo(n, weightAttributeName, directed));
+				nodeList.add(n);
+			});
 			// The Floyd-Warshall algorithm. You can easily see it is in O(n^3)..
 
 			// int z = 0;
-			double prog = 0;
-			double max  = nodeList.size();
-			max *= max;
+			
+			nodeList.stream().forEach(new Consumer<Node>() {
+				double prog = 0;
+				double max  = nodeList.size() * nodeList.size();
+				
+				public void accept(Node k) {
+					nodeList.stream().forEach(i -> {
+						nodeList.stream().forEach(j -> {
+							APSPInfo I = (APSPInfo) i.getAttribute(
+									APSPInfo.ATTRIBUTE_NAME, APSPInfo.class);
+							APSPInfo J = (APSPInfo) j.getAttribute(
+									APSPInfo.ATTRIBUTE_NAME, APSPInfo.class);
+							APSPInfo K = (APSPInfo) k.getAttribute(
+									APSPInfo.ATTRIBUTE_NAME, APSPInfo.class);
 
-			for (Node k : nodeList) {
-				for (Node i : nodeList) {
-					for (Node j : nodeList) {
-						APSPInfo I = (APSPInfo) i.getAttribute(
-								APSPInfo.ATTRIBUTE_NAME, APSPInfo.class);
-						APSPInfo J = (APSPInfo) j.getAttribute(
-								APSPInfo.ATTRIBUTE_NAME, APSPInfo.class);
-						APSPInfo K = (APSPInfo) k.getAttribute(
-								APSPInfo.ATTRIBUTE_NAME, APSPInfo.class);
+							double Dij = I.getLengthTo(J.source.getId());
+							double Dik = I.getLengthTo(K.source.getId());
+							double Dkj = K.getLengthTo(J.source.getId());
 
-						double Dij = I.getLengthTo(J.source.getId());
-						double Dik = I.getLengthTo(K.source.getId());
-						double Dkj = K.getLengthTo(J.source.getId());
+							// Take into account non-existing paths.
 
-						// Take into account non-existing paths.
+							if (Dik >= 0 && Dkj >= 0) {
+								double sum = Dik + Dkj;
 
-						if (Dik >= 0 && Dkj >= 0) {
-							double sum = Dik + Dkj;
-
-							if (Dij >= 0) {
-								if (sum < Dij) {
+								if (Dij >= 0) {
+									if (sum < Dij) {
+										I.setLengthTo(J, sum, K);
+									}
+								} else {
 									I.setLengthTo(J, sum, K);
 								}
-							} else {
-								I.setLengthTo(J, sum, K);
 							}
-						}
-					}
-					
-					if (progress != null)
-						progress.progress(prog / max);
-					
-					prog += 1;
+						});
+						
+						if (progress != null)
+							progress.progress(prog / max);
+						
+						
+						prog += 1;
+					});
 				}
-
-				// z++;
-				// System.err.printf( "%3.2f%%%n", (z/((double)n))*100 );
-			}
+			});
 		}
 
 		graphChanged = false;
@@ -484,22 +485,26 @@ public class APSP extends SinkAdapter implements Algorithm {
 		 *            If false, the edge orientation is not taken into account.
 		 */
 		public APSPInfo(Node node, String weightAttributeName, boolean directed) {
-			double weight = 1;
-			Iterable<? extends Edge> edges = node.getLeavingEdgeSet();
-
+			
+			
+			//Iterable<? extends Edge> edges = node.getLeavingEdgeSet();
+			Stream<Edge> edges = node.leavingEdges() ;
 			source = node;
 
 			if (!directed)
-				edges = node.getEdgeSet();
+				edges = node.edges();
+				//edges = node.getEdgeSet();
 
-			for (Edge edge : edges) {
-				Node other = edge.getOpposite(node);
+			edges.forEach(e -> {
+				double weight = 1;
 
-				if (edge.hasAttribute(weightAttributeName))
-					weight = edge.getNumber(weightAttributeName);
+				Node other = e.getOpposite(node);
+
+				if (e.hasAttribute(weightAttributeName))
+					weight = e.getNumber(weightAttributeName);
 
 				targets.put(other.getId(), new TargetPath(other, weight, null));
-			}
+			});
 		}
 
 		/**
