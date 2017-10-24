@@ -88,11 +88,11 @@ public class TestAPSP {
 			 * ((APSP.APSPInfo)node.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME
 			 * )).getLengthTo( "D" );
 			 * 
-			 * if( Dij >= 0 ) node.addAttribute( "label",
+			 * if( Dij >= 0 ) node.setAttribute( "label",
 			 * node.getId()+" -("+Dij+")-> D" );
 			 */
 
-			node.addAttribute("label", node.getId());
+			node.setAttribute("label", node.getId());
 		}
 
 		if (G.getNode("A") != null && G.getNode("E") != null) {
@@ -253,18 +253,18 @@ public class TestAPSP {
 		Edge CD = G.addEdge("CD", "C", "D", true);
 		Edge DE = G.addEdge("DE", "D", "E", false);
 
-		AB.addAttribute("weight", 0.5f);
-		AB.addAttribute("label", "0.5");
-		AC.addAttribute("weight", 0.5f);
-		AC.addAttribute("label", "0.5");
-		BC.addAttribute("weight", 0.5f);
-		BC.addAttribute("label", "0.5");
-		BD.addAttribute("weight", 0.5f);
-		BD.addAttribute("label", "0.5");
-		CD.addAttribute("weight", 0.5f);
-		CD.addAttribute("label", "0.5");
-		DE.addAttribute("weight", 0.5f);
-		DE.addAttribute("label", "0.5");
+		AB.setAttribute("weight", 0.5f);
+		AB.setAttribute("label", "0.5");
+		AC.setAttribute("weight", 0.5f);
+		AC.setAttribute("label", "0.5");
+		BC.setAttribute("weight", 0.5f);
+		BC.setAttribute("label", "0.5");
+		BD.setAttribute("weight", 0.5f);
+		BD.setAttribute("label", "0.5");
+		CD.setAttribute("weight", 0.5f);
+		CD.setAttribute("label", "0.5");
+		DE.setAttribute("weight", 0.5f);
+		DE.setAttribute("label", "0.5");
 	}
 
 	protected static void buildGraph2(Graph graph) {
@@ -289,14 +289,14 @@ public class TestAPSP {
 		graph.addEdge("CD", "C", "D");
 		graph.addEdge("DA", "D", "A");
 
-		A.addAttribute("xyz", -1, 0);
-		A.addAttribute("ui.label", "A");
-		B.addAttribute("xyz", 0, 1);
-		B.addAttribute("ui.label", "B");
-		C.addAttribute("xyz", 1, 0);
-		C.addAttribute("ui.label", "C");
-		D.addAttribute("xyz", 0, -1);
-		D.addAttribute("ui.label", "D");
+		A.setAttribute("xyz", -1, 0);
+		A.setAttribute("ui.label", "A");
+		B.setAttribute("xyz", 0, 1);
+		B.setAttribute("ui.label", "B");
+		C.setAttribute("xyz", 1, 0);
+		C.setAttribute("ui.label", "C");
+		D.setAttribute("xyz", 0, -1);
+		D.setAttribute("ui.label", "D");
 
 		graph.getEdge("BC").setAttribute("weight", 10.0);
 	}

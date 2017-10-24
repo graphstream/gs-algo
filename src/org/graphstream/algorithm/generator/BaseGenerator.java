@@ -379,7 +379,7 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 				new Double(x), new Double(y) });
 
 		if (useInternalGraph)
-			internalGraph.getNode(id).addAttribute("xy",
+			internalGraph.getNode(id).setAttribute("xy",
 					(Object) (new Double[] { new Double(x), new Double(y) }));
 	}
 
@@ -406,7 +406,7 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 			sendNodeAttributeAdded(sourceId, id, attr, value);
 
 			if (useInternalGraph)
-				internalGraph.getNode(id).addAttribute(attr, value);
+				internalGraph.getNode(id).setAttribute(attr, value);
 		}
 	}
 
@@ -458,7 +458,7 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 			sendEdgeAttributeAdded(sourceId, id, attr, value);
 
 			if (useInternalGraph)
-				internalGraph.getEdge(id).addAttribute(attr, value);
+				internalGraph.getEdge(id).setAttribute(attr, value);
 		}
 	}
 

@@ -55,8 +55,8 @@ public class LifeGeneratorDemo {
 		gen.addSink(g);
 		gen.setTore(false);
 
-		g.addAttribute("ui.quality");
-		g.addAttribute("ui.antialias");
+		g.setAttribute("ui.quality");
+		g.setAttribute("ui.antialias");
 
 		Viewer v = g.display(false);
 		Camera cam = v.getDefaultView().getCamera();

@@ -59,18 +59,18 @@ public class TestToolkit {
 		// [A, B, C, D], [B, D, E], [D, E, F], [E, F, G], [H], [G, I]
 
 		Graph g = new SingleGraph("cliques");
-		g.addNode("A").addAttribute("xy", 0, 1);
-		g.addNode("B").addAttribute("xy", 1, 2);
-		g.addNode("C").addAttribute("xy", 1, 0);
-		g.addNode("D").addAttribute("xy", 2, 1);
-		g.addNode("E").addAttribute("xy", 3, 2);
-		g.addNode("F").addAttribute("xy", 3, 1);
-		g.addNode("G").addAttribute("xy", 4, 1);
-		g.addNode("H").addAttribute("xy", 5, 2);
-		g.addNode("I").addAttribute("xy", 5, 1);
+		g.addNode("A").setAttribute("xy", 0, 1);
+		g.addNode("B").setAttribute("xy", 1, 2);
+		g.addNode("C").setAttribute("xy", 1, 0);
+		g.addNode("D").setAttribute("xy", 2, 1);
+		g.addNode("E").setAttribute("xy", 3, 2);
+		g.addNode("F").setAttribute("xy", 3, 1);
+		g.addNode("G").setAttribute("xy", 4, 1);
+		g.addNode("H").setAttribute("xy", 5, 2);
+		g.addNode("I").setAttribute("xy", 5, 1);
 
 		for (Node n : g)
-			n.addAttribute("label", n.getId());
+			n.setAttribute("label", n.getId());
 
 		g.addEdge("AB", "A", "B");
 		g.addEdge("AC", "A", "C");

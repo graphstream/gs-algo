@@ -45,35 +45,35 @@ public class TestNetworkSimplex {
 	public static Graph toyGraph() {
 		Graph g = new SingleGraph("test");
 
-		g.addNode("A").addAttribute("supply", 5);
-		g.addNode("B").addAttribute("supply", 2);
-		g.addNode("C").addAttribute("supply", 0);
-		g.addNode("D").addAttribute("supply", -1);
-		g.addNode("E").addAttribute("supply", -4);
-		g.addNode("F").addAttribute("supply", -2);
+		g.addNode("A").setAttribute("supply", 5);
+		g.addNode("B").setAttribute("supply", 2);
+		g.addNode("C").setAttribute("supply", 0);
+		g.addNode("D").setAttribute("supply", -1);
+		g.addNode("E").setAttribute("supply", -4);
+		g.addNode("F").setAttribute("supply", -2);
 
 		Edge e;
 		e = g.addEdge("AB", "A", "B", true);
-		e.addAttribute("capacity", 3);
-		e.addAttribute("cost", 1);
+		e.setAttribute("capacity", 3);
+		e.setAttribute("cost", 1);
 		e = g.addEdge("AC", "A", "C", true);
-		e.addAttribute("capacity", 3);
-		e.addAttribute("cost", 4);
+		e.setAttribute("capacity", 3);
+		e.setAttribute("cost", 4);
 		e = g.addEdge("BC", "B", "C", true);
-		e.addAttribute("capacity", 7);
-		e.addAttribute("cost", 2);
+		e.setAttribute("capacity", 7);
+		e.setAttribute("cost", 2);
 		e = g.addEdge("CD", "C", "D", true);
-		e.addAttribute("capacity", 1);
-		e.addAttribute("cost", 8);
+		e.setAttribute("capacity", 1);
+		e.setAttribute("cost", 8);
 		e = g.addEdge("CE", "C", "E", true);
-		e.addAttribute("capacity", 7);
-		e.addAttribute("cost", 5);
+		e.setAttribute("capacity", 7);
+		e.setAttribute("cost", 5);
 		e = g.addEdge("CF", "C", "F", true);
-		e.addAttribute("capacity", 5);
-		e.addAttribute("cost", 2);
+		e.setAttribute("capacity", 5);
+		e.setAttribute("cost", 2);
 		e = g.addEdge("FE", "F", "E", true);
-		e.addAttribute("capacity", 3);
-		e.addAttribute("cost", 1);
+		e.setAttribute("capacity", 3);
+		e.setAttribute("cost", 1);
 
 		return g;
 	}
@@ -153,37 +153,37 @@ public class TestNetworkSimplex {
 
 		// change the cost of FE (NONBASIC_UPPER) and recompute
 		// minor pivot should happen
-		g.getEdge("FE").addAttribute("cost", 4);
+		g.getEdge("FE").setAttribute("cost", 4);
 		assertEquals(NetworkSimplex.SolutionStatus.UNDEFINED,
 				ns.getSolutionStatus());
 		ns.compute();
 		// and see if we obtain the same result computing from scratch
 		compareWithNew(ns);
 		// now restore the cost of FE and see if we find the initial solution
-		g.getEdge("FE").addAttribute("cost", 1);
+		g.getEdge("FE").setAttribute("cost", 1);
 		ns.compute();
 		checkReferenceSolution(ns);
 
 		// now change the cost of AC (BASIC) and recompute
 		// AB should enter and AC should leave
-		g.getEdge("AC").addAttribute("cost", 2);
+		g.getEdge("AC").setAttribute("cost", 2);
 		ns.compute();
 		// and see if we obtain the same result computing from scratch
 		compareWithNew(ns);
 		// now restore the cost of AC and see if we obtain the initial solution
-		g.getEdge("AC").addAttribute("cost", 4);
+		g.getEdge("AC").setAttribute("cost", 4);
 		ns.compute();
 		checkReferenceSolution(ns);
 
 		// now change the both arcs together
-		g.getEdge("FE").addAttribute("cost", 4);
-		g.getEdge("AC").addAttribute("cost", 2);
+		g.getEdge("FE").setAttribute("cost", 4);
+		g.getEdge("AC").setAttribute("cost", 2);
 		ns.compute();
 		// and see if we obtain the same result computing from scratch
 		compareWithNew(ns);
 		// restore the both arcs and see if we obtain the initial solution
-		g.getEdge("FE").addAttribute("cost", 1);
-		g.getEdge("AC").addAttribute("cost", 4);
+		g.getEdge("FE").setAttribute("cost", 1);
+		g.getEdge("AC").setAttribute("cost", 4);
 		ns.compute();
 		checkReferenceSolution(ns);
 	}
@@ -197,58 +197,58 @@ public class TestNetworkSimplex {
 
 		// The supply of A is 5
 		// change the supply of A (AR is already basic)
-		g.getNode("A").addAttribute("supply", 4);
+		g.getNode("A").setAttribute("supply", 4);
 		ns.compute();
 		compareWithNew(ns);
 
 		// one more change of the supply of A
-		g.getNode("A").addAttribute("supply", 6);
+		g.getNode("A").setAttribute("supply", 6);
 		ns.compute();
 		compareWithNew(ns);
 
 		// restore
-		g.getNode("A").addAttribute("supply", 5);
+		g.getNode("A").setAttribute("supply", 5);
 		ns.compute();
 		checkReferenceSolution(ns);
 
 		// Now play with F (RF is non-basic), supply = -2
-		g.getNode("F").addAttribute("supply", -1);
+		g.getNode("F").setAttribute("supply", -1);
 		ns.compute();
 		compareWithNew(ns);
 
 		// one more change of the supply of F
-		g.getNode("F").addAttribute("supply", -3);
+		g.getNode("F").setAttribute("supply", -3);
 		ns.compute();
 		compareWithNew(ns);
 
 		// restore
-		g.getNode("F").addAttribute("supply", -2);
+		g.getNode("F").setAttribute("supply", -2);
 		ns.compute();
 		checkReferenceSolution(ns);
 
 		// Now check with 2 nodes at the same time
-		g.getNode("A").addAttribute("supply", 6);
-		g.getNode("E").addAttribute("supply", -5);
+		g.getNode("A").setAttribute("supply", 6);
+		g.getNode("E").setAttribute("supply", -5);
 		ns.compute();
 		compareWithNew(ns);
 
 		// restore
-		g.getNode("A").addAttribute("supply", 5);
-		g.getNode("E").addAttribute("supply", -4);
+		g.getNode("A").setAttribute("supply", 5);
+		g.getNode("E").setAttribute("supply", -4);
 		ns.compute();
 		checkReferenceSolution(ns);
 
 		// one test with 3 nodes
-		g.getNode("B").addAttribute("supply", 1);
-		g.getNode("C").addAttribute("supply", -1);
-		g.getNode("E").addAttribute("supply", -2);
+		g.getNode("B").setAttribute("supply", 1);
+		g.getNode("C").setAttribute("supply", -1);
+		g.getNode("E").setAttribute("supply", -2);
 		ns.compute();
 		compareWithNew(ns);
 		
 		// restore
-		g.getNode("B").addAttribute("supply", 2);
-		g.getNode("C").addAttribute("supply", 0);
-		g.getNode("E").addAttribute("supply", -4);
+		g.getNode("B").setAttribute("supply", 2);
+		g.getNode("C").setAttribute("supply", 0);
+		g.getNode("E").setAttribute("supply", -4);
 		ns.compute();
 		checkReferenceSolution(ns);
 	}
@@ -261,51 +261,51 @@ public class TestNetworkSimplex {
 		ns.compute();
 
 		// Decrease the capacity of AB (NONBASIC_UPPER)
-		g.getEdge("AB").addAttribute("capacity", 2);
+		g.getEdge("AB").setAttribute("capacity", 2);
 		ns.compute();
 		compareWithNew(ns);
 		// restore
-		g.getEdge("AB").addAttribute("capacity", 3);
+		g.getEdge("AB").setAttribute("capacity", 3);
 		ns.compute();
 		checkReferenceSolution(ns);
 		// now increase it
-		g.getEdge("AB").addAttribute("capacity", 4);
+		g.getEdge("AB").setAttribute("capacity", 4);
 		ns.compute();
 		compareWithNew(ns);
 		// restore it again
-		g.getEdge("AB").addAttribute("capacity", 3);
+		g.getEdge("AB").setAttribute("capacity", 3);
 		ns.compute();
 		checkReferenceSolution(ns);
 
 		// Decrease the capacity of CF (BASIC)
-		g.getEdge("CF").addAttribute("capacity", 4);
+		g.getEdge("CF").setAttribute("capacity", 4);
 		ns.compute();
 		compareWithNew(ns);
 		// restore
-		g.getEdge("CF").addAttribute("capacity", 5);
+		g.getEdge("CF").setAttribute("capacity", 5);
 		ns.compute();
 		checkReferenceSolution(ns);
 
 		// close CD. The problem should become infeasible
-		g.getEdge("CD").addAttribute("capacity", 0);
+		g.getEdge("CD").setAttribute("capacity", 0);
 		ns.compute();
 		assertEquals(NetworkSimplex.SolutionStatus.INFEASIBLE,
 				ns.getSolutionStatus());
 		compareWithNew(ns);
 		// restore
-		g.getEdge("CD").addAttribute("capacity", 1);
+		g.getEdge("CD").setAttribute("capacity", 1);
 		ns.compute();
 		checkReferenceSolution(ns);
 
 		// now several at the same time
-		g.getEdge("AB").addAttribute("capacity", 2);
-		g.getEdge("CF").addAttribute("capacity", 4);
+		g.getEdge("AB").setAttribute("capacity", 2);
+		g.getEdge("CF").setAttribute("capacity", 4);
 		g.getEdge("CD").removeAttribute("capacity");
 		ns.compute();
 		compareWithNew(ns);
 		// restore
-		g.getEdge("AB").addAttribute("capacity", 3);
-		g.getEdge("CF").addAttribute("capacity", 5);
+		g.getEdge("AB").setAttribute("capacity", 3);
+		g.getEdge("CF").setAttribute("capacity", 5);
 		ns.compute();
 		checkReferenceSolution(ns);
 	}
@@ -318,8 +318,8 @@ public class TestNetworkSimplex {
 		ns.compute();
 
 		Edge bf = g.addEdge("BF", "B", "F");
-		bf.addAttribute("cost", 3);
-		bf.addAttribute("capacity", 4);
+		bf.setAttribute("cost", 3);
+		bf.setAttribute("capacity", 4);
 		ns.compute();
 		compareWithNew(ns);
 
@@ -328,7 +328,7 @@ public class TestNetworkSimplex {
 		compareWithNew(ns);
 
 		Edge ad = g.addEdge("AD", "A", "D");
-		ad.addAttribute("cost", 11);
+		ad.setAttribute("cost", 11);
 		ns.compute();
 		compareWithNew(ns);
 
@@ -352,11 +352,11 @@ public class TestNetworkSimplex {
 		ns.compute();
 		compareWithNew(ns);
 
-		g.addNode("F").addAttribute("supply", -2);
+		g.addNode("F").setAttribute("supply", -2);
 		ns.compute();
 		compareWithNew(ns);
 
-		g.addEdge("EF", "E", "F").addAttribute("cost", 6);
+		g.addEdge("EF", "E", "F").setAttribute("cost", 6);
 		ns.compute();
 		compareWithNew(ns);
 	}

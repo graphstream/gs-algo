@@ -231,7 +231,7 @@ public class HierarchicalLayout extends PipeBase implements Layout {
 					|| !n.hasNumber("oldY") || n.getNumber("oldY") != y) {
 				n.setAttribute("oldX", x);
 				n.setAttribute("oldY", y);
-				n.addAttribute("changed");
+				n.setAttribute("changed");
 				nodeMoved++;
 			}
 
@@ -250,7 +250,7 @@ public class HierarchicalLayout extends PipeBase implements Layout {
 		node.setAttribute("box", box);
 
 		if (!node.hasAttribute("children"))
-			node.addAttribute("children", new Box(node, 1));
+			node.setAttribute("children", new Box(node, 1));
 
 		getChildrenBox(node).level = box.level + 1;
 	}

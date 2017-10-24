@@ -538,8 +538,8 @@ public class PointsOfInterestGenerator extends BaseGenerator {
 				+ "  padding: 50px;" + "}" + "node { " + "  fill-color: black;"
 				+ "}" + "edge {" + "  fill-color: black;" + "}";
 
-		g.addAttribute("ui.stylesheet", stylesheet);
-		g.addAttribute("ui.quality");
+		g.setAttribute("ui.stylesheet", stylesheet);
+		g.setAttribute("ui.quality");
 		// g.addAttribute( "ui.antialias" );
 
 		g.display();

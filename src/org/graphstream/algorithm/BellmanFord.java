@@ -292,7 +292,7 @@ public class BellmanFord implements Algorithm {
 	 *         path.
 	 */
 	public double getShortestPathValue(Node target) {
-		Double d = target.getAttribute(identifier+".distance");
+		Double d = (double) target.getAttribute(identifier+".distance");
 		if (d != null)
 			return d;
 		return Double.POSITIVE_INFINITY;
@@ -331,10 +331,6 @@ public class BellmanFord implements Algorithm {
 	}
 
 	
-	
-	
-	
-	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -345,22 +341,16 @@ public class BellmanFord implements Algorithm {
 		Node source = graph.getNode(this.source_id);
 
 		// Step 1: Initialize graph
-
-		
-		for (Node n : graph) {
+		graph.nodes().forEach(n -> {
 			if (n == source)
-				n.addAttribute(identifier+".distance", 0.0);
+				n.setAttribute(identifier+".distance", 0.0);
 			else
-				n.addAttribute(identifier+".distance", Double.POSITIVE_INFINITY);
-
-			//n.addAttribute(identifier+".predecessors",(Object)null);
-		}
-	
-		
+				n.setAttribute(identifier+".distance", Double.POSITIVE_INFINITY);
+		});
+				
 		// Step 2: relax edges repeatedly
-
-		for (int i = 0; i < graph.getNodeCount(); i++) {
-			for (Edge e : graph.getEachEdge()) {
+		graph.nodes().forEach(n -> {
+			graph.edges().forEach(e -> {
 				Node n0 = e.getNode0();
 				Node n1 = e.getNode1();
 				Double d0 = (Double) n0.getAttribute(identifier+".distance");
@@ -374,7 +364,7 @@ public class BellmanFord implements Algorithm {
 
 				if (d0 != null) {
 					if (d1 == null || d1 >= d0 + we) {
-						n1.addAttribute(identifier+".distance", d0 + we);
+						n1.setAttribute(identifier+".distance", d0 + we);
 						ArrayList<Edge> predecessors = (ArrayList<Edge>) n1
 								.getAttribute(identifier+".predecessors");
 
@@ -389,16 +379,16 @@ public class BellmanFord implements Algorithm {
 							predecessors.add(e);
 						}
 
-						n1.addAttribute(identifier+".predecessors",
+						n1.setAttribute(identifier+".predecessors",
 								predecessors);
 					}
 				}
-			}
-		}
+			});
+		});
+		
 
 		// Step 3: check for negative-weight cycles
-
-		for (Edge e : graph.getEachEdge()) {
+		graph.edges().forEach(e -> {
 			Node n0 = e.getNode0();
 			Node n1 = e.getNode1();
 			Double d0 = (Double) n0.getAttribute(identifier+".distance");
@@ -420,6 +410,6 @@ public class BellmanFord implements Algorithm {
 								"%s: Problem: negative weight, cycle detected on edge \"%s\"",
 								BellmanFord.class.getName(), e.getId()));
 			}
-		}
+		});
 	}
 }

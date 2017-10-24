@@ -313,7 +313,7 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 			int i = ((int) key.charAt(0)) - (int) 'x';
 
 			if (i < dimension)
-				internalGraph.getNode(nodeId).addAttribute(key, val);
+				internalGraph.getNode(nodeId).setAttribute(key, val);
 		}
 	}
 

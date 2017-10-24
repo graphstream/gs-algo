@@ -64,7 +64,7 @@ public class TestKruskalPrim {
 		for (int i = 0; i < eIds.length; i++) {
 			String eId = eIds[i];
 			Edge e = g.addEdge(eId, eId.substring(0, 1), eId.substring(1, 2));
-			e.addAttribute("weight", weights[i]);
+			e.setAttribute("weight", weights[i]);
 		}
 		return g;
 	}

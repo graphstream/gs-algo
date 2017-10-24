@@ -248,7 +248,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 *            The node that will originate the new community
 	 */
 	protected void originateCommunity(Node node) {
-		node.addAttribute(marker, new Community());
+		node.setAttribute(marker, new Community());
 	}
 
 	/**
