@@ -42,7 +42,6 @@ import org.graphstream.algorithm.Prim;
 import org.graphstream.algorithm.SpanningTree;
 import org.graphstream.algorithm.generator.BarabasiAlbertGenerator;
 import org.graphstream.algorithm.util.FibonacciHeap;
-import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.AdjacencyListGraph;
@@ -176,21 +175,20 @@ public class HierarchicalLayout extends PipeBase implements Layout {
 				Node root = roots.poll();
 				int level = levels[root.getIndex()] + 1;
 				Box box = getChildrenBox(root);
-
-				for (Edge e : root.getEdgeSet()) {
-					if (e.getAttribute(tree.getFlagAttribute()).equals(
-							tree.getFlagOn())) {
+				
+				root.edges()
+					.filter(e -> e.getAttribute(tree.getFlagAttribute()).equals(tree.getFlagOn()))
+					.forEach(e -> {
 						Node op = e.getOpposite(root);
 
-						if (levels[op.getIndex()] < 0
-								|| level < levels[op.getIndex()]) {
+						if (levels[op.getIndex()] < 0 || level < levels[op.getIndex()]) {
 							levels[op.getIndex()] = level;
 							roots2.add(op);
 							op.setAttribute("parent", root);
 							setBox(box, op);
 						}
-					}
-				}
+					});
+				
 			}
 
 			roots.addAll(roots2);
@@ -256,12 +254,12 @@ public class HierarchicalLayout extends PipeBase implements Layout {
 	}
 
 	protected static Box getBox(Node node) {
-		Box box = node.getAttribute("box");
+		Box box = (Box) node.getAttribute("box");
 		return box;
 	}
 
 	protected static Box getChildrenBox(Node node) {
-		Box box = node.getAttribute("children");
+		Box box = (Box) node.getAttribute("children");
 		return box;
 	}
 
@@ -334,14 +332,15 @@ public class HierarchicalLayout extends PipeBase implements Layout {
 	}
 
 	protected void publishPositions() {
-		for (Node n : internalGraph) {
-			if (n.hasAttribute("changed")) {
+		
+		internalGraph.nodes()
+			.filter(n -> n.hasAttribute("changed"))
+			.forEach(n -> {
 				n.removeAttribute("changed");
 
 				sendNodeAttributeChanged(sourceId, n.getId(), "xyz", null,
 						new double[] { n.getNumber("x"), n.getNumber("y"), 0 });
-			}
-		}
+			});
 	}
 
 	/*
