@@ -311,8 +311,9 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 		this.graph = graph;
 		graph.addElementSink(this);
 		double initialRank = 1.0 / graph.getNodeCount();
-		for (Node node : graph)
-			node.setAttribute(rankAttribute, initialRank);
+		
+		graph.nodes().forEach(node -> node.setAttribute(rankAttribute, initialRank));
+		
 		newRanks = new ArrayList<Double>(graph.getNodeCount());
 		upToDate = false;
 		iterationCount = 0;
@@ -349,10 +350,11 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 		// removed node will give equal parts of its rank to the others
 		double part = graph.getNode(nodeId).getNumber(rankAttribute)
 				/ (graph.getNodeCount() - 1);
-		for (Node node : graph)
-			if (!node.getId().equals(nodeId))
-				node.setAttribute(rankAttribute, node.getNumber(rankAttribute)
-						+ part);
+		
+		graph.nodes()
+			.filter(node -> !node.getId().equals(nodeId))
+			.forEach(node -> node.setAttribute(rankAttribute, node.getNumber(rankAttribute) + part));
+		
 		upToDate = false;
 	}
 

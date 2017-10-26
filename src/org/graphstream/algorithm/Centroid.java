@@ -32,7 +32,9 @@
 package org.graphstream.algorithm;
 
 import java.util.HashSet;
+import java.util.concurrent.atomic.DoubleAccumulator;
 
+import org.graphstream.algorithm.APSP.APSPInfo;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -222,18 +224,19 @@ public class Centroid implements Algorithm {
 	 * @see org.graphstream.algorithm.Algorithm#compute()
 	 */
 	public void compute() {
-		float min = Float.MAX_VALUE;
+		//float min = Float.MAX_VALUE;
+		DoubleAccumulator min = new DoubleAccumulator((x, y) -> y, Double.MAX_VALUE);
 		HashSet<Node> centroid = new HashSet<Node>();
-
-		for (Node node : graph.getEachNode()) {
-			float m = 0;
-			APSP.APSPInfo info = node.getAttribute(apspInfoAttribute);
+		
+		graph.nodes().forEach(node -> {
+			DoubleAccumulator m = new DoubleAccumulator((x, y) -> x + y, 0);
+			APSP.APSPInfo info = (APSPInfo) node.getAttribute(apspInfoAttribute);
 
 			if (info == null)
 				System.err
 						.printf("APSPInfo missing. Did you compute APSP before ?\n");
-
-			for (Node other : graph.getEachNode()) {
+			
+			graph.nodes().forEach(other -> {
 				if (node != other) {
 					double d = info.getLengthTo(other.getId());
 
@@ -242,22 +245,22 @@ public class Centroid implements Algorithm {
 								.printf("Found a negative length value in centroid algorithm. "
 										+ "Is graph connected ?\n");
 					else
-						m += d;
+						m.accumulate(d);
 				}
-			}
+			});
 
-			if (m < min) {
+			if (m.get() < min.get()) {
 				centroid.clear();
 				centroid.add(node);
-				min = m;
-			} else if (m == min) {
+				min.accumulate(m.get());
+			} else if (m.get() == min.get()) {
 				centroid.add(node);
 			}
-		}
+		});
+		
+		graph.nodes().forEach(node ->
+			node.setAttribute(centroidAttribute, centroid.contains(node) ? isInCentroid : isNotInCentroid));
 
-		for (Node node : graph.getEachNode())
-			node.setAttribute(centroidAttribute,
-					centroid.contains(node) ? isInCentroid : isNotInCentroid);
 
 		centroid.clear();
 	}

@@ -31,16 +31,15 @@
  */
 package org.graphstream.algorithm.test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Collection;
 
 import org.graphstream.algorithm.BetweennessCentrality;
-import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
-
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class TestBetweenessCentrality {
 
@@ -112,8 +111,8 @@ public class TestBetweenessCentrality {
 	}
 
 	protected void testIfWeightedAndUnweightedAreEqual(Graph graph1, Graph graph2, BetweennessCentrality bcb) {
-		for(Edge edge:graph1.getEachEdge()) { edge.setAttribute("weight", 1); }
-		for(Edge edge:graph2.getEachEdge()) { edge.setAttribute("weight", 1); }
+		graph1.edges().forEach(edge -> edge.setAttribute("weight", 1));
+		graph2.edges().forEach(edge -> edge.setAttribute("weight", 1));
 		bcb.setUnweighted();
 		bcb.init(graph1);
 		bcb.compute();

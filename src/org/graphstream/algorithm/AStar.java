@@ -31,13 +31,11 @@
  */
 package org.graphstream.algorithm;
 
-import static org.graphstream.algorithm.Toolkit.edgeLength;
-import static org.graphstream.algorithm.Toolkit.nodePosition;
+import static org.graphstream.ui.graphicGraph.GraphPosLengthUtils.edgeLength;
+import static org.graphstream.ui.graphicGraph.GraphPosLengthUtils.nodePosition;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map.Entry;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;

@@ -34,7 +34,6 @@ package org.graphstream.algorithm.community;
 import java.util.HashMap;
 import java.util.TreeMap;
 
-import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -131,19 +130,20 @@ public class EpidemicCommunityAlgorithm extends DecentralizedCommunityAlgorithm 
 		/*
 		 * Iterate over the nodes that this node "hears"
 		 */
-		for (Edge e : u.getEnteringEdgeSet()) {
-			Node v = e.getOpposite(u);
-
-			/*
-			 * Update the count for this community
-			 */
-			if (v.hasAttribute(marker))
+		u.enteringEdges()
+			.filter(e -> e.getOpposite(u).hasAttribute(marker))
+			.forEach(e -> {
+				/*
+				 * Update the count for this community
+				 */
+				Node v = e.getOpposite(u);
+				
 				if (communityScores.get(v.getAttribute(marker)) == null)
 					communityScores.put(v.getAttribute(marker), 1.0);
 				else
 					communityScores.put(v.getAttribute(marker),
 							communityScores.get(v.getAttribute(marker)) + 1.0);
-		}
+		});
 	}
 
 	@Override

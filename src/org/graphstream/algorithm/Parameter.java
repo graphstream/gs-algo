@@ -202,8 +202,8 @@ public class Parameter {
 
 			LinkedList<String> remainingParameters = new LinkedList<String>(
 					params.keySet());
-
-			for (Field f : fields.keySet()) {
+			
+			fields.keySet().stream().forEach(f -> {
 				final DefineParameter dp = f
 						.getAnnotation(DefineParameter.class);
 
@@ -221,11 +221,16 @@ public class Parameter {
 
 					final Object value = params.get(dp.name());
 
-					setValue(dp, f, value);
+					try {
+						setValue(dp, f, value);
+					} catch (InvalidParameterException e) {
+						throw new RuntimeException(e);
+					}
 
 					remainingParameters.remove(dp.name());
 				}
-			}
+			});
+
 
 			//
 			// If values remain in paramsMap, user try to define parameters
@@ -233,7 +238,7 @@ public class Parameter {
 			//
 			if (remainingParameters.size() > 0) {
 				String uneatenParams = "";
-
+				
 				for (String s : remainingParameters)
 					uneatenParams += String.format("%s\"%s\"", (uneatenParams
 							.length() > 0 ? ", " : ""), s);
@@ -283,7 +288,7 @@ public class Parameter {
 		}
 
 		protected void buildParametersMap(Properties prop) {
-			for (String key : prop.stringPropertyNames()) {
+			prop.stringPropertyNames().forEach(key -> {
 				Field f = definedParameters.get(key);
 				String v = prop.getProperty(key);
 
@@ -313,7 +318,7 @@ public class Parameter {
 					}
 				} else
 					throw new UnsupportedOperationException(type.getName());
-			}
+			});
 		}
 
 		/**
@@ -421,7 +426,7 @@ public class Parameter {
 
 				String s = (String) value;
 				boolean found = false;
-
+				
 				for (String alt : dp.strings())
 					if (alt.equals(s)) {
 						found = true;
@@ -443,14 +448,17 @@ public class Parameter {
 		 */
 		protected void checkNonOptionalParameters()
 				throws MissingParameterException {
-			for (Field f : fields.keySet()) {
-				DefineParameter dp = f.getAnnotation(DefineParameter.class);
-
-				if (!dp.optional() && !params.containsKey(dp.name()))
-					throw new MissingParameterException(
-							"parameter \"%s\" is missing", dp.name());
+						
+			fields.keySet().stream()
+				.filter(f -> (!f.getAnnotation(DefineParameter.class).optional() 
+						&& !params.containsKey(f.getAnnotation(DefineParameter.class).name())))
+				.forEach(f -> {
+					MissingParameterException ex = new MissingParameterException(
+							"parameter \"%s\" is missing", f.getAnnotation(DefineParameter.class).name());
+					
+					throw new RuntimeException(ex);
+				});
 			}
-		}
 
 		/**
 		 * Call setter of a parameter. This is called when
