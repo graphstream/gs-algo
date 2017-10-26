@@ -136,7 +136,7 @@ public class ClosenessCentrality extends AbstractCentrality {
 			node = graph.getNode(idx);
 			data[idx] = 0;
 
-			APSP.APSPInfo info = node.getAttribute(APSPInfo.ATTRIBUTE_NAME);
+			APSP.APSPInfo info = (APSPInfo) node.getAttribute(APSPInfo.ATTRIBUTE_NAME);
 
 			if (info == null)
 				System.err
