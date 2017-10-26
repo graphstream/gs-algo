@@ -273,12 +273,12 @@ public class RandomGenerator extends BaseGenerator {
 	protected void addNewEdges(double p) {
 		RandomTools.randomPsubset(nodeCount, p, subset, random);
 		String nodeId = nodeCount + "";
-		for (int i : subset) {
+		subset.forEach(i -> {
 			String edgeId = i + "_" + nodeId;
 			addEdge(edgeId, i + "", nodeId);
 			if (allowRemove)
 				edgeIds.add(edgeId);
-		}
+		});
 	}
 
 	/**

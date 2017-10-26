@@ -163,10 +163,10 @@ public class LobsterGenerator extends BaseGenerator {
 	}
 
 	protected void delNode(Data d) {
-		for (Data c : d.connected) {
+		d.connected.forEach(c -> {
 			delEdge(getEdgeId(d, c));
 			c.connected.remove(d);
-		}
+		});
 
 		delNode(d.id);
 		nodes.remove(d);

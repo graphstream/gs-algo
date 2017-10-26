@@ -156,10 +156,9 @@ public class LCFGenerator extends BaseGenerator {
 			r++;
 		}
 
-		for (String edge : crossed) {
-			if (!added.contains(edge))
-				delEdge(edge);
-		}
+		crossed.stream()
+			.filter(edge -> !added.contains(edge))
+			.forEach(edge -> delEdge(edge));
 
 		crossed.clear();
 		crossed = added;
