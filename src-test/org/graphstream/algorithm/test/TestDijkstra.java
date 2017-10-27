@@ -82,10 +82,10 @@ public class TestDijkstra {
 		g.addEdge("CF", "C", "F").setAttribute("length", 11);
 		g.addEdge("DF", "D", "F").setAttribute("length", 15);
 		g.addEdge("EF", "E", "F").setAttribute("length", 6);
-		for (Node n : g)
-			n.setAttribute("label", n.getId());
-		for (Edge e : g.getEachEdge())
-			e.setAttribute("label", "" + (int) e.getNumber("length"));
+		
+		g.nodes().forEach(n -> n.setAttribute("label", n.getId()));
+		g.edges().forEach(e -> e.setAttribute("label", "" + (int) e.getNumber("length")));
+		
 		return g;
 	}
 	
@@ -150,8 +150,8 @@ public class TestDijkstra {
 			assertEquals(nodesAE[3 - i], ln.get(i).getId());
 		
 		// There is no path A->G
-		assertFalse(d.getPathNodesIterator(g.getNode("G")).hasNext());
-		assertFalse(d.getPathEdgesIterator(g.getNode("G")).hasNext());
+		assertFalse(d.getPathNodesStream(g.getNode("G")).iterator().hasNext());
+		assertFalse(d.getPathEdgesStream(g.getNode("G")).iterator().hasNext());
 		
 		d.clear();
 		assertFalse(source.hasAttribute("result"));
@@ -196,6 +196,6 @@ public class TestDijkstra {
 		assertTrue(lp.contains("[A, B, F]"));
 		
 		// and don't forget the special case G
-		assertFalse(d.getAllPathsIterator(g.getNode("G")).hasNext());
+		assertFalse(d.getAllPathsStream(g.getNode("G")).iterator().hasNext());
 	}
 }
