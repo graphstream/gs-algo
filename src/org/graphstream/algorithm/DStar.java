@@ -242,7 +242,7 @@ public class DStar implements DynamicAlgorithm, Sink {
 	}
 
 	public State getState(Node n) {
-		State s = n.getAttribute(STATE_ATTRIBUTE);
+		State s = (State) n.getAttribute(STATE_ATTRIBUTE);
 
 		if (s == null) {
 			s = new State(n);
@@ -299,11 +299,8 @@ public class DStar implements DynamicAlgorithm, Sink {
 	}
 
 	public void markPath(String attribute, Object on, Object off) {
-		for (Node n : env)
-			n.setAttribute(attribute, off);
-
-		for (Edge e : env.getEachEdge())
-			e.setAttribute(attribute, off);
+		env.nodes().forEach(n -> n.setAttribute(attribute, off));
+		env.edges().forEach(e -> e.setAttribute(attribute, off));
 
 		State s = position;
 
