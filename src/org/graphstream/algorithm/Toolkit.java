@@ -31,10 +31,27 @@
  */
 package org.graphstream.algorithm;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Random;
+import java.util.Set;
+import java.util.Stack;
+import java.util.concurrent.atomic.DoubleAccumulator;
 
 import org.graphstream.algorithm.util.RandomTools;
-import org.graphstream.graph.*;
+import org.graphstream.graph.BreadthFirstIterator;
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
 import org.graphstream.stream.GraphReplay;
 import org.graphstream.ui.layout.Layout;
 import org.graphstream.ui.layout.springbox.implementations.SpringBox;
@@ -248,21 +265,21 @@ public class Toolkit extends
 	 * @return The weighted degree. 
 	 */
 	public static double weightedDegree(Node node, String weightAttribute, double defaultWeightValue) {
-		double wdegree = 0;
+		DoubleAccumulator wdegree = new DoubleAccumulator((x, y) -> x + y, 0);
 		
-		for(Edge edge:node.getEachEdge()) {
+		node.edges().forEach(edge -> {
 			if(edge.hasNumber(weightAttribute)) {
 				if(edge.getSourceNode() == edge.getTargetNode()) 
-				     wdegree += edge.getNumber(weightAttribute) * 2;
-				else wdegree += edge.getNumber(weightAttribute);
+				     wdegree.accumulate(edge.getNumber(weightAttribute) * 2);
+				else wdegree.accumulate(edge.getNumber(weightAttribute));
 			} else {
 				if(edge.getSourceNode() == edge.getTargetNode())
-				     wdegree += defaultWeightValue * 2;
-				else wdegree += defaultWeightValue;
+				     wdegree.accumulate(defaultWeightValue * 2);
+				else wdegree.accumulate(defaultWeightValue);
 			}
-		}
+		});
 		
-		return wdegree;
+		return wdegree.get();
 	}
 
 	/**
@@ -294,17 +311,17 @@ public class Toolkit extends
 	 * @return The entering weighted degree.
 	 */
 	public static double enteringWeightedDegree(Node node, String weightAttribute, double defaultWeightValue) {
-		double wdegree = 0;
+		DoubleAccumulator wdegree = new DoubleAccumulator((x, y) -> x + y, 0);
 		
-		for(Edge edge:node.getEnteringEdgeSet()) {
+		node.enteringEdges().forEach(edge -> {
 			if(edge.hasNumber(weightAttribute)) {
-				wdegree += edge.getNumber(weightAttribute);
+				wdegree.accumulate(edge.getNumber(weightAttribute));
 			} else {
-				wdegree += defaultWeightValue;
+				wdegree.accumulate(defaultWeightValue);
 			}
-		}
+		});
 		
-		return wdegree;
+		return wdegree.get();
 	}
 
 	/**
@@ -336,17 +353,17 @@ public class Toolkit extends
 	 * @return The leaving weighted degree.
 	 */
 	public static double leavingWeightedDegree(Node node, String weightAttribute, double defaultWeightValue) {
-		double wdegree = 0;
+		DoubleAccumulator wdegree = new DoubleAccumulator((x, y) -> x + y, 0);
 		
-		for(Edge edge:node.getLeavingEdgeSet()) {
+		node.leavingEdges().forEach(edge -> {
 			if(edge.hasNumber(weightAttribute)) {
-				wdegree += edge.getNumber(weightAttribute);
+				wdegree.accumulate(edge.getNumber(weightAttribute));
 			} else {
-				wdegree += defaultWeightValue;
+				wdegree.accumulate(defaultWeightValue);
 			}
-		}
+		});
 		
-		return wdegree;
+		return wdegree.get();
 	}
 	
 	/**
@@ -364,22 +381,21 @@ public class Toolkit extends
 
 		int max = 0;
 		int[] dd;
-		int d;
+		
+		max = graph.nodes()
+				.map(n -> n.getDegree())
+				.max((n1, n2) -> Integer.compare(n1, n2))
+				.get();
 
-		for (Node node : graph) {
-			d = node.getDegree();
-
-			if (d > max)
-				max = d;
-		}
 
 		dd = new int[max + 1];
-
-		for (Node node : graph) {
-			d = node.getDegree();
+		
+		graph.nodes().forEach(node -> {
+			int d = node.getDegree();
 
 			dd[d] += 1;
-		}
+		});
+		
 
 		return dd;
 	}
@@ -393,8 +409,9 @@ public class Toolkit extends
 	public static ArrayList<Node> degreeMap(Graph graph) {
 		ArrayList<Node> map = new ArrayList<Node>();
 
-		for (Node node : graph)
+		graph.nodes().forEach(node -> {
 			map.add(node);
+		});
 
 		Collections.sort(map, new Comparator<Node>() {
 			public int compare(Node a, Node b) {
@@ -418,8 +435,9 @@ public class Toolkit extends
 	public static ArrayList<Node> weightedDegreeMap(Graph graph, String weightAttribute, double defaultWeightValue) {
 		ArrayList<Node> map = new ArrayList<Node>();
 
-		for (Node node : graph)
+		graph.nodes().forEach(node -> {
 			map.add(node);
+		});
 
 		Collections.sort(map, new WeightComparator(weightAttribute, defaultWeightValue));
 
@@ -483,14 +501,14 @@ public class Toolkit extends
 	 */
 	public static double degreeAverageDeviation(Graph graph) {
 		double average = averageDegree(graph);
-		double sum = 0;
+		DoubleAccumulator sum = new DoubleAccumulator((x, y) -> x + y, 0);
 
-		for (Node node : graph) {
+		graph.nodes().forEach(node -> {
 			double d = node.getDegree() - average;
-			sum += d * d;
-		}
+			sum.accumulate(d * d);
+		});
 
-		return Math.sqrt(sum / graph.getNodeCount());
+		return Math.sqrt(sum.get() / graph.getNodeCount());
 	}
 
 	/**
@@ -527,7 +545,7 @@ public class Toolkit extends
 
 			for (Node node : graph)
 				coefs[j++] = clusteringCoefficient(node);
-
+			
 			assert (j == n);
 
 			return coefs;
@@ -546,14 +564,13 @@ public class Toolkit extends
 	 */
 	public static double averageClusteringCoefficient(Graph graph) {
 		int n = graph.getNodeCount();
-
+		
 		if (n > 0) {
-			double cc = 0;
+			DoubleAccumulator cc = new DoubleAccumulator((x, y) -> x + y, 0);
 
-			for (Node node : graph)
-				cc += clusteringCoefficient(node);
-
-			return cc / n;
+			graph.nodes().forEach(node -> cc.accumulate(clusteringCoefficient(node)));
+			
+			return cc.get() / n;
 		}
 
 		return 0;
@@ -808,7 +825,7 @@ public class Toolkit extends
 			String marker) {
 		HashMap<Object, HashSet<Node>> communities = new HashMap<Object, HashSet<Node>>();
 
-		for (Node node : graph) {
+		graph.nodes().forEach(node -> {
 			Object communityMarker = node.getAttribute(marker);
 
 			if (communityMarker == null)
@@ -822,7 +839,7 @@ public class Toolkit extends
 			}
 
 			community.add(node);
-		}
+		});
 
 		return communities;
 	}
@@ -861,17 +878,16 @@ public class Toolkit extends
 	 *             number of nodes per community.
 	 */
 	public static double[][] modularityMatrix(Graph graph,
-			HashMap<Object, HashSet<Node>> communities, String weightMarker) {
+		HashMap<Object, HashSet<Node>> communities, String weightMarker) {
 
-		double edgeCount = 0;
+		DoubleAccumulator edgeCount = new DoubleAccumulator((x, y) -> x + y, 0);
+		
 		if (weightMarker == null) {
-			edgeCount = graph.getEdgeCount();
+			edgeCount.accumulate(graph.getEdgeCount());
 		} else {
-			for (Edge e : graph.getEdgeSet()) {
-				if (e.hasAttribute(weightMarker)) {
-					edgeCount += (Double) e.getAttribute(weightMarker);
-				}
-			}
+			graph.edges()
+				.filter(e -> e.hasAttribute(weightMarker))
+				.forEach(e -> edgeCount.accumulate((Double) e.getAttribute(weightMarker)));
 		}
 
 		int communityCount = communities.size();
@@ -891,7 +907,7 @@ public class Toolkit extends
 			for (int x = y; x < communityCount; ++x) {
 				E[x][y] = modularityCountEdges(communities.get(keys[x]),
 						communities.get(keys[y]), weightMarker);
-				E[x][y] /= edgeCount;
+				E[x][y] /= edgeCount.get();
 
 				if (x != y) {
 					E[y][x] = E[x][y] / 2;
@@ -1026,51 +1042,46 @@ public class Toolkit extends
 			HashSet<Node> otherCommunity, String weightMarker) {
 		HashSet<Edge> marked = new HashSet<Edge>();
 
-		float edgeCount = 0;
+		DoubleAccumulator edgeCount = new DoubleAccumulator((x, y) -> x + y, 0);
 
 		if (community != otherCommunity) {
 			// Count edges between the two communities
-
-			for (Node node : community) {
-				for (Edge edge : node.getEdgeSet()) {
-					if (!marked.contains(edge)) {
+			
+			community.stream().forEach(node -> {
+				node.edges()
+					.filter(edge -> !marked.contains(edge))
+					.forEach(edge -> {
 						marked.add(edge);
 
-						if ((community.contains(edge.getNode0()) && otherCommunity
-								.contains(edge.getNode1()))
-								|| (community.contains(edge.getNode1()) && otherCommunity
-										.contains(edge.getNode0()))) {
+						if ((community.contains(edge.getNode0()) && otherCommunity.contains(edge.getNode1()))
+								|| (community.contains(edge.getNode1()) && otherCommunity.contains(edge.getNode0()))) {
 							if (weightMarker == null)
-								edgeCount++;
+								edgeCount.accumulate(1);
 							else if (edge.hasAttribute(weightMarker))
-								edgeCount += (Double) edge
-										.getAttribute(weightMarker);
+								edgeCount.accumulate((Double) edge.getAttribute(weightMarker));
 						}
-					}
-				}
-			}
+					});
+			});
+			
 		} else {
 			// Count inner edges.
-
-			for (Node node : community) {
-				for (Edge edge : node.getEdgeSet()) {
-					if (!marked.contains(edge)) {
+			community.stream().forEach(node -> {
+				node.edges()
+					.filter(edge -> !marked.contains(edge))
+					.forEach(edge -> {
 						marked.add(edge);
 
-						if (community.contains(edge.getNode0())
-								&& community.contains(edge.getNode1())) {
+						if (community.contains(edge.getNode0())	&& community.contains(edge.getNode1())) {
 							if (weightMarker == null)
-								edgeCount++;
+								edgeCount.accumulate(1);
 							else if (edge.hasAttribute(weightMarker))
-								edgeCount += (Double) edge
-										.getAttribute(weightMarker);
+								edgeCount.accumulate((Double) edge.getAttribute(weightMarker));
 						}
-					}
-				}
-			}
+					});
+			});
 		}
 
-		return edgeCount;
+		return edgeCount.get();
 	}
 
 	/**
@@ -1138,34 +1149,33 @@ public class Toolkit extends
 	 */
 	public static double diameter(Graph graph, String weightAttributeName,
 			boolean directed) {
-		double diameter = Double.MIN_VALUE;
+		DoubleAccumulator diameter = new DoubleAccumulator((x, y) -> y, Double.MIN_VALUE);
 
 		if (weightAttributeName == null) {
-			int d = 0;
-
-			for (Node node : graph) {
-				d = unweightedEccentricity(node, directed);
-				if (d > diameter)
-					diameter = d;
-			}
-		} else {
+			
+			graph.nodes().forEach(node -> {
+				int d = unweightedEccentricity(node, directed);
+				if (d > diameter.get())
+					diameter.accumulate(d);
+			});
+		} 
+		else {
 			APSP apsp = new APSP(graph, weightAttributeName, directed);
 
 			apsp.compute();
-
-			for (Node node : graph) {
+			
+			graph.nodes().forEach(node -> {
 				APSP.APSPInfo info = (APSP.APSPInfo) node
 						.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
-
-				for (APSP.TargetPath path : info.targets.values()) {
-					if (path.distance > diameter)
-						diameter = path.distance;
-				}
-			}
-
+				
+				info.targets.values().stream().forEach(path -> {
+					if (path.distance > diameter.get())
+						diameter.accumulate(path.distance);
+				});
+			});
 		}
 
-		return diameter;
+		return diameter.get();
 	}
 
 	/**
@@ -1192,7 +1202,7 @@ public class Toolkit extends
 	 * @return The eccentricity.
 	 */
 	public static int unweightedEccentricity(Node node, boolean directed) {
-		BreadthFirstIterator<Node> k = new BreadthFirstIterator<Node>(node,
+		BreadthFirstIterator k = new BreadthFirstIterator(node,
 				directed);
 		while (k.hasNext()) {
 			k.next();
@@ -1264,15 +1274,18 @@ public class Toolkit extends
 	 *             is known that a <i>n</i>-node graph has at most
 	 *             3<sup><i>n</i>/3</sup> maximal cliques.
 	 */
-	public static <T extends Node> Iterator<List<T>> getMaximalCliqueIterator(
-			Graph graph) {
-		for (Edge edge : graph.getEachEdge())
-			if (edge.isLoop())
-				throw new IllegalArgumentException(
-						"The graph must not have loop edges");
+	public static <T extends Node> Iterator<List<T>> getMaximalCliqueIterator(Graph graph) {
+		graph.edges()
+			.filter(e -> e.isLoop())
+			.forEach(e -> illegalArgumentException());
+				
 		return new BronKerboschIterator<T>(graph);
 	}
-
+	
+	public static void illegalArgumentException() {
+		throw new IllegalArgumentException("The graph must not have loop edges");
+	}
+	
 	/**
 	 * An iterable view of the set of all the maximal cliques in a graph. Uses
 	 * {@link #getMaximalCliqueIterator(Graph)}.
@@ -1494,16 +1507,17 @@ public class Toolkit extends
 			entry.deg = -1;
 			if (ordering != null)
 				ordering.add((T) entry.node);
-			Iterator<Node> neighborIt = entry.node.getNeighborNodeIterator();
-			while (neighborIt.hasNext()) {
-				Node x = neighborIt.next();
+			
+			entry.node.neighborNodes()
+				.filter(x -> map.get(x).deg != -1 )
+				.forEach(x -> {
 				DegenEntry entryX = map.get(x);
-				if (entryX.deg == -1)
-					continue;
+				
+
 				entryX.removeFromList(heads);
 				entryX.deg--;
 				entryX.addToList(heads);
-			}
+			});
 		}
 		if (ordering != null)
 			Collections.reverse(ordering);
@@ -1558,14 +1572,14 @@ public class Toolkit extends
 	public static void fillAdjacencyMatrix(Graph graph, int[][] matrix) {
 		for (int i = 0; i < matrix.length; i++)
 			Arrays.fill(matrix[i], 0);
-
-		for (Edge e : graph.getEachEdge()) {
+		
+		graph.edges().forEach(e -> {
 			int i = e.getSourceNode().getIndex();
 			int j = e.getTargetNode().getIndex();
 			matrix[i][j]++;
 			if (!e.isDirected())
 				matrix[j][i]++;
-		}
+		});
 	}
 
 	/**
@@ -1627,12 +1641,12 @@ public class Toolkit extends
 	public static void fillIncidenceMatrix(Graph graph, byte[][] matrix) {
 		for (int i = 0; i < matrix.length; i++)
 			Arrays.fill(matrix[i], (byte) 0);
-
-		for (Edge e : graph.getEachEdge()) {
+		
+		graph.edges().forEach(e -> {
 			int j = e.getIndex();
 			matrix[e.getSourceNode().getIndex()][j] += e.isDirected() ? -1 : 1;
 			matrix[e.getTargetNode().getIndex()][j] += 1;
-		}
+		});
 	}
 
 	/**
@@ -1736,7 +1750,7 @@ public class Toolkit extends
 	 *             nodes.
 	 * @complexity O(<code>k</code>)
 	 */
-	public static <T extends Node> List<T> randomNodeSet(Graph graph, int k) {
+	public static List<Node> randomNodeSet(Graph graph, int k) {
 		return randomNodeSet(graph, k, new Random());
 	}
 
@@ -1756,16 +1770,16 @@ public class Toolkit extends
 	 *             nodes.
 	 * @complexity O(<code>k</code>)
 	 */
-	public static <T extends Node> List<T> randomNodeSet(Graph graph, int k,
+	public static <T extends Node> List<Node> randomNodeSet(Graph graph, int k,
 			Random random) {
 		if (k < 0 || k > graph.getNodeCount())
 			throw new IllegalArgumentException("k must be between 0 and "
 					+ graph.getNodeCount());
 		Set<Integer> subset = RandomTools.randomKsubset(graph.getNodeCount(),
 				k, null, random);
-		List<T> result = new ArrayList<T>(subset.size());
+		List<Node> result = new ArrayList<Node>(subset.size());
 		for (int i : subset)
-			result.add(graph.<T> getNode(i));
+			result.add(graph.getNode(i));
 		return result;
 	}
 
@@ -1783,7 +1797,7 @@ public class Toolkit extends
 	 * @complexity In average O(<code>n * p<code>), where <code>n</code> is the
 	 *             number of nodes.
 	 */
-	public static <T extends Node> List<T> randomNodeSet(Graph graph, double p) {
+	public static <T extends Node> List<Node> randomNodeSet(Graph graph, double p) {
 		return randomNodeSet(graph, p, new Random());
 	}
 
@@ -1803,15 +1817,15 @@ public class Toolkit extends
 	 * @complexity In average O(<code>n * p<code>), where <code>n</code> is the
 	 *             number of nodes.
 	 */
-	public static <T extends Node> List<T> randomNodeSet(Graph graph, double p,
+	public static <T extends Node> List<Node> randomNodeSet(Graph graph, double p,
 			Random random) {
 		if (p < 0 || p > 1)
 			throw new IllegalArgumentException("p must be between 0 and 1");
 		Set<Integer> subset = RandomTools.randomPsubset(graph.getNodeCount(),
 				p, null, random);
-		List<T> result = new ArrayList<T>(subset.size());
+		List<Node> result = new ArrayList<Node>(subset.size());
 		for (int i : subset)
-			result.add(graph.<T> getNode(i));
+			result.add(graph.getNode(i));
 		return result;
 	}
 
@@ -1829,7 +1843,7 @@ public class Toolkit extends
 	 *             edges.
 	 * @complexity O(<code>k</code>)
 	 */
-	public static <T extends Edge> List<T> randomEdgeSet(Graph graph, int k) {
+	public static List<Edge> randomEdgeSet(Graph graph, int k) {
 		return randomEdgeSet(graph, k, new Random());
 	}
 
@@ -1849,16 +1863,16 @@ public class Toolkit extends
 	 *             edges.
 	 * @complexity O(<code>k</code>)
 	 */
-	public static <T extends Edge> List<T> randomEdgeSet(Graph graph, int k,
+	public static List<Edge> randomEdgeSet(Graph graph, int k,
 			Random random) {
 		if (k < 0 || k > graph.getEdgeCount())
 			throw new IllegalArgumentException("k must be between 0 and "
 					+ graph.getEdgeCount());
 		Set<Integer> subset = RandomTools.randomKsubset(graph.getEdgeCount(),
 				k, null, random);
-		List<T> result = new ArrayList<T>(subset.size());
+		List<Edge> result = new ArrayList<Edge>(subset.size());
 		for (int i : subset)
-			result.add(graph.<T> getEdge(i));
+			result.add(graph.getEdge(i));
 		return result;
 	}
 
@@ -1876,7 +1890,7 @@ public class Toolkit extends
 	 * @complexity In average O(<code>m * p<code>), where <code>m</code> is the
 	 *             number of edges.
 	 */
-	public static <T extends Edge> List<T> randomEdgeSet(Graph graph, double p) {
+	public static List<Edge> randomEdgeSet(Graph graph, double p) {
 		return randomEdgeSet(graph, p, new Random());
 	}
 
@@ -1896,15 +1910,15 @@ public class Toolkit extends
 	 * @complexity In average O(<code>m * p<code>), where <code>m</code> is the
 	 *             number of edges.
 	 */
-	public static <T extends Edge> List<T> randomEdgeSet(Graph graph, double p,
+	public static List<Edge> randomEdgeSet(Graph graph, double p,
 			Random random) {
 		if (p < 0 || p > 1)
 			throw new IllegalArgumentException("p must be between 0 and 1");
 		Set<Integer> subset = RandomTools.randomPsubset(graph.getEdgeCount(),
 				p, null, random);
-		List<T> result = new ArrayList<T>(subset.size());
+		List<Edge> result = new ArrayList<Edge>(subset.size());
 		for (int i : subset)
-			result.add(graph.<T> getEdge(i));
+			result.add(graph.getEdge(i));
 		return result;
 	}
 	

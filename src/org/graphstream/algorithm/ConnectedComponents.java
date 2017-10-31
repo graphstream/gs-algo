@@ -36,14 +36,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 import org.graphstream.stream.SinkAdapter;
-import org.graphstream.util.Filter;
-import org.graphstream.util.FilteredEdgeIterator;
-import org.graphstream.util.FilteredNodeIterator;
 
 /**
  * Compute and update the number of connected components of a dynamic graph.
@@ -271,18 +269,14 @@ public class ConnectedComponents extends SinkAdapter
 		components.clear();
 		componentsMap.clear();
 
-		Iterator<? extends Node> nodes = graph.getNodeIterator();
-
-		while (nodes.hasNext()) {
-			Node n = nodes.next();
-
-			if (!componentsMap.containsKey(n)) {
+		graph.nodes()
+			.filter(n -> !componentsMap.containsKey(n))
+			.forEach(n -> {
 				ConnectedComponent cc = new ConnectedComponent();
 				computeConnectedComponent(cc, n, null);
 
 				components.add(cc);
-			}
-		}
+			});
 	}
 
 	/**
@@ -310,21 +304,17 @@ public class ConnectedComponents extends SinkAdapter
 
 		while (!open.isEmpty()) {
 			Node n = open.poll();
-
-			Iterator<? extends Edge> edges = n.getEdgeIterator();
-
-			while (edges.hasNext()) {
-				Edge e = edges.next();
-
-				if (e != drop && !isCutEdge(e)) {
+			
+			n.edges()
+				.filter(e -> (e != drop && !isCutEdge(e)))
+				.forEach(e -> {
 					Node n2 = e.getOpposite(n);
 
 					if (componentsMap.get(n2) != cc) {
 						open.add(n2);
 						cc.registerNode(n2);
 					}
-				}
-			}
+				});
 		}
 	}
 
@@ -372,13 +362,13 @@ public class ConnectedComponents extends SinkAdapter
 		if (graph == null) {
 			return;
 		}
-
-		for (Node n : graph) {
+		
+		graph.nodes().forEach(n -> {
 			ConnectedComponent cc = componentsMap.get(n);
 			assert cc != null;
 
 			n.setAttribute(countAttribute, cc.id);
-		}
+		});
 	}
 
 	/**
@@ -389,14 +379,11 @@ public class ConnectedComponents extends SinkAdapter
 	public ConnectedComponent getGiantComponent() {
 		checkStarted();
 
-		int maxSize = Integer.MIN_VALUE;
 		ConnectedComponent maxCC = null;
-
-		for (ConnectedComponent cc : components) {
-			if (cc.size > maxSize) {
-				maxCC = cc;
-			}
-		}
+		
+		maxCC = components.stream()
+				.max((cc1, cc2) -> Integer.compare(cc1.size, cc2.size))
+				.get();
 
 		return maxCC;
 	}
@@ -452,13 +439,11 @@ public class ConnectedComponents extends SinkAdapter
 			return components.size();
 		} else {
 			int count = 0;
-
-			for (ConnectedComponent cc : components) {
-				if (cc.size >= sizeThreshold && (sizeCeiling <= 0 || cc.size < sizeCeiling)) {
-					count++;
-				}
-			}
-
+			
+			count = (int) components.stream()
+					.filter(cc -> (cc.size >= sizeThreshold && (sizeCeiling <= 0 || cc.size < sizeCeiling)))
+					.count() ;
+		
 			return count;
 		}
 	}
@@ -527,9 +512,7 @@ public class ConnectedComponents extends SinkAdapter
 	 */
 	public void setCountAttribute(String countAttribute) {
 		if (this.countAttribute != null && graph != null) {
-			for (Node n : graph) {
-				n.removeAttribute(countAttribute);
-			}
+			graph.nodes().forEach(n -> n.removeAttribute(countAttribute));
 		}
 
 		this.countAttribute = countAttribute;
@@ -741,7 +724,7 @@ public class ConnectedComponents extends SinkAdapter
 	 * algorithm.
 	 *
 	 */
-	public class ConnectedComponent implements Iterable<Node> {
+	public class ConnectedComponent {
 		/**
 		 * The unique id of this component.
 		 * 
@@ -751,48 +734,10 @@ public class ConnectedComponents extends SinkAdapter
 		public final int id = currentComponentId++;
 
 		int size;
-		Filter<Node> nodeFilter;
-		Filter<Edge> edgeFilter;
-		Iterable<Edge> eachEdge;
 
 		ConnectedComponent() {
 			this.size = 0;
 
-			nodeFilter = new Filter<Node>() {
-				/*
-				 * (non-Javadoc)
-				 * 
-				 * @see
-				 * org.graphstream.util.Filter#isAvailable(org.graphstream.graph
-				 * .Element)
-				 */
-				@Override
-				public boolean isAvailable(Node e) {
-					return componentsMap.get(e) == ConnectedComponent.this;
-				}
-			};
-
-			edgeFilter = new Filter<Edge>() {
-				/*
-				 * (non-Javadoc)
-				 * 
-				 * @see
-				 * org.graphstream.util.Filter#isAvailable(org.graphstream.graph
-				 * .Element)
-				 */
-				@Override
-				public boolean isAvailable(Edge e) {
-					return nodeFilter.isAvailable(e.getNode0()) && nodeFilter.isAvailable(e.getNode1())
-							&& !isCutEdge(e);
-				}
-
-			};
-
-			eachEdge = new Iterable<Edge>() {
-				public Iterator<Edge> iterator() {
-					return getEdgeIterator();
-				}
-			};
 		}
 
 		void registerNode(Node n) {
@@ -819,26 +764,18 @@ public class ConnectedComponents extends SinkAdapter
 			}
 		}
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see java.lang.Iterable#iterator()
-		 */
-		@Override
-		public Iterator<Node> iterator() {
-			return new FilteredNodeIterator<Node>(graph, nodeFilter);
+
+		public Stream<Node> stream() {
+			return graph.nodes().filter(n -> componentsMap.get(n) == ConnectedComponent.this ) ;
 		}
 
 		/**
-		 * Return an iterable over the nodes of this component.
+		 * Return an stream over the nodes of this component.
 		 * 
-		 * Since a {@link ConnectedComponent} is already an iterable, you should
-		 * not have to use this method.
-		 * 
-		 * @return an iterable over the nodes of this component
+		 * @return an stream over the nodes of this component
 		 */
-		public Iterable<Node> getEachNode() {
-			return this;
+		public Stream<Node> getEachNode() {
+			return stream();
 		}
 
 		/**
@@ -850,36 +787,38 @@ public class ConnectedComponents extends SinkAdapter
 		 */
 		public Set<Node> getNodeSet() {
 			HashSet<Node> nodes = new HashSet<Node>();
-
-			for (Node n : this) {
-				nodes.add(n);
-			}
-
+			
+			stream().forEach(n -> nodes.add(n));
+			
 			return nodes;
 		}
 
 		/**
-		 * Return an iterable over the edge of this component.
+		 * Return an stream over the edge of this component.
 		 * 
 		 * An edge is in the component if the two ends of this edges are in the
 		 * component and the edge does not have the cut attribute. Note that,
 		 * using cut attribute, some edges can be in none of the components.
 		 * 
-		 * @return an iterable over the edges of this component
+		 * @return an stream over the edges of this component
 		 */
-		public Iterable<Edge> getEachEdge() {
-			return eachEdge;
+		public Stream<Edge> getEachEdge() {
+			return getEdgeStream();
 		}
 
 		/**
-		 * The iterator over the edges of this component.
+		 * The stream over the edges of this component.
 		 * 
 		 * See {@see #getEachEdge()} for details.
 		 * 
-		 * @return iterator over the edges of this component
+		 * @return stream over the edges of this component
 		 */
-		public Iterator<Edge> getEdgeIterator() {
-			return new FilteredEdgeIterator<Edge>(graph, edgeFilter);
+		public Stream<Edge> getEdgeStream() {
+			return graph.edges().filter(e -> {
+				return (componentsMap.get(e.getNode0()) == ConnectedComponent.this)
+						&& (componentsMap.get(e.getNode1()) == ConnectedComponent.this)
+						&& !isCutEdge(e) ;
+			});
 		}
 
 		/**

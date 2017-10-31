@@ -35,6 +35,8 @@ package org.graphstream.algorithm.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.concurrent.atomic.DoubleAccumulator;
+
 import org.graphstream.algorithm.Kruskal;
 import org.graphstream.algorithm.Prim;
 import org.graphstream.graph.Edge;
@@ -100,24 +102,26 @@ public class TestKruskalPrim {
 	
 	public void helper(Kruskal k, Graph g, double expectedWeight, int expectedCount) {
 		assertEquals(expectedWeight, k.getTreeWeight(), 0);
-		int edgeCount = 0;
-		for (Edge e : k.getTreeEdges()) {
-			Boolean b = e.getAttribute(k.getFlagAttribute()); 
+		DoubleAccumulator edgeCount = new DoubleAccumulator((x,y) -> x + y, 0) ;
+	
+		k.getTreeEdges().forEach(e -> {
+			Boolean b = (Boolean) e.getAttribute(k.getFlagAttribute()); 
 			assertTrue(b);
-			edgeCount++;
-		}
-		assertEquals(expectedCount, edgeCount);
+			edgeCount.accumulate(1);
+		});
+		assertEquals(expectedCount, (int)edgeCount.get());
 		
-		edgeCount = 0;
-		double treeWeight = 0;
-		for (Edge e : g.getEachEdge()) {
-			Boolean b = e.getAttribute(k.getFlagAttribute());
-			if (b) {
-				edgeCount++;
-				treeWeight += e.getNumber("weight");
-			}
-		}
-		assertEquals(expectedWeight, treeWeight, 0);
-		assertEquals(expectedCount, edgeCount);
+		DoubleAccumulator edgeCount2 = new DoubleAccumulator((x,y) -> x + y, 0) ;
+		DoubleAccumulator treeWeight = new DoubleAccumulator((x,y) -> x + y, 0) ;
+		
+		g.edges()
+			.filter(e -> (Boolean) e.getAttribute(k.getFlagAttribute()))
+			.forEach(e -> {
+				edgeCount2.accumulate(1);
+				treeWeight.accumulate(e.getNumber("weight"));
+			});
+
+		assertEquals(expectedWeight, treeWeight.get(), 0);
+		assertEquals(expectedCount, (int)edgeCount2.get());
 	}
 }

@@ -31,17 +31,20 @@
  */
 package org.graphstream.algorithm.test;
 
-import java.io.*;
-import java.util.Iterator;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
-import org.graphstream.algorithm.*;
+import java.io.IOException;
+
+import org.graphstream.algorithm.APSP;
 import org.graphstream.algorithm.APSP.APSPInfo;
-import org.graphstream.graph.*;
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
+import org.graphstream.graph.Path;
 import org.graphstream.graph.implementations.SingleGraph;
-import org.graphstream.stream.*;
-
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.graphstream.stream.GraphParseException;
+import org.junit.Test;
 
 /**
  * Test the APSP algorithm.

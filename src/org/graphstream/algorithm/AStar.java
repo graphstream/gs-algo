@@ -470,15 +470,12 @@ public class AStar implements Algorithm {
 		// The problem is that we use open has a hash to ensure
 		// a node we will add to to open is not yet in it.
 
-		double min = Float.MAX_VALUE;
 		AStarNode theChosenOne = null;
 		
 		theChosenOne = open.values().stream()
 				.min((n,m) -> Double.compare(n.rank, m.rank))
 				.get();
 		
-		min = theChosenOne.rank ;
-
 		return theChosenOne;
 	}
 

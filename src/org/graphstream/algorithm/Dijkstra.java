@@ -659,7 +659,7 @@ public class Dijkstra extends AbstractSpanningTree {
 	public Iterable<Node> getPathNodes(final Node target) {
 		return new Iterable<Node>() {
 			public Iterator<Node> iterator() {
-				return getPathNodesStream(target).iterator();
+				return new NodeIterator(target);
 			}
 		};
 	}
@@ -704,7 +704,7 @@ public class Dijkstra extends AbstractSpanningTree {
 	public Iterable<Edge> getPathEdges(final Node target) {
 		return new Iterable<Edge>() {
 			public Iterator<Edge> iterator() {
-				return getPathEdgesStream(target).iterator();
+				return new EdgeIterator(target);
 			}
 
 		};
@@ -751,7 +751,7 @@ public class Dijkstra extends AbstractSpanningTree {
 	public Iterable<Path> getAllPaths(final Node target) {
 		return new Iterable<Path>() {
 			public Iterator<Path> iterator() {
-				return getAllPathsStream(target).iterator();
+				return new PathIterator(target);
 			}
 		};
 	}
