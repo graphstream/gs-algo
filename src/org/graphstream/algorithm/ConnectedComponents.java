@@ -41,6 +41,7 @@ import java.util.stream.Stream;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
+import org.graphstream.graph.Structure;
 import org.graphstream.stream.SinkAdapter;
 
 /**
@@ -633,7 +634,7 @@ public class ConnectedComponents extends SinkAdapter
 			}
 		}
 	}
-
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -724,7 +725,7 @@ public class ConnectedComponents extends SinkAdapter
 	 * algorithm.
 	 *
 	 */
-	public class ConnectedComponent {
+	public class ConnectedComponent implements Structure {
 		/**
 		 * The unique id of this component.
 		 * 
@@ -764,19 +765,17 @@ public class ConnectedComponents extends SinkAdapter
 			}
 		}
 
-
-		public Stream<Node> stream() {
-			return graph.nodes().filter(n -> componentsMap.get(n) == ConnectedComponent.this ) ;
-		}
-
 		/**
 		 * Return an stream over the nodes of this component.
 		 * 
 		 * @return an stream over the nodes of this component
 		 */
-		public Stream<Node> getEachNode() {
-			return stream();
+		
+		public Stream<Node> nodes() {
+			return graph.nodes().filter(n -> componentsMap.get(n) == ConnectedComponent.this ) ;
 		}
+
+		
 
 		/**
 		 * Get a set containing all the nodes of this component.
@@ -788,7 +787,7 @@ public class ConnectedComponents extends SinkAdapter
 		public Set<Node> getNodeSet() {
 			HashSet<Node> nodes = new HashSet<Node>();
 			
-			stream().forEach(n -> nodes.add(n));
+			nodes().forEach(n -> nodes.add(n));
 			
 			return nodes;
 		}
@@ -802,18 +801,7 @@ public class ConnectedComponents extends SinkAdapter
 		 * 
 		 * @return an stream over the edges of this component
 		 */
-		public Stream<Edge> getEachEdge() {
-			return getEdgeStream();
-		}
-
-		/**
-		 * The stream over the edges of this component.
-		 * 
-		 * See {@see #getEachEdge()} for details.
-		 * 
-		 * @return stream over the edges of this component
-		 */
-		public Stream<Edge> getEdgeStream() {
+		public Stream<Edge> edges() {
 			return graph.edges().filter(e -> {
 				return (componentsMap.get(e.getNode0()) == ConnectedComponent.this)
 						&& (componentsMap.get(e.getNode1()) == ConnectedComponent.this)
@@ -840,6 +828,18 @@ public class ConnectedComponents extends SinkAdapter
 		@Override
 		public String toString() {
 			return String.format("ConnectedComponent#%d", id);
+		}
+
+		@Override
+		public int getNodeCount() {
+			// TODO Auto-generated method stub
+			return (int) nodes().count();
+		}
+
+		@Override
+		public int getEdgeCount() {
+			// TODO Auto-generated method stub
+			return (int) edges().count();
 		}
 	}
 }
