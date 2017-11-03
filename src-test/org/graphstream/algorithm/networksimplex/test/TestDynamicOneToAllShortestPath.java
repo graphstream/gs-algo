@@ -133,7 +133,7 @@ public class TestDynamicOneToAllShortestPath {
 		for (int i = 3; i <= 100; i++) {
 			gen.nextEvents();
 			d.compute();
-			BreadthFirstIterator<Node> bfs = (BreadthFirstIterator<Node>) source
+			BreadthFirstIterator bfs = (BreadthFirstIterator) source
 					.getBreadthFirstIterator();
 			while (bfs.hasNext())
 				bfs.next();
@@ -145,7 +145,7 @@ public class TestDynamicOneToAllShortestPath {
 		for (int i = 100; i >= 3; i--) {
 			g.removeNode(i);
 			d.compute();
-			BreadthFirstIterator<Node> bfs = (BreadthFirstIterator<Node>) source
+			BreadthFirstIterator bfs = (BreadthFirstIterator) source
 					.getBreadthFirstIterator();
 			while (bfs.hasNext())
 				bfs.next();

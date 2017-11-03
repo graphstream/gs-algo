@@ -192,8 +192,8 @@ public class DisjointSets<E> {
 	 * no sets.
 	 */
 	public void clear() {
-		for (Node node : map.values())
-			node.parent = null;
+		map.values().forEach(node -> node.parent = null);
+		
 		map.clear();
 	}
 }

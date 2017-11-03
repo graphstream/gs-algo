@@ -107,13 +107,12 @@ public class TestNetworkSimplex {
 		assertEquals(ns1.getSolutionCost(), ns2.getSolutionCost());
 		assertEquals(ns1.getSolutionInfeasibility(), ns2.getSolutionInfeasibility());
 		
-		for (Node n : g)
-			assertEquals(ns1.getInfeasibility(n), ns2.getInfeasibility(n));
+		g.nodes().forEach(n -> assertEquals(ns1.getInfeasibility(n), ns2.getInfeasibility(n)));
 
-		for (Edge e : g.getEachEdge()) {
+		g.edges().forEach(e -> {
 			assertEquals(ns1.getFlow(e, true), ns2.getFlow(e, true));
 			assertEquals(ns1.getFlow(e, false), ns2.getFlow(e, false));
-		}
+		});
 	}
 
 	public static void compareWithNew(NetworkSimplex ns) {

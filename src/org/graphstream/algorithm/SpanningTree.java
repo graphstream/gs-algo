@@ -31,7 +31,7 @@
  */
 package org.graphstream.algorithm;
 
-import java.util.Iterator;
+import java.util.stream.Stream;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -107,7 +107,7 @@ public interface SpanningTree extends Algorithm {
 	 * 
 	 * @return An iterator on the tree edges
 	 */
-	<T extends Edge> Iterator<T> getTreeEdgesIterator();
+	Stream<Edge> getTreeEdgesStream();
 	
 	
 	/**

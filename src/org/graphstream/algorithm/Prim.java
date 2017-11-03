@@ -188,17 +188,19 @@ public class Prim extends Kruskal {
 				dataU.edgeToTree = null;
 			}
 			dataU.fn = null;
-			for (Edge e : u) {
-				Node v = e.getOpposite(u);
-				Data dataV = data[v.getIndex()];
-				if (dataV == null)
-					continue;
-				double w = getWeight(e);
-				if (w < dataV.fn.getKey()) {
-					heap.decreaseKey(dataV.fn, w);
-					dataV.edgeToTree = e;
-				}
-			}
+			
+			u.edges()
+				.filter(e -> data[e.getOpposite(u).getIndex()] != null)
+				.forEach(e -> {
+					Node v = e.getOpposite(u);
+					Data dataV = data[v.getIndex()];
+					
+					double w = getWeight(e);
+					if (w < dataV.fn.getKey()) {
+						heap.decreaseKey(dataV.fn, w);
+						dataV.edgeToTree = e;
+					}
+				});
 		}
 	}
 

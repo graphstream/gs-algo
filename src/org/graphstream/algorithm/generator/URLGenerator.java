@@ -123,29 +123,29 @@ public class URLGenerator extends BaseGenerator {
 
 		if (printProgress)
 			progress();
-
-		for (String url : stepUrls) {
+		
+		stepUrls.forEach(url -> {
 			try {
 				addNodeURL(url);
 			} catch (URISyntaxException e) {
 				e.printStackTrace();
 			}
-		}
-
+		});
+		
 		urls.addAll(stepUrls);
 		newUrls.clear();
 
 		if (threads > 1)
 			nextEventsThreaded();
 		else {
-			for (String url : stepUrls) {
+			stepUrls.forEach(url -> {
 				try {
 					parseUrl(url);
 				} catch (IOException e) {
 					System.err.printf("Failed to parse \"%s\" : %s\n", url,
 							e.getMessage());
 				}
-			}
+			});
 		}
 
 		stepUrls.clear();

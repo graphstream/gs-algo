@@ -31,10 +31,15 @@
  */
 package org.graphstream.algorithm.community;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.graphstream.algorithm.DynamicAlgorithm;
-import org.graphstream.graph.*;
+import org.graphstream.graph.Element;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
 import org.graphstream.stream.Sink;
 
 /**
@@ -224,12 +229,13 @@ public abstract class DecentralizedCommunityAlgorithm implements
 		 * graph has changed since last call
 		 */
 		if (graphChanged) {
-			ArrayList<Node> nodeSet = new ArrayList<Node>(graph.getNodeSet());
+			ArrayList<Node> nodeSet = graph.nodes().collect(Collectors.toCollection(ArrayList::new));// new ArrayList<Node>(graph.getNodeSet());
 			Collections.shuffle(nodeSet, rng);
-			for (Node node : nodeSet) {
+			
+			nodeSet.forEach(node -> {
 				computeNode(node);
 				updateDisplayClass(node);
-			}
+			});
 			graphChanged = staticMode;
 		}
 	}

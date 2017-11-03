@@ -31,9 +31,10 @@
  */
 package org.graphstream.algorithm.measure;
 
+import java.util.concurrent.atomic.DoubleAccumulator;
+
 import org.graphstream.algorithm.DynamicAlgorithm;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
 import org.graphstream.stream.Sink;
 import org.graphstream.stream.SinkAdapter;
 
@@ -66,20 +67,20 @@ public class DegreeMeasure extends ChartMinMaxAverageSeriesMeasure implements
 	 * @see org.graphstream.algorithm.Algorithm#compute()
 	 */
 	public void compute() {
-		double min, max, avg;
+		DoubleAccumulator min, max, avg;
 		
-		min = Double.MAX_VALUE;
-		max = Double.MIN_VALUE;
-		avg = 0;
+		min = new DoubleAccumulator((x,y) -> y, Double.MAX_VALUE);
+		max = new DoubleAccumulator((x,y) -> y, Double.MIN_VALUE);
+		avg = new DoubleAccumulator((x,y) -> x + y, 0);
+		
+		g.nodes().forEach(n -> {
+			min.accumulate(Math.min(min.get(), n.getDegree()));
+			max.accumulate(Math.max(max.get(), n.getDegree()));
+			avg.accumulate(n.getDegree());
+		});
 
-		for (Node n : g) {
-			min = Math.min(min, n.getDegree());
-			max = Math.max(max, n.getDegree());
-			avg += n.getDegree();
-		}
-
-		avg /= g.getNodeCount();
-		addValue(g.getStep(), min, avg, max);
+		int avgFinal = (int) (avg.get() / g.getNodeCount());
+		addValue(g.getStep(), min.get(), avgFinal, max.get());
 	}
 
 	/*

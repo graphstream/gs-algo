@@ -229,13 +229,12 @@ public class BellmanFord implements Algorithm {
 						.getAttribute(identifier+".predecessors");
 			}
 			if (current != source) {
-				for (Edge e : predecessors) {
+				final Node c = current ;
+				predecessors.forEach(e -> {
 					Path p = path.getACopy();
-					p.add(current, e);
-					pathSetShortestPath_facilitate(e.getOpposite(current), p,
-							paths);
-
-				}
+					p.add(c, e);
+					pathSetShortestPath_facilitate(e.getOpposite(c), p, paths);
+				});
 			}
 		}
 		if (current == source) {

@@ -207,16 +207,24 @@ public class Leung extends EpidemicCommunityAlgorithm {
 		 */
 		else {
 			Double maxLabelScore = Double.NEGATIVE_INFINITY;
+			
+			// With Stream
+			maxLabelScore = node.enteringEdges()
+					.filter(e -> e.getOpposite(node).hasAttribute(marker)
+							&& e.getOpposite(node).getAttribute(marker).equals(node.getAttribute(marker)))
+					.map(e -> (Double) e.getOpposite(node).getAttribute(marker + ".score"))
+					.max((e1, e2) -> Double.compare(e1, e2))
+					.get();
+			
+			/*// With Iterator
 			for (Edge e : node.getEnteringEdgeSet()) {
 				Node v = e.getOpposite(node);
-				if (v.hasAttribute(marker)
-						&& v.getAttribute(marker).equals(
-								node.getAttribute(marker))) {
+				if (v.hasAttribute(marker)	&& v.getAttribute(marker).equals(node.getAttribute(marker))) {
 					if ((Double) v.getAttribute(marker + ".score") > maxLabelScore)
-						maxLabelScore = (Double) v.getAttribute(marker
-								+ ".score");
+						maxLabelScore = (Double) v.getAttribute(marker	+ ".score");
 				}
 			}
+			*/
 			node.setAttribute(marker + ".score", maxLabelScore - delta);
 		}
 	}
@@ -240,7 +248,7 @@ public class Leung extends EpidemicCommunityAlgorithm {
 		/*
 		 * Iterate over the nodes that this node "hears"
 		 */
-		for (Edge e : u.getEnteringEdgeSet()) {
+		u.enteringEdges().forEach(e -> {
 			Node v = e.getOpposite(u);
 
 			/*
@@ -278,7 +286,7 @@ public class Leung extends EpidemicCommunityAlgorithm {
 							communityScores.get(v.getAttribute(marker))
 									+ (score * weight));
 			}
-		}
+		});
 	}
 
 	@Override

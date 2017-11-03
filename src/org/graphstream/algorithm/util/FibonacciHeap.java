@@ -327,8 +327,10 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 		} while (w != min);
 
 		min = null;
-		for (Node s : degList)
-			if (s != null) {
+		
+		degList.stream()
+			.filter(s -> s != null)
+			.forEach(s -> {
 				s.left = s.right = s;
 				if (min == null)
 					min = s;
@@ -337,7 +339,8 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 					if (s.key.compareTo(min.key) < 0)
 						min = s;
 				}
-			}
+			});
+			
 	}
 
 	/** Decreases the key of a given node

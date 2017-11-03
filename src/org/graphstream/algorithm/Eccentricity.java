@@ -32,7 +32,9 @@
 package org.graphstream.algorithm;
 
 import java.util.HashSet;
+import java.util.concurrent.atomic.DoubleAccumulator;
 
+import org.graphstream.algorithm.APSP.APSPInfo;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -217,18 +219,18 @@ public class Eccentricity implements Algorithm {
 	 * @see org.graphstream.algorithm.Algorithm#compute()
 	 */
 	public void compute() {
-		double min = Double.MAX_VALUE;
+		DoubleAccumulator min = new DoubleAccumulator((x, y) -> y, Double.MAX_VALUE);
 		HashSet<Node> eccentricity = new HashSet<Node>();
-
-		for (Node node : graph.getEachNode()) {
-			double m = Double.MIN_VALUE;
-			APSP.APSPInfo info = node.getAttribute(apspInfoAttribute);
+		
+		graph.nodes().forEach(node -> {
+			DoubleAccumulator m = new DoubleAccumulator((x, y) -> y, Double.MIN_VALUE); 
+			APSP.APSPInfo info = (APSPInfo) node.getAttribute(apspInfoAttribute);
 
 			if (info == null)
 				System.err
 						.printf("APSPInfo missing. Did you compute APSP before ?\n");
-
-			for (Node other : graph.getEachNode()) {
+			
+			graph.nodes().forEach(other -> {
 				if (node != other) {
 					double d = info.getLengthTo(other.getId());
 
@@ -236,23 +238,23 @@ public class Eccentricity implements Algorithm {
 						System.err
 								.printf("Found a negative length value in eccentricity algorithm. "
 										+ "Is graph connected ?\n");
-					else if (d > m)
-						m = d;
+					else if (d > m.get())
+						m.accumulate(d);
 				}
-			}
+			});
 
-			if (m < min) {
+			if (m.get() < min.get()) {
 				eccentricity.clear();
 				eccentricity.add(node);
-				min = m;
-			} else if (m == min) {
+				min.accumulate(m.get());
+			} else if (m.get() == min.get()) {
 				eccentricity.add(node);
 			}
-		}
-
-		for (Node node : graph.getEachNode())
-			node.setAttribute(eccentricityAttribute, eccentricity
-					.contains(node) ? isInEccentricity : isNotInEccentricity);
+		});
+		
+		graph.nodes().forEach(node -> node.setAttribute(eccentricityAttribute, eccentricity
+				.contains(node) ? isInEccentricity : isNotInEccentricity));
+		
 
 		eccentricity.clear();
 	}

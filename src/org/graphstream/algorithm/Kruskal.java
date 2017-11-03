@@ -37,6 +37,11 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.graphstream.algorithm.util.DisjointSets;
 import org.graphstream.graph.Edge;
@@ -213,7 +218,7 @@ public class Kruskal extends AbstractSpanningTree {
 		else
 			treeEdges.clear();
 
-		List<Edge> sortedEdges = new ArrayList<Edge>(graph.getEdgeSet());
+		List<Edge> sortedEdges = new ArrayList<Edge>(graph.edges().collect(Collectors.toList()));
 		Collections.sort(sortedEdges, new EdgeComparator());
 		
 		DisjointSets<Node> components = new DisjointSets<Node>(
@@ -235,8 +240,13 @@ public class Kruskal extends AbstractSpanningTree {
 	}
 
 	@Override
-	public <T extends Edge> Iterator<T> getTreeEdgesIterator() {
-		return new TreeIterator<T>();
+	public Stream<Edge> getTreeEdgesStream() {
+		return StreamSupport.stream(
+		    	Spliterators.spliteratorUnknownSize(
+		    			new TreeIterator(),
+		                Spliterator.DISTINCT |
+		                Spliterator.IMMUTABLE |
+		                Spliterator.NONNULL), false);
 	}
 
 	@Override
@@ -277,7 +287,7 @@ public class Kruskal extends AbstractSpanningTree {
 		}
 	}
 
-	protected class TreeIterator<T extends Edge> implements Iterator<T> {
+	protected class TreeIterator implements Iterator<Edge> {
 
 		protected Iterator<Edge> it = treeEdges.iterator();
 
@@ -285,9 +295,8 @@ public class Kruskal extends AbstractSpanningTree {
 			return it.hasNext();
 		}
 
-		@SuppressWarnings("unchecked")
-		public T next() {
-			return (T) it.next();
+		public Edge next() {
+			return it.next();
 		}
 
 		public void remove() {

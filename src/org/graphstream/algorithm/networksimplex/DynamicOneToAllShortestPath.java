@@ -65,8 +65,8 @@ public class DynamicOneToAllShortestPath extends NetworkSimplex {
 	@Override
 	protected void cloneGraph() {
 		super.cloneGraph();
-		for (NSNode node : nodes.values())
-			node.supply = node.id.equals(sourceId) ? nodes.size() - 1 : -1;
+		
+		nodes.values().stream().forEach(node -> node.supply = node.id.equals(sourceId) ? nodes.size() - 1 : -1);			
 	}
 	
 	/**
@@ -92,15 +92,17 @@ public class DynamicOneToAllShortestPath extends NetworkSimplex {
 		Map<NSNode, NSNode> last = new HashMap<NSNode, NSNode>(4 * (nodes.size() + 1) / 3 + 1);
 		last.put(root, root);
 		root.thread = root;
-		for (NSNode node : nodes.values()) {
+		
+		nodes.values().forEach(node -> {
 			last.put(node, node);
 			node.artificialArc.status = ArcStatus.NONBASIC_LOWER;
 			node.artificialArc.flow = 0;
 			node.thread = node;
-		}
+		});
 		
 		// restore parent and thread
-		for (NSNode node : nodes.values()) {
+		
+		nodes.values().forEach(node -> {
 			Node gNode = graph.getNode(node.id);
 			Node gParent = dijkstra.getParent(gNode);
 			NSNode parent = gParent == null ? root : nodes.get(gParent.getId());
@@ -121,7 +123,8 @@ public class DynamicOneToAllShortestPath extends NetworkSimplex {
 			parent.thread = node;
 			for (NSNode x = parent; last.get(x) == parent; x = x.parent)
 				last.put(x, nodeLast);
-		}
+		});
+
 		last.clear();
 		dijkstra.clear();
 		
@@ -179,7 +182,7 @@ public class DynamicOneToAllShortestPath extends NetworkSimplex {
 
 	// Iterators
 
-	protected class NodeIterator<T extends Node> implements Iterator<T> {
+	protected class NodeIterator<T extends Node> implements Iterator<Node> {
 		protected NSNode nextNode;
 
 		protected NodeIterator(NSNode target) {
@@ -193,10 +196,10 @@ public class DynamicOneToAllShortestPath extends NetworkSimplex {
 			return nextNode != root;
 		}
 
-		public T next() {
+		public Node next() {
 			if (nextNode == root)
 				throw new NoSuchElementException();
-			T node = graph.getNode(nextNode.id);
+			Node node = graph.getNode(nextNode.id);
 			nextNode = nextNode.parent;
 			return node;
 		}
@@ -207,7 +210,7 @@ public class DynamicOneToAllShortestPath extends NetworkSimplex {
 		}
 	}
 
-	protected class EdgeIterator<T extends Edge> implements Iterator<T> {
+	protected class EdgeIterator<T extends Edge> implements Iterator<Edge> {
 		protected NSNode nextNode;
 
 		protected EdgeIterator(NSNode target) {
@@ -218,10 +221,10 @@ public class DynamicOneToAllShortestPath extends NetworkSimplex {
 			return nextNode.parent != root;
 		}
 
-		public T next() {
+		public Edge next() {
 			if (nextNode.parent == root)
 				throw new NoSuchElementException();
-			T edge = graph.getEdge(nextNode.arcToParent.getOriginalId());
+			Edge edge = graph.getEdge(nextNode.arcToParent.getOriginalId());
 			nextNode = nextNode.parent;
 			return edge;
 		}
@@ -257,7 +260,7 @@ public class DynamicOneToAllShortestPath extends NetworkSimplex {
 	 * @complexity Each call of {@link java.util.Iterator#next()} of this
 	 *             iterator takes O(1) time
 	 */
-	public <T extends Node> Iterator<T> getPathNodesIterator(Node target) {
+	public <T extends Node> Iterator<Node> getPathNodesIterator(Node target) {
 		return new NodeIterator<T>(nodes.get(target.getId()));
 	}
 
@@ -271,9 +274,9 @@ public class DynamicOneToAllShortestPath extends NetworkSimplex {
 	 *         source to the target
 	 * @see #getPathNodesIterator(Node)
 	 */
-	public <T extends Node> Iterable<T> getPathNodes(final Node target) {
-		return new Iterable<T>() {
-			public Iterator<T> iterator() {
+	public <T extends Node> Iterable<Node> getPathNodes(final Node target) {
+		return new Iterable<Node>() {
+			public Iterator<Node> iterator() {
 				return getPathNodesIterator(target);
 			}
 		};
@@ -296,8 +299,8 @@ public class DynamicOneToAllShortestPath extends NetworkSimplex {
 	 * @complexity Each call of {@link java.util.Iterator#next()} of this
 	 *             iterator takes O(1) time
 	 */
-	public <T extends Edge> Iterator<T> getPathEdgesIterator(Node target) {
-		return new EdgeIterator<T>(nodes.get(target.getId()));
+	public <T extends Edge> Iterator<Edge> getPathEdgesIterator(Node target) {
+		return new EdgeIterator<Edge>(nodes.get(target.getId()));
 	}
 
 	/**
@@ -310,9 +313,9 @@ public class DynamicOneToAllShortestPath extends NetworkSimplex {
 	 *         source to the target
 	 * @see #getPathEdgesIterator(Node)
 	 */
-	public <T extends Edge> Iterable<T> getPathEdges(final Node target) {
-		return new Iterable<T>() {
-			public Iterator<T> iterator() {
+	public <T extends Edge> Iterable<Edge> getPathEdges(final Node target) {
+		return new Iterable<Edge>() {
+			public Iterator<Edge> iterator() {
 				return getPathEdgesIterator(target);
 			}
 
