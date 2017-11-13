@@ -114,8 +114,8 @@ public class DemoLinLogLayout {
 		layout.setQuality(1);
 		layout.setBarnesHutTheta(0.5);
 
-		graph.addAttribute("ui.antialias");
-		graph.addAttribute("ui.stylesheet", styleSheet);
+		graph.setAttribute("ui.antialias");
+		graph.setAttribute("ui.stylesheet", styleSheet);
 		fromViewer.addSink(graph);
 		//viewer.addDefaultView(true);
 		graph.addSink(layout);
@@ -180,8 +180,8 @@ public class DemoLinLogLayout {
 		for(int i=0; i<nedges; i++) {
 			Edge edge = graph.getEdge(i);
 			if(edgesDists[i] > avgDist*threshold) {
-				edge.addAttribute("ui.class", "cut");
-				edge.addAttribute("cut");
+				edge.setAttribute("ui.class", "cut");
+				edge.setAttribute("cut");
 			} else {
 				edge.removeAttribute("ui.class");
 				edge.removeAttribute("cut");

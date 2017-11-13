@@ -96,8 +96,7 @@ public class PointsOfInterestGenerator extends BaseGenerator {
 		 */
 		void newAddict(Addict addictA) {
 			if (!addict.contains(addictA)) {
-				for (Addict addictB : addict)
-					addictA.link(addictB);
+				addict.forEach(addictB -> addictA.link(addictB));
 
 				addict.add(addictA);
 				addictA.pointsOfInterest.add(this);
@@ -117,8 +116,7 @@ public class PointsOfInterestGenerator extends BaseGenerator {
 				addict.remove(addictA);
 				addictA.pointsOfInterest.remove(this);
 
-				for (Addict addictB : addict)
-					addictA.unlink(addictB);
+				addict.forEach(addictB -> addictA.unlink(addictB));
 			}
 		}
 
@@ -202,8 +200,9 @@ public class PointsOfInterestGenerator extends BaseGenerator {
 			//
 			Collections.shuffle(
 					PointsOfInterestGenerator.this.pointsOfInterest, random);
-
-			for (PointOfInterest poi : PointsOfInterestGenerator.this.pointsOfInterest) {
+			
+			
+			PointsOfInterestGenerator.this.pointsOfInterest.forEach(poi -> {
 				if (pointsOfInterest.contains(poi)) {
 					if (random.nextFloat() < lostInterestProbability)
 						poi.delAddict(this);
@@ -223,7 +222,7 @@ public class PointsOfInterestGenerator extends BaseGenerator {
 																				// )
 						poi.newAddict(this);
 				}
-			}
+			});
 		}
 
 		/**
@@ -278,11 +277,12 @@ public class PointsOfInterestGenerator extends BaseGenerator {
 		 * Unlink all neighbor.
 		 */
 		void fullUnlink() {
-			for (Addict a : neighbor.keySet()) {
+			
+			neighbor.keySet().forEach(a -> {
 				a.neighbor.remove(this);
 				PointsOfInterestGenerator.this.delEdge(getEdgeId(id, a.id));
-			}
-
+			});
+			
 			neighbor.clear();
 		}
 	}
@@ -483,8 +483,7 @@ public class PointsOfInterestGenerator extends BaseGenerator {
 	protected void removePointOfInterest(PointOfInterest poi) {
 		pointsOfInterest.remove(poi);
 
-		for (Addict a : poi.addict)
-			poi.delAddict(a);
+		poi.addict.forEach(a -> poi.delAddict(a));
 	}
 
 	protected void removeRandomPointOfInterest() {
@@ -538,8 +537,8 @@ public class PointsOfInterestGenerator extends BaseGenerator {
 				+ "  padding: 50px;" + "}" + "node { " + "  fill-color: black;"
 				+ "}" + "edge {" + "  fill-color: black;" + "}";
 
-		g.addAttribute("ui.stylesheet", stylesheet);
-		g.addAttribute("ui.quality");
+		g.setAttribute("ui.stylesheet", stylesheet);
+		g.setAttribute("ui.quality");
 		// g.addAttribute( "ui.antialias" );
 
 		g.display();

@@ -34,7 +34,6 @@ package org.graphstream.algorithm.randomWalk;
 import static org.graphstream.algorithm.Toolkit.randomNode;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.graphstream.graph.Edge;
@@ -92,16 +91,11 @@ public class TabuEntity extends Entity {
 	 */
 	protected void tabuStep() {
 		int n = current.getOutDegree();
-		Iterator<? extends Edge> to = current.getLeavingEdgeIterator();
 		ArrayList<Edge> edges = new ArrayList<Edge>();
-
-		while (to.hasNext()) {
-			Edge e = to.next();
-
-			if (!tabu(e.getOpposite(current))) {
-				edges.add(e);
-			}
-		}
+		
+		current.leavingEdges()
+			.filter(e -> !tabu(e.getOpposite(current)))
+			.forEach(e -> edges.add(e));
 
 		n = edges.size();
 

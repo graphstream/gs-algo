@@ -31,12 +31,11 @@
  */
 package org.graphstream.algorithm;
 
-import static org.graphstream.algorithm.Toolkit.edgeLength;
-import static org.graphstream.algorithm.Toolkit.nodePosition;
+import static org.graphstream.ui.graphicGraph.GraphPosLengthUtils.edgeLength;
+import static org.graphstream.ui.graphicGraph.GraphPosLengthUtils.nodePosition;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -432,12 +431,8 @@ public class AStar implements Algorithm {
 				closed.put(current.node, current);
 
 				// For each successor of the current node :
-
-				Iterator<? extends Edge> nexts = current.node
-						.getLeavingEdgeIterator();
-
-				while (nexts.hasNext()) {
-					Edge edge = nexts.next();
+				
+				current.node.leavingEdges().forEach(edge -> {
 					Node next = edge.getOpposite(current.node);
 					double h = costs.heuristic(next, targetNode);
 					double g = current.g + costs.cost(current.node, edge, next);
@@ -448,20 +443,19 @@ public class AStar implements Algorithm {
 
 					AStarNode alreadyInOpen = open.get(next);
 
-					if (alreadyInOpen != null && alreadyInOpen.rank <= f)
-						continue;
+					if (!(alreadyInOpen != null && alreadyInOpen.rank <= f)) {
+						
+						// If the node is already in closed with a better rank; we
+						// skip it.
+						AStarNode alreadyInClosed = closed.get(next);
 
-					// If the node is already in closed with a better rank; we
-					// skip it.
+						if (!(alreadyInClosed != null && alreadyInClosed.rank <= f)){
 
-					AStarNode alreadyInClosed = closed.get(next);
-
-					if (alreadyInClosed != null && alreadyInClosed.rank <= f)
-						continue;
-
-					closed.remove(next);
-					open.put(next, new AStarNode(next, edge, current, g, h));
-				}
+							closed.remove(next);
+							open.put(next, new AStarNode(next, edge, current, g, h));
+						}
+					}
+				});
 			}
 		}
 	}
@@ -476,16 +470,12 @@ public class AStar implements Algorithm {
 		// The problem is that we use open has a hash to ensure
 		// a node we will add to to open is not yet in it.
 
-		double min = Float.MAX_VALUE;
 		AStarNode theChosenOne = null;
-
-		for (AStarNode node : open.values()) {
-			if (node.rank < min) {
-				theChosenOne = node;
-				min = node.rank;
-			}
-		}
-
+		
+		theChosenOne = open.values().stream()
+				.min((n,m) -> Double.compare(n.rank, m.rank))
+				.get();
+		
 		return theChosenOne;
 	}
 

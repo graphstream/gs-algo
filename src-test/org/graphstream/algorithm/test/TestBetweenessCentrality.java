@@ -31,16 +31,15 @@
  */
 package org.graphstream.algorithm.test;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Collection;
 
 import org.graphstream.algorithm.BetweennessCentrality;
-import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
-
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class TestBetweenessCentrality {
 
@@ -112,8 +111,8 @@ public class TestBetweenessCentrality {
 	}
 
 	protected void testIfWeightedAndUnweightedAreEqual(Graph graph1, Graph graph2, BetweennessCentrality bcb) {
-		for(Edge edge:graph1.getEachEdge()) { edge.setAttribute("weight", 1); }
-		for(Edge edge:graph2.getEachEdge()) { edge.setAttribute("weight", 1); }
+		graph1.edges().forEach(edge -> edge.setAttribute("weight", 1));
+		graph2.edges().forEach(edge -> edge.setAttribute("weight", 1));
 		bcb.setUnweighted();
 		bcb.init(graph1);
 		bcb.compute();
@@ -273,18 +272,18 @@ public class TestBetweenessCentrality {
 		graph.addEdge("ED", "E", "D");
 		graph.addEdge("BD", "B", "D");
 
-		A.addAttribute("xyz", -1, 0);
-		A.addAttribute("ui.label", "A");
-		B.addAttribute("xyz", 0, -1);
-		B.addAttribute("ui.label", "B");
-		C.addAttribute("xyz", 0, 0);
-		C.addAttribute("ui.label", "C");
-		D.addAttribute("xyz", 2, 0);
-		D.addAttribute("ui.label", "D");
-		E.addAttribute("xyz", 1, .7);
-		E.addAttribute("ui.label", "E");
-		F.addAttribute("xyz", 0, 1);
-		F.addAttribute("ui.label", "F");
+		A.setAttribute("xyz", -1, 0);
+		A.setAttribute("ui.label", "A");
+		B.setAttribute("xyz", 0, -1);
+		B.setAttribute("ui.label", "B");
+		C.setAttribute("xyz", 0, 0);
+		C.setAttribute("ui.label", "C");
+		D.setAttribute("xyz", 2, 0);
+		D.setAttribute("ui.label", "D");
+		E.setAttribute("xyz", 1, .7);
+		E.setAttribute("ui.label", "E");
+		F.setAttribute("xyz", 0, 1);
+		F.setAttribute("ui.label", "F");
 	}
 
 	protected static void buildGraph1b(Graph graph, BetweennessCentrality bcb) {
@@ -329,18 +328,18 @@ public class TestBetweenessCentrality {
 		bcb.setWeight(E, D, 1.0);
 		bcb.setWeight(B, D, 1.0);
 		
-		A.addAttribute("xyz", -1, 0);
-		A.addAttribute("ui.label", "A");
-		B.addAttribute("xyz", 0, -1);
-		B.addAttribute("ui.label", "B");
-		C.addAttribute("xyz", 0, 0);
-		C.addAttribute("ui.label", "C");
-		D.addAttribute("xyz", 2, 0);
-		D.addAttribute("ui.label", "D");
-		E.addAttribute("xyz", 1, .7);
-		E.addAttribute("ui.label", "E");
-		F.addAttribute("xyz", 0, 1);
-		F.addAttribute("ui.label", "F");
+		A.setAttribute("xyz", -1, 0);
+		A.setAttribute("ui.label", "A");
+		B.setAttribute("xyz", 0, -1);
+		B.setAttribute("ui.label", "B");
+		C.setAttribute("xyz", 0, 0);
+		C.setAttribute("ui.label", "C");
+		D.setAttribute("xyz", 2, 0);
+		D.setAttribute("ui.label", "D");
+		E.setAttribute("xyz", 1, .7);
+		E.setAttribute("ui.label", "E");
+		F.setAttribute("xyz", 0, 1);
+		F.setAttribute("ui.label", "F");
 	}
 
 	protected static void buildGraph2(Graph graph, BetweennessCentrality bcb) {
@@ -365,14 +364,14 @@ public class TestBetweenessCentrality {
 		graph.addEdge("CD", "C", "D");
 		graph.addEdge("DA", "D", "A");
 
-		A.addAttribute("xyz", -1, 0);
-		A.addAttribute("ui.label", "A");
-		B.addAttribute("xyz", 0, 1);
-		B.addAttribute("ui.label", "B");
-		C.addAttribute("xyz", 1, 0);
-		C.addAttribute("ui.label", "C");
-		D.addAttribute("xyz", 0, -1);
-		D.addAttribute("ui.label", "D");
+		A.setAttribute("xyz", -1, 0);
+		A.setAttribute("ui.label", "A");
+		B.setAttribute("xyz", 0, 1);
+		B.setAttribute("ui.label", "B");
+		C.setAttribute("xyz", 1, 0);
+		C.setAttribute("ui.label", "C");
+		D.setAttribute("xyz", 0, -1);
+		D.setAttribute("ui.label", "D");
 
 		bcb.setWeight(B, C, 10f);
 	}
@@ -404,16 +403,16 @@ public class TestBetweenessCentrality {
 		graph.addEdge("CE", "C", "E");
 		graph.addEdge("DE", "D", "E");
 
-		A.addAttribute("xyz", -1, 0);
-		A.addAttribute("ui.label", "A");
-		B.addAttribute("xyz", 0, 1);
-		B.addAttribute("ui.label", "B");
-		C.addAttribute("xyz", 1, 0);
-		C.addAttribute("ui.label", "C");
-		D.addAttribute("xyz", 0, -1);
-		D.addAttribute("ui.label", "D");
-		E.addAttribute("xyz", 0, 0);
-		E.addAttribute("ui.label", "E");
+		A.setAttribute("xyz", -1, 0);
+		A.setAttribute("ui.label", "A");
+		B.setAttribute("xyz", 0, 1);
+		B.setAttribute("ui.label", "B");
+		C.setAttribute("xyz", 1, 0);
+		C.setAttribute("ui.label", "C");
+		D.setAttribute("xyz", 0, -1);
+		D.setAttribute("ui.label", "D");
+		E.setAttribute("xyz", 0, 0);
+		E.setAttribute("ui.label", "E");
 
 		bcb.setWeight(B, C, 10f);
 		bcb.setWeight(A, E, 10f);

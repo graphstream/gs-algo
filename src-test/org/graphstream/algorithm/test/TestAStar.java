@@ -82,17 +82,17 @@ public class TestAStar {
 		BF = graph.addEdge("BF", "B", "F");
 
 		A = graph.getNode("A");
-		A.addAttribute("label", "A");
+		A.setAttribute("label", "A");
 		B = graph.getNode("B");
-		B.addAttribute("label", "B");
+		B.setAttribute("label", "B");
 		C = graph.getNode("C");
-		C.addAttribute("label", "C");
+		C.setAttribute("label", "C");
 		D = graph.getNode("D");
-		D.addAttribute("label", "D");
+		D.setAttribute("label", "D");
 		E = graph.getNode("E");
-		E.addAttribute("label", "E");
+		E.setAttribute("label", "E");
 		F = graph.getNode("F");
-		F.addAttribute("label", "F");
+		F.setAttribute("label", "F");
 
 		// C --- D
 		// / |
@@ -124,7 +124,7 @@ public class TestAStar {
 		List<Edge> edges = path.getEdgePath();
 
 		for (Edge edge : edges)
-			edge.addAttribute("color", "red");
+			edge.setAttribute("color", "red");
 
 		Iterator<? extends Edge> i = edges.iterator();
 
@@ -161,7 +161,7 @@ public class TestAStar {
 		List<Edge> edges = path.getEdgePath();
 
 		for (Edge edge : edges)
-			edge.addAttribute("color", "red");
+			edge.setAttribute("color", "red");
 
 		Iterator<? extends Edge> i = edges.iterator();
 
@@ -196,7 +196,7 @@ public class TestAStar {
 		List<Edge> edges = path.getEdgePath();
 
 		for (Edge edge : edges)
-			edge.addAttribute("color", "red");
+			edge.setAttribute("color", "red");
 
 		Iterator<? extends Edge> i = edges.iterator();
 
@@ -247,7 +247,7 @@ public class TestAStar {
 		List<Edge> edges = path.getEdgePath();
 
 		for (Edge edge : edges)
-			edge.addAttribute("color", "red");
+			edge.setAttribute("color", "red");
 
 		Iterator<? extends Edge> i = edges.iterator();
 
@@ -292,7 +292,7 @@ public class TestAStar {
 		List<Edge> edges = path.getEdgePath();
 
 		for (Edge edge : edges)
-			edge.addAttribute("color", "red");
+			edge.setAttribute("color", "red");
 
 		Iterator<? extends Edge> i = edges.iterator();
 
@@ -334,14 +334,14 @@ public class TestAStar {
 		Edge BF2 = graph.addEdge("BF2", "B", "F");
 		Edge BF3 = graph.addEdge("BF3", "B", "F");
 
-		AB.addAttribute("weight", 1f);
-		BF1.addAttribute("weight", 3f);
-		BF2.addAttribute("weight", 2f);
-		BF3.addAttribute("weight", 1f);
-		BC.addAttribute("weight", 0.5f);
-		CD.addAttribute("weight", 1f);
-		DE.addAttribute("weight", 1f);
-		EF.addAttribute("weight", 1f);
+		AB.setAttribute("weight", 1f);
+		BF1.setAttribute("weight", 3f);
+		BF2.setAttribute("weight", 2f);
+		BF3.setAttribute("weight", 1f);
+		BC.setAttribute("weight", 0.5f);
+		CD.setAttribute("weight", 1f);
+		DE.setAttribute("weight", 1f);
+		EF.setAttribute("weight", 1f);
 
 		astar.compute("A", "F");
 
@@ -350,7 +350,7 @@ public class TestAStar {
 		List<Edge> edges = path.getEdgePath();
 
 		for (Edge edge : edges)
-			edge.addAttribute("color", "red");
+			edge.setAttribute("color", "red");
 
 		Iterator<? extends Edge> i = edges.iterator();
 

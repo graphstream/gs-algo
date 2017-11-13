@@ -32,6 +32,7 @@
 package org.graphstream.algorithm;
 
 import java.util.Iterator;
+import java.util.stream.Stream;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -238,7 +239,7 @@ public abstract class AbstractSpanningTree implements SpanningTree {
 	protected void edgeOn(Edge e) {
 		if (flagAttribute != null) {
 			if (flagOn != null)
-				e.changeAttribute(flagAttribute, flagOn);
+				e.setAttribute(flagAttribute, flagOn);
 			else
 				e.removeAttribute(flagAttribute);
 		}
@@ -253,7 +254,7 @@ public abstract class AbstractSpanningTree implements SpanningTree {
 	protected void edgeOff(Edge e) {
 		if (flagAttribute != null) {
 			if (flagOff != null)
-				e.changeAttribute(flagAttribute, flagOff);
+				e.setAttribute(flagAttribute, flagOff);
 			else
 				e.removeAttribute(flagAttribute);
 		}
@@ -264,8 +265,11 @@ public abstract class AbstractSpanningTree implements SpanningTree {
 	 * tree.
 	 */
 	protected void resetFlags() {
-		for (Edge edge : graph.getEachEdge())
+		graph.edges().forEach(edge -> {
 			edgeOff(edge);
+		});
+		/*for (Edge edge : graph.getEachEdge())
+			edgeOff(edge);*/
 	}
 
 	// Abstract methods to be implemented by subclasses
@@ -279,16 +283,17 @@ public abstract class AbstractSpanningTree implements SpanningTree {
 	/* (non-Javadoc)
 	 * @see org.graphstream.algorithm.SpanningTree#getTreeEdgesIterator()
 	 */
-	public abstract <T extends Edge> Iterator<T> getTreeEdgesIterator();
+	public abstract Stream<Edge> getTreeEdgesStream();
 
 	/* (non-Javadoc)
 	 * @see org.graphstream.algorithm.SpanningTree#getTreeEdges()
 	 */
-	public <T extends Edge> Iterable<T> getTreeEdges() {
-		return new Iterable<T>() {
-			public Iterator<T> iterator() {
-				return getTreeEdgesIterator();
+	public Iterable<Edge> getTreeEdges() {
+		return new Iterable<Edge>() {
+			public Iterator<Edge> iterator() {
+				return getTreeEdgesStream().iterator();
 			}
+			
 		};
 	}
 
@@ -297,8 +302,15 @@ public abstract class AbstractSpanningTree implements SpanningTree {
 	 */
 	public void clear() {
 		if (flagAttribute != null)
+			graph.edges().forEach(edge -> {
+				edge.removeAttribute(flagAttribute);
+			});
+			
+		/*
+		if (flagAttribute != null)
 			for (Edge edge : graph.getEachEdge())
 				edge.removeAttribute(flagAttribute);
+		*/
 	}
 
 	// Algorithm interface

@@ -224,10 +224,11 @@ public class BarabasiAlbertGenerator extends BaseGenerator {
 		for (int i = 0; i < n; i++)
 			chooseAnotherNode();
 		
-		for (int i : connected) {
+		connected.forEach(i -> {
 			addEdge(newId + "_" + i, newId, i + "");
 			degrees.set(i, degrees.get(i) + 1);
-		}
+		});
+		
 		connected.clear();
 		degrees.add(n);
 		sumDeg += 2 * n;

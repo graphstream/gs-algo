@@ -31,8 +31,6 @@
  */
 package org.graphstream.algorithm.generator;
 
-import org.graphstream.graph.Node;
-
 /**
  * Full graph generator.
  * 
@@ -130,11 +128,10 @@ public class FullGenerator extends BaseGenerator {
 		String id = Integer.toString(nodeNames++);
 
 		addNode(id);
-
-		for (Node n : internalGraph.getEachNode()) {
-			if (!n.getId().equals(id)) // We can compare refs safely here.
-				addEdge(null, id, n.getId());
-		}
+		
+		internalGraph.nodes()
+			.filter(n -> !n.getId().equals(id)) // We can compare refs safely here.
+			.forEach(n -> addEdge(null, id, n.getId()));
 
 		return true;
 	}

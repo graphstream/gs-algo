@@ -33,7 +33,6 @@ package org.graphstream.algorithm.measure;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.graphstream.algorithm.Algorithm;
@@ -72,9 +71,11 @@ public class ConnectivityMeasure {
 		/*
 		 * We start with the max degree.
 		 */
-		for (Node n : g.getEachNode())
-			current = Math.max(current, n.getDegree());
-
+		current = (g.nodes()
+			.max((x, y) -> Integer.compare(x.getDegree(), y.getDegree())) 
+			.get())
+			.getDegree();
+		
 		isCurrentConnected = isKVertexConnected(g, current);
 
 		do {
@@ -180,8 +181,8 @@ public class ConnectivityMeasure {
 		KIndexesArray karray = new KIndexesArray(k, g.getNodeCount());
 
 		if (k >= g.getNodeCount())
-			return g.getNodeSet().toArray(new Node[g.getNodeCount()]);
-
+			return g.nodes().toArray(Node[]::new);
+		
 		do {
 			toVisit.clear();
 			removed.clear();
@@ -196,19 +197,16 @@ public class ConnectivityMeasure {
 
 			while (toVisit.size() > 0) {
 				Node n = g.getNode(toVisit.poll());
-				Iterator<Node> it = n.getNeighborNodeIterator();
-				Integer index;
-
 				visited[n.getIndex()] = true;
-
-				while (it.hasNext()) {
-					Node o = it.next();
-					index = o.getIndex();
+				
+				n.neighborNodes().forEach(o -> {
+					Integer index = o.getIndex();
 
 					if (!visited[index] && !toVisit.contains(index)
 							&& !removed.contains(index))
 						toVisit.add(index);
-				}
+				});
+				
 			}
 
 			for (int i = 0; i < visited.length; i++)
@@ -245,8 +243,8 @@ public class ConnectivityMeasure {
 		Node nodeWithMinDegree = null;
 
 		if (k >= g.getEdgeCount())
-			return g.getEdgeSet().toArray(new Edge[g.getEdgeCount()]);
-
+			return g.edges().toArray(Edge[]::new);
+			
 		for (int i = 0; i < g.getNodeCount(); i++) {
 			Node n = g.getNode(i);
 
@@ -277,20 +275,17 @@ public class ConnectivityMeasure {
 
 			while (toVisit.size() > 0) {
 				Node n = g.getNode(toVisit.poll());
-				Iterator<Edge> it = n.iterator();
-				Integer index;
-
+				
 				visited[n.getIndex()] = true;
-
-				while (it.hasNext()) {
-					Edge e = it.next();
+				
+				n.edges().forEach(e -> {
 					Node o = e.getOpposite(n);
-					index = o.getIndex();
+					Integer index = o.getIndex();
 
 					if (!visited[index] && !toVisit.contains(index)
 							&& !removed.contains(e.getIndex()))
 						toVisit.add(index);
-				}
+				});
 			}
 
 			for (int i = 0; i < visited.length; i++)

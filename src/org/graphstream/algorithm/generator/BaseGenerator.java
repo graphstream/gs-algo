@@ -379,7 +379,7 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 				new Double(x), new Double(y) });
 
 		if (useInternalGraph)
-			internalGraph.getNode(id).addAttribute("xy",
+			internalGraph.getNode(id).setAttribute("xy",
 					(Object) (new Double[] { new Double(x), new Double(y) }));
 	}
 
@@ -398,16 +398,15 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 		if (useInternalGraph)
 			internalGraph.addNode(id);
 
-		double value;
-
-		for (String attr : nodeAttributes) {
-			value = (random.nextDouble() * (nodeAttributeRange[1] - nodeAttributeRange[0]))
+		nodeAttributes.forEach(attr -> {
+			double value = (random.nextDouble() * (nodeAttributeRange[1] - nodeAttributeRange[0]))
 					+ nodeAttributeRange[0];
 			sendNodeAttributeAdded(sourceId, id, attr, value);
 
 			if (useInternalGraph)
-				internalGraph.getNode(id).addAttribute(attr, value);
-		}
+				internalGraph.getNode(id).setAttribute(attr, value);
+		});
+		
 	}
 
 	/**
@@ -451,15 +450,17 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 
 		if (addEdgeLabels)
 			sendEdgeAttributeAdded(sourceId, id, "label", id);
-
-		for (String attr : edgeAttributes) {
+		
+		final String idFinal = id ;
+		edgeAttributes.forEach(attr -> {
 			double value = (random.nextDouble() * (edgeAttributeRange[1] - edgeAttributeRange[0]))
 					+ edgeAttributeRange[0];
-			sendEdgeAttributeAdded(sourceId, id, attr, value);
+			sendEdgeAttributeAdded(sourceId, idFinal, attr, value);
 
 			if (useInternalGraph)
-				internalGraph.getEdge(id).addAttribute(attr, value);
-		}
+				internalGraph.getEdge(idFinal).setAttribute(attr, value);
+		});
+		
 	}
 
 	/**

@@ -40,8 +40,8 @@ import org.graphstream.graph.implementations.SingleGraph;
 public class DemoPageRank {
 	public static void main(String[] args) throws InterruptedException {
 		Graph graph = new SingleGraph("test");
-		graph.addAttribute("ui.antialias", true);
-		graph.addAttribute("ui.stylesheet",
+		graph.setAttribute("ui.antialias", true);
+		graph.setAttribute("ui.stylesheet",
 				"node {fill-color: red; size-mode: dyn-size;} edge {fill-color:grey;}");
 		graph.display();
 
@@ -58,9 +58,9 @@ public class DemoPageRank {
 			generator.nextEvents();
 			for (Node node : graph) {
 				double rank = pageRank.getRank(node);
-				node.addAttribute("ui.size",
+				node.setAttribute("ui.size",
 						5 + Math.sqrt(graph.getNodeCount() * rank * 20));
-				node.addAttribute("ui.label",
+				node.setAttribute("ui.label",
 						String.format("%.2f%%", rank * 100));
 			}
 			Thread.sleep(1000);

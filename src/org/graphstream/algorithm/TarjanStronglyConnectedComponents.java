@@ -34,7 +34,6 @@ package org.graphstream.algorithm;
 import java.util.HashMap;
 import java.util.Stack;
 
-import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -145,11 +144,11 @@ public class TarjanStronglyConnectedComponents implements Algorithm {
 		data.clear();
 		index = 0;
 		S.clear();
-
-		for (Node v : graph.getEachNode()) {
-			if (!data.containsKey(v))
-				strongConnect(v);
-		}
+		
+		graph.nodes()
+			.filter(v -> !data.containsKey(v))
+			.forEach(v -> strongConnect(v));
+		
 	}
 
 	/**
@@ -201,8 +200,8 @@ public class TarjanStronglyConnectedComponents implements Algorithm {
 
 		index++;
 		S.push(v);
-
-		for (Edge vw : v.getEachLeavingEdge()) {
+		
+		v.leavingEdges().forEach(vw -> {
 			Node w = vw.getOpposite(v);
 
 			if (!data.containsKey(w)) {
@@ -211,7 +210,7 @@ public class TarjanStronglyConnectedComponents implements Algorithm {
 			} else if (S.contains(w)) {
 				nd.lowlink = Math.min(nd.lowlink, data.get(w).index);
 			}
-		}
+		});
 
 		if (nd.index == nd.lowlink) {
 			Node w;

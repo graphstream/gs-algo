@@ -73,7 +73,7 @@ class Benchmark {
 	
 	private void addEdge() {
 		TwoInts t = eList.get(eIndex);
-		g.addEdge(t.i + "-" + t.j, t.i, t.j).addAttribute("length", randomLength());
+		g.addEdge(t.i + "-" + t.j, t.i, t.j).setAttribute("length", randomLength());
 		eIndex++;
 	}
 	
@@ -142,7 +142,7 @@ class Benchmark {
 
 		for (int i = 0; i <= EMAX; i++) {
 			for (int j = 0; j < i; j++)
-				g.getEdge(rnd.nextInt(g.getEdgeCount())).changeAttribute("length", randomLength());
+				g.getEdge(rnd.nextInt(g.getEdgeCount())).setAttribute("length", randomLength());
 			
 			start = System.currentTimeMillis();
 			dijkstra.compute();

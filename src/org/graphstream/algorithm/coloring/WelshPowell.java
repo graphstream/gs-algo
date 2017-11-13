@@ -271,7 +271,7 @@ public class WelshPowell implements Algorithm {
 			LinkedList<Node> myGroup = new LinkedList<Node>();
 			myGroup.add(root);
 
-			root.addAttribute(attributeName, nbColors);
+			root.setAttribute(attributeName, nbColors);
 
 			for (int i = 0; i < sortedNodes.size();) {
 				Node p = sortedNodes.get(i);
@@ -283,7 +283,7 @@ public class WelshPowell implements Algorithm {
 				if (conflict)
 					i++;
 				else {
-					p.addAttribute(attributeName, nbColors);
+					p.setAttribute(attributeName, nbColors);
 					myGroup.add(p);
 					sortedNodes.remove(i);
 				}

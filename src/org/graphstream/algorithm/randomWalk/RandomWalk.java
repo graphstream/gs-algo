@@ -31,9 +31,10 @@
  */
 package org.graphstream.algorithm.randomWalk;
 
+import static org.graphstream.algorithm.Toolkit.randomNode;
+
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Comparator;
 import java.util.Random;
 
@@ -42,8 +43,6 @@ import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.stream.SinkAdapter;
-
-import static org.graphstream.algorithm.Toolkit.*;
 
 /**
  * A random walk on a graph.
@@ -432,15 +431,16 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 */
 	public void setPassesAttribute(String name) {
 		if (context.graph != null) {
-			for (Edge e : context.graph.getEachEdge()) {
-				e.addAttribute(name, e.getNumber(context.passesAttribute));
+			
+			context.graph.edges().forEach(e -> {
+				e.setAttribute(name, e.getNumber(context.passesAttribute));
 				e.removeAttribute(context.passesAttribute);
-			}
-
-			for (Node n : context.graph) {
-				n.addAttribute(name, n.getNumber(context.passesAttribute));
+			});
+			
+			context.graph.forEach(n -> {
+				n.setAttribute(name, n.getNumber(context.passesAttribute));
 				n.removeAttribute(context.passesAttribute);
-			}
+			});
 		}
 
 		context.passesAttribute = name;
@@ -549,9 +549,7 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 		context.goCount = 0;
 		context.waitCount = 0;
 
-		for (Entity entity : entities) {
-			entity.step();
-		}
+		entities.forEach(entity -> entity.step());
 
 		if(evaporation<1)
 			evaporate();
@@ -561,12 +559,13 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 * Apply evaporation on each edge.
 	 */
 	protected void evaporate() {
-		for(Edge edge: context.graph.getEachEdge()) {
+		context.graph.edges().forEach(edge -> {
 			edge.setAttribute(context.passesAttribute, edge.getNumber(context.passesAttribute)*evaporation);
-		}
-		for(Node node: context.graph) {
+		});
+		
+		context.graph.nodes().forEach(node -> {
 			node.setAttribute(context.passesAttribute, node.getNumber(context.passesAttribute)*evaporation);
-		}
+		});
 	}
 
 	/**
@@ -580,13 +579,9 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	}
 
 	protected void equipGraph() {
-		for (Edge e : context.graph.getEachEdge()) {
-			e.addAttribute(context.passesAttribute, 0.0);
-		}
+		context.graph.edges().forEach(e -> e.setAttribute(context.passesAttribute, 0.0));
 
-		for (Node n : context.graph) {
-			n.addAttribute(context.passesAttribute, 0.0);
-		}
+		context.graph.nodes().forEach(n -> n.setAttribute(context.passesAttribute, 0.0));
 	}
 
 	/**
@@ -598,12 +593,9 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 */
 	public ArrayList<Edge> findTheMostUsedEdges() {
 		ArrayList<Edge> edges = new ArrayList<Edge>(context.graph.getEdgeCount());
-		Iterator<? extends Edge> i = context.graph.getEdgeIterator();
-
-		while (i.hasNext()) {
-			edges.add(i.next());
-		}
-
+		
+		context.graph.edges().forEach(e -> edges.add(e));
+		
 		Collections.sort(edges, new Comparator<Edge>() {
 			public int compare(Edge e1, Edge e2) {
 				int n1 = (int) e1.getNumber(context.passesAttribute);
@@ -625,11 +617,8 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 */
 	public ArrayList<Node> findTheMostUsedNodes() {
 		ArrayList<Node> nodes = new ArrayList<Node>(context.graph.getNodeCount());
-		Iterator<? extends Node> i = context.graph.getNodeIterator();
-
-		while (i.hasNext()) {
-			nodes.add(i.next());
-		}
+				
+		context.graph.nodes().forEach(n -> nodes.add(n));
 
 		Collections.sort(nodes, new Comparator<Node>() {
 			public int compare(Node e1, Node e2) {
@@ -650,14 +639,14 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 		Edge edge = context.graph.getEdge(edgeId);
 
 		if (edge != null)
-			edge.addAttribute(context.passesAttribute, 0.0);
+			edge.setAttribute(context.passesAttribute, 0.0);
 	}
 
 	@Override
 	public void nodeAdded(String graphId, long timeId, String nodeId) {
 		Node node = context.graph.getNode(nodeId);
 
-		node.addAttribute(context.passesAttribute, 0.0);
+		node.setAttribute(context.passesAttribute, 0.0);
 	}
 }
 

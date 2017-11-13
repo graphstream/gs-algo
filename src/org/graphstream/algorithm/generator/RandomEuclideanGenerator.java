@@ -31,7 +31,6 @@
  */
 package org.graphstream.algorithm.generator;
 
-import org.graphstream.graph.Node;
 import org.graphstream.stream.Pipe;
 
 /**
@@ -237,10 +236,9 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 
 		addNode(id);
 
-		for (Node n : internalGraph.getEachNode()) {
-			if (!id.equals(n.getId()) && distance(id, n.getId()) < threshold)
-				addEdge(id + "-" + n.getId(), id, n.getId());
-		}
+		internalGraph.nodes()
+			.filter(n -> !id.equals(n.getId()) && distance(id, n.getId()) < threshold)
+			.forEach(n -> addEdge(id + "-" + n.getId(), id, n.getId()));
 
 		return true;
 	}
@@ -313,7 +311,7 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 			int i = ((int) key.charAt(0)) - (int) 'x';
 
 			if (i < dimension)
-				internalGraph.getNode(nodeId).addAttribute(key, val);
+				internalGraph.getNode(nodeId).setAttribute(key, val);
 		}
 	}
 

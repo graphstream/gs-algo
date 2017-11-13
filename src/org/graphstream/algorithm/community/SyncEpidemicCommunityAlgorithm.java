@@ -112,7 +112,7 @@ public class SyncEpidemicCommunityAlgorithm extends EpidemicCommunityAlgorithm {
 		/*
 		 * Iterate over the nodes that this node "hears"
 		 */
-		for (Edge e : u.getEnteringEdgeSet()) {
+		u.enteringEdges().forEach(e -> {
 			Node v = e.getOpposite(u);
 
 			/*
@@ -148,6 +148,6 @@ public class SyncEpidemicCommunityAlgorithm extends EpidemicCommunityAlgorithm {
 										communityScores.get(v
 												.getAttribute(syncMarker)) + 1.0);
 			}
-		}
+		});
 	}
 }
