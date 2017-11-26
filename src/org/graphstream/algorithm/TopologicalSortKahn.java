@@ -1,11 +1,7 @@
 package org.graphstream.algorithm;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -13,15 +9,15 @@ import org.graphstream.graph.Node;
 import org.graphstream.graph.implementations.SingleGraph;
 
 /**
- * Implementation of Kahn's algorithm for a topological sort of a directed acyclic graph (DAG).
+ * Implementation of Kahn's algorithm for a topological sorting of a directed acyclic graph (DAG).
  * Every DAG has at least one topological ordering and this is a algorithm known for constructing a
- * topological ordering in linear time.
+ * topological ordering in linear time without considering initial copying the graph and searching for source nodes.
  *
  * @reference Kahn, Arthur B. (1962), "Topological sorting of large networks", Communications of the ACM, 5 (11): 558–562
  * @complexity O(VxE) time, where V and E are the number of vertices and edges
  * respectively.
  */
-public class TopologicalSort implements Algorithm {
+public class TopologicalSortKahn implements Algorithm {
 
     /**
      * graph to calculate a topological ordering
@@ -43,7 +39,6 @@ public class TopologicalSort implements Algorithm {
         graph = getCopyOfGraph(theGraph);
         sortedNodes = new ArrayList<>();
         sourceNodes = calculateSourceNodes();
-
     }
 
     /**
@@ -53,20 +48,17 @@ public class TopologicalSort implements Algorithm {
      * @return copy of graph
      */
     private Graph getCopyOfGraph(Graph theGraph) {
-        Graph aGraphCopy = new SingleGraph("TopoSort");
+        Graph aGraphCopy = new SingleGraph("TopoSortKahn");
         
-        theGraph.nodes().forEach(aNode -> {
-        	aGraphCopy.addNode(aNode.getId());
-        });
+        theGraph.nodes().forEach(aNode -> aGraphCopy.addNode(aNode.getId()));
         
         theGraph.edges().forEach(anEdge -> {
-        	if (anEdge.isDirected()) {
-                aGraphCopy.addEdge(anEdge.getId(), anEdge.getSourceNode().getId(), anEdge.getTargetNode().getId(), true);
-            } else {
-                throwExeeption();
+            if(!anEdge.isDirected()){
+               throwException();
             }
+            aGraphCopy.addEdge(anEdge.getId(), anEdge.getSourceNode().getId(), anEdge.getTargetNode().getId(), true);
         });
-        
+
         return aGraphCopy;
     }
 
@@ -74,35 +66,41 @@ public class TopologicalSort implements Algorithm {
     public void compute() {
     	while (!sourceNodes.isEmpty()) {
     		Node aSourceNode = sourceNodes.iterator().next();
-    		
+
     		sourceNodes.remove(aSourceNode);
     		sortedNodes.add(aSourceNode);
-    		
-    		long count = aSourceNode.leavingEdges().count() ;
-    		for ( int i = 0 ; i < count ; i++){
-    			Edge aLeavingEdge = aSourceNode.getLeavingEdge(0);
-    			Node aTargetNode = aLeavingEdge.getTargetNode();
-    			
-    			graph.removeEdge(aLeavingEdge);
-    			
-    			if (aTargetNode.enteringEdges().count() == 0) {
-    				sourceNodes.add(aTargetNode);
-    			}
-    		}
+
+    		aSourceNode.leavingEdges().forEach(anEdge -> removeEdge(aSourceNode));
     	}
-    	
-    	
-    	
-    	AtomicBoolean hasCycle = new AtomicBoolean(false);
-        graph.nodes()
-        	.filter(aNode -> aNode.enteringEdges().count() != 0)
-        	.forEach(aNode -> hasCycle.set(true));
-        
-        
-        if (hasCycle.get()) {
-            throwExeeption();
-        } else {
-            System.out.println("TopologicalSortedNodes:" + Arrays.toString(sortedNodes.toArray()));
+
+
+        if(hasCycle()){
+    	    throwException();
+        }
+        System.out.println("TopologicalSortedNodes:" + Arrays.toString(sortedNodes.toArray()));
+    }
+
+    /**
+     * Checks graph for cycles
+     * @return true if graph has a cycle
+     */
+    private boolean hasCycle() {
+        return graph.nodes()
+        	.anyMatch(aNode -> aNode.enteringEdges().count() != 0);
+    }
+
+    /**
+     * removes edge
+     * @param aSourceNode
+     */
+    private void removeEdge(Node aSourceNode) {
+        Edge aLeavingEdge = aSourceNode.getLeavingEdge(0);
+        Node aTargetNode = aLeavingEdge.getTargetNode();
+
+        graph.removeEdge(aLeavingEdge);
+
+        if (aTargetNode.enteringEdges().count() == 0) {
+            sourceNodes.add(aTargetNode);
         }
     }
 
@@ -111,13 +109,12 @@ public class TopologicalSort implements Algorithm {
      * @return set of source nodes
      */
     private Set<Node> calculateSourceNodes() {
-        Set<Node> aSourceNodeSet = new HashSet<>();
-        graph.nodes()
+        Set<Node> aSourceNodeSet = graph.nodes()
         	.filter(aNode -> aNode.getInDegree() == 0)
-        	.forEach(aNode -> aSourceNodeSet.add(aNode));
+        	.collect(Collectors.toSet());
        
         if (aSourceNodeSet.isEmpty()) {
-            throwExeeption();
+            throwException();
         }
         return aSourceNodeSet;
     }
@@ -125,7 +122,7 @@ public class TopologicalSort implements Algorithm {
     /**
      * throws exception if given graph is no directed acyclic graph (DAG)
      */
-    private void throwExeeption() {
+    private void throwException() {
         throw new IllegalStateException("graph is no DAG");
     }
 
@@ -136,4 +133,7 @@ public class TopologicalSort implements Algorithm {
     public List<Node> getSortedNodes() {
         return sortedNodes;
     }
+
+
+
 }
