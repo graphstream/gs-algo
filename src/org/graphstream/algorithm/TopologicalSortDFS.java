@@ -32,17 +32,19 @@ public class TopologicalSortDFS implements Algorithm{
     /**
      * collection to mark visited nodes
      */
-    private HashSet<Node> markedNodeList = new HashSet<>();
+    private HashSet<Node> markedNodeList;
 
     /**
      * collection to mark temporary visited node needed to throw exception
      */
-    private HashSet<Node> tempMarkedNodeList = new HashSet<>();
+    private HashSet<Node> tempMarkedNodeList;
 
     @Override
     public void init(Graph theGraph) {
         graph = theGraph;
         sortedNodes = new ArrayList<>();
+        markedNodeList = new HashSet<>();
+        tempMarkedNodeList = new HashSet<>();
     }
 
     @Override
