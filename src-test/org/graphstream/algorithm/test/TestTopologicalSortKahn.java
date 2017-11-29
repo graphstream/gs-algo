@@ -1,6 +1,6 @@
 package org.graphstream.algorithm.test;
 
-import org.graphstream.algorithm.TopologicalSort;
+import org.graphstream.algorithm.TopologicalSortKahn;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.SingleGraph;
 import org.junit.Assert;
@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class TestTopologicalSort {
+public class TestTopologicalSortKahn {
 
     Graph graph;
 
@@ -52,7 +52,7 @@ public class TestTopologicalSort {
         allPossibleTopologicalSort.add("[5, 4, 2, 8, 3, l]");
         allPossibleTopologicalSort.add("[5, 4, 2, 3, 0, 1]");
         allPossibleTopologicalSort.add("[5, 4, 2, 3, 1, 0]");
-        TopologicalSort sort = new TopologicalSort();
+        TopologicalSortKahn sort = new TopologicalSortKahn();
         sort.init(graph);
         sort.compute();
 
@@ -63,7 +63,7 @@ public class TestTopologicalSort {
     @Test(expected = IllegalStateException.class)
     public void testGraphWithCyclesShouldThrowException() {
         graph.addEdge("3-5", "3", "5", true);
-        TopologicalSort sort = new TopologicalSort();
+        TopologicalSortKahn sort = new TopologicalSortKahn();
         sort.init(graph);
         sort.compute();
     }
@@ -71,7 +71,7 @@ public class TestTopologicalSort {
     @Test(expected = IllegalStateException.class)
     public void testGraphWithNonDirectedEdgeShouldThrowException() {
         graph.addEdge("3-5", "3", "5");
-        TopologicalSort sort = new TopologicalSort();
+        TopologicalSortKahn sort = new TopologicalSortKahn();
         sort.init(graph);
         sort.compute();
     }
