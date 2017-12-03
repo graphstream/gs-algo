@@ -164,6 +164,7 @@ public class TestLongestPath {
         for (Edge edge : longestPath.getEdgeSet()) {
             Assert.assertTrue(edge.hasAttribute(weigthAttribute));
         }
+        Assert.assertEquals(weigthAttribute,path.getWeightAttribute());
     }
 
     @Test

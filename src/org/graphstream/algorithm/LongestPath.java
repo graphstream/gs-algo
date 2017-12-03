@@ -62,6 +62,9 @@ public class LongestPath implements Algorithm {
         aTopoSortAlgorithm.compute();
         fillDistanceMap(aTopoSortAlgorithm.getSortedNodes());
         longestPathNode = distanceMap.entrySet().stream().max(Map.Entry.comparingByValue()).orElse(null);
+        if(longestPathNode == null){
+            throw new IllegalStateException("No max node found!");
+        }
         longestPath.add(longestPathNode.getKey());
         getMaxNeighbor(longestPathNode.getKey());
         Collections.reverse(longestPath);
