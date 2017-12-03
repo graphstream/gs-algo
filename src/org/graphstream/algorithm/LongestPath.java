@@ -150,6 +150,16 @@ public class LongestPath implements Algorithm {
      */
     public Path getLongestPath() {
         Path path = new Path();
+        for (int i = 0; i < longestPath.size()-1; i++) {
+            Node aSourceNode = longestPath.get(i);
+            Node aTargetNode = longestPath.get(i+1);
+            Optional<Edge> anEdge = graph.edges()
+                    .filter(aNode -> aNode.getSourceNode().equals(aSourceNode))
+                    .filter(aNode -> aNode.getTargetNode().equals(aTargetNode))
+                    .findAny();
+            anEdge.ifPresent(edge -> path.add(aSourceNode, edge));
+        }
+
 //        longestPath.forEach(aNode ->{
 //            path.add(aNode,createPathEdge(aNode));
 //        });
