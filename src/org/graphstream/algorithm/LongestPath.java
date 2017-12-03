@@ -25,7 +25,7 @@ public class LongestPath implements Algorithm {
     private Graph graph;
 
     /**
-     * map with all disctances from starting point
+     * map with all nodes and there distance from starting point
      */
     private Map<Node, Double> distanceMap;
 
@@ -47,7 +47,7 @@ public class LongestPath implements Algorithm {
     /**
      * Attribute where the weights of the edges are stored
      */
-    protected String weightAttribute;
+    private String weightAttribute;
 
     public void init(Graph theGraph) {
         graph = theGraph;
@@ -60,67 +60,32 @@ public class LongestPath implements Algorithm {
         TopologicalSortDFS aTopoSortAlgorithm = new TopologicalSortDFS();
         aTopoSortAlgorithm.init(graph);
         aTopoSortAlgorithm.compute();
-        List<Node> aSortedArray = aTopoSortAlgorithm.getSortedNodes();
-        if (weighted) {
-            fillDistanceMapWeighted(aSortedArray);
-        } else {
-            fillDistanceMapUnweighted(aSortedArray);
-        }
-        Map.Entry<Node, Double> maxEntry = getMaxEntryOfMap();
-        longestPathNode = maxEntry;
-        longestPath.add(maxEntry.getKey());
-        getMaxNeigbourgh(maxEntry.getKey());
+        fillDistanceMap(aTopoSortAlgorithm.getSortedNodes());
+        longestPathNode = distanceMap.entrySet().stream().max(Map.Entry.comparingByValue()).orElse(null);
+        longestPath.add(longestPathNode.getKey());
+        getMaxNeighbor(longestPathNode.getKey());
         Collections.reverse(longestPath);
     }
 
-    private void fillDistanceMapWeighted(List<Node> theSortedArray) {
+    private void fillDistanceMap(List<Node> theSortedArray) {
         for (Node aNode : theSortedArray) {
             aNode.enteringEdges().forEach(anEdge -> {
                 Node aSourceNode = anEdge.getSourceNode();
                 Node aTargetNode = anEdge.getTargetNode();
-                double aWeight = anEdge.getNumber(getWeightAttribute());
+                double aWeight = weighted ? anEdge.getNumber(getWeightAttribute()) : 1;
                 Double aMaxDistance = Math.max(distanceMap.get(aTargetNode), distanceMap.get(aSourceNode) + aWeight);
                 distanceMap.put(aTargetNode, aMaxDistance);
             });
         }
     }
 
-    private void fillDistanceMapUnweighted(List<Node> theSortedArray) {
-        for (Node aNode : theSortedArray) {
-            aNode.enteringEdges().forEach(anEdge -> {
-                Node aSourceNode = anEdge.getSourceNode();
-                Node aTargetNode = anEdge.getTargetNode();
-                Double aMaxDistance = Math.max(distanceMap.get(aTargetNode), distanceMap.get(aSourceNode)) + 1;
-                distanceMap.put(aTargetNode, aMaxDistance);
-            });
-        }
-    }
-
-    private Map.Entry<Node, Double> getMaxEntryOfMap() {
-        Map.Entry<Node, Double> maxEntry = null;
-        for (Map.Entry<Node, Double> entry : distanceMap.entrySet()) {
-            if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0) {
-                maxEntry = entry;
-            }
-        }
-        return maxEntry;
-    }
-
-    private void getMaxNeigbourgh(Node theNode) {
-        final Node[] aMaxNode = {null};
-        final double[] aMaxDistance = {0.0};
-        theNode.enteringEdges().forEach(anEdge -> {
-            Node aSourceNode = anEdge.getSourceNode();
-            if (distanceMap.get(aSourceNode) >= aMaxDistance[0]) {
-                aMaxDistance[0] = distanceMap.get(aSourceNode);
-                aMaxNode[0] = aSourceNode;
-            }
+    private void getMaxNeighbor(Node theNode) {
+        Optional<Edge> optionalEdge = theNode.enteringEdges()
+                .max(Comparator.comparingDouble(anEdge -> distanceMap.get(anEdge.getSourceNode())));
+        optionalEdge.ifPresent(edge -> {
+            longestPath.add(edge.getSourceNode());
+            getMaxNeighbor(edge.getSourceNode());
         });
-        if (aMaxNode[0] != null) {
-            longestPath.add(aMaxNode[0]);
-            getMaxNeigbourgh(aMaxNode[0]);
-        }
-
     }
 
     private void initializeAlgorithm() {
@@ -159,19 +124,6 @@ public class LongestPath implements Algorithm {
                     .findAny();
             anEdge.ifPresent(edge -> path.add(aSourceNode, edge));
         }
-
-//        longestPath.forEach(aNode ->{
-//            path.add(aNode,createPathEdge(aNode));
-//        });
-//        for (int i = 0; i < longestPath.size(); i++) {
-//            int finalI = i;
-//            graph.edges()
-//                    .filter(anEdge -> !anEdge.getSourceNode().equals(longestPath.get(finalI)))
-//                    .filter(anEdge -> !anEdge.getTargetNode().equals(longestPath.get(finalI + 1)))
-//                    .forEach(anEdge -> {
-//                path.add(anEdge.getSourceNode(), anEdge);
-//            });
-//        }
         return path;
     }
 
