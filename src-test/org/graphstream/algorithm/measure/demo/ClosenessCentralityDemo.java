@@ -44,8 +44,7 @@ public class ClosenessCentralityDemo {
 			+ "stroke-mode: plain;" + "}";
 
 	public static void main(String... args) {
-		System.setProperty("org.graphstream.ui.renderer",
-				"org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+		System.setProperty("org.graphstream.ui", "org.graphstream.ui.swing.util.Display");
 
 		Graph g = new AdjacencyListGraph("g");
 

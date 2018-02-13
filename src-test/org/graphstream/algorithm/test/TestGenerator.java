@@ -44,10 +44,12 @@ import org.graphstream.algorithm.generator.RandomGenerator;
 import org.graphstream.graph.implementations.DefaultGraph;
 import org.graphstream.stream.Pipe;
 import org.graphstream.ui.view.Viewer;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
 
+@Ignore("need gs-ui package")
 public class TestGenerator {
 	@Test
 	public void testFullGenerator() {

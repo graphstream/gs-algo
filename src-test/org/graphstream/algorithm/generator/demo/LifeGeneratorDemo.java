@@ -34,17 +34,16 @@ package org.graphstream.algorithm.generator.demo;
 import org.graphstream.algorithm.generator.LifeGenerator;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.AdjacencyListGraph;
-import org.graphstream.ui.view.Camera;
+import org.graphstream.ui.view.camera.Camera;
 import org.graphstream.ui.view.Viewer;
 
 public class LifeGeneratorDemo {
 
 	public static void main(String... args) throws Exception {
 		try {
-			Class.forName("org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+			Class.forName("org.graphstream.ui.swing.util.Display");
 
-			System.setProperty("org.graphstream.ui.renderer",
-					"org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+			System.setProperty("org.graphstream.ui", "org.graphstream.ui.swing.util.Display");
 		} catch (ClassNotFoundException e) {
 		}
 
