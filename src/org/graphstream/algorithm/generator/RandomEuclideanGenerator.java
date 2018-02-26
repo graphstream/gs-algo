@@ -197,7 +197,7 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 
 	private void initDimension(int dimension) {
 		this.dimension = dimension;
-		super.setNodeAttributesRange(0f, 1f);
+
 		if (dimension > 0) {
 			if (dimension == 2) {
 				super.addNodeAttribute("x");
@@ -212,7 +212,6 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 			}
 		} else
 			System.err.println("dimension has to be higher that zero");
-
 	}
 
 	/**
