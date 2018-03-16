@@ -42,6 +42,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.graphstream.algorithm.util.FibonacciHeap;
+import org.graphstream.algorithm.util.GSParameter;
+import org.graphstream.algorithm.util.GSResult;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -187,7 +189,10 @@ public class Dijkstra extends AbstractSpanningTree {
 	protected String resultAttribute;
 	protected String lengthAttribute;
 	protected Node source;
-
+	
+	// Used by default result
+	private String sourceId = null;
+	private String target;
 	// *** Helpers ***
 
 	protected double getLength(Edge edge, Node dest) {
@@ -288,7 +293,7 @@ public class Dijkstra extends AbstractSpanningTree {
 	public <T extends Node> T getSource() {
 		return (T) source;
 	}
-
+	
 	/**
 	 * Dijkstra's algorithm computes shortest paths from a given source node to
 	 * all nodes in a graph. This method sets the source node.
@@ -299,6 +304,16 @@ public class Dijkstra extends AbstractSpanningTree {
 	 */
 	public void setSource(Node source) {
 		this.source = source;
+	}
+	
+	@GSParameter
+	public void setSource(String source) {
+		this.sourceId = source;
+	}
+	
+	@GSParameter
+	public void setTarget(String target) {
+		this.target = target;
 	}
 
 	/**
@@ -341,9 +356,13 @@ public class Dijkstra extends AbstractSpanningTree {
 		if (graph == null)
 			throw new IllegalStateException(
 					"No graph specified. Call init() first.");
-		if (source == null)
+		if(sourceId != null)
+			this.source = graph.getNode(sourceId);
+		else if (source == null)
 			throw new IllegalStateException(
 					"No source specified. Call setSource() first.");
+		
+		
 		resetFlags();
 		makeTree();
 	}
@@ -803,5 +822,10 @@ public class Dijkstra extends AbstractSpanningTree {
 		while (!stack.isEmpty())
 			path.add(stack.pop());
 		return path;
+	}
+	
+	@GSResult
+	public String defaultResult() {
+		return getPath(graph.getNode(target)).toString();
 	}
 }

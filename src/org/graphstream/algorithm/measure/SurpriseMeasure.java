@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.graphstream.algorithm.Algorithm;
+import org.graphstream.algorithm.util.GSParameter;
+import org.graphstream.algorithm.util.GSResult;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 
@@ -178,7 +180,17 @@ public class SurpriseMeasure implements Algorithm {
 
 		graph.setAttribute(surpriseAttributeKey, S);
 	}
-
+	
+	@GSResult
+	public String defaultResult() {
+		return "Surprise = "+getSurprise();
+	}
+	
+	@GSParameter
+	public void setCommunityAttributeKey(String communityAttributeKey) {
+		this.communityAttributeKey = communityAttributeKey;
+	}
+	
 	/**
 	 * Get the last computed surprise value contained in the graph.
 	 * 

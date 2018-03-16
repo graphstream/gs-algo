@@ -39,6 +39,8 @@ import java.util.Set;
 import java.util.concurrent.atomic.DoubleAccumulator;
 import java.util.stream.Stream;
 
+import org.graphstream.algorithm.util.GSParameter;
+import org.graphstream.algorithm.util.GSResult;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Element;
 import org.graphstream.graph.Graph;
@@ -258,6 +260,7 @@ public class BetweennessCentrality implements Algorithm {
 	 * This automatically set the algorithm to perform on the graph as if it was
 	 * weighted.
 	 */
+	@GSParameter
 	public void setWeightAttributeName(String weightAttributeName) {
 		unweighted = false;
 		this.weightAttributeName = weightAttributeName;
@@ -287,6 +290,7 @@ public class BetweennessCentrality implements Algorithm {
 	 * to the node access.
 	 * @param on If true, the edges centrality is also computed.
 	 */
+	@GSParameter
 	public void computeEdgeCentrality(boolean on) {
 		doEdges = on;
 	}
@@ -295,6 +299,7 @@ public class BetweennessCentrality implements Algorithm {
 	 * Specify the name of the attribute used to store the computed centrality
 	 * values for each node.
 	 */
+	@GSParameter
 	public void setCentralityAttributeName(String centralityAttributeName) {
 		this.centralityAttributeName = centralityAttributeName;
 	}
@@ -855,7 +860,11 @@ public class BetweennessCentrality implements Algorithm {
 			return 0;
 		}
 	}
-
+	
+	@GSResult
+	public String defaultMessage() {
+		return "Result stored in \"Cb\" attribute";
+	}
 	/**
 	 * Interface allowing to be notified of the algorithm progress.
 	 */

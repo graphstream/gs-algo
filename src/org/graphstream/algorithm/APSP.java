@@ -36,6 +36,8 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.DoubleAccumulator;
 import java.util.stream.Stream;
 
+import org.graphstream.algorithm.util.GSParameter;
+import org.graphstream.algorithm.util.GSResult;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -249,13 +251,24 @@ public class APSP extends SinkAdapter implements Algorithm {
 	protected boolean directed = true;
 
 	/**
+	 * Default weight attribute
+	 */
+	public static final String DEFAULT_WEIGHT_ATTRIBUTE = "weight";
+	
+	/**
 	 * Name of the attribute on each edge indicating the weight of the edge.
 	 * This attribute must contain a descendant of Number.
 	 */
 	protected String weightAttributeName;
 	
 	protected Progress progress = null;
-
+	
+	/**
+	 * Used by default print result
+	 */
+	private String source = "";
+	private String target = "";
+	
 	// Construction
 
 	public APSP() {
@@ -270,7 +283,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 	 *            The graph to use.
 	 */
 	public APSP(Graph graph) {
-		this(graph, "weight", true);
+		this(graph, DEFAULT_WEIGHT_ATTRIBUTE, true);
 	}
 
 	/**
@@ -330,6 +343,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 	 * @param on
 	 *            If true edge orientation is used.b
 	 */
+	@GSParameter
 	public void setDirected(boolean on) {
 		directed = on;
 	}
@@ -350,6 +364,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 	 * @param name
 	 *            The attribute name.
 	 */
+	@GSParameter
 	public void setWeightAttributeName(String name) {
 		weightAttributeName = name;
 	}
@@ -368,7 +383,24 @@ public class APSP extends SinkAdapter implements Algorithm {
 			this.graph.addSink(this);
 		}
 	}
-
+	
+	@GSParameter
+	public void setSource(String source) {
+		this.source = source;
+	}
+	
+	@GSParameter
+	public void setTarget(String target) {
+		this.target = target;
+	}
+	
+	@GSResult
+	public String defaultResult() {
+		APSPInfo info = (APSPInfo) graph.getNode(source).getAttribute(APSPInfo.ATTRIBUTE_NAME);
+		return info.getShortestPathTo(target).toString();
+	}
+	
+	
 	/**
 	 * Run the APSP computation. When finished, the graph is equipped with
 	 * specific attributes of type

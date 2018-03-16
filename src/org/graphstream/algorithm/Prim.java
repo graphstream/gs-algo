@@ -32,8 +32,10 @@
 package org.graphstream.algorithm;
 
 import java.util.LinkedList;
+import java.util.StringJoiner;
 
 import org.graphstream.algorithm.util.FibonacciHeap;
+import org.graphstream.algorithm.util.GSResult;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
@@ -203,7 +205,20 @@ public class Prim extends Kruskal {
 				});
 		}
 	}
-
+	
+	@GSResult
+	public String defaultResult() {
+		//return getPath(graph.getNode(target));
+		
+		StringJoiner sj = new StringJoiner(" | ", "====== Prim ====== \n", "");
+		getTreeEdgesStream()
+			.forEach(n -> {
+				sj.add(n.getId());
+			});
+		
+		return sj.toString();
+	}
+	
 	protected static class Data {
 		Edge edgeToTree;
 		FibonacciHeap<Double, Node>.Node fn;

@@ -35,6 +35,8 @@ import java.util.LinkedList;
 
 import org.graphstream.algorithm.Algorithm;
 import org.graphstream.algorithm.util.FibonacciHeap;
+import org.graphstream.algorithm.util.GSParameter;
+import org.graphstream.algorithm.util.GSResult;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -217,6 +219,7 @@ public class WelshPowell implements Algorithm {
 	 * @param attrName
 	 *            An attribute name.
 	 */
+	@GSParameter
 	public void setAttributeName(String attrName) {
 		this.attrName = attrName;
 	}
@@ -294,5 +297,10 @@ public class WelshPowell implements Algorithm {
 		}
 
 		chromaticNumber = nbColors;
+	}
+	
+	@GSResult
+	public String defaultMessage() {
+		return "Result stored in \""+this.attrName+"\" attribute";
 	}
 }

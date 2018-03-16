@@ -32,9 +32,12 @@
 package org.graphstream.algorithm;
 
 import java.util.HashSet;
+import java.util.StringJoiner;
 import java.util.concurrent.atomic.DoubleAccumulator;
 
 import org.graphstream.algorithm.APSP.APSPInfo;
+import org.graphstream.algorithm.util.GSParameter;
+import org.graphstream.algorithm.util.GSResult;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -281,6 +284,7 @@ public class Centroid implements Algorithm {
 	 *            the name of the attribute where the APSP informations are
 	 *            stored.
 	 */
+	@GSParameter
 	public void setAPSPInfoAttribute(String attribute) {
 		apspInfoAttribute = attribute;
 	}
@@ -304,6 +308,7 @@ public class Centroid implements Algorithm {
 	 *            the value of elements centroid attribute when this element is
 	 *            in the centroid.
 	 */
+	@GSParameter
 	public void setIsInCentroidValue(Object value) {
 		isInCentroid = value;
 	}
@@ -328,6 +333,7 @@ public class Centroid implements Algorithm {
 	 *            the value of elements centroid attribute when this element is
 	 *            not in the centroid.
 	 */
+	@GSParameter
 	public void setIsNotInCentroidValue(Object value) {
 		isNotInCentroid = value;
 	}
@@ -350,7 +356,20 @@ public class Centroid implements Algorithm {
 	 *            the name of the element attribute where computation result is
 	 *            stored.
 	 */
+	@GSParameter
 	public void setCentroidAttribute(String centroidAttribute) {
 		this.centroidAttribute = centroidAttribute;
+	}
+	
+	@GSResult
+	public String defaultResult() {
+		StringJoiner sj = new StringJoiner(" | ", "====== Centroid ====== \n", "");
+		graph.nodes()
+			.filter(n -> ((Boolean) n.getAttribute(centroidAttribute)))
+			.forEach(n -> {
+				sj.add(n.getId());
+			});
+		
+		return sj.toString();
 	}
 }

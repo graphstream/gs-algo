@@ -34,6 +34,8 @@ package org.graphstream.algorithm;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.graphstream.algorithm.util.GSParameter;
+import org.graphstream.algorithm.util.GSResult;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -136,7 +138,10 @@ public class BellmanFord implements Algorithm {
 	protected String source_id;
 
 	protected Node source;
-
+	
+	// Used by default result
+	protected String target = "";
+	
 	/**
 	 * object-level unique string that identifies tags of this instance on a
 	 * graph.
@@ -147,7 +152,19 @@ public class BellmanFord implements Algorithm {
 	 * Name of attribute used to get weight of edges.
 	 */
 	protected String weightAttribute;
-
+	
+	/**
+	 * Default weight attribute
+	 */
+	public static final String DEFAULT_WEIGHT_ATTRIBUTE = "weight";
+	
+	/**
+	 * Build a new BellmanFord algorithm with default parameters.
+	 */
+	public BellmanFord() {
+		this(DEFAULT_WEIGHT_ATTRIBUTE);
+	}
+	
 	/**
 	 * Build a new BellmanFord algorithm giving the name of the weight attribute
 	 * for edges.
@@ -180,11 +197,22 @@ public class BellmanFord implements Algorithm {
 	 * @param nodeId
 	 *            id of the source node
 	 */
+	@GSParameter
 	public void setSource(String nodeId) {
 		if((source_id == null || ! source_id.equals(nodeId)) && graph!=null){
 			source = graph.getNode(nodeId);
 		}
 		this.source_id = nodeId;	
+	}
+	
+	@GSParameter
+	public void setTarget(String target) {
+		this.target = target;
+	}
+	
+	@GSParameter
+	public void setWeightAttribute(String weightAttribute) {
+		this.weightAttribute = weightAttribute;
 	}
 
 	/**
@@ -265,6 +293,7 @@ public class BellmanFord implements Algorithm {
 	 * @param identifier
 	 *            the unique identifier to set
 	 */
+	@GSParameter
 	public void setIdentifier(String identifier) {
 		this.identifier = identifier;
 	}
@@ -328,8 +357,18 @@ public class BellmanFord implements Algorithm {
 		}
 		return p;
 	}
-
 	
+	/**
+	 * @see #getShortestPath(Node target)
+	 */
+	public Path getShortestPath() {
+		return getShortestPath(graph.getNode(target));
+	}
+	
+	@GSResult
+    public String defaultResult() {
+    	return getShortestPath().toString() ;
+    }
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -354,8 +393,9 @@ public class BellmanFord implements Algorithm {
 				Node n1 = e.getNode1();
 				Double d0 = (Double) n0.getAttribute(identifier+".distance");
 				Double d1 = (Double) n1.getAttribute(identifier+".distance");
-
+				System.out.println(weightAttribute+" = "+e.getAttribute(weightAttribute));
 				Double we = (Double) e.getAttribute(weightAttribute);
+				System.out.println(we);
 				if (we == null)
 					throw new NumberFormatException(
 							"org.graphstream.algorithm.BellmanFord: Problem with attribute \""

@@ -37,6 +37,8 @@ import static org.graphstream.ui.graphicGraph.GraphPosLengthUtils.nodePosition;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.graphstream.algorithm.util.GSParameter;
+import org.graphstream.algorithm.util.GSResult;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -247,6 +249,7 @@ public class AStar implements Algorithm {
 	 * @param nodeName
 	 *            Identifier of the source node.
 	 */
+	@GSParameter
 	public void setSource(String nodeName) {
 		clearAll();
 		source = nodeName;
@@ -259,6 +262,7 @@ public class AStar implements Algorithm {
 	 * @param nodeName
 	 *            Identifier of the target node.
 	 */
+	@GSParameter
 	public void setTarget(String nodeName) {
 		clearAll();
 		target = nodeName;
@@ -275,6 +279,7 @@ public class AStar implements Algorithm {
 	 * @param costs
 	 *            The cost method to use.
 	 */
+	@GSParameter
 	public void setCosts(Costs costs) {
 		this.costs = costs;
 	}
@@ -313,6 +318,7 @@ public class AStar implements Algorithm {
 	 * 
 	 * @return The computed path, or null if no path was found.
 	 */
+	@GSResult
 	public Path getShortestPath() {
 		return result;
 	}

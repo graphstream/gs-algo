@@ -39,11 +39,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Spliterator;
 import java.util.Spliterators;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.graphstream.algorithm.util.DisjointSets;
+import org.graphstream.algorithm.util.GSParameter;
+import org.graphstream.algorithm.util.GSResult;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
@@ -207,6 +210,7 @@ public class Kruskal extends AbstractSpanningTree {
 	 * @param newWeightAttribute
 	 *            new attribute used
 	 */
+	@GSParameter
 	public void setWeightAttribute(String newWeightAttribute) {
 		this.weightAttribute = newWeightAttribute;
 	}
@@ -275,6 +279,19 @@ public class Kruskal extends AbstractSpanningTree {
 		return w;
 	}
 
+	@GSResult
+	public String defaultResult() {
+		//return getPath(graph.getNode(target));
+		
+		StringJoiner sj = new StringJoiner(" | ", "====== Kruskal ====== \n", "");
+		getTreeEdgesStream()
+			.forEach(n -> {
+				sj.add(n.getId());
+			});
+		
+		return sj.toString();
+	}
+	
 	protected class EdgeComparator implements Comparator<Edge> {
 		public int compare(Edge arg0, Edge arg1) {
 			double w0 = getWeight(arg0);
