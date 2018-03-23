@@ -384,12 +384,12 @@ public class APSP extends SinkAdapter implements Algorithm {
 		}
 	}
 	
-	@GSParameter
+	@GSParameter(true)
 	public void setSource(String source) {
 		this.source = source;
 	}
 	
-	@GSParameter
+	@GSParameter(true)
 	public void setTarget(String target) {
 		this.target = target;
 	}

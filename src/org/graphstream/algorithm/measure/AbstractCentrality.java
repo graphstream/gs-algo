@@ -34,6 +34,7 @@ package org.graphstream.algorithm.measure;
 import org.graphstream.algorithm.Algorithm;
 import org.graphstream.algorithm.NotInitializedException;
 import org.graphstream.algorithm.util.GSParameter;
+import org.graphstream.algorithm.util.GSResult;
 import org.graphstream.graph.Graph;
 
 /**
@@ -216,4 +217,9 @@ public abstract class AbstractCentrality implements Algorithm {
 	 * {@link #data} using node index.
 	 */
 	protected abstract void computeCentrality();
+	
+	@GSResult
+	public String defaultMessage() {
+		return "Result stored in \""+centralityAttribute+"\" attribute";
+	}
 }

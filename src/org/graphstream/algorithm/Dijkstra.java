@@ -306,12 +306,12 @@ public class Dijkstra extends AbstractSpanningTree {
 		this.source = source;
 	}
 	
-	@GSParameter
+	@GSParameter(true)
 	public void setSource(String source) {
 		this.sourceId = source;
 	}
 	
-	@GSParameter
+	@GSParameter(true)
 	public void setTarget(String target) {
 		this.target = target;
 	}

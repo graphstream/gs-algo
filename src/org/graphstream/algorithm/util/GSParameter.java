@@ -8,5 +8,8 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface GSParameter {
-
+	/**
+	 * @return requireParameter
+	 */
+	boolean value() default false;
 }

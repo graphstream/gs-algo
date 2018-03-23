@@ -134,12 +134,12 @@ public abstract class FlowAlgorithmBase implements FlowAlgorithm {
 		this.sinkId = sinkId;
 	}
 	
-	@GSParameter
+	@GSParameter(true)
 	public void setSourceId(String sourceId) {
 		this.sourceId = sourceId;
 	}
 	
-	@GSParameter
+	@GSParameter(true)
 	public void setSinkId(String sinkId) {
 		this.sinkId = sinkId;
 	}

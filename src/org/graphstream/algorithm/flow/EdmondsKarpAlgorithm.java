@@ -35,10 +35,8 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 
-import org.graphstream.algorithm.util.GSParameter;
 import org.graphstream.algorithm.util.GSResult;
 import org.graphstream.graph.Edge;
-import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
 public class EdmondsKarpAlgorithm extends FordFulkersonAlgorithm {

@@ -404,7 +404,7 @@ public class ConnectedComponents extends SinkAdapter
 	
 	@GSResult
     public String defaultResult() {
-    	return "Dynamic" ;
+    	return getConnectedComponentsCount()+" connected component(s) in this graph" ;
     }
 	
 	/**

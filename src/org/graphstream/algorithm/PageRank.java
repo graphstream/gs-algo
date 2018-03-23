@@ -34,6 +34,8 @@ package org.graphstream.algorithm;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.graphstream.algorithm.util.GSParameter;
+import org.graphstream.algorithm.util.GSResult;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.stream.ElementSink;
@@ -230,6 +232,7 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 	 * @throws IllegalArgumentException
 	 *             If the damping factor is less than 0.01 or greater than 0.99
 	 */
+	@GSParameter
 	public void setDampingFactor(double dampingFactor)
 			throws IllegalArgumentException {
 		if (dampingFactor < 0.01 || dampingFactor > 0.99)
@@ -257,6 +260,7 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 	 * @throws IllegalArgumentException
 	 *             if the precision is less than 1.0e-7
 	 */
+	@GSParameter
 	public void setPrecision(double precision) throws IllegalArgumentException {
 		if (precision < 1.0e-7)
 			throw new IllegalArgumentException("Precision is too small");
@@ -283,6 +287,7 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 	 * @throws IllegalStateException
 	 *             if the algorithm is already initialized
 	 */
+	@GSParameter
 	public void setRankAttribute(String rankAttribute)
 			throws IllegalStateException {
 		if (graph != null)
@@ -301,6 +306,7 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 	 * @param verbose
 	 *            Verbose mode
 	 */
+	@GSParameter
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
 	}
@@ -337,6 +343,16 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 		graph = null;
 	}
 
+	@GSResult
+	public String defaultResult() {
+		graph.nodes().forEach(node -> {
+			double rank = getRank(node);
+			node.setAttribute("ui.size", 5 + Math.sqrt(graph.getNodeCount() * rank * 20));
+			node.setAttribute("ui.label", String.format("%.2f%%", rank * 100));
+		});
+		
+		return "ui.size and ui.label changed";
+	}
 	// ElementSink implementation
 
 	public void nodeAdded(String sourceId, long timeId, String nodeId) {

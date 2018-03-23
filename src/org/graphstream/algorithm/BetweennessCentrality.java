@@ -863,7 +863,7 @@ public class BetweennessCentrality implements Algorithm {
 	
 	@GSResult
 	public String defaultMessage() {
-		return "Result stored in \"Cb\" attribute";
+		return "Result stored in \""+centralityAttributeName+"\" attribute";
 	}
 	/**
 	 * Interface allowing to be notified of the algorithm progress.

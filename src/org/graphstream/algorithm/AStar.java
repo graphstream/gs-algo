@@ -249,7 +249,7 @@ public class AStar implements Algorithm {
 	 * @param nodeName
 	 *            Identifier of the source node.
 	 */
-	@GSParameter
+	@GSParameter(true)
 	public void setSource(String nodeName) {
 		clearAll();
 		source = nodeName;
@@ -262,7 +262,7 @@ public class AStar implements Algorithm {
 	 * @param nodeName
 	 *            Identifier of the target node.
 	 */
-	@GSParameter
+	@GSParameter(true)
 	public void setTarget(String nodeName) {
 		clearAll();
 		target = nodeName;

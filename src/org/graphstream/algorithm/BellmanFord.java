@@ -197,7 +197,7 @@ public class BellmanFord implements Algorithm {
 	 * @param nodeId
 	 *            id of the source node
 	 */
-	@GSParameter
+	@GSParameter(true)
 	public void setSource(String nodeId) {
 		if((source_id == null || ! source_id.equals(nodeId)) && graph!=null){
 			source = graph.getNode(nodeId);
@@ -205,7 +205,7 @@ public class BellmanFord implements Algorithm {
 		this.source_id = nodeId;	
 	}
 	
-	@GSParameter
+	@GSParameter(true)
 	public void setTarget(String target) {
 		this.target = target;
 	}

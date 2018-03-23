@@ -34,6 +34,9 @@ package org.graphstream.algorithm.measure;
 import static org.graphstream.algorithm.Toolkit.modularity;
 import static org.graphstream.algorithm.Toolkit.modularityMatrix;
 
+import org.graphstream.algorithm.util.GSParameter;
+import org.graphstream.algorithm.util.GSResult;
+
 /**
  * Computes and updates the modularity of a given graph as it evolves.
  * 
@@ -92,6 +95,7 @@ public class Modularity extends CommunityMeasure {
 	 * @param weightMarker
 	 *            name of the attribute marking the weight of edges.
 	 */
+	@GSParameter
 	public void setWeightMarker(String weightMarker) {
 		this.weightMarker = weightMarker;
 	}
@@ -111,5 +115,10 @@ public class Modularity extends CommunityMeasure {
 			M = modularity(E);
 			graphChanged = false;
 		}
+	}
+	
+	@GSResult
+	public String defaultMessage() {
+		return communities+"";
 	}
 }
