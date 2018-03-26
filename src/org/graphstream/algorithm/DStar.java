@@ -125,7 +125,6 @@ public class DStar implements DynamicAlgorithm, Sink {
 	
 	protected State minState() {
 		Collections.sort(openList, stateComparator);
-		System.out.println(openList);
 		return openList.getFirst();
 	}
 

@@ -393,9 +393,7 @@ public class BellmanFord implements Algorithm {
 				Node n1 = e.getNode1();
 				Double d0 = (Double) n0.getAttribute(identifier+".distance");
 				Double d1 = (Double) n1.getAttribute(identifier+".distance");
-				System.out.println(weightAttribute+" = "+e.getAttribute(weightAttribute));
 				Double we = (Double) e.getAttribute(weightAttribute);
-				System.out.println(we);
 				if (we == null)
 					throw new NumberFormatException(
 							"org.graphstream.algorithm.BellmanFord: Problem with attribute \""

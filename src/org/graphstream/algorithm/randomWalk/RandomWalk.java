@@ -661,14 +661,8 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	@GSResult
 	public String defaultResult() {
 		StringJoiner sj = new StringJoiner(" | ", "====== Random Walk ====== \n", "");
-		
 		context.graph.edges().forEach(e -> sj.add("Edge "+e.getId()+" counts "+getPasses(e)));
-		//	;
-		
 		return sj.toString();
-		/*for(Edge edge: graph.getEachEdge()) {
-			System.out.println("Edge %s counts %f%n", edge.getId(), rwalk.getPasses(edge));
-		}*/
 	}
 }
 
