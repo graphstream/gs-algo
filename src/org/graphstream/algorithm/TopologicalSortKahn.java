@@ -3,7 +3,7 @@ package org.graphstream.algorithm;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.graphstream.algorithm.util.GSResult;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -135,7 +135,7 @@ public class TopologicalSortKahn implements Algorithm {
         return sortedNodes;
     }
 
-    @GSResult
+    @Result
     public String defaultResult() {
     	return getSortedNodes().toString() ;
     }

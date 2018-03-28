@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface GSParameter {
+public @interface Parameter {
 	/**
 	 * @return requireParameter
 	 */

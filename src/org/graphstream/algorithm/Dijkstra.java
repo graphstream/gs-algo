@@ -42,8 +42,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.graphstream.algorithm.util.FibonacciHeap;
-import org.graphstream.algorithm.util.GSParameter;
-import org.graphstream.algorithm.util.GSResult;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -306,12 +306,12 @@ public class Dijkstra extends AbstractSpanningTree {
 		this.source = source;
 	}
 	
-	@GSParameter(true)
+	@Parameter(true)
 	public void setSource(String source) {
 		this.sourceId = source;
 	}
 	
-	@GSParameter(true)
+	@Parameter(true)
 	public void setTarget(String target) {
 		this.target = target;
 	}
@@ -824,7 +824,7 @@ public class Dijkstra extends AbstractSpanningTree {
 		return path;
 	}
 	
-	@GSResult
+	@Result
 	public String defaultResult() {
 		return getPath(graph.getNode(target)).toString();
 	}

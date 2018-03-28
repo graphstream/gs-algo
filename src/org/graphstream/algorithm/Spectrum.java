@@ -37,7 +37,7 @@ import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.graphstream.algorithm.generator.BarabasiAlbertGenerator;
-import org.graphstream.algorithm.util.GSResult;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.AdjacencyListGraph;
@@ -115,7 +115,7 @@ public class Spectrum implements Algorithm {
 		return max;
 	}
 
-	@GSResult
+	@Result
 	public String defaultResult() {
 		//return getPath(graph.getNode(target));
 		

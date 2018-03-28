@@ -34,8 +34,8 @@ package org.graphstream.algorithm;
 import java.util.HashMap;
 import java.util.Stack;
 
-import org.graphstream.algorithm.util.GSParameter;
-import org.graphstream.algorithm.util.GSResult;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -159,7 +159,7 @@ public class TarjanStronglyConnectedComponents implements Algorithm {
 	 * @param gen
 	 *            the new generator
 	 */
-	@GSParameter
+	@Parameter
 	public void setIndexGenerator(IndexGenerator gen) {
 		if (gen == null)
 			throw new NullPointerException();
@@ -173,7 +173,7 @@ public class TarjanStronglyConnectedComponents implements Algorithm {
 	 * @param key
 	 *            attribute key of component index
 	 */
-	@GSParameter
+	@Parameter
 	public void setSCCIndexAttribute(String key) {
 		if (key == null)
 			throw new NullPointerException();
@@ -190,7 +190,7 @@ public class TarjanStronglyConnectedComponents implements Algorithm {
 		return this.sccAttribute;
 	}
 	
-	@GSResult
+	@Result
 	public String defaultMessage() {
 		return "Result stored in \""+this.sccAttribute+"\" attribute";
 	}

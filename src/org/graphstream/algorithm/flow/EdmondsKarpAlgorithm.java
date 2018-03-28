@@ -35,7 +35,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 
-import org.graphstream.algorithm.util.GSResult;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
@@ -94,7 +94,7 @@ public class EdmondsKarpAlgorithm extends FordFulkersonAlgorithm {
 		return 0;
 	}
 	
-	@GSResult
+	@Result
 	public String defaultResult() {
 		LinkedList<Node> path = flowGraph.nodes().collect(Collectors.toCollection(LinkedList::new)) ;
 		

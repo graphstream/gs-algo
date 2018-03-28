@@ -45,8 +45,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import org.graphstream.algorithm.util.DisjointSets;
-import org.graphstream.algorithm.util.GSParameter;
-import org.graphstream.algorithm.util.GSResult;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
@@ -210,7 +210,7 @@ public class Kruskal extends AbstractSpanningTree {
 	 * @param newWeightAttribute
 	 *            new attribute used
 	 */
-	@GSParameter
+	@Parameter
 	public void setWeightAttribute(String newWeightAttribute) {
 		this.weightAttribute = newWeightAttribute;
 	}
@@ -279,7 +279,7 @@ public class Kruskal extends AbstractSpanningTree {
 		return w;
 	}
 
-	@GSResult
+	@Result
 	public String defaultResult() {
 		//return getPath(graph.getNode(target));
 		

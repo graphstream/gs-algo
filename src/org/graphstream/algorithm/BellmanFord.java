@@ -34,8 +34,8 @@ package org.graphstream.algorithm;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.graphstream.algorithm.util.GSParameter;
-import org.graphstream.algorithm.util.GSResult;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -197,7 +197,7 @@ public class BellmanFord implements Algorithm {
 	 * @param nodeId
 	 *            id of the source node
 	 */
-	@GSParameter(true)
+	@Parameter(true)
 	public void setSource(String nodeId) {
 		if((source_id == null || ! source_id.equals(nodeId)) && graph!=null){
 			source = graph.getNode(nodeId);
@@ -205,12 +205,12 @@ public class BellmanFord implements Algorithm {
 		this.source_id = nodeId;	
 	}
 	
-	@GSParameter(true)
+	@Parameter(true)
 	public void setTarget(String target) {
 		this.target = target;
 	}
 	
-	@GSParameter
+	@Parameter
 	public void setWeightAttribute(String weightAttribute) {
 		this.weightAttribute = weightAttribute;
 	}
@@ -293,7 +293,7 @@ public class BellmanFord implements Algorithm {
 	 * @param identifier
 	 *            the unique identifier to set
 	 */
-	@GSParameter
+	@Parameter
 	public void setIdentifier(String identifier) {
 		this.identifier = identifier;
 	}
@@ -365,7 +365,7 @@ public class BellmanFord implements Algorithm {
 		return getShortestPath(graph.getNode(target));
 	}
 	
-	@GSResult
+	@Result
     public String defaultResult() {
     	return getShortestPath().toString() ;
     }

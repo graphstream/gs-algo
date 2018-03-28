@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 
-import org.graphstream.algorithm.util.GSResult;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -88,7 +88,7 @@ public class TopologicalSortDFS implements Algorithm{
         return sortedNodes;
     }
     
-    @GSResult
+    @Result
     public String defaultResult() {
     	return getSortedNodes().toString() ;
     }

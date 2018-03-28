@@ -1,7 +1,7 @@
 package org.graphstream.algorithm;
 
-import org.graphstream.algorithm.util.GSParameter;
-import org.graphstream.algorithm.util.GSResult;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -132,7 +132,7 @@ public class LongestPath implements Algorithm {
         return path;
     }
     
-    @GSResult
+    @Result
     public String defaultResult() {
     	return getLongestPath().toString() ;
     }
@@ -150,7 +150,7 @@ public class LongestPath implements Algorithm {
         return weightAttribute == null ? DEFAULT_WEIGHT_ATTRIBUTE : weightAttribute;
     }
     
-    @GSParameter
+    @Parameter
     public void setWeightAttribute(String weightAttribute) {
         this.weightAttribute = weightAttribute;
     }

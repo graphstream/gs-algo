@@ -36,8 +36,8 @@ import java.util.HashMap;
 import java.util.concurrent.atomic.DoubleAccumulator;
 import java.util.stream.Stream;
 
-import org.graphstream.algorithm.util.GSParameter;
-import org.graphstream.algorithm.util.GSResult;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -343,7 +343,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 	 * @param on
 	 *            If true edge orientation is used.b
 	 */
-	@GSParameter
+	@Parameter
 	public void setDirected(boolean on) {
 		directed = on;
 	}
@@ -364,7 +364,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 	 * @param name
 	 *            The attribute name.
 	 */
-	@GSParameter
+	@Parameter
 	public void setWeightAttributeName(String name) {
 		weightAttributeName = name;
 	}
@@ -384,17 +384,17 @@ public class APSP extends SinkAdapter implements Algorithm {
 		}
 	}
 	
-	@GSParameter(true)
+	@Parameter(true)
 	public void setSource(String source) {
 		this.source = source;
 	}
 	
-	@GSParameter(true)
+	@Parameter(true)
 	public void setTarget(String target) {
 		this.target = target;
 	}
 	
-	@GSResult
+	@Result
 	public String defaultResult() {
 		APSPInfo info = (APSPInfo) graph.getNode(source).getAttribute(APSPInfo.ATTRIBUTE_NAME);
 		return info.getShortestPathTo(target).toString();

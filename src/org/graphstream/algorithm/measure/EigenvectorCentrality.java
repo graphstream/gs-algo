@@ -33,7 +33,7 @@ package org.graphstream.algorithm.measure;
 
 import java.util.Arrays;
 
-import org.graphstream.algorithm.util.GSResult;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
@@ -109,7 +109,7 @@ public class EigenvectorCentrality extends AbstractCentrality {
 		data = x2;
 	}
 	
-	@GSResult
+	@Result
 	public String defaultMessage() {
 		return "Result stored in \""+this.weightAttribute+"\" attribute";
 	}

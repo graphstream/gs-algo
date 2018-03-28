@@ -35,7 +35,7 @@ import java.util.LinkedList;
 import java.util.StringJoiner;
 
 import org.graphstream.algorithm.util.FibonacciHeap;
-import org.graphstream.algorithm.util.GSResult;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
@@ -206,7 +206,7 @@ public class Prim extends Kruskal {
 		}
 	}
 	
-	@GSResult
+	@Result
 	public String defaultResult() {
 		//return getPath(graph.getNode(target));
 		
