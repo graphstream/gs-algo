@@ -33,6 +33,8 @@ package org.graphstream.algorithm.measure;
 
 import org.graphstream.algorithm.Algorithm;
 import org.graphstream.algorithm.NotInitializedException;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Graph;
 
 /**
@@ -186,6 +188,7 @@ public abstract class AbstractCentrality implements Algorithm {
 	 * @param centralityAttribute
 	 *            new value of {@link #centralityAttribute}
 	 */
+	@Parameter
 	public void setCentralityAttribute(String centralityAttribute) {
 		this.centralityAttribute = centralityAttribute;
 	}
@@ -214,4 +217,9 @@ public abstract class AbstractCentrality implements Algorithm {
 	 * {@link #data} using node index.
 	 */
 	protected abstract void computeCentrality();
+	
+	@Result
+	public String defaultMessage() {
+		return "Result stored in \""+centralityAttribute+"\" attribute";
+	}
 }

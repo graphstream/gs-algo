@@ -33,6 +33,7 @@ package org.graphstream.algorithm.measure;
 
 import org.graphstream.algorithm.APSP;
 import org.graphstream.algorithm.APSP.APSPInfo;
+import org.graphstream.algorithm.util.Parameter;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -114,6 +115,14 @@ public class ClosenessCentrality extends AbstractCentrality {
 		super.init(graph);
 		
 		if (computeAPSP) {
+			apsp = new APSP();
+			apsp.init(graph);
+		}
+	}
+	
+	@Parameter
+	public void computeAPSP(boolean compute) {
+		if (compute) {
 			apsp = new APSP();
 			apsp.init(graph);
 		}

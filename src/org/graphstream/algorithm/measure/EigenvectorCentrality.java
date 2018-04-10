@@ -33,6 +33,7 @@ package org.graphstream.algorithm.measure;
 
 import java.util.Arrays;
 
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
@@ -45,7 +46,7 @@ public class EigenvectorCentrality extends AbstractCentrality {
 	protected String weightAttribute;
 
 	public EigenvectorCentrality() {
-		this("DEFAULT_ATTRIBUTE_KEY", NormalizationMode.NONE);
+		this(DEFAULT_ATTRIBUTE_KEY, NormalizationMode.NONE);
 	}
 	
 	public EigenvectorCentrality(String attribute, NormalizationMode normalize) {
@@ -107,5 +108,9 @@ public class EigenvectorCentrality extends AbstractCentrality {
 
 		data = x2;
 	}
-
+	
+	@Result
+	public String defaultMessage() {
+		return "Result stored in \""+this.weightAttribute+"\" attribute";
+	}
 }

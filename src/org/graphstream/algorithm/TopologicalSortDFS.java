@@ -1,12 +1,13 @@
 package org.graphstream.algorithm;
 
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+
+import org.graphstream.algorithm.util.Result;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
 
 /**
  * Implementation of depth first search algorithm for a topological sorting of a directed acyclic graph (DAG).
@@ -85,5 +86,10 @@ public class TopologicalSortDFS implements Algorithm{
      */
     public List<Node> getSortedNodes() {
         return sortedNodes;
+    }
+    
+    @Result
+    public String defaultResult() {
+    	return getSortedNodes().toString() ;
     }
 }

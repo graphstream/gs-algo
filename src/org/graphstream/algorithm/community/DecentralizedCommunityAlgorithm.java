@@ -37,6 +37,8 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 import org.graphstream.algorithm.DynamicAlgorithm;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Element;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -176,6 +178,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 * 
 	 * @param marker
 	 */
+	@Parameter
 	public void setMarker(String marker) {
 		if (marker == null) {
 			this.nonUniqueMarker = "community";
@@ -336,5 +339,9 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	public void edgeAttributeRemoved(String graphId, long timeId,
 			String edgeId, String attribute) {
 	}
-
+	
+	@Result
+	public String defaultMessage() {
+		return "Result stored in \"ui.class\" attribute";
+	}
 }

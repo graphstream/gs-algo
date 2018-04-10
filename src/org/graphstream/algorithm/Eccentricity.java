@@ -32,9 +32,12 @@
 package org.graphstream.algorithm;
 
 import java.util.HashSet;
+import java.util.StringJoiner;
 import java.util.concurrent.atomic.DoubleAccumulator;
 
 import org.graphstream.algorithm.APSP.APSPInfo;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -275,6 +278,7 @@ public class Eccentricity implements Algorithm {
 	 *            the name of the attribute where the APSP informations are
 	 *            stored.
 	 */
+	@Parameter
 	public void setAPSPInfoAttribute(String attribute) {
 		apspInfoAttribute = attribute;
 	}
@@ -299,6 +303,7 @@ public class Eccentricity implements Algorithm {
 	 *            the value of elements eccentricity attribute when this element
 	 *            is in the eccentricity.
 	 */
+	@Parameter
 	public void setIsInEccentricityValue(Object value) {
 		isInEccentricity = value;
 	}
@@ -323,6 +328,7 @@ public class Eccentricity implements Algorithm {
 	 *            the value of elements eccentricity attribute when this element
 	 *            is not in the eccentricity.
 	 */
+	@Parameter
 	public void setIsNotInEccentricityValue(Object value) {
 		isNotInEccentricity = value;
 	}
@@ -346,7 +352,20 @@ public class Eccentricity implements Algorithm {
 	 *            the name of the element attribute where computation result is
 	 *            stored.
 	 */
+	@Parameter
 	public void setEccentricityAttribute(String eccentricityAttribute) {
 		this.eccentricityAttribute = eccentricityAttribute;
+	}
+	
+	@Result
+	public String defaultResult() {
+		StringJoiner sj = new StringJoiner(" | ", "====== Eccentricity ====== \n", "");
+		graph.nodes()
+			.filter(n -> ((Boolean) n.getAttribute(eccentricityAttribute)))
+			.forEach(n -> {
+				sj.add(n.getId());
+			});
+		
+		return sj.toString();
 	}
 }

@@ -33,6 +33,7 @@ package org.graphstream.algorithm.flow;
 
 import java.util.List;
 
+import org.graphstream.algorithm.util.Parameter;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -132,6 +133,16 @@ public abstract class FlowAlgorithmBase implements FlowAlgorithm {
 		this.sourceId = sourceId;
 		this.sinkId = sinkId;
 	}
+	
+	@Parameter(true)
+	public void setSourceId(String sourceId) {
+		this.sourceId = sourceId;
+	}
+	
+	@Parameter(true)
+	public void setSinkId(String sinkId) {
+		this.sinkId = sinkId;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -220,7 +231,7 @@ public abstract class FlowAlgorithmBase implements FlowAlgorithm {
 	public void setFlow(String uId, String vId, double flow) {
 		Node u = flowGraph.getNode(uId);
 		Node v = flowGraph.getNode(vId);
-
+		
 		setFlow(u, v, flow);
 	}
 
@@ -349,6 +360,7 @@ public abstract class FlowAlgorithmBase implements FlowAlgorithm {
 	 * org.graphstream.algorithm.flow.FlowAlgorithm#setCapacityAttribute(java
 	 * .lang.String)
 	 */
+	@Parameter
 	public void setCapacityAttribute(String attribute) {
 		capacityAttribute = attribute;
 	}
@@ -361,7 +373,8 @@ public abstract class FlowAlgorithmBase implements FlowAlgorithm {
 	public String getCapacityAttribute() {
 		return capacityAttribute;
 	}
-
+	
+	@Parameter
 	public void setAllCapacities(double value) {
 		for (int i = 0; i < 2 * n; i++)
 			capacities[i] = value;

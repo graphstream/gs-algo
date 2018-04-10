@@ -39,6 +39,8 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 import org.graphstream.graph.Graph;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 import org.graphstream.graph.Structure;
@@ -399,7 +401,12 @@ public class ConnectedComponents extends SinkAdapter
 
 		return components.size();
 	}
-
+	
+	@Result
+    public String defaultResult() {
+    	return getConnectedComponentsCount()+" connected component(s) in this graph" ;
+    }
+	
 	/**
 	 * Ask the algorithm for the number of connected components whose size is
 	 * equal to or greater than the specified threshold.
@@ -494,6 +501,7 @@ public class ConnectedComponents extends SinkAdapter
 	 *            The name for the cut attribute or null if the cut attribute
 	 *            option must be disabled.
 	 */
+	@Parameter
 	public void setCutAttribute(String cutAttribute) {
 		this.cutAttribute = cutAttribute;
 
@@ -511,6 +519,7 @@ public class ConnectedComponents extends SinkAdapter
 	 *            The name of the attribute to put on each node (pass null to
 	 *            disable this feature).
 	 */
+	@Parameter
 	public void setCountAttribute(String countAttribute) {
 		if (this.countAttribute != null && graph != null) {
 			graph.nodes().forEach(n -> n.removeAttribute(countAttribute));

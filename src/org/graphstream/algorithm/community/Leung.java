@@ -33,6 +33,7 @@ package org.graphstream.algorithm.community;
 
 import java.util.HashMap;
 
+import org.graphstream.algorithm.util.Parameter;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -168,6 +169,7 @@ public class Leung extends EpidemicCommunityAlgorithm {
 	 * @param delta
 	 *            hop attenuation factor value
 	 */
+	@Parameter
 	public void setParameters(double m, double delta) {
 		this.m = m;
 		this.delta = delta;

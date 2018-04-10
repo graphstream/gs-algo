@@ -36,9 +36,12 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.StringJoiner;
 
 import org.graphstream.algorithm.generator.DorogovtsevMendesGenerator;
 import org.graphstream.algorithm.generator.Generator;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -107,7 +110,19 @@ public class DStar implements DynamicAlgorithm, Sink {
 
 		position = getState(source);
 	}
+	
+	@Parameter(true)
+	public void setTarget(String target) {
+		g = getState(env.getNode(target));
+		g.h = 0;
+		insert(g);
+	}
 
+	@Parameter(true)
+	public void setSource(String source) {
+		position = getState(env.getNode(source));
+	}
+	
 	protected State minState() {
 		Collections.sort(openList, stateComparator);
 		return openList.getFirst();
@@ -514,6 +529,19 @@ public class DStar implements DynamicAlgorithm, Sink {
 
 		gen.end();
 		dstar.terminate();
+
+	}
+	
+	@Result
+	public String defaultResult() {
+		StringJoiner sj = new StringJoiner(" | ", "====== DStar ====== \n", "");
+		markPath("ui.DStar", "on", "off");
+		
+		env.nodes()
+			.filter(n -> n.getAttribute("ui.DStar").equals("on"))
+			.forEach(n -> sj.add(n.getId()));
+		
+		return sj.toString();
 
 	}
 }

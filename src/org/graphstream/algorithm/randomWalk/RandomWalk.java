@@ -37,8 +37,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Random;
+import java.util.StringJoiner;
 
 import org.graphstream.algorithm.DynamicAlgorithm;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -322,6 +325,7 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 * class will be used (RandomWalk.TabuEntity).
 	 * @param name The name of the entity class to use.
 	 */
+	@Parameter
 	public void setEntityClass(String name) {
 		if(name == null) {
 			entityClass = TabuEntity.class.getName();//"org.graphstream.algorithm.RandomWalk#TabuEntity";
@@ -337,6 +341,7 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 * @param size
 	 *            The memory size, 0 is a valid size to disable the tabu list.
 	 */
+	@Parameter
 	public void setEntityMemory(int size) {
 		if (size < 0)
 			size = 0;
@@ -350,6 +355,7 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 * of evaporation allows to stabilize the counts.
 	 * @param evaporation A number between 0 and 1.
 	 */
+	@Parameter
 	public void setEvaporation(double evaporation) {
 		if(evaporation>=0 && evaporation<1) {
 			this.evaporation = evaporation;
@@ -418,6 +424,7 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 * @param name
 	 *            A string giving the weight name.
 	 */
+	@Parameter
 	public void setWeightAttribute(String name) {
 		context.weightAttribute = name;
 	}
@@ -429,6 +436,7 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 * @param name
 	 *            A string giving the passes name.
 	 */
+	@Parameter
 	public void setPassesAttribute(String name) {
 		if (context.graph != null) {
 			
@@ -470,6 +478,7 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 * 
 	 * @param entityCount
 	 */
+	@Parameter
 	public void setEntityCount(int entityCount) {
 		this.entityCount = entityCount;
 	}
@@ -647,6 +656,13 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 		Node node = context.graph.getNode(nodeId);
 
 		node.setAttribute(context.passesAttribute, 0.0);
+	}
+	
+	@Result
+	public String defaultResult() {
+		StringJoiner sj = new StringJoiner(" | ", "====== Random Walk ====== \n", "");
+		context.graph.edges().forEach(e -> sj.add("Edge "+e.getId()+" counts "+getPasses(e)));
+		return sj.toString();
 	}
 }
 

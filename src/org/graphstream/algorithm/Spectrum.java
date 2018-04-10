@@ -31,10 +31,13 @@
  */
 package org.graphstream.algorithm;
 
+import java.util.StringJoiner;
+
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.EigenDecomposition;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.graphstream.algorithm.generator.BarabasiAlbertGenerator;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.AdjacencyListGraph;
@@ -112,6 +115,19 @@ public class Spectrum implements Algorithm {
 		return max;
 	}
 
+	@Result
+	public String defaultResult() {
+		//return getPath(graph.getNode(target));
+		
+		StringJoiner sj = new StringJoiner(" | ", "====== Spectrum ====== \n", "");
+		
+		double[] eigen = getEigenvalues() ;
+		for (int i =  0 ; i < eigen.length ; i++)
+			sj.add(eigen[i]+"");
+		
+		return sj.toString();
+	}
+	
 	public static void main(String... args) {
 		Graph g = new AdjacencyListGraph("g");
 
