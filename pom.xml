@@ -24,12 +24,6 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.sonatype.oss</groupId>
-		<artifactId>oss-parent</artifactId>
-		<version>7</version>
-	</parent>
-
 	<groupId>org.graphstream</groupId>
 	<artifactId>gs-algo</artifactId>
 	<version>2.0.0-SNAPSHOT</version>
@@ -197,6 +191,28 @@
 				</configuration>
 				<version>2.18.1</version>
 			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<archive>
+					<manifest>
+						<mainClass>org.graphstream.util.GraphDiff</mainClass>
+					</manifest>
+					</archive>
+					<descriptorRefs>
+					<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+				<executions>
+					<execution>
+					<id>make-assembly</id> <!-- this is used for inheritance merges -->
+					<phase>prepare-package</phase> <!-- bind to the prepare-packaging phase so that it can be signed -->
+					<goals>
+						<goal>single</goal>
+					</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 	
@@ -214,6 +230,7 @@
 			<artifactId>junit</artifactId>
 			<version>4.12</version>
 			<optional>false</optional>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
@@ -236,7 +253,8 @@
 		<dependency>
     		<groupId>com.github.graphstream</groupId>
     		<artifactId>gs-core</artifactId>
-    		<version>2.0-alpha</version>
+    		<version>dev-SNAPSHOT</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>
