@@ -34,6 +34,7 @@
 package org.graphstream.algorithm.community;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.TreeMap;
 
 import org.graphstream.graph.Graph;
@@ -77,7 +78,7 @@ public class EpidemicCommunityAlgorithm extends DecentralizedCommunityAlgorithm 
 	 * 
 	 * @complexity k times the complexity of the communityScores() function,
 	 *             where k is the average number of neighboring communities.
-	 * @param node
+	 * @param node node to compute
 	 */
 	@Override
 	public void computeNode(Node node) {
@@ -97,7 +98,7 @@ public class EpidemicCommunityAlgorithm extends DecentralizedCommunityAlgorithm 
 		for (Object c : scores.keySet()) {
 			Double s = communityScores.get(c);
 
-			if (s > maxScore || (s == maxScore && rng.nextDouble() >= 0.5)) {
+			if ((s > maxScore) || ((Objects.equals(s, maxScore)) && (rng.nextDouble() >= 0.5))) {
 				maxCommunity = c;
 				maxScore = s;
 			}
@@ -127,7 +128,7 @@ public class EpidemicCommunityAlgorithm extends DecentralizedCommunityAlgorithm 
 		/*
 		 * Reset the scores for each communities
 		 */
-		communityScores = new HashMap<Object, Double>();
+		communityScores = new HashMap<>();
 
 		/*
 		 * Iterate over the nodes that this node "hears"

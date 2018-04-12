@@ -122,7 +122,7 @@ public class TopologicalSortKahn implements Algorithm {
 
     /**
      * removes edge
-     * @param aSourceNode
+     * @param aSourceNode source nodes
      */
     private void removeEdge(Node aSourceNode) {
         Edge aLeavingEdge = aSourceNode.getLeavingEdge(0);

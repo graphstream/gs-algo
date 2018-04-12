@@ -110,10 +110,10 @@ public class ChartMinMaxAverageSeriesMeasure extends ChartSeries2DMeasure {
 	/**
 	 * Add a new entry to series.
 	 * 
-	 * @param x
-	 * @param min
-	 * @param avg
-	 * @param max
+	 * @param x value
+	 * @param min min value
+	 * @param avg average value
+	 * @param max max value
 	 */
 	public void addValue(double x, double min, double avg, double max) {
 		addValue(x, avg);

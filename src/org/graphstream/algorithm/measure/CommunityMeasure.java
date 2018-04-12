@@ -250,9 +250,9 @@ public abstract class CommunityMeasure extends SinkAdapter implements
 	 * Put the node referred by nodeId to the community referred by newValue in
 	 * the assignment referred by assignment.
 	 * 
-	 * @param nodeId
-	 * @param newValue
-	 * @param assignment
+	 * @param nodeId referred node id
+	 * @param newValue community Key
+	 * @param assignment map of communities
 	 */
 	protected void assignNode(String nodeId, Object newValue,
 			HashMap<Object, HashSet<Node>> assignment) {
@@ -279,9 +279,9 @@ public abstract class CommunityMeasure extends SinkAdapter implements
 	 * Remove the node referred by nodeId from the community referred by
 	 * oldValue in the assignment referred by assignment.
 	 * 
-	 * @param nodeId
-	 * @param oldValue
-	 * @param assignment
+	 * @param nodeId referred node id
+	 * @param oldValue community Key
+	 * @param assignment map of communities
 	 */
 	protected void unassignNode(String nodeId, Object oldValue,
 			HashMap<Object, HashSet<Node>> assignment) {

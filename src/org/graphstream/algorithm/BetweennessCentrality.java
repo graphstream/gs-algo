@@ -809,7 +809,7 @@ public class BetweennessCentrality implements Algorithm {
 
 	/**
 	 * Delete attributes used by this algorithm in elements of a graph
-	 * @param it the list of elements
+	 * @param st the list of elements
 	 */
 	private void cleanElement(Stream<? extends Element> st){
 		

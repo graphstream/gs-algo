@@ -178,7 +178,7 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 	public FibonacciHeap() {
 		min = null;
 		size = 0;
-		degList = new ArrayList<Node>();
+		degList = new ArrayList<>();
 	}
 
 	/**

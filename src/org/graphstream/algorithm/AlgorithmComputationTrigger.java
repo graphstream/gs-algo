@@ -62,7 +62,7 @@ public class AlgorithmComputationTrigger extends SinkAdapter {
 	/**
 	 * Set the trigger mode.
 	 * 
-	 * @param mode
+	 * @param mode the trigger mode
 	 */
 	public void setMode(Mode mode) {
 		this.mode = mode;
@@ -71,7 +71,7 @@ public class AlgorithmComputationTrigger extends SinkAdapter {
 	/**
 	 * Get the trigger mode.
 	 * 
-	 * @return
+	 * @return the trigger mode
 	 */
 	public Mode getMode() {
 		return mode;

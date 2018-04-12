@@ -78,6 +78,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-gpg-plugin</artifactId>
+						<version>1.6</version>
 						<configuration>
 							<keyname><![CDATA[GraphStream Team <team@graphstream-project.org>]]></keyname>
 							<skip>false</skip>
@@ -128,24 +129,7 @@
 					<source>1.8</source>
 					<target>1.8</target>
 				</configuration>
-				<version>3.3</version>
-			</plugin>
-
-			<plugin>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<groupId>org.apache.maven.plugins</groupId>
-				<configuration>
-					<sourceIncludes>
-						<include>**</include>
-					</sourceIncludes>
-				</configuration>
-				<version>2.9</version>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.6</version>
+				<version>3.7.0</version>
 			</plugin>
 
 			<plugin>
@@ -165,19 +149,20 @@
 						</tag>
 					</tags>
 					<author>true</author>
+					<failOnError>flase</failOnError>
 					<nodeprecated>false</nodeprecated>
 					<nodeprecatedlist>false</nodeprecatedlist>
 					<noindex>false</noindex>
 					<nonavbar>false</nonavbar>
 					<notree>false</notree>
 					<show>public</show>
-					<source>1.5</source>
+					<source>1.8</source>
 					<splitindex>true</splitindex>
 					<use>true</use>
 					<version>true</version>
 					<windowtitle>The GraphStream ${project.version} API</windowtitle>
 				</configuration>
-				<version>2.10.2</version>
+				<version>3.0.0</version>
 			</plugin>
 
 			<plugin>
@@ -195,12 +180,12 @@
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
 					<archive>
-					<manifest>
-						<mainClass>org.graphstream.util.GraphDiff</mainClass>
-					</manifest>
+						<manifest>
+							<mainClass>org.graphstream.util.GraphDiff</mainClass>
+						</manifest>
 					</archive>
 					<descriptorRefs>
-					<descriptorRef>jar-with-dependencies</descriptorRef>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
 				</configuration>
 				<executions>

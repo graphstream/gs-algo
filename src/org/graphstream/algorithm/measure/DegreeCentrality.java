@@ -61,7 +61,7 @@ public class DegreeCentrality extends AbstractCentrality {
 	}
 
 	/**
-	 * Same as {@link #DegreeCentrality(String, boolean)} but allows to
+	 * Same as {@link #DegreeCentrality(String, NormalizationMode)} but allows to
 	 * configure the mode.
 	 * 
 	 * @param attribute

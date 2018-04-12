@@ -670,13 +670,13 @@ public class Dijkstra extends AbstractSpanningTree {
 
 	/**
 	 * An iterable view of the nodes on the shortest path from the source node
-	 * to a given target node. Uses {@link #getPathNodesIterator(Node)}.
+	 * to a given target node. Uses {@link #getPathNodesStream(Node)}.
 	 * 
 	 * @param target
 	 *            a node
 	 * @return an iterable view of the nodes on the shortest path from the
 	 *         source to the target
-	 * @see #getPathNodesIterator(Node)
+	 * @see #getPathNodesStream(Node)
 	 */
 	public Iterable<Node> getPathNodes(final Node target) {
 		return new Iterable<Node>() {
@@ -715,13 +715,13 @@ public class Dijkstra extends AbstractSpanningTree {
 
 	/**
 	 * An iterable view of the edges on the shortest path from the source node
-	 * to a given target node. Uses {@link #getPathEdgesIterator(Node)}.
+	 * to a given target node. Uses {@link #getPathEdgesStream(Node)}.
 	 * 
 	 * @param target
 	 *            a node
 	 * @return an iterable view of the edges on the shortest path from the
 	 *         source to the target
-	 * @see #getPathEdgesIterator(Node)
+	 * @see #getPathEdgesStream(Node)
 	 */
 	public Iterable<Edge> getPathEdges(final Node target) {
 		return new Iterable<Edge>() {
@@ -762,13 +762,13 @@ public class Dijkstra extends AbstractSpanningTree {
 
 	/**
 	 * An iterable view of of <em>all</em> the shortest paths from the source
-	 * node to a given target node. Uses {@link #getAllPathsIterator(Node)}
+	 * node to a given target node. Uses {@link #getAllPathsStream(Node)}
 	 * 
 	 * @param target
 	 *            a node
 	 * @return an iterable view of all the shortest paths from the source to the
 	 *         target
-	 * @see #getAllPathsIterator(Node)
+	 * @see #getAllPathsStream(Node)
 	 */
 	public Iterable<Path> getAllPaths(final Node target) {
 		return new Iterable<Path>() {

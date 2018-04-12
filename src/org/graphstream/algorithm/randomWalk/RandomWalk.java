@@ -477,7 +477,7 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 * Set the number of entities which will be created at the algorithm
 	 * initialization.
 	 * 
-	 * @param entityCount
+	 * @param entityCount number of entities
 	 */
 	@Parameter
 	public void setEntityCount(int entityCount) {

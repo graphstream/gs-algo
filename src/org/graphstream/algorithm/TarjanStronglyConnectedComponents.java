@@ -195,11 +195,7 @@ public class TarjanStronglyConnectedComponents implements Algorithm {
 		return "Result stored in \""+this.sccAttribute+"\" attribute";
 	}
 	
-	/**
-	 * Internal method call in computation.
-	 * 
-	 * @param v
-	 */
+
 	protected void strongConnect(Node v) {
 		NodeData nd = new NodeData();
 		data.put(v, nd);

@@ -226,7 +226,7 @@ public class URLGenerator extends BaseGenerator {
 	/**
 	 * Set the maximum steps before stop. If 0 or less, limit is disabled.
 	 * 
-	 * @param depthLimit
+	 * @param depthLimit maximum steps before stop
 	 */
 	public void setDepthLimit(int depthLimit) {
 		this.depthLimit = depthLimit;
@@ -239,7 +239,7 @@ public class URLGenerator extends BaseGenerator {
 	/**
 	 * Can be used to filter url. Url not matching this regex will be discarded.
 	 * 
-	 * @param regex
+	 * @param regex regex used to filter url
 	 */
 	public void acceptOnlyMatchingURL(final String regex) {
 		URLFilter f = new URLFilter() {
@@ -257,7 +257,7 @@ public class URLGenerator extends BaseGenerator {
 	/**
 	 * Can be used to filter url. Url matching this regex will be discarded.
 	 * 
-	 * @param regex
+	 * @param regex regex used to filter url
 	 */
 	public void declineMatchingURL(final String regex) {
 		URLFilter f = new URLFilter() {
@@ -341,9 +341,8 @@ public class URLGenerator extends BaseGenerator {
 	 * 
 	 * @param url
 	 *            the url to parse
-	 * @param newUrls
-	 *            the set where extracted links will be added
 	 * @throws IOException
+	 * 			  exception if url is wrong
 	 */
 	protected void parseUrl(String url) throws IOException {
 		URI uri;

@@ -32,6 +32,8 @@
  */
 package org.graphstream.algorithm.community;
 
+import java.util.Objects;
+
 /**
  * Basic community class. Ensures that each created community object has a
  * unique identifier throughout the simulation. This class also allows
@@ -86,7 +88,7 @@ public class Community implements Comparable<Community> {
 	 * @return True if the two communities are equal, false otherwise.
 	 */
 	public boolean equals(Community c) {
-		return this.id == c.id();
+		return Objects.equals(this.id, c.id());
 	}
 
 	/**

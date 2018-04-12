@@ -165,7 +165,7 @@ public abstract class ChartMeasure {
 	 * Create a new plot with default plot parameters.
 	 * 
 	 * @see #getDefaultPlotParameters()
-	 * @throws PlotException
+	 * @throws PlotException problem during plot
 	 */
 	public void plot() throws PlotException {
 		plot(getDefaultPlotParameters());
@@ -184,6 +184,7 @@ public abstract class ChartMeasure {
 	 * @param params
 	 *            parameters that should be used to plot the measure
 	 * @throws PlotException
+	 * 			error during plot
 	 */
 	public abstract void plot(PlotParameters params) throws PlotException;
 
@@ -194,6 +195,7 @@ public abstract class ChartMeasure {
 	 *            the set of parameters used to create the chart
 	 * @return a new chart
 	 * @throws PlotException
+	 * 			error during plot
 	 */
 	public abstract JFreeChart createChart(PlotParameters params)
 			throws PlotException;
@@ -209,6 +211,7 @@ public abstract class ChartMeasure {
 	 * @param measures
 	 *            measures to plot
 	 * @throws PlotException
+	 * 			error during plot
 	 */
 	public static void outputPlot(PlotParameters params,
 			ChartMeasure... measures) throws PlotException {
@@ -233,6 +236,7 @@ public abstract class ChartMeasure {
 	 * @param charts
 	 *            charts to output
 	 * @throws PlotException
+	 * 	 		error during plot
 	 */
 	public static void outputPlot(PlotParameters params, JFreeChart... charts)
 			throws PlotException {

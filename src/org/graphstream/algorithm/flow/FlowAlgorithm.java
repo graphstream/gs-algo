@@ -41,8 +41,8 @@ public interface FlowAlgorithm extends Algorithm {
 	/**
 	 * Get flow value of edge (u,v).
 	 * 
-	 * @param u
-	 * @param v
+	 * @param u source node
+	 * @param v target node
 	 * @return flow of (u,v)
 	 */
 	double getFlow(Node u, Node v);
@@ -50,8 +50,8 @@ public interface FlowAlgorithm extends Algorithm {
 	/**
 	 * Set flow of edge (u,v).
 	 * 
-	 * @param u
-	 * @param v
+	 * @param u source node
+	 * @param v target node
 	 * @param flow
 	 *            new flow
 	 */
@@ -59,9 +59,9 @@ public interface FlowAlgorithm extends Algorithm {
 
 	/**
 	 * Get capacity of edge (u,v).
-	 * 
-	 * @param u
-	 * @param v
+	 *
+	 * @param u source node
+	 * @param v target node
 	 * @return capacity of (u,v)s
 	 */
 	double getCapacity(Node u, Node v);
@@ -69,9 +69,9 @@ public interface FlowAlgorithm extends Algorithm {
 	/**
 	 * Set capacity of (u,v). Capacities should be set between calls to
 	 * {@link #init(Graph, String, String)} and {@link #compute()}.
-	 * 
-	 * @param u
-	 * @param v
+	 *
+	 * @param u source node
+	 * @param v target node
 	 * @param capacity
 	 *            new capacity of (u,v)
 	 */
@@ -87,7 +87,7 @@ public interface FlowAlgorithm extends Algorithm {
 	 * If capacity attribute is null, you have to set capacities before calling
 	 * {@link #compute()}.
 	 * 
-	 * @param attribute
+	 * @param attribute attribute name
 	 */
 	void setCapacityAttribute(String attribute);
 

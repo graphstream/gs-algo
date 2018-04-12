@@ -124,8 +124,8 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 * the specified graph, and using the specified marker to store the
 	 * community attribute
 	 * 
-	 * @param graph
-	 * @param marker
+	 * @param graph the graph
+	 * @param marker marker string to store the community attribute
 	 */
 	public void init(Graph graph, String marker) {
 		setMarker(marker);
@@ -141,7 +141,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 * of reproducibility, use the {@link #setRandom(Random)} function to use a
 	 * controlled random number generator with this algorithm.
 	 * 
-	 * @param graph
+	 * @param graph the graph
 	 */
 //	@Override
 	public void init(Graph graph) {
@@ -178,7 +178,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 * [AlgorithmClass].[InstanceNumber] to make this unique for each instance
 	 * of the algorithm.
 	 * 
-	 * @param marker
+	 * @param marker marker string to store the community attribute
 	 */
 	@Parameter
 	public void setMarker(String marker) {
@@ -248,7 +248,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	/**
 	 * Perform computation of one iteration of the algorithm on a given node.
 	 * 
-	 * @param node
+	 * @param node node to compute
 	 */
 	public abstract void computeNode(Node node);
 
@@ -268,7 +268,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 * The class name is [marker]_[id] where "marker" is the attribute name used
 	 * to store the current community, and [id] the id of this community.
 	 * 
-	 * @param node
+	 * @param node node to compute
 	 */
 	protected void updateDisplayClass(Node node) {
 		node.setAttribute(

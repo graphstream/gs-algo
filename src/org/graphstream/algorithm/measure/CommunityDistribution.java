@@ -74,12 +74,12 @@ public class CommunityDistribution extends CommunityMeasure {
 		super(marker);
 	}
 
-	@Override
 	/**
 	 * Computes and update the statistical information on size distribution.
 	 * 
 	 * @complexity O(C), where C is the expected number of communities.
 	 */
+	@Override
 	public void compute() {
 		if (graphChanged) {
 			// Default measure is the number of communities

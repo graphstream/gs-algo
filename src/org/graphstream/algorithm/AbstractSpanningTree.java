@@ -25,18 +25,17 @@
 
 /**
  * @since 2009-02-19
- * 
+ *
  * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
  * @author Stefan Balev <stefan.balev@graphstream-project.org>
  * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm;
 
-import java.util.Iterator;
-import java.util.stream.Stream;
-
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
+
+import java.util.stream.Stream;
 
 /**
  * Base for spanning tree algorithms.
@@ -55,7 +54,7 @@ import org.graphstream.graph.Graph;
  * 
  * <p>
  * Spanning tree algorithms have to extend this class and to implements the
- * {@link #makeTree()} and {@link #getTreeEdgesIterator()} methods.
+ * {@link #makeTree()} and {@link #getTreeEdgesStream()} methods.
  * {@link #edgeOn(Edge)} and {@link #edgeOff(Edge)} methods have to be used to
  * properly tag edges.
  * </p>
@@ -266,9 +265,7 @@ public abstract class AbstractSpanningTree implements SpanningTree {
 	 * tree.
 	 */
 	protected void resetFlags() {
-		graph.edges().forEach(edge -> {
-			edgeOff(edge);
-		});
+		graph.edges().forEach(edge -> edgeOff(edge));
 		/*for (Edge edge : graph.getEachEdge())
 			edgeOff(edge);*/
 	}
@@ -290,12 +287,7 @@ public abstract class AbstractSpanningTree implements SpanningTree {
 	 * @see org.graphstream.algorithm.SpanningTree#getTreeEdges()
 	 */
 	public Iterable<Edge> getTreeEdges() {
-		return new Iterable<Edge>() {
-			public Iterator<Edge> iterator() {
-				return getTreeEdgesStream().iterator();
-			}
-			
-		};
+		return () -> getTreeEdgesStream().iterator();
 	}
 
 	/* (non-Javadoc)
@@ -303,9 +295,7 @@ public abstract class AbstractSpanningTree implements SpanningTree {
 	 */
 	public void clear() {
 		if (flagAttribute != null)
-			graph.edges().forEach(edge -> {
-				edge.removeAttribute(flagAttribute);
-			});
+			graph.edges().forEach(edge -> edge.removeAttribute(flagAttribute));
 			
 		/*
 		if (flagAttribute != null)

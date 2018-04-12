@@ -106,8 +106,8 @@ public class SurpriseMeasure implements Algorithm {
 	 * Same as {@link #SurpriseMeasure(String)} but allowing to set the graph
 	 * attribute that will contain the result of the computation.
 	 * 
-	 * @param communityAttributeKey
-	 * @param surpriseAttributeKey
+	 * @param communityAttributeKey community attribute key
+	 * @param surpriseAttributeKey surprise attribute key
 	 */
 	public SurpriseMeasure(String communityAttributeKey,
 			String surpriseAttributeKey) {
@@ -211,9 +211,9 @@ public class SurpriseMeasure implements Algorithm {
 	/**
 	 * Helper to compute the binomial coefficient.
 	 * 
-	 * @param n
-	 * @param r
-	 * @return
+	 * @param n number of elements in set
+	 * @param r  number of elements
+	 * @return the binomial coefficient
 	 */
 	public static double binomialCoefficient(double n, double r) {
 		if (r > n)
@@ -238,11 +238,11 @@ public class SurpriseMeasure implements Algorithm {
 	 * "http://stattrek.com/probability-distributions/hypergeometric.aspx">this
 	 * page</a> for more information about this function.
 	 * 
-	 * @param x
-	 * @param N
-	 * @param n
-	 * @param k
-	 * @return
+	 * @param x x
+	 * @param N N
+	 * @param n n
+	 * @param k k
+	 * @return hypergeometric Distribution
 	 */
 	public static double hypergeometricDistribution(double x, double N,
 			double n, double k) {
@@ -256,12 +256,12 @@ public class SurpriseMeasure implements Algorithm {
 	 * "http://stattrek.com/probability-distributions/hypergeometric.aspx">this
 	 * page</a> for more information about this function.
 	 * 
-	 * @param xStart
-	 * @param xEnd
-	 * @param N
-	 * @param n
-	 * @param k
-	 * @return
+	 * @param xStart xStart
+	 * @param xEnd xEnd
+	 * @param N N
+	 * @param n n
+	 * @param k k
+	 * @return Cumulative Hypergeometric Distribution
 	 */
 	public static double cumulativeHypergeometricDistribution(double xStart,
 			double xEnd, double N, double n, double k) {

@@ -88,7 +88,7 @@ public class TopologicalSortDFS implements Algorithm{
 
     /**
      * Recursive function to compute topo sort
-     * @param theNode
+     * @param theNode start node of recursive computation
      */
     private void visit(Node theNode) {
         if(markedNodeList.contains(theNode)){

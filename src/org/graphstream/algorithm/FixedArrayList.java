@@ -221,7 +221,7 @@ public class FixedArrayList<E>
 	
 	/**
 	 * The index that will be used in case of a next insertion in this array.
-	 * @return
+	 * @return next add index
 	 */
 	public int getNextAddIndex() {
 		int n = freeIndices.size();

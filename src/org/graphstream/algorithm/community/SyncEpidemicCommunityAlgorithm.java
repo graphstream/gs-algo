@@ -32,11 +32,10 @@
  */
 package org.graphstream.algorithm.community;
 
-import java.util.HashMap;
-
-import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
+
+import java.util.HashMap;
 
 /**
  * This class implements the synchronous version of the
@@ -126,8 +125,7 @@ public class SyncEpidemicCommunityAlgorithm extends EpidemicCommunityAlgorithm {
 				 * status
 				 */
 				String syncMarker = marker;
-				int updateStep = ((Integer) v.getAttribute(marker + ".step"))
-						.intValue();
+				int updateStep = (Integer) v.getAttribute(marker + ".step");
 
 				/*
 				 * The neighbor node has been updated for this step use the

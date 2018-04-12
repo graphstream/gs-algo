@@ -295,7 +295,6 @@ public class Toolkit extends
 	 * contain a number or the default value is used.
 	 * @param node The node to consider.
 	 * @param weightAttribute The name of the attribute to look on edges, it must be a number.
-	 * @param defaultWeightValue The default weight value to use if edges do not have the 'weightAttribute'.
 	 * @return The entering weighted degree.
 	 */
 	public static double enteringWeightedDegree(Node node, String weightAttribute) {

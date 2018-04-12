@@ -89,7 +89,7 @@ public interface SpanningTree extends Algorithm {
 	/**
 	 * Set value used to set that an edge is not in the spanning tree.
 	 * 
-	 * @param newFlagOff
+	 * @param flagOff
 	 *            off value. If {@code null} edges out of the tree are not
 	 *            tagged.
 	 * @throws IllegalStateException
@@ -113,8 +113,9 @@ public interface SpanningTree extends Algorithm {
 	
 	/**
 	 * Iterable view of the spanning tree edges. This implementation uses
-	 * {@link #getTreeEdgesIterator()}.
+	 * {@link #getTreeEdgesStream()}.
 	 * 
+	 * @param <T> elements
 	 * @return Iterable view of the tree edges.
 	 */
 	<T extends Edge> Iterable<T> getTreeEdges();
