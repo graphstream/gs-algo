@@ -21,9 +21,8 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
- */
-
-/**
+ *
+ *
  * @since 2016-10-14
  * 
  * @author jordilaforge <8899ph@web.de>

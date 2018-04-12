@@ -21,9 +21,8 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
- */
-
-/**
+ *
+ *
  * @since 2014-05-18
  * 
  * @author beltex <cse93251@cse.yorku.ca>

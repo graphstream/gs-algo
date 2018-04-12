@@ -21,9 +21,8 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
- */
-
-/**
+ *
+ *
  * @since 2011-07-13
  * 
  * @author Stefan Balev <stefan.balev@graphstream-project.org>
