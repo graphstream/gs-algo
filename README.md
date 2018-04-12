@@ -1,5 +1,9 @@
 # GraphStream -- Algorithms
 
+
+[![Build Status](https://travis-ci.org/graphstream/gs-algo.svg?branch=dev)](https://travis-ci.org/graphstream/gs-algo)
+
+
 The GraphStream project is java library that provides a API to model,
 analyze and visualize graphs and dynamic graphs.
 
