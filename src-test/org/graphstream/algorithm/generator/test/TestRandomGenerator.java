@@ -116,7 +116,7 @@ public class TestRandomGenerator {
 		gen.end();
 		gen.removeSink(g);
 
-		assertEquals(K, Toolkit.averageDegree(g), 0.01 * K);		
+		assertEquals(K, Toolkit.averageDegree(g), 0.02 * K);
 	}
 	
 	public void compareDD(int[] dd1, int[] dd2) {
@@ -124,7 +124,7 @@ public class TestRandomGenerator {
 		for (int d = 0; d < dMax; d++) {
 			int d1 = d < dd1.length ? dd1[d] : 0;
 			int d2 = d < dd2.length ? dd2[d] : 0;
-			assertEquals(0, (d1 - d2 + 0.0) / N, 0.01);
+			assertEquals(0, (d1 - d2 + 0.0) / N, 0.02);
 		}
 	}
 
