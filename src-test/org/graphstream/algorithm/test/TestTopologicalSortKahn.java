@@ -68,7 +68,7 @@ public class TestTopologicalSortKahn {
         //all possible topological orderings
         allPossibleTopologicalSort.add("[4, 5, 0, 2, 3, 1]");
         allPossibleTopologicalSort.add("[4, 5, 2, 0, 3, 1]");
-        allPossibleTopologicalSort.add("[4, 5, 2. 3. 0, 1]");
+        allPossibleTopologicalSort.add("[4, 5, 2, 3, 0, 1]");
         allPossibleTopologicalSort.add("[4, 5, 2, 3, 1, 0]");
 
         allPossibleTopologicalSort.add("[5, 2, 3, 4, 0, 1]");
