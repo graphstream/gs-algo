@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,10 +21,17 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2009-02-19
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Yoann Pigné <yoann.pigne@graphstream-project.org>
+ * @author Antoine Dutot <antoine.dutot@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.generator;
 
-import org.graphstream.graph.Node;
 import org.graphstream.stream.Pipe;
 
 /**
@@ -198,7 +198,7 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 
 	private void initDimension(int dimension) {
 		this.dimension = dimension;
-		super.setNodeAttributesRange(0f, 1f);
+
 		if (dimension > 0) {
 			if (dimension == 2) {
 				super.addNodeAttribute("x");
@@ -213,7 +213,6 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 			}
 		} else
 			System.err.println("dimension has to be higher that zero");
-
 	}
 
 	/**
@@ -237,10 +236,9 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 
 		addNode(id);
 
-		for (Node n : internalGraph.getEachNode()) {
-			if (!id.equals(n.getId()) && distance(id, n.getId()) < threshold)
-				addEdge(id + "-" + n.getId(), id, n.getId());
-		}
+		internalGraph.nodes()
+			.filter(n -> !id.equals(n.getId()) && distance(id, n.getId()) < threshold)
+			.forEach(n -> addEdge(id + "-" + n.getId(), id, n.getId()));
 
 		return true;
 	}
@@ -313,7 +311,7 @@ public class RandomEuclideanGenerator extends BaseGenerator implements Pipe {
 			int i = ((int) key.charAt(0)) - (int) 'x';
 
 			if (i < dimension)
-				internalGraph.getNode(nodeId).addAttribute(key, val);
+				internalGraph.getNode(nodeId).setAttribute(key, val);
 		}
 	}
 

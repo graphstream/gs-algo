@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,12 +21,21 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2012-07-12
+ * 
+ * @author Stefan Balev <stefan.balev@graphstream-project.org>
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.stream.ElementSink;
@@ -230,6 +232,7 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 	 * @throws IllegalArgumentException
 	 *             If the damping factor is less than 0.01 or greater than 0.99
 	 */
+	@Parameter
 	public void setDampingFactor(double dampingFactor)
 			throws IllegalArgumentException {
 		if (dampingFactor < 0.01 || dampingFactor > 0.99)
@@ -257,6 +260,7 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 	 * @throws IllegalArgumentException
 	 *             if the precision is less than 1.0e-7
 	 */
+	@Parameter
 	public void setPrecision(double precision) throws IllegalArgumentException {
 		if (precision < 1.0e-7)
 			throw new IllegalArgumentException("Precision is too small");
@@ -283,6 +287,7 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 	 * @throws IllegalStateException
 	 *             if the algorithm is already initialized
 	 */
+	@Parameter
 	public void setRankAttribute(String rankAttribute)
 			throws IllegalStateException {
 		if (graph != null)
@@ -301,6 +306,7 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 	 * @param verbose
 	 *            Verbose mode
 	 */
+	@Parameter
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
 	}
@@ -311,8 +317,9 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 		this.graph = graph;
 		graph.addElementSink(this);
 		double initialRank = 1.0 / graph.getNodeCount();
-		for (Node node : graph)
-			node.addAttribute(rankAttribute, initialRank);
+		
+		graph.nodes().forEach(node -> node.setAttribute(rankAttribute, initialRank));
+		
 		newRanks = new ArrayList<Double>(graph.getNodeCount());
 		upToDate = false;
 		iterationCount = 0;
@@ -336,11 +343,21 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 		graph = null;
 	}
 
+	@Result
+	public String defaultResult() {
+		graph.nodes().forEach(node -> {
+			double rank = getRank(node);
+			node.setAttribute("ui.size", 5 + Math.sqrt(graph.getNodeCount() * rank * 20));
+			node.setAttribute("ui.label", String.format("%.2f%%", rank * 100));
+		});
+		
+		return "ui.size and ui.label changed";
+	}
 	// ElementSink implementation
 
 	public void nodeAdded(String sourceId, long timeId, String nodeId) {
 		// the initial rank of the new node will be 0
-		graph.getNode(nodeId).addAttribute(rankAttribute,
+		graph.getNode(nodeId).setAttribute(rankAttribute,
 				graph.getNodeCount() == 1 ? 1.0 : 0.0);
 		upToDate = false;
 	}
@@ -349,10 +366,11 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 		// removed node will give equal parts of its rank to the others
 		double part = graph.getNode(nodeId).getNumber(rankAttribute)
 				/ (graph.getNodeCount() - 1);
-		for (Node node : graph)
-			if (!node.getId().equals(nodeId))
-				node.addAttribute(rankAttribute, node.getNumber(rankAttribute)
-						+ part);
+		
+		graph.nodes()
+			.filter(node -> !node.getId().equals(nodeId))
+			.forEach(node -> node.setAttribute(rankAttribute, node.getNumber(rankAttribute) + part));
+		
 		upToDate = false;
 	}
 
@@ -397,7 +415,7 @@ public class PageRank implements DynamicAlgorithm, ElementSink {
 			double currentRank = node.getNumber(rankAttribute);
 			double newRank = newRanks.get(i) + danglingRank;
 			normDiff += Math.abs(newRank - currentRank);
-			node.addAttribute(rankAttribute, newRank);
+			node.setAttribute(rankAttribute, newRank);
 		}
 		iterationCount++;
 	}

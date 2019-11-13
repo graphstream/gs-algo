@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,12 +21,22 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2009-02-19
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Antoine Dutot <antoine.dutot@graphstream-project.org>
+ * @author Yoann Pigné <yoann.pigne@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -136,7 +139,10 @@ public class BellmanFord implements Algorithm {
 	protected String source_id;
 
 	protected Node source;
-
+	
+	// Used by default result
+	protected String target = "";
+	
 	/**
 	 * object-level unique string that identifies tags of this instance on a
 	 * graph.
@@ -147,7 +153,19 @@ public class BellmanFord implements Algorithm {
 	 * Name of attribute used to get weight of edges.
 	 */
 	protected String weightAttribute;
-
+	
+	/**
+	 * Default weight attribute
+	 */
+	public static final String DEFAULT_WEIGHT_ATTRIBUTE = "weight";
+	
+	/**
+	 * Build a new BellmanFord algorithm with default parameters.
+	 */
+	public BellmanFord() {
+		this(DEFAULT_WEIGHT_ATTRIBUTE);
+	}
+	
 	/**
 	 * Build a new BellmanFord algorithm giving the name of the weight attribute
 	 * for edges.
@@ -180,11 +198,22 @@ public class BellmanFord implements Algorithm {
 	 * @param nodeId
 	 *            id of the source node
 	 */
+	@Parameter(true)
 	public void setSource(String nodeId) {
 		if((source_id == null || ! source_id.equals(nodeId)) && graph!=null){
 			source = graph.getNode(nodeId);
 		}
 		this.source_id = nodeId;	
+	}
+	
+	@Parameter(true)
+	public void setTarget(String target) {
+		this.target = target;
+	}
+	
+	@Parameter
+	public void setWeightAttribute(String weightAttribute) {
+		this.weightAttribute = weightAttribute;
 	}
 
 	/**
@@ -229,13 +258,12 @@ public class BellmanFord implements Algorithm {
 						.getAttribute(identifier+".predecessors");
 			}
 			if (current != source) {
-				for (Edge e : predecessors) {
+				final Node c = current ;
+				predecessors.forEach(e -> {
 					Path p = path.getACopy();
-					p.add(current, e);
-					pathSetShortestPath_facilitate(e.getOpposite(current), p,
-							paths);
-
-				}
+					p.add(c, e);
+					pathSetShortestPath_facilitate(e.getOpposite(c), p, paths);
+				});
 			}
 		}
 		if (current == source) {
@@ -266,6 +294,7 @@ public class BellmanFord implements Algorithm {
 	 * @param identifier
 	 *            the unique identifier to set
 	 */
+	@Parameter
 	public void setIdentifier(String identifier) {
 		this.identifier = identifier;
 	}
@@ -292,7 +321,7 @@ public class BellmanFord implements Algorithm {
 	 *         path.
 	 */
 	public double getShortestPathValue(Node target) {
-		Double d = target.getAttribute(identifier+".distance");
+		Double d = (double) target.getAttribute(identifier+".distance");
 		if (d != null)
 			return d;
 		return Double.POSITIVE_INFINITY;
@@ -329,12 +358,18 @@ public class BellmanFord implements Algorithm {
 		}
 		return p;
 	}
-
 	
+	/**
+	 * @see #getShortestPath(Node target)
+	 */
+	public Path getShortestPath() {
+		return getShortestPath(graph.getNode(target));
+	}
 	
-	
-	
-	
+	@Result
+    public String defaultResult() {
+    	return getShortestPath().toString() ;
+    }
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -345,27 +380,20 @@ public class BellmanFord implements Algorithm {
 		Node source = graph.getNode(this.source_id);
 
 		// Step 1: Initialize graph
-
-		
-		for (Node n : graph) {
+		graph.nodes().forEach(n -> {
 			if (n == source)
-				n.addAttribute(identifier+".distance", 0.0);
+				n.setAttribute(identifier+".distance", 0.0);
 			else
-				n.addAttribute(identifier+".distance", Double.POSITIVE_INFINITY);
-
-			//n.addAttribute(identifier+".predecessors",(Object)null);
-		}
-	
-		
+				n.setAttribute(identifier+".distance", Double.POSITIVE_INFINITY);
+		});
+				
 		// Step 2: relax edges repeatedly
-
-		for (int i = 0; i < graph.getNodeCount(); i++) {
-			for (Edge e : graph.getEachEdge()) {
+		graph.nodes().forEach(n -> {
+			graph.edges().forEach(e -> {
 				Node n0 = e.getNode0();
 				Node n1 = e.getNode1();
 				Double d0 = (Double) n0.getAttribute(identifier+".distance");
 				Double d1 = (Double) n1.getAttribute(identifier+".distance");
-
 				Double we = (Double) e.getAttribute(weightAttribute);
 				if (we == null)
 					throw new NumberFormatException(
@@ -374,7 +402,7 @@ public class BellmanFord implements Algorithm {
 
 				if (d0 != null) {
 					if (d1 == null || d1 >= d0 + we) {
-						n1.addAttribute(identifier+".distance", d0 + we);
+						n1.setAttribute(identifier+".distance", d0 + we);
 						ArrayList<Edge> predecessors = (ArrayList<Edge>) n1
 								.getAttribute(identifier+".predecessors");
 
@@ -389,16 +417,16 @@ public class BellmanFord implements Algorithm {
 							predecessors.add(e);
 						}
 
-						n1.addAttribute(identifier+".predecessors",
+						n1.setAttribute(identifier+".predecessors",
 								predecessors);
 					}
 				}
-			}
-		}
+			});
+		});
+		
 
 		// Step 3: check for negative-weight cycles
-
-		for (Edge e : graph.getEachEdge()) {
+		graph.edges().forEach(e -> {
 			Node n0 = e.getNode0();
 			Node n1 = e.getNode1();
 			Double d0 = (Double) n0.getAttribute(identifier+".distance");
@@ -420,6 +448,6 @@ public class BellmanFord implements Algorithm {
 								"%s: Problem: negative weight, cycle detected on edge \"%s\"",
 								BellmanFord.class.getName(), e.getId()));
 			}
-		}
+		});
 	}
 }

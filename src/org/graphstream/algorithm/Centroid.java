@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,11 +21,24 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2010-12-01
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Antoine Dutot <antoine.dutot@graphstream-project.org>
+ * @author Yoann Pigné <yoann.pigne@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm;
 
 import java.util.HashSet;
+import java.util.StringJoiner;
+import java.util.concurrent.atomic.DoubleAccumulator;
 
+import org.graphstream.algorithm.APSP.APSPInfo;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -222,18 +228,19 @@ public class Centroid implements Algorithm {
 	 * @see org.graphstream.algorithm.Algorithm#compute()
 	 */
 	public void compute() {
-		float min = Float.MAX_VALUE;
+		//float min = Float.MAX_VALUE;
+		DoubleAccumulator min = new DoubleAccumulator((x, y) -> y, Double.MAX_VALUE);
 		HashSet<Node> centroid = new HashSet<Node>();
-
-		for (Node node : graph.getEachNode()) {
-			float m = 0;
-			APSP.APSPInfo info = node.getAttribute(apspInfoAttribute);
+		
+		graph.nodes().forEach(node -> {
+			DoubleAccumulator m = new DoubleAccumulator((x, y) -> x + y, 0);
+			APSP.APSPInfo info = (APSPInfo) node.getAttribute(apspInfoAttribute);
 
 			if (info == null)
 				System.err
 						.printf("APSPInfo missing. Did you compute APSP before ?\n");
-
-			for (Node other : graph.getEachNode()) {
+			
+			graph.nodes().forEach(other -> {
 				if (node != other) {
 					double d = info.getLengthTo(other.getId());
 
@@ -242,22 +249,22 @@ public class Centroid implements Algorithm {
 								.printf("Found a negative length value in centroid algorithm. "
 										+ "Is graph connected ?\n");
 					else
-						m += d;
+						m.accumulate(d);
 				}
-			}
+			});
 
-			if (m < min) {
+			if (m.get() < min.get()) {
 				centroid.clear();
 				centroid.add(node);
-				min = m;
-			} else if (m == min) {
+				min.accumulate(m.get());
+			} else if (m.get() == min.get()) {
 				centroid.add(node);
 			}
-		}
+		});
+		
+		graph.nodes().forEach(node ->
+			node.setAttribute(centroidAttribute, centroid.contains(node) ? isInCentroid : isNotInCentroid));
 
-		for (Node node : graph.getEachNode())
-			node.setAttribute(centroidAttribute,
-					centroid.contains(node) ? isInCentroid : isNotInCentroid);
 
 		centroid.clear();
 	}
@@ -278,6 +285,7 @@ public class Centroid implements Algorithm {
 	 *            the name of the attribute where the APSP informations are
 	 *            stored.
 	 */
+	@Parameter
 	public void setAPSPInfoAttribute(String attribute) {
 		apspInfoAttribute = attribute;
 	}
@@ -301,6 +309,7 @@ public class Centroid implements Algorithm {
 	 *            the value of elements centroid attribute when this element is
 	 *            in the centroid.
 	 */
+	@Parameter
 	public void setIsInCentroidValue(Object value) {
 		isInCentroid = value;
 	}
@@ -325,6 +334,7 @@ public class Centroid implements Algorithm {
 	 *            the value of elements centroid attribute when this element is
 	 *            not in the centroid.
 	 */
+	@Parameter
 	public void setIsNotInCentroidValue(Object value) {
 		isNotInCentroid = value;
 	}
@@ -347,7 +357,20 @@ public class Centroid implements Algorithm {
 	 *            the name of the element attribute where computation result is
 	 *            stored.
 	 */
+	@Parameter
 	public void setCentroidAttribute(String centroidAttribute) {
 		this.centroidAttribute = centroidAttribute;
+	}
+	
+	@Result
+	public String defaultResult() {
+		StringJoiner sj = new StringJoiner(" | ", "====== Centroid ====== \n", "");
+		graph.nodes()
+			.filter(n -> ((Boolean) n.getAttribute(centroidAttribute)))
+			.forEach(n -> {
+				sj.add(n.getId());
+			});
+		
+		return sj.toString();
 	}
 }

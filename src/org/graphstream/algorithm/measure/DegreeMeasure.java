@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,12 +21,19 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2012-02-10
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.measure;
 
+import java.util.concurrent.atomic.DoubleAccumulator;
+
 import org.graphstream.algorithm.DynamicAlgorithm;
 import org.graphstream.graph.Graph;
-import org.graphstream.graph.Node;
 import org.graphstream.stream.Sink;
 import org.graphstream.stream.SinkAdapter;
 
@@ -66,20 +66,20 @@ public class DegreeMeasure extends ChartMinMaxAverageSeriesMeasure implements
 	 * @see org.graphstream.algorithm.Algorithm#compute()
 	 */
 	public void compute() {
-		double min, max, avg;
+		DoubleAccumulator min, max, avg;
 		
-		min = Double.MAX_VALUE;
-		max = Double.MIN_VALUE;
-		avg = 0;
+		min = new DoubleAccumulator((x,y) -> y, Double.MAX_VALUE);
+		max = new DoubleAccumulator((x,y) -> y, Double.MIN_VALUE);
+		avg = new DoubleAccumulator((x,y) -> x + y, 0);
+		
+		g.nodes().forEach(n -> {
+			min.accumulate(Math.min(min.get(), n.getDegree()));
+			max.accumulate(Math.max(max.get(), n.getDegree()));
+			avg.accumulate(n.getDegree());
+		});
 
-		for (Node n : g) {
-			min = Math.min(min, n.getDegree());
-			max = Math.max(max, n.getDegree());
-			avg += n.getDegree();
-		}
-
-		avg /= g.getNodeCount();
-		addValue(g.getStep(), min, avg, max);
+		int avgFinal = (int) (avg.get() / g.getNodeCount());
+		addValue(g.getStep(), min.get(), avgFinal, max.get());
 	}
 
 	/*

@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,11 +21,18 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2012-02-10
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.measure;
 
 import java.util.Arrays;
 
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
@@ -45,7 +45,7 @@ public class EigenvectorCentrality extends AbstractCentrality {
 	protected String weightAttribute;
 
 	public EigenvectorCentrality() {
-		this("DEFAULT_ATTRIBUTE_KEY", NormalizationMode.NONE);
+		this(DEFAULT_ATTRIBUTE_KEY, NormalizationMode.NONE);
 	}
 	
 	public EigenvectorCentrality(String attribute, NormalizationMode normalize) {
@@ -107,5 +107,9 @@ public class EigenvectorCentrality extends AbstractCentrality {
 
 		data = x2;
 	}
-
+	
+	@Result
+	public String defaultMessage() {
+		return "Result stored in \""+this.weightAttribute+"\" attribute";
+	}
 }

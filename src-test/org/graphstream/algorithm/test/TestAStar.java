@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,12 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2011-05-12
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.test;
 
@@ -82,17 +81,17 @@ public class TestAStar {
 		BF = graph.addEdge("BF", "B", "F");
 
 		A = graph.getNode("A");
-		A.addAttribute("label", "A");
+		A.setAttribute("label", "A");
 		B = graph.getNode("B");
-		B.addAttribute("label", "B");
+		B.setAttribute("label", "B");
 		C = graph.getNode("C");
-		C.addAttribute("label", "C");
+		C.setAttribute("label", "C");
 		D = graph.getNode("D");
-		D.addAttribute("label", "D");
+		D.setAttribute("label", "D");
 		E = graph.getNode("E");
-		E.addAttribute("label", "E");
+		E.setAttribute("label", "E");
 		F = graph.getNode("F");
-		F.addAttribute("label", "F");
+		F.setAttribute("label", "F");
 
 		// C --- D
 		// / |
@@ -124,7 +123,7 @@ public class TestAStar {
 		List<Edge> edges = path.getEdgePath();
 
 		for (Edge edge : edges)
-			edge.addAttribute("color", "red");
+			edge.setAttribute("color", "red");
 
 		Iterator<? extends Edge> i = edges.iterator();
 
@@ -161,7 +160,7 @@ public class TestAStar {
 		List<Edge> edges = path.getEdgePath();
 
 		for (Edge edge : edges)
-			edge.addAttribute("color", "red");
+			edge.setAttribute("color", "red");
 
 		Iterator<? extends Edge> i = edges.iterator();
 
@@ -196,7 +195,7 @@ public class TestAStar {
 		List<Edge> edges = path.getEdgePath();
 
 		for (Edge edge : edges)
-			edge.addAttribute("color", "red");
+			edge.setAttribute("color", "red");
 
 		Iterator<? extends Edge> i = edges.iterator();
 
@@ -247,7 +246,7 @@ public class TestAStar {
 		List<Edge> edges = path.getEdgePath();
 
 		for (Edge edge : edges)
-			edge.addAttribute("color", "red");
+			edge.setAttribute("color", "red");
 
 		Iterator<? extends Edge> i = edges.iterator();
 
@@ -292,7 +291,7 @@ public class TestAStar {
 		List<Edge> edges = path.getEdgePath();
 
 		for (Edge edge : edges)
-			edge.addAttribute("color", "red");
+			edge.setAttribute("color", "red");
 
 		Iterator<? extends Edge> i = edges.iterator();
 
@@ -334,14 +333,14 @@ public class TestAStar {
 		Edge BF2 = graph.addEdge("BF2", "B", "F");
 		Edge BF3 = graph.addEdge("BF3", "B", "F");
 
-		AB.addAttribute("weight", 1f);
-		BF1.addAttribute("weight", 3f);
-		BF2.addAttribute("weight", 2f);
-		BF3.addAttribute("weight", 1f);
-		BC.addAttribute("weight", 0.5f);
-		CD.addAttribute("weight", 1f);
-		DE.addAttribute("weight", 1f);
-		EF.addAttribute("weight", 1f);
+		AB.setAttribute("weight", 1f);
+		BF1.setAttribute("weight", 3f);
+		BF2.setAttribute("weight", 2f);
+		BF3.setAttribute("weight", 1f);
+		BC.setAttribute("weight", 0.5f);
+		CD.setAttribute("weight", 1f);
+		DE.setAttribute("weight", 1f);
+		EF.setAttribute("weight", 1f);
 
 		astar.compute("A", "F");
 
@@ -350,7 +349,7 @@ public class TestAStar {
 		List<Edge> edges = path.getEdgePath();
 
 		for (Edge edge : edges)
-			edge.addAttribute("color", "red");
+			edge.setAttribute("color", "red");
 
 		Iterator<? extends Edge> i = edges.iterator();
 

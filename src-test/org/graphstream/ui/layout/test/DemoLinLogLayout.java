@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,13 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2012-06-24
+ * 
+ * @author Antoine Dutot <antoine.dutot@graphstream-project.org>
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.ui.layout.test;
 
@@ -114,8 +114,8 @@ public class DemoLinLogLayout {
 		layout.setQuality(1);
 		layout.setBarnesHutTheta(0.5);
 
-		graph.addAttribute("ui.antialias");
-		graph.addAttribute("ui.stylesheet", styleSheet);
+		graph.setAttribute("ui.antialias");
+		graph.setAttribute("ui.stylesheet", styleSheet);
 		fromViewer.addSink(graph);
 		//viewer.addDefaultView(true);
 		graph.addSink(layout);
@@ -180,8 +180,8 @@ public class DemoLinLogLayout {
 		for(int i=0; i<nedges; i++) {
 			Edge edge = graph.getEdge(i);
 			if(edgesDists[i] > avgDist*threshold) {
-				edge.addAttribute("ui.class", "cut");
-				edge.addAttribute("cut");
+				edge.setAttribute("ui.class", "cut");
+				edge.setAttribute("cut");
 			} else {
 				edge.removeAttribute("ui.class");
 				edge.removeAttribute("cut");

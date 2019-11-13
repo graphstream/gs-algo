@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,13 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2010-07-23
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Antoine Dutot <antoine.dutot@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.generator;
 
@@ -96,8 +96,7 @@ public class PointsOfInterestGenerator extends BaseGenerator {
 		 */
 		void newAddict(Addict addictA) {
 			if (!addict.contains(addictA)) {
-				for (Addict addictB : addict)
-					addictA.link(addictB);
+				addict.forEach(addictB -> addictA.link(addictB));
 
 				addict.add(addictA);
 				addictA.pointsOfInterest.add(this);
@@ -117,8 +116,7 @@ public class PointsOfInterestGenerator extends BaseGenerator {
 				addict.remove(addictA);
 				addictA.pointsOfInterest.remove(this);
 
-				for (Addict addictB : addict)
-					addictA.unlink(addictB);
+				addict.forEach(addictB -> addictA.unlink(addictB));
 			}
 		}
 
@@ -202,8 +200,9 @@ public class PointsOfInterestGenerator extends BaseGenerator {
 			//
 			Collections.shuffle(
 					PointsOfInterestGenerator.this.pointsOfInterest, random);
-
-			for (PointOfInterest poi : PointsOfInterestGenerator.this.pointsOfInterest) {
+			
+			
+			PointsOfInterestGenerator.this.pointsOfInterest.forEach(poi -> {
 				if (pointsOfInterest.contains(poi)) {
 					if (random.nextFloat() < lostInterestProbability)
 						poi.delAddict(this);
@@ -223,7 +222,7 @@ public class PointsOfInterestGenerator extends BaseGenerator {
 																				// )
 						poi.newAddict(this);
 				}
-			}
+			});
 		}
 
 		/**
@@ -278,11 +277,12 @@ public class PointsOfInterestGenerator extends BaseGenerator {
 		 * Unlink all neighbor.
 		 */
 		void fullUnlink() {
-			for (Addict a : neighbor.keySet()) {
+			
+			neighbor.keySet().forEach(a -> {
 				a.neighbor.remove(this);
 				PointsOfInterestGenerator.this.delEdge(getEdgeId(id, a.id));
-			}
-
+			});
+			
 			neighbor.clear();
 		}
 	}
@@ -483,8 +483,7 @@ public class PointsOfInterestGenerator extends BaseGenerator {
 	protected void removePointOfInterest(PointOfInterest poi) {
 		pointsOfInterest.remove(poi);
 
-		for (Addict a : poi.addict)
-			poi.delAddict(a);
+		poi.addict.forEach(a -> poi.delAddict(a));
 	}
 
 	protected void removeRandomPointOfInterest() {
@@ -538,8 +537,8 @@ public class PointsOfInterestGenerator extends BaseGenerator {
 				+ "  padding: 50px;" + "}" + "node { " + "  fill-color: black;"
 				+ "}" + "edge {" + "  fill-color: black;" + "}";
 
-		g.addAttribute("ui.stylesheet", stylesheet);
-		g.addAttribute("ui.quality");
+		g.setAttribute("ui.stylesheet", stylesheet);
+		g.setAttribute("ui.quality");
 		// g.addAttribute( "ui.antialias" );
 
 		g.display();

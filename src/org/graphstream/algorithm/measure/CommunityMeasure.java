@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,13 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2010-10-04
+ * 
+ * @author Guillaume-Jean Herbiet <guillaume-jean@herbiet.net>
+ * @author Antoine Dutot <antoine.dutot@graphstream-project.org>
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
  */
 package org.graphstream.algorithm.measure;
 
@@ -249,9 +249,9 @@ public abstract class CommunityMeasure extends SinkAdapter implements
 	 * Put the node referred by nodeId to the community referred by newValue in
 	 * the assignment referred by assignment.
 	 * 
-	 * @param nodeId
-	 * @param newValue
-	 * @param assignment
+	 * @param nodeId referred node id
+	 * @param newValue community Key
+	 * @param assignment map of communities
 	 */
 	protected void assignNode(String nodeId, Object newValue,
 			HashMap<Object, HashSet<Node>> assignment) {
@@ -278,9 +278,9 @@ public abstract class CommunityMeasure extends SinkAdapter implements
 	 * Remove the node referred by nodeId from the community referred by
 	 * oldValue in the assignment referred by assignment.
 	 * 
-	 * @param nodeId
-	 * @param oldValue
-	 * @param assignment
+	 * @param nodeId referred node id
+	 * @param oldValue community Key
+	 * @param assignment map of communities
 	 */
 	protected void unassignNode(String nodeId, Object oldValue,
 			HashMap<Object, HashSet<Node>> assignment) {

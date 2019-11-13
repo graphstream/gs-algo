@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,12 +21,21 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2012-07-25
+ * 
+ * @author Stefan Balev <stefan.balev@graphstream-project.org>
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.test;
 
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import java.util.concurrent.atomic.DoubleAccumulator;
 
 import org.graphstream.algorithm.Kruskal;
 import org.graphstream.algorithm.Prim;
@@ -64,7 +66,7 @@ public class TestKruskalPrim {
 		for (int i = 0; i < eIds.length; i++) {
 			String eId = eIds[i];
 			Edge e = g.addEdge(eId, eId.substring(0, 1), eId.substring(1, 2));
-			e.addAttribute("weight", weights[i]);
+			e.setAttribute("weight", weights[i]);
 		}
 		return g;
 	}
@@ -100,24 +102,26 @@ public class TestKruskalPrim {
 	
 	public void helper(Kruskal k, Graph g, double expectedWeight, int expectedCount) {
 		assertEquals(expectedWeight, k.getTreeWeight(), 0);
-		int edgeCount = 0;
-		for (Edge e : k.getTreeEdges()) {
-			Boolean b = e.getAttribute(k.getFlagAttribute()); 
+		DoubleAccumulator edgeCount = new DoubleAccumulator((x,y) -> x + y, 0) ;
+	
+		k.getTreeEdges().forEach(e -> {
+			Boolean b = (Boolean) e.getAttribute(k.getFlagAttribute()); 
 			assertTrue(b);
-			edgeCount++;
-		}
-		assertEquals(expectedCount, edgeCount);
+			edgeCount.accumulate(1);
+		});
+		assertEquals(expectedCount, (int)edgeCount.get());
 		
-		edgeCount = 0;
-		double treeWeight = 0;
-		for (Edge e : g.getEachEdge()) {
-			Boolean b = e.getAttribute(k.getFlagAttribute());
-			if (b) {
-				edgeCount++;
-				treeWeight += e.getNumber("weight");
-			}
-		}
-		assertEquals(expectedWeight, treeWeight, 0);
-		assertEquals(expectedCount, edgeCount);
+		DoubleAccumulator edgeCount2 = new DoubleAccumulator((x,y) -> x + y, 0) ;
+		DoubleAccumulator treeWeight = new DoubleAccumulator((x,y) -> x + y, 0) ;
+		
+		g.edges()
+			.filter(e -> (Boolean) e.getAttribute(k.getFlagAttribute()))
+			.forEach(e -> {
+				edgeCount2.accumulate(1);
+				treeWeight.accumulate(e.getNumber("weight"));
+			});
+
+		assertEquals(expectedWeight, treeWeight.get(), 0);
+		assertEquals(expectedCount, (int)edgeCount2.get());
 	}
 }

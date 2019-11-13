@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,11 +21,24 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2009-02-19
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Yoann Pigné <yoann.pigne@graphstream-project.org>
+ * @author Antoine Dutot <antoine.dutot@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.atomic.DoubleAccumulator;
+import java.util.stream.Stream;
 
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -246,13 +252,24 @@ public class APSP extends SinkAdapter implements Algorithm {
 	protected boolean directed = true;
 
 	/**
+	 * Default weight attribute
+	 */
+	public static final String DEFAULT_WEIGHT_ATTRIBUTE = "weight";
+	
+	/**
 	 * Name of the attribute on each edge indicating the weight of the edge.
 	 * This attribute must contain a descendant of Number.
 	 */
 	protected String weightAttributeName;
 	
 	protected Progress progress = null;
-
+	
+	/**
+	 * Used by default print result
+	 */
+	private String source = "";
+	private String target = "";
+	
 	// Construction
 
 	public APSP() {
@@ -267,7 +284,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 	 *            The graph to use.
 	 */
 	public APSP(Graph graph) {
-		this(graph, "weight", true);
+		this(graph, DEFAULT_WEIGHT_ATTRIBUTE, true);
 	}
 
 	/**
@@ -327,6 +344,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 	 * @param on
 	 *            If true edge orientation is used.b
 	 */
+	@Parameter
 	public void setDirected(boolean on) {
 		directed = on;
 	}
@@ -347,6 +365,7 @@ public class APSP extends SinkAdapter implements Algorithm {
 	 * @param name
 	 *            The attribute name.
 	 */
+	@Parameter
 	public void setWeightAttributeName(String name) {
 		weightAttributeName = name;
 	}
@@ -365,7 +384,24 @@ public class APSP extends SinkAdapter implements Algorithm {
 			this.graph.addSink(this);
 		}
 	}
-
+	
+	@Parameter(true)
+	public void setSource(String source) {
+		this.source = source;
+	}
+	
+	@Parameter(true)
+	public void setTarget(String target) {
+		this.target = target;
+	}
+	
+	@Result
+	public String defaultResult() {
+		APSPInfo info = (APSPInfo) graph.getNode(source).getAttribute(APSPInfo.ATTRIBUTE_NAME);
+		return info.getShortestPathTo(target).toString();
+	}
+	
+	
 	/**
 	 * Run the APSP computation. When finished, the graph is equipped with
 	 * specific attributes of type
@@ -384,22 +420,20 @@ public class APSP extends SinkAdapter implements Algorithm {
 
 			ArrayList<Node> nodeList = new ArrayList<Node>();
 
-			for (Node node : graph) {
-				node.addAttribute(APSPInfo.ATTRIBUTE_NAME, new APSPInfo(node,
+			graph.nodes().forEach(node -> {
+				node.setAttribute(APSPInfo.ATTRIBUTE_NAME, new APSPInfo(node,
 						weightAttributeName, directed));
 				nodeList.add(node);
-			}
-
+			});
 			// The Floyd-Warshall algorithm. You can easily see it is in O(n^3)..
 
 			// int z = 0;
-			double prog = 0;
-			double max  = nodeList.size();
-			max *= max;
-
-			for (Node k : nodeList) {
-				for (Node i : nodeList) {
-					for (Node j : nodeList) {
+			DoubleAccumulator prog = new DoubleAccumulator((x, y) -> x + y, 0);
+			final double MAX  = nodeList.size() * nodeList.size();
+			
+			nodeList.stream().forEach(k -> {
+				nodeList.stream().forEach(i -> {
+					nodeList.stream().forEach(j -> {
 						APSPInfo I = (APSPInfo) i.getAttribute(
 								APSPInfo.ATTRIBUTE_NAME, APSPInfo.class);
 						APSPInfo J = (APSPInfo) j.getAttribute(
@@ -424,17 +458,18 @@ public class APSP extends SinkAdapter implements Algorithm {
 								I.setLengthTo(J, sum, K);
 							}
 						}
-					}
+					});
 					
 					if (progress != null)
-						progress.progress(prog / max);
+						progress.progress(prog.get() / MAX);
 					
-					prog += 1;
-				}
-
+					//prog += 1;
+					prog.accumulate(1);
+				});
+				
 				// z++;
 				// System.err.printf( "%3.2f%%%n", (z/((double)n))*100 );
-			}
+			});
 		}
 
 		graphChanged = false;
@@ -484,22 +519,25 @@ public class APSP extends SinkAdapter implements Algorithm {
 		 *            If false, the edge orientation is not taken into account.
 		 */
 		public APSPInfo(Node node, String weightAttributeName, boolean directed) {
-			double weight = 1;
-			Iterable<? extends Edge> edges = node.getLeavingEdgeSet();
-
+			
+			Stream<Edge> edges = node.leavingEdges() ;
 			source = node;
 
 			if (!directed)
-				edges = node.getEdgeSet();
+				edges = node.edges();
+			
+			edges.forEach(edge -> {
+				double weight = 1;
 
-			for (Edge edge : edges) {
 				Node other = edge.getOpposite(node);
 
 				if (edge.hasAttribute(weightAttributeName))
 					weight = edge.getNumber(weightAttributeName);
-
+				
 				targets.put(other.getId(), new TargetPath(other, weight, null));
-			}
+
+			});
+			
 		}
 
 		/**

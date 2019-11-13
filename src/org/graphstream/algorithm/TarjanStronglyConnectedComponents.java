@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,13 +21,20 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2011-06-16
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm;
 
 import java.util.HashMap;
 import java.util.Stack;
 
-import org.graphstream.graph.Edge;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -145,11 +145,11 @@ public class TarjanStronglyConnectedComponents implements Algorithm {
 		data.clear();
 		index = 0;
 		S.clear();
-
-		for (Node v : graph.getEachNode()) {
-			if (!data.containsKey(v))
-				strongConnect(v);
-		}
+		
+		graph.nodes()
+			.filter(v -> !data.containsKey(v))
+			.forEach(v -> strongConnect(v));
+		
 	}
 
 	/**
@@ -158,6 +158,7 @@ public class TarjanStronglyConnectedComponents implements Algorithm {
 	 * @param gen
 	 *            the new generator
 	 */
+	@Parameter
 	public void setIndexGenerator(IndexGenerator gen) {
 		if (gen == null)
 			throw new NullPointerException();
@@ -171,6 +172,7 @@ public class TarjanStronglyConnectedComponents implements Algorithm {
 	 * @param key
 	 *            attribute key of component index
 	 */
+	@Parameter
 	public void setSCCIndexAttribute(String key) {
 		if (key == null)
 			throw new NullPointerException();
@@ -186,12 +188,13 @@ public class TarjanStronglyConnectedComponents implements Algorithm {
 	public String getSCCIndexAttribute() {
 		return this.sccAttribute;
 	}
+	
+	@Result
+	public String defaultMessage() {
+		return "Result stored in \""+this.sccAttribute+"\" attribute";
+	}
+	
 
-	/**
-	 * Internal method call in computation.
-	 * 
-	 * @param v
-	 */
 	protected void strongConnect(Node v) {
 		NodeData nd = new NodeData();
 		data.put(v, nd);
@@ -201,8 +204,8 @@ public class TarjanStronglyConnectedComponents implements Algorithm {
 
 		index++;
 		S.push(v);
-
-		for (Edge vw : v.getEachLeavingEdge()) {
+		
+		v.leavingEdges().forEach(vw -> {
 			Node w = vw.getOpposite(v);
 
 			if (!data.containsKey(w)) {
@@ -211,7 +214,7 @@ public class TarjanStronglyConnectedComponents implements Algorithm {
 			} else if (S.contains(w)) {
 				nd.lowlink = Math.min(nd.lowlink, data.get(w).index);
 			}
-		}
+		});
 
 		if (nd.index == nd.lowlink) {
 			Node w;

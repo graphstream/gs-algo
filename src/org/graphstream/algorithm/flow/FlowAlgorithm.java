@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,11 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2012-02-10
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
  */
 package org.graphstream.algorithm.flow;
 
@@ -42,8 +40,8 @@ public interface FlowAlgorithm extends Algorithm {
 	/**
 	 * Get flow value of edge (u,v).
 	 * 
-	 * @param u
-	 * @param v
+	 * @param u source node
+	 * @param v target node
 	 * @return flow of (u,v)
 	 */
 	double getFlow(Node u, Node v);
@@ -51,8 +49,8 @@ public interface FlowAlgorithm extends Algorithm {
 	/**
 	 * Set flow of edge (u,v).
 	 * 
-	 * @param u
-	 * @param v
+	 * @param u source node
+	 * @param v target node
 	 * @param flow
 	 *            new flow
 	 */
@@ -60,9 +58,9 @@ public interface FlowAlgorithm extends Algorithm {
 
 	/**
 	 * Get capacity of edge (u,v).
-	 * 
-	 * @param u
-	 * @param v
+	 *
+	 * @param u source node
+	 * @param v target node
 	 * @return capacity of (u,v)s
 	 */
 	double getCapacity(Node u, Node v);
@@ -70,9 +68,9 @@ public interface FlowAlgorithm extends Algorithm {
 	/**
 	 * Set capacity of (u,v). Capacities should be set between calls to
 	 * {@link #init(Graph, String, String)} and {@link #compute()}.
-	 * 
-	 * @param u
-	 * @param v
+	 *
+	 * @param u source node
+	 * @param v target node
 	 * @param capacity
 	 *            new capacity of (u,v)
 	 */
@@ -88,7 +86,7 @@ public interface FlowAlgorithm extends Algorithm {
 	 * If capacity attribute is null, you have to set capacities before calling
 	 * {@link #compute()}.
 	 * 
-	 * @param attribute
+	 * @param attribute attribute name
 	 */
 	void setCapacityAttribute(String attribute);
 

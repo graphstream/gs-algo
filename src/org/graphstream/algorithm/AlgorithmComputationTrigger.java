@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,11 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2012-02-10
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
  */
 package org.graphstream.algorithm;
 
@@ -63,7 +61,7 @@ public class AlgorithmComputationTrigger extends SinkAdapter {
 	/**
 	 * Set the trigger mode.
 	 * 
-	 * @param mode
+	 * @param mode the trigger mode
 	 */
 	public void setMode(Mode mode) {
 		this.mode = mode;
@@ -72,7 +70,7 @@ public class AlgorithmComputationTrigger extends SinkAdapter {
 	/**
 	 * Get the trigger mode.
 	 * 
-	 * @return
+	 * @return the trigger mode
 	 */
 	public Mode getMode() {
 		return mode;

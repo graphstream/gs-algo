@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,19 +21,29 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2011-05-12
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.test;
 
-import java.io.*;
-import java.util.Iterator;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
-import org.graphstream.algorithm.*;
-import org.graphstream.graph.*;
+import java.io.IOException;
+
+import org.graphstream.algorithm.APSP;
+import org.graphstream.algorithm.APSP.APSPInfo;
+import org.graphstream.graph.Edge;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
+import org.graphstream.graph.Path;
 import org.graphstream.graph.implementations.SingleGraph;
-import org.graphstream.stream.*;
-
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.graphstream.stream.GraphParseException;
+import org.junit.Test;
 
 /**
  * Test the APSP algorithm.
@@ -76,27 +79,23 @@ public class TestAPSP {
 		APSP apsp = new APSP(G, "weight", true);
 
 		apsp.compute();
-
-		Iterator<? extends Node> nodes = G.getNodeIterator();
-
-		while (nodes.hasNext()) {
-			Node node = nodes.next();
-
+		
+		G.nodes().forEach(node -> {
 			printNode(node);
 			/*
 			 * float Dij =
 			 * ((APSP.APSPInfo)node.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME
 			 * )).getLengthTo( "D" );
 			 * 
-			 * if( Dij >= 0 ) node.addAttribute( "label",
+			 * if( Dij >= 0 ) node.setAttribute( "label",
 			 * node.getId()+" -("+Dij+")-> D" );
 			 */
 
-			node.addAttribute("label", node.getId());
-		}
+			node.setAttribute("label", node.getId());
+		});
 
 		if (G.getNode("A") != null && G.getNode("E") != null) {
-			APSP.APSPInfo info = G.getNode("A").getAttribute(
+			APSP.APSPInfo info = (APSPInfo) G.getNode("A").getAttribute(
 					APSP.APSPInfo.ATTRIBUTE_NAME);
 			Path path = info.getShortestPathTo("E");
 
@@ -125,7 +124,7 @@ public class TestAPSP {
 		Node D = G.getNode("D");
 		Node E = G.getNode("E");
 
-		APSP.APSPInfo info = A.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
+		APSP.APSPInfo info = (APSPInfo) A.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
 		Path path = info.getShortestPathTo("E");
 		Object npath[] = path.getNodePath().toArray();
 		Object npath1[] = { A, B, C, D, E };
@@ -145,7 +144,7 @@ public class TestAPSP {
 		assertEquals(3, path.getNodeCount(), 0);
 		assertArrayEquals(npath2, npath);
 
-		info = E.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
+		info = (APSPInfo) E.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
 		path = info.getShortestPathTo("C");
 		npath = path.getNodePath().toArray();
 		Object npath3[] = { E, D, B, C };
@@ -174,7 +173,7 @@ public class TestAPSP {
 		Node C = G.getNode("C");
 		Node D = G.getNode("D");
 
-		APSP.APSPInfo info = A.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
+		APSP.APSPInfo info = (APSPInfo) A.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
 		Path path = info.getShortestPathTo("C");
 		Object npath[] = path.getNodePath().toArray();
 		Object npath1[] = { A, D, C };
@@ -186,7 +185,7 @@ public class TestAPSP {
 		assertEquals(2.0, info.getLengthTo("C"), 0);
 		assertEquals(1.0, info.getLengthTo("D"), 0);
 
-		info = B.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
+		info = (APSPInfo) B.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
 		path = info.getShortestPathTo("C");
 		npath = path.getNodePath().toArray();
 		Object npath2[] = { B, A, D, C };
@@ -216,7 +215,7 @@ public class TestAPSP {
 		Node D = G.getNode("D");
 		Node E = G.getNode("E");
 
-		APSP.APSPInfo info = A.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
+		APSP.APSPInfo info = (APSPInfo) A.getAttribute(APSP.APSPInfo.ATTRIBUTE_NAME);
 		Path path = info.getShortestPathTo("B");
 		Object npath[] = path.getNodePath().toArray();
 		Object npath1[] = { A, D, B }; // ? Or A, D, E, B ? There are two paths.
@@ -253,18 +252,18 @@ public class TestAPSP {
 		Edge CD = G.addEdge("CD", "C", "D", true);
 		Edge DE = G.addEdge("DE", "D", "E", false);
 
-		AB.addAttribute("weight", 0.5f);
-		AB.addAttribute("label", "0.5");
-		AC.addAttribute("weight", 0.5f);
-		AC.addAttribute("label", "0.5");
-		BC.addAttribute("weight", 0.5f);
-		BC.addAttribute("label", "0.5");
-		BD.addAttribute("weight", 0.5f);
-		BD.addAttribute("label", "0.5");
-		CD.addAttribute("weight", 0.5f);
-		CD.addAttribute("label", "0.5");
-		DE.addAttribute("weight", 0.5f);
-		DE.addAttribute("label", "0.5");
+		AB.setAttribute("weight", 0.5f);
+		AB.setAttribute("label", "0.5");
+		AC.setAttribute("weight", 0.5f);
+		AC.setAttribute("label", "0.5");
+		BC.setAttribute("weight", 0.5f);
+		BC.setAttribute("label", "0.5");
+		BD.setAttribute("weight", 0.5f);
+		BD.setAttribute("label", "0.5");
+		CD.setAttribute("weight", 0.5f);
+		CD.setAttribute("label", "0.5");
+		DE.setAttribute("weight", 0.5f);
+		DE.setAttribute("label", "0.5");
 	}
 
 	protected static void buildGraph2(Graph graph) {
@@ -289,14 +288,14 @@ public class TestAPSP {
 		graph.addEdge("CD", "C", "D");
 		graph.addEdge("DA", "D", "A");
 
-		A.addAttribute("xyz", -1, 0);
-		A.addAttribute("ui.label", "A");
-		B.addAttribute("xyz", 0, 1);
-		B.addAttribute("ui.label", "B");
-		C.addAttribute("xyz", 1, 0);
-		C.addAttribute("ui.label", "C");
-		D.addAttribute("xyz", 0, -1);
-		D.addAttribute("ui.label", "D");
+		A.setAttribute("xyz", -1, 0);
+		A.setAttribute("ui.label", "A");
+		B.setAttribute("xyz", 0, 1);
+		B.setAttribute("ui.label", "B");
+		C.setAttribute("xyz", 1, 0);
+		C.setAttribute("ui.label", "C");
+		D.setAttribute("xyz", 0, -1);
+		D.setAttribute("ui.label", "D");
 
 		graph.getEdge("BC").setAttribute("weight", 10.0);
 	}

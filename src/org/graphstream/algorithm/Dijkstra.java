@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,15 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2009-02-19
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Yoann Pigné <yoann.pigne@graphstream-project.org>
+ * @author Antoine Dutot <antoine.dutot@graphstream-project.org>
+ * @author Stefan Balev <stefan.balev@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm;
 
@@ -35,9 +37,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.Stack;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.graphstream.algorithm.util.FibonacciHeap;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -183,7 +191,10 @@ public class Dijkstra extends AbstractSpanningTree {
 	protected String resultAttribute;
 	protected String lengthAttribute;
 	protected Node source;
-
+	
+	// Used by default result
+	private String sourceId = null;
+	private String target;
 	// *** Helpers ***
 
 	protected double getLength(Edge edge, Node dest) {
@@ -284,7 +295,7 @@ public class Dijkstra extends AbstractSpanningTree {
 	public <T extends Node> T getSource() {
 		return (T) source;
 	}
-
+	
 	/**
 	 * Dijkstra's algorithm computes shortest paths from a given source node to
 	 * all nodes in a graph. This method sets the source node.
@@ -296,6 +307,16 @@ public class Dijkstra extends AbstractSpanningTree {
 	public void setSource(Node source) {
 		this.source = source;
 	}
+	
+	@Parameter(true)
+	public void setSource(String source) {
+		this.sourceId = source;
+	}
+	
+	@Parameter(true)
+	public void setTarget(String target) {
+		this.target = target;
+	}
 
 	/**
 	 * Removes the attributes used to store internal solution data in the nodes
@@ -305,14 +326,14 @@ public class Dijkstra extends AbstractSpanningTree {
 	@Override
 	public void clear() {
 		super.clear();
-		for (Node node : graph) {
-			Data data = node.getAttribute(resultAttribute);
+		graph.nodes().forEach(node -> {
+			Data data = (Data) node.getAttribute(resultAttribute);
 			if (data != null) {
 				data.fn = null;
 				data.edgeFromParent = null;
 			}
 			node.removeAttribute(resultAttribute);
-		}
+		});
 	}
 
 	// *** Methods of Algorithm interface ***
@@ -337,9 +358,13 @@ public class Dijkstra extends AbstractSpanningTree {
 		if (graph == null)
 			throw new IllegalStateException(
 					"No graph specified. Call init() first.");
-		if (source == null)
+		if(sourceId != null)
+			this.source = graph.getNode(sourceId);
+		else if (source == null)
 			throw new IllegalStateException(
 					"No source specified. Call setSource() first.");
+		
+		
 		resetFlags();
 		makeTree();
 	}
@@ -348,40 +373,43 @@ public class Dijkstra extends AbstractSpanningTree {
 	protected void makeTree() {
 		// initialization
 		FibonacciHeap<Double, Node> heap = new FibonacciHeap<Double, Node>();
-		for (Node node : graph) {
+		
+		graph.nodes().forEach(node -> {
 			Data data = new Data();
 			double v = node == source ? getSourceLength()
 					: Double.POSITIVE_INFINITY;
 			data.fn = heap.add(v, node);
 			data.edgeFromParent = null;
-			node.addAttribute(resultAttribute, data);
-		}
+			node.setAttribute(resultAttribute, data);
+		});
 
 		// main loop
 		while (!heap.isEmpty()) {
 			Node u = heap.extractMin();
-			Data dataU = u.getAttribute(resultAttribute);
+			Data dataU = (Data) u.getAttribute(resultAttribute);
 			dataU.distance = dataU.fn.getKey();
 			dataU.fn = null;
 			if (dataU.edgeFromParent != null)
 				edgeOn(dataU.edgeFromParent);
-			for (Edge e : u.getEachLeavingEdge()) {
+			
+			u.leavingEdges()
+				.filter(e -> ((Data) e.getOpposite(u).getAttribute(resultAttribute)).fn != null)
+				.forEach(e -> {
 				Node v = e.getOpposite(u);
-				Data dataV = v.getAttribute(resultAttribute);
-				if (dataV.fn == null)
-					continue;
+				Data dataV = (Data) v.getAttribute(resultAttribute);
+			
 				double tryDist = dataU.distance + getLength(e, v);
 				if (tryDist < dataV.fn.getKey()) {
 					dataV.edgeFromParent = e;
 					heap.decreaseKey(dataV.fn, tryDist);
 				}
-			}
+			});
 		}		
 	}
 
 	// *** Iterators ***
 
-	protected class NodeIterator<T extends Node> implements Iterator<T> {
+	protected class NodeIterator implements Iterator<Node> {
 		protected Node nextNode;
 
 		protected NodeIterator(Node target) {
@@ -392,13 +420,12 @@ public class Dijkstra extends AbstractSpanningTree {
 			return nextNode != null;
 		}
 
-		@SuppressWarnings("unchecked")
-		public T next() {
+		public Node next() {
 			if (nextNode == null)
 				throw new NoSuchElementException();
 			Node node = nextNode;
 			nextNode = getParent(nextNode);
-			return (T) node;
+			return node;
 		}
 
 		public void remove() {
@@ -407,9 +434,9 @@ public class Dijkstra extends AbstractSpanningTree {
 		}
 	}
 
-	protected class EdgeIterator<T extends Edge> implements Iterator<T> {
+	protected class EdgeIterator implements Iterator<Edge> {
 		protected Node nextNode;
-		protected T nextEdge;
+		protected Edge nextEdge;
 
 		protected EdgeIterator(Node target) {
 			nextNode = target;
@@ -420,10 +447,10 @@ public class Dijkstra extends AbstractSpanningTree {
 			return nextEdge != null;
 		}
 
-		public T next() {
+		public Edge next() {
 			if (nextEdge == null)
 				throw new NoSuchElementException();
-			T edge = nextEdge;
+			Edge edge = nextEdge;
 			nextNode = getParent(nextNode);
 			nextEdge = getEdgeFromParent(nextNode);
 			return edge;
@@ -450,7 +477,7 @@ public class Dijkstra extends AbstractSpanningTree {
 				Node u = e.getOpposite(v);
 				if (getPathLength(u) + getLength(e, v) == lengthV) {
 					nodes.add(u);
-					iterators.add(u.getEnteringEdgeIterator());
+					iterators.add(u.enteringEdges().iterator());
 					return;
 				}
 			}
@@ -483,7 +510,7 @@ public class Dijkstra extends AbstractSpanningTree {
 				return;
 			}
 			nodes.add(target);
-			iterators.add(target.getEnteringEdgeIterator());
+			iterators.add(target.enteringEdges().iterator());
 			extendPath();
 			constructNextPath();
 		}
@@ -509,9 +536,9 @@ public class Dijkstra extends AbstractSpanningTree {
 		}
 	}
 
-	protected class TreeIterator<T extends Edge> implements Iterator<T> {
+	protected class TreeIterator implements Iterator<Edge> {
 		Iterator<Node> nodeIt;
-		T nextEdge;
+		Edge nextEdge;
 
 		protected void findNextEdge() {
 			nextEdge = null;
@@ -520,7 +547,7 @@ public class Dijkstra extends AbstractSpanningTree {
 		}
 
 		protected TreeIterator() {
-			nodeIt = graph.getNodeIterator();
+			nodeIt = graph.nodes().iterator();
 			findNextEdge();
 		}
 
@@ -528,10 +555,10 @@ public class Dijkstra extends AbstractSpanningTree {
 			return nextEdge != null;
 		}
 
-		public T next() {
+		public Edge next() {
 			if (nextEdge == null)
 				throw new NoSuchElementException();
-			T edge = nextEdge;
+			Edge edge = nextEdge;
 			findNextEdge();
 			return edge;
 		}
@@ -556,7 +583,7 @@ public class Dijkstra extends AbstractSpanningTree {
 	 * @complexity O(1)
 	 */
 	public double getPathLength(Node target) {
-		return target.<Data> getAttribute(resultAttribute).distance;
+		return ((Data)target.getAttribute(resultAttribute)).distance;
 	}
 
 	/**
@@ -591,9 +618,8 @@ public class Dijkstra extends AbstractSpanningTree {
 	 * @see #getParent(Node)
 	 * @complexity O(1)
 	 */
-	@SuppressWarnings("unchecked")
-	public <T extends Edge> T getEdgeFromParent(Node target) {
-		return (T) target.<Data> getAttribute(resultAttribute).edgeFromParent;
+	public Edge getEdgeFromParent(Node target) {
+		return ((Data) target.getAttribute(resultAttribute)).edgeFromParent;
 	}
 
 	/**
@@ -609,7 +635,7 @@ public class Dijkstra extends AbstractSpanningTree {
 	 * @see #getEdgeFromParent(Node)
 	 * @complexity O(1)
 	 */
-	public <T extends Node> T getParent(Node target) {
+	public Node getParent(Node target) {
 		Edge edge = getEdgeFromParent(target);
 		if (edge == null)
 			return null;
@@ -632,24 +658,29 @@ public class Dijkstra extends AbstractSpanningTree {
 	 * @complexity Each call of {@link java.util.Iterator#next()} of this
 	 *             iterator takes O(1) time
 	 */
-	public <T extends Node> Iterator<T> getPathNodesIterator(Node target) {
-		return new NodeIterator<T>(target);
+	public Stream<Node> getPathNodesStream(Node target) {
+		return StreamSupport.stream(
+		    	Spliterators.spliteratorUnknownSize(
+		    			new NodeIterator(target),
+		                Spliterator.DISTINCT |
+		                Spliterator.IMMUTABLE |
+		                Spliterator.NONNULL), false);
 	}
 
 	/**
 	 * An iterable view of the nodes on the shortest path from the source node
-	 * to a given target node. Uses {@link #getPathNodesIterator(Node)}.
+	 * to a given target node. Uses {@link #getPathNodesStream(Node)}.
 	 * 
 	 * @param target
 	 *            a node
 	 * @return an iterable view of the nodes on the shortest path from the
 	 *         source to the target
-	 * @see #getPathNodesIterator(Node)
+	 * @see #getPathNodesStream(Node)
 	 */
-	public <T extends Node> Iterable<T> getPathNodes(final Node target) {
-		return new Iterable<T>() {
-			public Iterator<T> iterator() {
-				return getPathNodesIterator(target);
+	public Iterable<Node> getPathNodes(final Node target) {
+		return new Iterable<Node>() {
+			public Iterator<Node> iterator() {
+				return new NodeIterator(target);
 			}
 		};
 	}
@@ -671,24 +702,30 @@ public class Dijkstra extends AbstractSpanningTree {
 	 * @complexity Each call of {@link java.util.Iterator#next()} of this
 	 *             iterator takes O(1) time
 	 */
-	public <T extends Edge> Iterator<T> getPathEdgesIterator(Node target) {
-		return new EdgeIterator<T>(target);
+	public Stream<Edge> getPathEdgesStream(Node target) {
+		return StreamSupport.stream(
+		    	Spliterators.spliteratorUnknownSize(
+		    			new EdgeIterator(target),
+		                Spliterator.DISTINCT |
+		                Spliterator.IMMUTABLE |
+		                Spliterator.NONNULL), false);
+		
 	}
 
 	/**
 	 * An iterable view of the edges on the shortest path from the source node
-	 * to a given target node. Uses {@link #getPathEdgesIterator(Node)}.
+	 * to a given target node. Uses {@link #getPathEdgesStream(Node)}.
 	 * 
 	 * @param target
 	 *            a node
 	 * @return an iterable view of the edges on the shortest path from the
 	 *         source to the target
-	 * @see #getPathEdgesIterator(Node)
+	 * @see #getPathEdgesStream(Node)
 	 */
-	public <T extends Edge> Iterable<T> getPathEdges(final Node target) {
-		return new Iterable<T>() {
-			public Iterator<T> iterator() {
-				return getPathEdgesIterator(target);
+	public Iterable<Edge> getPathEdges(final Node target) {
+		return new Iterable<Edge>() {
+			public Iterator<Edge> iterator() {
+				return new EdgeIterator(target);
 			}
 
 		};
@@ -713,24 +750,29 @@ public class Dijkstra extends AbstractSpanningTree {
 	 *             iterator takes O(<em>m</em>) time in the worst case, where
 	 *             <em>m</em> is the number of edges in the graph
 	 */
-	public Iterator<Path> getAllPathsIterator(Node target) {
-		return new PathIterator(target);
+	public Stream<Path> getAllPathsStream(Node target) {
+		return StreamSupport.stream(
+		    	Spliterators.spliteratorUnknownSize(
+		    			new PathIterator(target),
+		                Spliterator.DISTINCT |
+		                Spliterator.IMMUTABLE |
+		                Spliterator.NONNULL), false);
 	}
 
 	/**
 	 * An iterable view of of <em>all</em> the shortest paths from the source
-	 * node to a given target node. Uses {@link #getAllPathsIterator(Node)}
+	 * node to a given target node. Uses {@link #getAllPathsStream(Node)}
 	 * 
 	 * @param target
 	 *            a node
 	 * @return an iterable view of all the shortest paths from the source to the
 	 *         target
-	 * @see #getAllPathsIterator(Node)
+	 * @see #getAllPathsStream(Node)
 	 */
 	public Iterable<Path> getAllPaths(final Node target) {
 		return new Iterable<Path>() {
 			public Iterator<Path> iterator() {
-				return getAllPathsIterator(target);
+				return new PathIterator(target);
 			}
 		};
 	}
@@ -746,8 +788,13 @@ public class Dijkstra extends AbstractSpanningTree {
 	 *             iterator takes O(1) time
 	 */
 	@Override
-	public <T extends Edge> Iterator<T> getTreeEdgesIterator() {
-		return new TreeIterator<T>();
+	public Stream<Edge> getTreeEdgesStream() {
+		return StreamSupport.stream(
+		    	Spliterators.spliteratorUnknownSize(
+		    			new TreeIterator(),
+		                Spliterator.DISTINCT |
+		                Spliterator.IMMUTABLE |
+		                Spliterator.NONNULL), false);
 	}
 
 
@@ -770,11 +817,17 @@ public class Dijkstra extends AbstractSpanningTree {
 		if (Double.isInfinite(getPathLength(target)))
 			return path;
 		Stack<Edge> stack = new Stack<Edge>();
-		for (Edge e : getPathEdges(target))
-			stack.push(e);
+		
+		getPathEdges(target).forEach(e -> stack.push(e));
+			
 		path.setRoot(source);
 		while (!stack.isEmpty())
 			path.add(stack.pop());
 		return path;
+	}
+	
+	@Result
+	public String defaultResult() {
+		return getPath(graph.getNode(target)).toString();
 	}
 }

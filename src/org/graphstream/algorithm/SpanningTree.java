@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,10 +21,17 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2012-09-21
+ * 
+ * @author Stefan Balev <stefan.balev@graphstream-project.org>
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm;
 
-import java.util.Iterator;
+import java.util.stream.Stream;
 
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
@@ -88,7 +88,7 @@ public interface SpanningTree extends Algorithm {
 	/**
 	 * Set value used to set that an edge is not in the spanning tree.
 	 * 
-	 * @param newFlagOff
+	 * @param flagOff
 	 *            off value. If {@code null} edges out of the tree are not
 	 *            tagged.
 	 * @throws IllegalStateException
@@ -107,13 +107,14 @@ public interface SpanningTree extends Algorithm {
 	 * 
 	 * @return An iterator on the tree edges
 	 */
-	<T extends Edge> Iterator<T> getTreeEdgesIterator();
+	Stream<Edge> getTreeEdgesStream();
 	
 	
 	/**
 	 * Iterable view of the spanning tree edges. This implementation uses
-	 * {@link #getTreeEdgesIterator()}.
+	 * {@link #getTreeEdgesStream()}.
 	 * 
+	 * @param <T> elements
 	 * @return Iterable view of the tree edges.
 	 */
 	<T extends Edge> Iterable<T> getTreeEdges();

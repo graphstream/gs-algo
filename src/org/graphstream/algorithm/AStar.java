@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,16 +21,25 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2009-02-19
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Antoine Dutot <antoine.dutot@graphstream-project.org>
+ * @author Yoann Pigné <yoann.pigne@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm;
 
-import static org.graphstream.algorithm.Toolkit.edgeLength;
-import static org.graphstream.algorithm.Toolkit.nodePosition;
+import static org.graphstream.ui.graphicGraph.GraphPosLengthUtils.edgeLength;
+import static org.graphstream.ui.graphicGraph.GraphPosLengthUtils.nodePosition;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -248,6 +250,7 @@ public class AStar implements Algorithm {
 	 * @param nodeName
 	 *            Identifier of the source node.
 	 */
+	@Parameter(true)
 	public void setSource(String nodeName) {
 		clearAll();
 		source = nodeName;
@@ -260,6 +263,7 @@ public class AStar implements Algorithm {
 	 * @param nodeName
 	 *            Identifier of the target node.
 	 */
+	@Parameter(true)
 	public void setTarget(String nodeName) {
 		clearAll();
 		target = nodeName;
@@ -276,6 +280,7 @@ public class AStar implements Algorithm {
 	 * @param costs
 	 *            The cost method to use.
 	 */
+	@Parameter
 	public void setCosts(Costs costs) {
 		this.costs = costs;
 	}
@@ -314,6 +319,7 @@ public class AStar implements Algorithm {
 	 * 
 	 * @return The computed path, or null if no path was found.
 	 */
+	@Result
 	public Path getShortestPath() {
 		return result;
 	}
@@ -432,12 +438,8 @@ public class AStar implements Algorithm {
 				closed.put(current.node, current);
 
 				// For each successor of the current node :
-
-				Iterator<? extends Edge> nexts = current.node
-						.getLeavingEdgeIterator();
-
-				while (nexts.hasNext()) {
-					Edge edge = nexts.next();
+				
+				current.node.leavingEdges().forEach(edge -> {
 					Node next = edge.getOpposite(current.node);
 					double h = costs.heuristic(next, targetNode);
 					double g = current.g + costs.cost(current.node, edge, next);
@@ -448,20 +450,19 @@ public class AStar implements Algorithm {
 
 					AStarNode alreadyInOpen = open.get(next);
 
-					if (alreadyInOpen != null && alreadyInOpen.rank <= f)
-						continue;
+					if (!(alreadyInOpen != null && alreadyInOpen.rank <= f)) {
+						
+						// If the node is already in closed with a better rank; we
+						// skip it.
+						AStarNode alreadyInClosed = closed.get(next);
 
-					// If the node is already in closed with a better rank; we
-					// skip it.
+						if (!(alreadyInClosed != null && alreadyInClosed.rank <= f)){
 
-					AStarNode alreadyInClosed = closed.get(next);
-
-					if (alreadyInClosed != null && alreadyInClosed.rank <= f)
-						continue;
-
-					closed.remove(next);
-					open.put(next, new AStarNode(next, edge, current, g, h));
-				}
+							closed.remove(next);
+							open.put(next, new AStarNode(next, edge, current, g, h));
+						}
+					}
+				});
 			}
 		}
 	}
@@ -476,16 +477,12 @@ public class AStar implements Algorithm {
 		// The problem is that we use open has a hash to ensure
 		// a node we will add to to open is not yet in it.
 
-		double min = Float.MAX_VALUE;
 		AStarNode theChosenOne = null;
-
-		for (AStarNode node : open.values()) {
-			if (node.rank < min) {
-				theChosenOne = node;
-				min = node.rank;
-			}
-		}
-
+		
+		theChosenOne = open.values().stream()
+				.min((n,m) -> Double.compare(n.rank, m.rank))
+				.get();
+		
 		return theChosenOne;
 	}
 

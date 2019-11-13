@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,11 +21,18 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2012-10-25
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.measure;
 
 import org.graphstream.algorithm.APSP;
 import org.graphstream.algorithm.APSP.APSPInfo;
+import org.graphstream.algorithm.util.Parameter;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -119,6 +119,14 @@ public class ClosenessCentrality extends AbstractCentrality {
 		}
 	}
 	
+	@Parameter
+	public void computeAPSP(boolean compute) {
+		if (compute) {
+			apsp = new APSP();
+			apsp.init(graph);
+		}
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -136,7 +144,7 @@ public class ClosenessCentrality extends AbstractCentrality {
 			node = graph.getNode(idx);
 			data[idx] = 0;
 
-			APSP.APSPInfo info = node.getAttribute(APSPInfo.ATTRIBUTE_NAME);
+			APSP.APSPInfo info = (APSPInfo) node.getAttribute(APSPInfo.ATTRIBUTE_NAME);
 
 			if (info == null)
 				System.err

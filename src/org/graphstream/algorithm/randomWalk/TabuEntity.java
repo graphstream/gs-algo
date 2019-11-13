@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,13 +21,19 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2011-05-14
+ * 
+ * @author Antoine Dutot <antoine.dutot@graphstream-project.org>
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.randomWalk;
 
 import static org.graphstream.algorithm.Toolkit.randomNode;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.graphstream.graph.Edge;
@@ -92,16 +91,11 @@ public class TabuEntity extends Entity {
 	 */
 	protected void tabuStep() {
 		int n = current.getOutDegree();
-		Iterator<? extends Edge> to = current.getLeavingEdgeIterator();
 		ArrayList<Edge> edges = new ArrayList<Edge>();
-
-		while (to.hasNext()) {
-			Edge e = to.next();
-
-			if (!tabu(e.getOpposite(current))) {
-				edges.add(e);
-			}
-		}
+		
+		current.leavingEdges()
+			.filter(e -> !tabu(e.getOpposite(current)))
+			.forEach(e -> edges.add(e));
 
 		n = edges.size();
 

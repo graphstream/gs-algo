@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,22 +21,31 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2011-05-14
+ * 
+ * @author Antoine Dutot <antoine.dutot@graphstream-project.org>
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.randomWalk;
 
+import static org.graphstream.algorithm.Toolkit.randomNode;
+
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Comparator;
 import java.util.Random;
+import java.util.StringJoiner;
 
 import org.graphstream.algorithm.DynamicAlgorithm;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 import org.graphstream.stream.SinkAdapter;
-
-import static org.graphstream.algorithm.Toolkit.*;
 
 /**
  * A random walk on a graph.
@@ -323,6 +325,7 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 * class will be used (RandomWalk.TabuEntity).
 	 * @param name The name of the entity class to use.
 	 */
+	@Parameter
 	public void setEntityClass(String name) {
 		if(name == null) {
 			entityClass = TabuEntity.class.getName();//"org.graphstream.algorithm.RandomWalk#TabuEntity";
@@ -338,6 +341,7 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 * @param size
 	 *            The memory size, 0 is a valid size to disable the tabu list.
 	 */
+	@Parameter
 	public void setEntityMemory(int size) {
 		if (size < 0)
 			size = 0;
@@ -351,6 +355,7 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 * of evaporation allows to stabilize the counts.
 	 * @param evaporation A number between 0 and 1.
 	 */
+	@Parameter
 	public void setEvaporation(double evaporation) {
 		if(evaporation>=0 && evaporation<1) {
 			this.evaporation = evaporation;
@@ -419,6 +424,7 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 * @param name
 	 *            A string giving the weight name.
 	 */
+	@Parameter
 	public void setWeightAttribute(String name) {
 		context.weightAttribute = name;
 	}
@@ -430,17 +436,19 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 * @param name
 	 *            A string giving the passes name.
 	 */
+	@Parameter
 	public void setPassesAttribute(String name) {
 		if (context.graph != null) {
-			for (Edge e : context.graph.getEachEdge()) {
-				e.addAttribute(name, e.getNumber(context.passesAttribute));
+			
+			context.graph.edges().forEach(e -> {
+				e.setAttribute(name, e.getNumber(context.passesAttribute));
 				e.removeAttribute(context.passesAttribute);
-			}
-
-			for (Node n : context.graph) {
-				n.addAttribute(name, n.getNumber(context.passesAttribute));
+			});
+			
+			context.graph.forEach(n -> {
+				n.setAttribute(name, n.getNumber(context.passesAttribute));
 				n.removeAttribute(context.passesAttribute);
-			}
+			});
 		}
 
 		context.passesAttribute = name;
@@ -468,8 +476,9 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 * Set the number of entities which will be created at the algorithm
 	 * initialization.
 	 * 
-	 * @param entityCount
+	 * @param entityCount number of entities
 	 */
+	@Parameter
 	public void setEntityCount(int entityCount) {
 		this.entityCount = entityCount;
 	}
@@ -549,9 +558,7 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 		context.goCount = 0;
 		context.waitCount = 0;
 
-		for (Entity entity : entities) {
-			entity.step();
-		}
+		entities.forEach(entity -> entity.step());
 
 		if(evaporation<1)
 			evaporate();
@@ -561,12 +568,13 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 * Apply evaporation on each edge.
 	 */
 	protected void evaporate() {
-		for(Edge edge: context.graph.getEachEdge()) {
+		context.graph.edges().forEach(edge -> {
 			edge.setAttribute(context.passesAttribute, edge.getNumber(context.passesAttribute)*evaporation);
-		}
-		for(Node node: context.graph) {
+		});
+		
+		context.graph.nodes().forEach(node -> {
 			node.setAttribute(context.passesAttribute, node.getNumber(context.passesAttribute)*evaporation);
-		}
+		});
 	}
 
 	/**
@@ -580,13 +588,9 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	}
 
 	protected void equipGraph() {
-		for (Edge e : context.graph.getEachEdge()) {
-			e.addAttribute(context.passesAttribute, 0.0);
-		}
+		context.graph.edges().forEach(e -> e.setAttribute(context.passesAttribute, 0.0));
 
-		for (Node n : context.graph) {
-			n.addAttribute(context.passesAttribute, 0.0);
-		}
+		context.graph.nodes().forEach(n -> n.setAttribute(context.passesAttribute, 0.0));
 	}
 
 	/**
@@ -598,12 +602,9 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 */
 	public ArrayList<Edge> findTheMostUsedEdges() {
 		ArrayList<Edge> edges = new ArrayList<Edge>(context.graph.getEdgeCount());
-		Iterator<? extends Edge> i = context.graph.getEdgeIterator();
-
-		while (i.hasNext()) {
-			edges.add(i.next());
-		}
-
+		
+		context.graph.edges().forEach(e -> edges.add(e));
+		
 		Collections.sort(edges, new Comparator<Edge>() {
 			public int compare(Edge e1, Edge e2) {
 				int n1 = (int) e1.getNumber(context.passesAttribute);
@@ -625,11 +626,8 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 	 */
 	public ArrayList<Node> findTheMostUsedNodes() {
 		ArrayList<Node> nodes = new ArrayList<Node>(context.graph.getNodeCount());
-		Iterator<? extends Node> i = context.graph.getNodeIterator();
-
-		while (i.hasNext()) {
-			nodes.add(i.next());
-		}
+				
+		context.graph.nodes().forEach(n -> nodes.add(n));
 
 		Collections.sort(nodes, new Comparator<Node>() {
 			public int compare(Node e1, Node e2) {
@@ -650,14 +648,21 @@ public class RandomWalk extends SinkAdapter implements DynamicAlgorithm {
 		Edge edge = context.graph.getEdge(edgeId);
 
 		if (edge != null)
-			edge.addAttribute(context.passesAttribute, 0.0);
+			edge.setAttribute(context.passesAttribute, 0.0);
 	}
 
 	@Override
 	public void nodeAdded(String graphId, long timeId, String nodeId) {
 		Node node = context.graph.getNode(nodeId);
 
-		node.addAttribute(context.passesAttribute, 0.0);
+		node.setAttribute(context.passesAttribute, 0.0);
+	}
+	
+	@Result
+	public String defaultResult() {
+		StringJoiner sj = new StringJoiner(" | ", "====== Random Walk ====== \n", "");
+		context.graph.edges().forEach(e -> sj.add("Edge "+e.getId()+" counts "+getPasses(e)));
+		return sj.toString();
 	}
 }
 

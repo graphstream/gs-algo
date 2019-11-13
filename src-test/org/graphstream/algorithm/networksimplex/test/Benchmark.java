@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,13 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2012-04-19
+ * 
+ * @author Stefan Balev <stefan.balev@graphstream-project.org>
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.networksimplex.test;
 
@@ -73,7 +73,7 @@ class Benchmark {
 	
 	private void addEdge() {
 		TwoInts t = eList.get(eIndex);
-		g.addEdge(t.i + "-" + t.j, t.i, t.j).addAttribute("length", randomLength());
+		g.addEdge(t.i + "-" + t.j, t.i, t.j).setAttribute("length", randomLength());
 		eIndex++;
 	}
 	
@@ -142,7 +142,7 @@ class Benchmark {
 
 		for (int i = 0; i <= EMAX; i++) {
 			for (int j = 0; j < i; j++)
-				g.getEdge(rnd.nextInt(g.getEdgeCount())).changeAttribute("length", randomLength());
+				g.getEdge(rnd.nextInt(g.getEdgeCount())).setAttribute("length", randomLength());
 			
 			start = System.currentTimeMillis();
 			dijkstra.compute();

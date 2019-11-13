@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,13 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2011-12-04
+ * 
+ * @author Stefan Balev <stefan.balev@graphstream-project.org>
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.networksimplex;
 
@@ -36,6 +36,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.DoubleAccumulator;
 
 import org.graphstream.algorithm.DynamicAlgorithm;
 import org.graphstream.graph.Edge;
@@ -360,19 +361,22 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 			nodes.put(copy.id, copy);
 		}
 
-		int arcCount = graph.getEdgeCount();
-		for (Edge edge : graph.getEachEdge())
-			if (!edge.isDirected())
-				arcCount++;
-		arcs = new HashMap<String, NSArc>(4 * arcCount / 3 + 1);
-		for (Edge edge : graph.getEachEdge()) {
+		DoubleAccumulator arcCount = new DoubleAccumulator((x, y) -> x + y, graph.getEdgeCount()) ;
+		
+		graph.edges()
+			.filter(edge -> !edge.isDirected())
+			.forEach(edge -> arcCount.accumulate(1));
+
+		arcs = new HashMap<String, NSArc>(4 * (int)arcCount.get() / 3 + 1);
+		
+		graph.edges().forEach(edge -> {
 			NSArc copy = new NSArc(edge, true);
 			arcs.put(copy.id, copy);
 			if (!edge.isDirected()) {
 				copy = new NSArc(edge, false);
 				arcs.put(copy.id, copy);
 			}
-		}
+		});
 	}
 
 	/**
@@ -380,13 +384,15 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 */
 	protected void createInitialBFS() {
 		nonBasicArcs = new HashSet<NSArc>(4 * arcs.size() / 3 + 1);
-		for (NSArc arc : arcs.values()) {
+		
+		arcs.values().forEach(arc -> {
 			arc.flow = 0;
 			arc.status = ArcStatus.NONBASIC_LOWER;
 			nonBasicArcs.add(arc);
 			if (animationDelay > 0)
 				arc.setUIClass();
-		}
+		});
+		
 
 		root = new NSNode();
 		root.id = PREFIX + "ROOT";
@@ -398,8 +404,8 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		root.artificialArc = null;
 
 		objectiveValue.set(0);
-		for (NSNode node : nodes.values())
-			node.createArtificialArc();
+
+		nodes.values().forEach(node -> node.createArtificialArc());
 		solutionStatus = SolutionStatus.UNDEFINED;
 	}
 
@@ -411,20 +417,20 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	protected void selectEnteringArcFirstNegative() {
 		enteringArc = null;
 		BigMNumber reducedCost = work1;
-
-		for (NSArc arc : nonBasicArcs) {
+		
+		nonBasicArcs.forEach(arc -> {
 			arc.computeReducedCost(reducedCost);
 			if (reducedCost.isNegative()) {
 				enteringArc = arc;
 				return;
 			}
-		}
+		});
 		
 		// Skip the artificial arcs if the objective value is finite
 		if (!objectiveValue.isInfinite())
 			return;
-
-		for (NSNode node : nodes.values()) {
+		
+		nodes.values().forEach(node -> {
 			NSArc arc = node.artificialArc;
 			if (arc.status == ArcStatus.NONBASIC_LOWER) {
 				arc.computeReducedCost(reducedCost);
@@ -433,7 +439,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 					return;
 				}
 			}
-		}
+		});
 	}
 
 	/**
@@ -855,7 +861,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 *            A node
 	 * @return The edge to the parent of the node in the BFS tree
 	 */
-	public <T extends Edge> T getEdgeFromParent(Node node) {
+	public Edge getEdgeFromParent(Node node) {
 		NSArc arc = nodes.get(node.getId()).arcToParent;
 		if (arc.isArtificial())
 			return null;
@@ -871,7 +877,7 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 *            A node
 	 * @return The parent of a node in the BFS tree
 	 */
-	public <T extends Node> T getParent(Node node) {
+	public Node getParent(Node node) {
 		NSNode nsNode = nodes.get(node.getId());
 		if (nsNode == root)
 			return null;
@@ -985,14 +991,15 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 	 * </p>
 	 */
 	public void setUIClasses() {
-		for (Node node : graph)
-			nodes.get(node.getId()).artificialArc.setUIClass();
-		for (Edge edge : graph.getEachEdge()) {
+		
+		graph.nodes().forEach(node -> nodes.get(node.getId()).artificialArc.setUIClass());
+		
+		graph.edges().forEach(edge -> {
 			NSArc arc = arcs.get(edge.getId());
 			if (!edge.isDirected() && arc.status != ArcStatus.BASIC)
 				arc = arcs.get(PREFIX + "REVERSE_" + edge.getId());
 			arc.setUIClass();
-		}
+		});
 	}
 
 	// DynamicAlgorithm methods
@@ -1669,8 +1676,8 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 					uiClass = "demand";
 				uiClass += flow == 0 ? "_balanced" : "_unbalanced";
 				Node x = graph.getNode(node.id);
-				x.addAttribute("label", target == root ? flow : -flow);
-				x.addAttribute("ui.class", uiClass);
+				x.setAttribute("label", target == root ? flow : -flow);
+				x.setAttribute("ui.class", uiClass);
 			} else {
 				String uiClass = "basic";
 				if (status == ArcStatus.NONBASIC_LOWER)
@@ -1679,8 +1686,8 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 					uiClass = "nonbasic_upper";
 
 				Edge e = graph.getEdge(getOriginalId());
-				e.addAttribute("label", flow);
-				e.addAttribute("ui.class", uiClass);
+				e.setAttribute("label", flow);
+				e.setAttribute("ui.class", uiClass);
 			}
 		}
 
@@ -1725,20 +1732,22 @@ public class NetworkSimplex extends SinkAdapter implements DynamicAlgorithm {
 		ps.println("=== Arcs ===");
 		ps.printf("%20s%10s%10s%10s%10s%20s%n", "id", "capacity", "cost",
 				"flow", "r. cost", "status");
-		for (NSArc a : arcs.values()) {
+		
+		arcs.values().forEach(a -> {
 			a.computeReducedCost(work1);
 			ps.printf("%20s%10s%10s%10s%10s%20s%n", a.id,
 					a.capacity == INFINITE_CAPACITY ? "Inf" : a.capacity,
 					a.cost, a.flow, work1, a.status);
-		}
-
-		for (NSNode node : nodes.values()) {
+		});
+		
+		nodes.values().forEach(node -> {
 			NSArc a = node.artificialArc;
 			a.computeReducedCost(work1);
 			ps.printf("%20s%10s%10s%10s%10s%20s%n", a.id,
 					a.capacity == INFINITE_CAPACITY ? "Inf" : a.capacity,
 					a.cost, a.flow, work1, a.status);
-		}
+		});
+
 
 		ps.println();
 		ps.printf("=== Objective value %s. Solution status %s ===%n%n",

@@ -1,4 +1,0 @@
-March 11 2009: dutot
-	* The AStar algorithm is now able to handle multi graphs with distinct weights on edges
-	  between two same nodes.
-	* Added a JUnit test in the gs-test package for this algorithm.

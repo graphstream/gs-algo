@@ -1,5 +1,36 @@
+/*
+ * This file is part of GraphStream <http://graphstream-project.org>.
+ * 
+ * GraphStream is a library whose purpose is to handle static or dynamic
+ * graph, create them from scratch, file or any source and display them.
+ * 
+ * This program is free software distributed under the terms of two licenses, the
+ * CeCILL-C license that fits European law, and the GNU Lesser General Public
+ * License. You can  use, modify and/ or redistribute the software under the terms
+ * of the CeCILL-C license as circulated by CEA, CNRS and INRIA at the following
+ * URL <http://www.cecill.info> or under the terms of the GNU LGPL as published by
+ * the Free Software Foundation, either version 3 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A
+ * PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * 
+ * The fact that you are presently reading this means that you have had
+ * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2017-11-30
+ * 
+ * @author jordilaforge <8899ph@web.de>
+ */
 package org.graphstream.algorithm;
 
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -25,7 +56,7 @@ public class LongestPath implements Algorithm {
     private Graph graph;
 
     /**
-     * map with all disctances from starting point
+     * map with all nodes and there distance from starting point
      */
     private Map<Node, Double> distanceMap;
 
@@ -47,7 +78,7 @@ public class LongestPath implements Algorithm {
     /**
      * Attribute where the weights of the edges are stored
      */
-    protected String weightAttribute;
+    private String weightAttribute;
 
     public void init(Graph theGraph) {
         graph = theGraph;
@@ -57,82 +88,50 @@ public class LongestPath implements Algorithm {
 
     public void compute() {
         initializeAlgorithm();
-        TopologicalSort aTopoSortAlgorithm = new TopologicalSort(TopologicalSort.SortAlgorithm.DEPTH_FIRST);
+        TopologicalSortDFS aTopoSortAlgorithm = new TopologicalSortDFS();
         aTopoSortAlgorithm.init(graph);
         aTopoSortAlgorithm.compute();
-        Node[] aSortedArray = aTopoSortAlgorithm.getSortedArray();
-        if (weighted) {
-            fillDistanceMapWeighted(aSortedArray);
-        } else {
-            fillDistanceMapUnweighted(aSortedArray);
+        fillDistanceMap(aTopoSortAlgorithm.getSortedNodes());
+        longestPathNode = distanceMap.entrySet().stream().max(Map.Entry.comparingByValue()).orElse(null);
+        if(longestPathNode == null){
+            throw new IllegalStateException("No max node found!");
         }
-        Map.Entry<Node, Double> maxEntry = getMaxEntryOfMap();
-        longestPathNode = maxEntry;
-        longestPath.add(maxEntry.getKey());
-        getMaxNeigbourgh(maxEntry.getKey());
+        longestPath.add(longestPathNode.getKey());
+        getMaxNeighbor(longestPathNode.getKey());
         Collections.reverse(longestPath);
     }
 
-    private void fillDistanceMapWeighted(Node[] theSortedArray) {
+    private void fillDistanceMap(List<Node> theSortedArray) {
         for (Node aNode : theSortedArray) {
-            for (Edge anEdge : aNode.getEachEnteringEdge()) {
+            aNode.enteringEdges().forEach(anEdge -> {
                 Node aSourceNode = anEdge.getSourceNode();
                 Node aTargetNode = anEdge.getTargetNode();
-                double aWeight = anEdge.getNumber(getWeightAttribute());
+                double aWeight = weighted ? anEdge.getNumber(getWeightAttribute()) : 1;
                 Double aMaxDistance = Math.max(distanceMap.get(aTargetNode), distanceMap.get(aSourceNode) + aWeight);
                 distanceMap.put(aTargetNode, aMaxDistance);
-            }
+            });
         }
     }
 
-    private void fillDistanceMapUnweighted(Node[] theSortedArray) {
-        for (Node aNode : theSortedArray) {
-            for (Edge anEdge : aNode.getEachEnteringEdge()) {
-                Node aSourceNode = anEdge.getSourceNode();
-                Node aTargetNode = anEdge.getTargetNode();
-                Double aMaxDistance = Math.max(distanceMap.get(aTargetNode), distanceMap.get(aSourceNode)) + 1;
-                distanceMap.put(aTargetNode, aMaxDistance);
-            }
-        }
-    }
-
-    private Map.Entry<Node, Double> getMaxEntryOfMap() {
-        Map.Entry<Node, Double> maxEntry = null;
-        for (Map.Entry<Node, Double> entry : distanceMap.entrySet()) {
-            if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0) {
-                maxEntry = entry;
-            }
-        }
-        return maxEntry;
-    }
-
-    private void getMaxNeigbourgh(Node theNode) {
-        Node aMaxNode = null;
-        double aMaxDistance = 0.0;
-        for (Edge anEdge : theNode.getEachEnteringEdge()) {
-            Node aSourceNode = anEdge.getSourceNode();
-            if (distanceMap.get(aSourceNode) >= aMaxDistance) {
-                aMaxDistance = distanceMap.get(aSourceNode);
-                aMaxNode = aSourceNode;
-            }
-        }
-        if (aMaxNode != null) {
-            longestPath.add(aMaxNode);
-            getMaxNeigbourgh(aMaxNode);
-        }
-
+    private void getMaxNeighbor(Node theNode) {
+        Optional<Edge> optionalEdge = theNode.enteringEdges()
+                .max(Comparator.comparingDouble(anEdge -> distanceMap.get(anEdge.getSourceNode())));
+        optionalEdge.ifPresent(edge -> {
+            longestPath.add(edge.getSourceNode());
+            getMaxNeighbor(edge.getSourceNode());
+        });
     }
 
     private void initializeAlgorithm() {
-        for (Node aNode : graph.getEachNode()) {
-            for (Edge anEdge : aNode.getEachEdge()) {
+        graph.nodes().forEach(aNode -> {
+            aNode.edges().forEach(anEdge -> {
                 double aWeight = anEdge.getNumber(getWeightAttribute());
                 if (Double.isNaN(aWeight)) {
                     weighted = false;
                 }
-            }
+            });
             distanceMap.put(aNode, 0.0);
-        }
+        });
     }
 
     /**
@@ -150,18 +149,21 @@ public class LongestPath implements Algorithm {
      */
     public Path getLongestPath() {
         Path path = new Path();
-        for (int i = 0; i < longestPath.size(); i++) {
-            for (Edge edge : graph.getEachEdge()) {
-                if (!edge.getSourceNode().equals(longestPath.get(i))) {
-                    continue;
-                }
-                if (!edge.getTargetNode().equals(longestPath.get(i + 1))) {
-                    continue;
-                }
-                path.add(edge.getSourceNode(), edge);
-            }
+        for (int i = 0; i < longestPath.size()-1; i++) {
+            Node aSourceNode = longestPath.get(i);
+            Node aTargetNode = longestPath.get(i+1);
+            Optional<Edge> anEdge = graph.edges()
+                    .filter(aNode -> aNode.getSourceNode().equals(aSourceNode))
+                    .filter(aNode -> aNode.getTargetNode().equals(aTargetNode))
+                    .findAny();
+            anEdge.ifPresent(edge -> path.add(aSourceNode, edge));
         }
         return path;
+    }
+    
+    @Result
+    public String defaultResult() {
+    	return getLongestPath().toString() ;
     }
 
     /**
@@ -176,7 +178,8 @@ public class LongestPath implements Algorithm {
     public String getWeightAttribute() {
         return weightAttribute == null ? DEFAULT_WEIGHT_ATTRIBUTE : weightAttribute;
     }
-
+    
+    @Parameter
     public void setWeightAttribute(String weightAttribute) {
         this.weightAttribute = weightAttribute;
     }

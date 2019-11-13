@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,12 +21,17 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2012-02-10
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.measure;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.graphstream.algorithm.Algorithm;
@@ -72,9 +70,11 @@ public class ConnectivityMeasure {
 		/*
 		 * We start with the max degree.
 		 */
-		for (Node n : g.getEachNode())
-			current = Math.max(current, n.getDegree());
-
+		current = (g.nodes()
+			.max((x, y) -> Integer.compare(x.getDegree(), y.getDegree())) 
+			.get())
+			.getDegree();
+		
 		isCurrentConnected = isKVertexConnected(g, current);
 
 		do {
@@ -180,8 +180,8 @@ public class ConnectivityMeasure {
 		KIndexesArray karray = new KIndexesArray(k, g.getNodeCount());
 
 		if (k >= g.getNodeCount())
-			return g.getNodeSet().toArray(new Node[g.getNodeCount()]);
-
+			return g.nodes().toArray(Node[]::new);
+		
 		do {
 			toVisit.clear();
 			removed.clear();
@@ -196,19 +196,16 @@ public class ConnectivityMeasure {
 
 			while (toVisit.size() > 0) {
 				Node n = g.getNode(toVisit.poll());
-				Iterator<Node> it = n.getNeighborNodeIterator();
-				Integer index;
-
 				visited[n.getIndex()] = true;
-
-				while (it.hasNext()) {
-					Node o = it.next();
-					index = o.getIndex();
+				
+				n.neighborNodes().forEach(o -> {
+					Integer index = o.getIndex();
 
 					if (!visited[index] && !toVisit.contains(index)
 							&& !removed.contains(index))
 						toVisit.add(index);
-				}
+				});
+				
 			}
 
 			for (int i = 0; i < visited.length; i++)
@@ -245,8 +242,8 @@ public class ConnectivityMeasure {
 		Node nodeWithMinDegree = null;
 
 		if (k >= g.getEdgeCount())
-			return g.getEdgeSet().toArray(new Edge[g.getEdgeCount()]);
-
+			return g.edges().toArray(Edge[]::new);
+			
 		for (int i = 0; i < g.getNodeCount(); i++) {
 			Node n = g.getNode(i);
 
@@ -277,20 +274,17 @@ public class ConnectivityMeasure {
 
 			while (toVisit.size() > 0) {
 				Node n = g.getNode(toVisit.poll());
-				Iterator<Edge> it = n.iterator();
-				Integer index;
-
+				
 				visited[n.getIndex()] = true;
-
-				while (it.hasNext()) {
-					Edge e = it.next();
+				
+				n.edges().forEach(e -> {
 					Node o = e.getOpposite(n);
-					index = o.getIndex();
+					Integer index = o.getIndex();
 
 					if (!visited[index] && !toVisit.contains(index)
 							&& !removed.contains(e.getIndex()))
 						toVisit.add(index);
-				}
+				});
 			}
 
 			for (int i = 0; i < visited.length; i++)

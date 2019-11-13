@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,13 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2011-10-12
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Stefan Balev <stefan.balev@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm;
 
@@ -36,9 +36,12 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Random;
+import java.util.StringJoiner;
 
 import org.graphstream.algorithm.generator.DorogovtsevMendesGenerator;
 import org.graphstream.algorithm.generator.Generator;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -107,7 +110,19 @@ public class DStar implements DynamicAlgorithm, Sink {
 
 		position = getState(source);
 	}
+	
+	@Parameter(true)
+	public void setTarget(String target) {
+		g = getState(env.getNode(target));
+		g.h = 0;
+		insert(g);
+	}
 
+	@Parameter(true)
+	public void setSource(String source) {
+		position = getState(env.getNode(source));
+	}
+	
 	protected State minState() {
 		Collections.sort(openList, stateComparator);
 		return openList.getFirst();
@@ -242,11 +257,11 @@ public class DStar implements DynamicAlgorithm, Sink {
 	}
 
 	public State getState(Node n) {
-		State s = n.getAttribute(STATE_ATTRIBUTE);
+		State s = (State) n.getAttribute(STATE_ATTRIBUTE);
 
 		if (s == null) {
 			s = new State(n);
-			n.addAttribute(STATE_ATTRIBUTE, s);
+			n.setAttribute(STATE_ATTRIBUTE, s);
 		}
 
 		return s;
@@ -299,11 +314,8 @@ public class DStar implements DynamicAlgorithm, Sink {
 	}
 
 	public void markPath(String attribute, Object on, Object off) {
-		for (Node n : env)
-			n.setAttribute(attribute, off);
-
-		for (Edge e : env.getEachEdge())
-			e.setAttribute(attribute, off);
+		env.nodes().forEach(n -> n.setAttribute(attribute, off));
+		env.edges().forEach(e -> e.setAttribute(attribute, off));
 
 		State s = position;
 
@@ -479,7 +491,7 @@ public class DStar implements DynamicAlgorithm, Sink {
 		boolean alive = true;
 
 		g
-				.addAttribute(
+				.setAttribute(
 						"ui.stylesheet",
 						"node.on { fill-color: red; } node.off { fill-color: black; } edge.on { fill-color: red; } edge.off { fill-color: black; }");
 
@@ -517,6 +529,19 @@ public class DStar implements DynamicAlgorithm, Sink {
 
 		gen.end();
 		dstar.terminate();
+
+	}
+	
+	@Result
+	public String defaultResult() {
+		StringJoiner sj = new StringJoiner(" | ", "====== DStar ====== \n", "");
+		markPath("ui.DStar", "on", "off");
+		
+		env.nodes()
+			.filter(n -> n.getAttribute("ui.DStar").equals("on"))
+			.forEach(n -> sj.add(n.getId()));
+		
+		return sj.toString();
 
 	}
 }

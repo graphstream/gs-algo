@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,13 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2011-07-13
+ * 
+ * @author Stefan Balev <stefan.balev@graphstream-project.org>
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.test;
 
@@ -59,18 +59,18 @@ public class TestToolkit {
 		// [A, B, C, D], [B, D, E], [D, E, F], [E, F, G], [H], [G, I]
 
 		Graph g = new SingleGraph("cliques");
-		g.addNode("A").addAttribute("xy", 0, 1);
-		g.addNode("B").addAttribute("xy", 1, 2);
-		g.addNode("C").addAttribute("xy", 1, 0);
-		g.addNode("D").addAttribute("xy", 2, 1);
-		g.addNode("E").addAttribute("xy", 3, 2);
-		g.addNode("F").addAttribute("xy", 3, 1);
-		g.addNode("G").addAttribute("xy", 4, 1);
-		g.addNode("H").addAttribute("xy", 5, 2);
-		g.addNode("I").addAttribute("xy", 5, 1);
+		g.addNode("A").setAttribute("xy", 0, 1);
+		g.addNode("B").setAttribute("xy", 1, 2);
+		g.addNode("C").setAttribute("xy", 1, 0);
+		g.addNode("D").setAttribute("xy", 2, 1);
+		g.addNode("E").setAttribute("xy", 3, 2);
+		g.addNode("F").setAttribute("xy", 3, 1);
+		g.addNode("G").setAttribute("xy", 4, 1);
+		g.addNode("H").setAttribute("xy", 5, 2);
+		g.addNode("I").setAttribute("xy", 5, 1);
 
 		for (Node n : g)
-			n.addAttribute("label", n.getId());
+			n.setAttribute("label", n.getId());
 
 		g.addEdge("AB", "A", "B");
 		g.addEdge("AC", "A", "C");

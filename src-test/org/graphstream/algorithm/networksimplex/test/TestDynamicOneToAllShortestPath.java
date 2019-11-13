@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,13 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2011-12-11
+ * 
+ * @author Stefan Balev <stefan.balev@graphstream-project.org>
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.networksimplex.test;
 
@@ -133,7 +133,7 @@ public class TestDynamicOneToAllShortestPath {
 		for (int i = 3; i <= 100; i++) {
 			gen.nextEvents();
 			d.compute();
-			BreadthFirstIterator<Node> bfs = (BreadthFirstIterator<Node>) source
+			BreadthFirstIterator bfs = (BreadthFirstIterator) source
 					.getBreadthFirstIterator();
 			while (bfs.hasNext())
 				bfs.next();
@@ -145,7 +145,7 @@ public class TestDynamicOneToAllShortestPath {
 		for (int i = 100; i >= 3; i--) {
 			g.removeNode(i);
 			d.compute();
-			BreadthFirstIterator<Node> bfs = (BreadthFirstIterator<Node>) source
+			BreadthFirstIterator bfs = (BreadthFirstIterator) source
 					.getBreadthFirstIterator();
 			while (bfs.hasNext())
 				bfs.next();
@@ -162,9 +162,9 @@ public class TestDynamicOneToAllShortestPath {
 		gen.addSink(g);
 		gen.begin();
 		Node source = g.getNode(0);
-		g.getEdge(0).addAttribute("length", 10 + rnd.nextInt(91));
-		g.getEdge(1).addAttribute("length", 10 + rnd.nextInt(91));
-		g.getEdge(2).addAttribute("length", 10 + rnd.nextInt(91));
+		g.getEdge(0).setAttribute("length", 10 + rnd.nextInt(91));
+		g.getEdge(1).setAttribute("length", 10 + rnd.nextInt(91));
+		g.getEdge(2).setAttribute("length", 10 + rnd.nextInt(91));
 
 		DynamicOneToAllShortestPath dsp = new DynamicOneToAllShortestPath("length");
 		dsp.setSource(source.getId());
@@ -179,8 +179,8 @@ public class TestDynamicOneToAllShortestPath {
 		// Add node and recompute. Compare the results with Dijkstra
 		for (int i = 3; i <= 100; i++) {
 			gen.nextEvents();
-			g.getEdge(g.getEdgeCount() - 1).addAttribute("length", 10 + rnd.nextInt(91));
-			g.getEdge(g.getEdgeCount() - 2).addAttribute("length", 10 + rnd.nextInt(91));
+			g.getEdge(g.getEdgeCount() - 1).setAttribute("length", 10 + rnd.nextInt(91));
+			g.getEdge(g.getEdgeCount() - 2).setAttribute("length", 10 + rnd.nextInt(91));
 			dsp.compute();
 			d.compute();
 			for (Node n : g)
@@ -189,7 +189,7 @@ public class TestDynamicOneToAllShortestPath {
 		
 		// Now change the costs of edge and recompute. Compare with Dijkstra
 		for (int i = 0; i < g.getEdgeCount(); i++) {
-			g.getEdge(i).addAttribute("length", 10 + rnd.nextInt(91));
+			g.getEdge(i).setAttribute("length", 10 + rnd.nextInt(91));
 			dsp.compute();
 			d.compute();
 			for (Node n : g)

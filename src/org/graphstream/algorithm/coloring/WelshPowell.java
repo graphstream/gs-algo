@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,14 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2009-02-19
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Yoann Pigné <yoann.pigne@graphstream-project.org>
+ * @author Stefan Balev <stefan.balev@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.coloring;
 
@@ -35,6 +36,8 @@ import java.util.LinkedList;
 
 import org.graphstream.algorithm.Algorithm;
 import org.graphstream.algorithm.util.FibonacciHeap;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -217,6 +220,7 @@ public class WelshPowell implements Algorithm {
 	 * @param attrName
 	 *            An attribute name.
 	 */
+	@Parameter
 	public void setAttributeName(String attrName) {
 		this.attrName = attrName;
 	}
@@ -271,7 +275,7 @@ public class WelshPowell implements Algorithm {
 			LinkedList<Node> myGroup = new LinkedList<Node>();
 			myGroup.add(root);
 
-			root.addAttribute(attributeName, nbColors);
+			root.setAttribute(attributeName, nbColors);
 
 			for (int i = 0; i < sortedNodes.size();) {
 				Node p = sortedNodes.get(i);
@@ -283,7 +287,7 @@ public class WelshPowell implements Algorithm {
 				if (conflict)
 					i++;
 				else {
-					p.addAttribute(attributeName, nbColors);
+					p.setAttribute(attributeName, nbColors);
 					myGroup.add(p);
 					sortedNodes.remove(i);
 				}
@@ -294,5 +298,10 @@ public class WelshPowell implements Algorithm {
 		}
 
 		chromaticNumber = nbColors;
+	}
+	
+	@Result
+	public String defaultMessage() {
+		return "Result stored in \""+this.attrName+"\" attribute";
 	}
 }

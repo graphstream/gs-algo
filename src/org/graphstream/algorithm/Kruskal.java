@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,15 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2009-02-19
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Antoine Dutot <antoine.dutot@graphstream-project.org>
+ * @author Yoann Pigné <yoann.pigne@graphstream-project.org>
+ * @author Stefan Balev <stefan.balev@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm;
 
@@ -37,8 +39,16 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Spliterator;
+import java.util.Spliterators;
+import java.util.StringJoiner;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.graphstream.algorithm.util.DisjointSets;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
@@ -202,6 +212,7 @@ public class Kruskal extends AbstractSpanningTree {
 	 * @param newWeightAttribute
 	 *            new attribute used
 	 */
+	@Parameter
 	public void setWeightAttribute(String newWeightAttribute) {
 		this.weightAttribute = newWeightAttribute;
 	}
@@ -213,7 +224,7 @@ public class Kruskal extends AbstractSpanningTree {
 		else
 			treeEdges.clear();
 
-		List<Edge> sortedEdges = new ArrayList<Edge>(graph.getEdgeSet());
+		List<Edge> sortedEdges = new ArrayList<Edge>(graph.edges().collect(Collectors.toList()));
 		Collections.sort(sortedEdges, new EdgeComparator());
 		
 		DisjointSets<Node> components = new DisjointSets<Node>(
@@ -235,8 +246,13 @@ public class Kruskal extends AbstractSpanningTree {
 	}
 
 	@Override
-	public <T extends Edge> Iterator<T> getTreeEdgesIterator() {
-		return new TreeIterator<T>();
+	public Stream<Edge> getTreeEdgesStream() {
+		return StreamSupport.stream(
+		    	Spliterators.spliteratorUnknownSize(
+		    			new TreeIterator(),
+		                Spliterator.DISTINCT |
+		                Spliterator.IMMUTABLE |
+		                Spliterator.NONNULL), false);
 	}
 
 	@Override
@@ -265,6 +281,19 @@ public class Kruskal extends AbstractSpanningTree {
 		return w;
 	}
 
+	@Result
+	public String defaultResult() {
+		//return getPath(graph.getNode(target));
+		
+		StringJoiner sj = new StringJoiner(" | ", "====== Kruskal ====== \n", "");
+		getTreeEdgesStream()
+			.forEach(n -> {
+				sj.add(n.getId());
+			});
+		
+		return sj.toString();
+	}
+	
 	protected class EdgeComparator implements Comparator<Edge> {
 		public int compare(Edge arg0, Edge arg1) {
 			double w0 = getWeight(arg0);
@@ -277,7 +306,7 @@ public class Kruskal extends AbstractSpanningTree {
 		}
 	}
 
-	protected class TreeIterator<T extends Edge> implements Iterator<T> {
+	protected class TreeIterator implements Iterator<Edge> {
 
 		protected Iterator<Edge> it = treeEdges.iterator();
 
@@ -285,9 +314,8 @@ public class Kruskal extends AbstractSpanningTree {
 			return it.hasNext();
 		}
 
-		@SuppressWarnings("unchecked")
-		public T next() {
-			return (T) it.next();
+		public Edge next() {
+			return it.next();
 		}
 
 		public void remove() {

@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,13 +21,28 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2010-10-01
+ * 
+ * @author Guillaume-Jean Herbiet <guillaume-jean@herbiet.net>
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Antoine Dutot <antoine.dutot@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.community;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.graphstream.algorithm.DynamicAlgorithm;
-import org.graphstream.graph.*;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
+import org.graphstream.graph.Element;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.Node;
 import org.graphstream.stream.Sink;
 
 /**
@@ -115,8 +123,8 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 * the specified graph, and using the specified marker to store the
 	 * community attribute
 	 * 
-	 * @param graph
-	 * @param marker
+	 * @param graph the graph
+	 * @param marker marker string to store the community attribute
 	 */
 	public void init(Graph graph, String marker) {
 		setMarker(marker);
@@ -132,7 +140,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 * of reproducibility, use the {@link #setRandom(Random)} function to use a
 	 * controlled random number generator with this algorithm.
 	 * 
-	 * @param graph
+	 * @param graph the graph
 	 */
 //	@Override
 	public void init(Graph graph) {
@@ -169,8 +177,9 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 * [AlgorithmClass].[InstanceNumber] to make this unique for each instance
 	 * of the algorithm.
 	 * 
-	 * @param marker
+	 * @param marker marker string to store the community attribute
 	 */
+	@Parameter
 	public void setMarker(String marker) {
 		if (marker == null) {
 			this.nonUniqueMarker = "community";
@@ -224,12 +233,13 @@ public abstract class DecentralizedCommunityAlgorithm implements
 		 * graph has changed since last call
 		 */
 		if (graphChanged) {
-			ArrayList<Node> nodeSet = new ArrayList<Node>(graph.getNodeSet());
+			ArrayList<Node> nodeSet = graph.nodes().collect(Collectors.toCollection(ArrayList::new));// new ArrayList<Node>(graph.getNodeSet());
 			Collections.shuffle(nodeSet, rng);
-			for (Node node : nodeSet) {
+			
+			nodeSet.forEach(node -> {
 				computeNode(node);
 				updateDisplayClass(node);
-			}
+			});
 			graphChanged = staticMode;
 		}
 	}
@@ -237,7 +247,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	/**
 	 * Perform computation of one iteration of the algorithm on a given node.
 	 * 
-	 * @param node
+	 * @param node node to compute
 	 */
 	public abstract void computeNode(Node node);
 
@@ -248,7 +258,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 *            The node that will originate the new community
 	 */
 	protected void originateCommunity(Node node) {
-		node.addAttribute(marker, new Community());
+		node.setAttribute(marker, new Community());
 	}
 
 	/**
@@ -257,7 +267,7 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	 * The class name is [marker]_[id] where "marker" is the attribute name used
 	 * to store the current community, and [id] the id of this community.
 	 * 
-	 * @param node
+	 * @param node node to compute
 	 */
 	protected void updateDisplayClass(Node node) {
 		node.setAttribute(
@@ -330,5 +340,9 @@ public abstract class DecentralizedCommunityAlgorithm implements
 	public void edgeAttributeRemoved(String graphId, long timeId,
 			String edgeId, String attribute) {
 	}
-
+	
+	@Result
+	public String defaultMessage() {
+		return "Result stored in \"ui.class\" attribute";
+	}
 }

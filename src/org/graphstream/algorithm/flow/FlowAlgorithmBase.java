@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,11 +21,18 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2012-02-18
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.flow;
 
 import java.util.List;
 
+import org.graphstream.algorithm.util.Parameter;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
@@ -132,6 +132,16 @@ public abstract class FlowAlgorithmBase implements FlowAlgorithm {
 		this.sourceId = sourceId;
 		this.sinkId = sinkId;
 	}
+	
+	@Parameter(true)
+	public void setSourceId(String sourceId) {
+		this.sourceId = sourceId;
+	}
+	
+	@Parameter(true)
+	public void setSinkId(String sinkId) {
+		this.sinkId = sinkId;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -220,7 +230,7 @@ public abstract class FlowAlgorithmBase implements FlowAlgorithm {
 	public void setFlow(String uId, String vId, double flow) {
 		Node u = flowGraph.getNode(uId);
 		Node v = flowGraph.getNode(vId);
-
+		
 		setFlow(u, v, flow);
 	}
 
@@ -349,6 +359,7 @@ public abstract class FlowAlgorithmBase implements FlowAlgorithm {
 	 * org.graphstream.algorithm.flow.FlowAlgorithm#setCapacityAttribute(java
 	 * .lang.String)
 	 */
+	@Parameter
 	public void setCapacityAttribute(String attribute) {
 		capacityAttribute = attribute;
 	}
@@ -361,7 +372,8 @@ public abstract class FlowAlgorithmBase implements FlowAlgorithm {
 	public String getCapacityAttribute() {
 		return capacityAttribute;
 	}
-
+	
+	@Parameter
 	public void setAllCapacities(double value) {
 		for (int i = 0; i < 2 * n; i++)
 			capacities[i] = value;

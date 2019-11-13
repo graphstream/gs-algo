@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,12 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2012-02-10
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author beltex <cse93251@cse.yorku.ca>
  */
 package org.graphstream.algorithm.measure;
 
@@ -165,7 +164,7 @@ public abstract class ChartMeasure {
 	 * Create a new plot with default plot parameters.
 	 * 
 	 * @see #getDefaultPlotParameters()
-	 * @throws PlotException
+	 * @throws PlotException problem during plot
 	 */
 	public void plot() throws PlotException {
 		plot(getDefaultPlotParameters());
@@ -184,6 +183,7 @@ public abstract class ChartMeasure {
 	 * @param params
 	 *            parameters that should be used to plot the measure
 	 * @throws PlotException
+	 * 			error during plot
 	 */
 	public abstract void plot(PlotParameters params) throws PlotException;
 
@@ -194,6 +194,7 @@ public abstract class ChartMeasure {
 	 *            the set of parameters used to create the chart
 	 * @return a new chart
 	 * @throws PlotException
+	 * 			error during plot
 	 */
 	public abstract JFreeChart createChart(PlotParameters params)
 			throws PlotException;
@@ -209,6 +210,7 @@ public abstract class ChartMeasure {
 	 * @param measures
 	 *            measures to plot
 	 * @throws PlotException
+	 * 			error during plot
 	 */
 	public static void outputPlot(PlotParameters params,
 			ChartMeasure... measures) throws PlotException {
@@ -233,6 +235,7 @@ public abstract class ChartMeasure {
 	 * @param charts
 	 *            charts to output
 	 * @throws PlotException
+	 * 	 		error during plot
 	 */
 	public static void outputPlot(PlotParameters params, JFreeChart... charts)
 			throws PlotException {

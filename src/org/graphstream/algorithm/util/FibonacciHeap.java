@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,13 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2011-07-10
+ * 
+ * @author Stefan Balev <stefan.balev@graphstream-project.org>
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.util;
 
@@ -177,7 +177,7 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 	public FibonacciHeap() {
 		min = null;
 		size = 0;
-		degList = new ArrayList<Node>();
+		degList = new ArrayList<>();
 	}
 
 	/**
@@ -327,8 +327,10 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 		} while (w != min);
 
 		min = null;
-		for (Node s : degList)
-			if (s != null) {
+		
+		degList.stream()
+			.filter(s -> s != null)
+			.forEach(s -> {
 				s.left = s.right = s;
 				if (min == null)
 					min = s;
@@ -337,7 +339,8 @@ public class FibonacciHeap<K extends Comparable<K>, V> {
 					if (s.key.compareTo(min.key) < 0)
 						min = s;
 				}
-			}
+			});
+			
 	}
 
 	/** Decreases the key of a given node

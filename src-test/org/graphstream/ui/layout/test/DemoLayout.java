@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,13 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2012-02-10
+ * 
+ * @author Antoine Dutot <antoine.dutot@graphstream-project.org>
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.ui.layout.test;
 
@@ -56,10 +56,10 @@ public class DemoLayout {
 		C.setPosition(0, 0, 0);
 		C.setAttribute("ui.label", "(0,0)");
 		graph.display();
-		graph.addAttribute("ui.stylesheet", styleSheet);
-		graph.addAttribute("layout.stabilization-limit", 1);
-		graph.addAttribute("layout.quality", 3);
-		graph.addAttribute("layout.gravity", 0.01);
+		graph.setAttribute("ui.stylesheet", styleSheet);
+		graph.setAttribute("layout.stabilization-limit", 1);
+		graph.setAttribute("layout.quality", 3);
+		graph.setAttribute("layout.gravity", 0.01);
 //		int steps = 50;
 //		Generator gen = new BarabasiAlbertGenerator(2);
 //		int steps = 6;

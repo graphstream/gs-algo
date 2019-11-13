@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,12 +21,23 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2009-02-19
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Antoine Dutot <antoine.dutot@graphstream-project.org>
+ * @author Yoann Pigné <yoann.pigne@graphstream-project.org>
+ * @author Stefan Balev <stefan.balev@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm;
 
 import java.util.LinkedList;
+import java.util.StringJoiner;
 
 import org.graphstream.algorithm.util.FibonacciHeap;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Node;
 
@@ -188,20 +192,35 @@ public class Prim extends Kruskal {
 				dataU.edgeToTree = null;
 			}
 			dataU.fn = null;
-			for (Edge e : u) {
-				Node v = e.getOpposite(u);
-				Data dataV = data[v.getIndex()];
-				if (dataV == null)
-					continue;
-				double w = getWeight(e);
-				if (w < dataV.fn.getKey()) {
-					heap.decreaseKey(dataV.fn, w);
-					dataV.edgeToTree = e;
-				}
-			}
+			
+			u.edges()
+				.filter(e -> data[e.getOpposite(u).getIndex()] != null)
+				.forEach(e -> {
+					Node v = e.getOpposite(u);
+					Data dataV = data[v.getIndex()];
+					
+					double w = getWeight(e);
+					if (w < dataV.fn.getKey()) {
+						heap.decreaseKey(dataV.fn, w);
+						dataV.edgeToTree = e;
+					}
+				});
 		}
 	}
-
+	
+	@Result
+	public String defaultResult() {
+		//return getPath(graph.getNode(target));
+		
+		StringJoiner sj = new StringJoiner(" | ", "====== Prim ====== \n", "");
+		getTreeEdgesStream()
+			.forEach(n -> {
+				sj.add(n.getId());
+			});
+		
+		return sj.toString();
+	}
+	
 	protected static class Data {
 		Edge edgeToTree;
 		FibonacciHeap<Double, Node>.Node fn;

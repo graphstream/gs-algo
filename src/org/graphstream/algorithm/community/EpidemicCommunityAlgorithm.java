@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,13 +21,21 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2010-10-01
+ * 
+ * @author Guillaume-Jean Herbiet <guillaume-jean@herbiet.net>
+ * @author Antoine Dutot <antoine.dutot@graphstream-project.org>
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.community;
 
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.TreeMap;
 
-import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.Node;
 
@@ -76,7 +77,7 @@ public class EpidemicCommunityAlgorithm extends DecentralizedCommunityAlgorithm 
 	 * 
 	 * @complexity k times the complexity of the communityScores() function,
 	 *             where k is the average number of neighboring communities.
-	 * @param node
+	 * @param node node to compute
 	 */
 	@Override
 	public void computeNode(Node node) {
@@ -96,7 +97,7 @@ public class EpidemicCommunityAlgorithm extends DecentralizedCommunityAlgorithm 
 		for (Object c : scores.keySet()) {
 			Double s = communityScores.get(c);
 
-			if (s > maxScore || (s == maxScore && rng.nextDouble() >= 0.5)) {
+			if ((s > maxScore) || ((Objects.equals(s, maxScore)) && (rng.nextDouble() >= 0.5))) {
 				maxCommunity = c;
 				maxScore = s;
 			}
@@ -126,24 +127,25 @@ public class EpidemicCommunityAlgorithm extends DecentralizedCommunityAlgorithm 
 		/*
 		 * Reset the scores for each communities
 		 */
-		communityScores = new HashMap<Object, Double>();
+		communityScores = new HashMap<>();
 
 		/*
 		 * Iterate over the nodes that this node "hears"
 		 */
-		for (Edge e : u.getEnteringEdgeSet()) {
-			Node v = e.getOpposite(u);
-
-			/*
-			 * Update the count for this community
-			 */
-			if (v.hasAttribute(marker))
+		u.enteringEdges()
+			.filter(e -> e.getOpposite(u).hasAttribute(marker))
+			.forEach(e -> {
+				/*
+				 * Update the count for this community
+				 */
+				Node v = e.getOpposite(u);
+				
 				if (communityScores.get(v.getAttribute(marker)) == null)
 					communityScores.put(v.getAttribute(marker), 1.0);
 				else
 					communityScores.put(v.getAttribute(marker),
 							communityScores.get(v.getAttribute(marker)) + 1.0);
-		}
+		});
 	}
 
 	@Override

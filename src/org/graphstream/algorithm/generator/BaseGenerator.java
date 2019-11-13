@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,11 +21,22 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2009-02-19
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Yoann Pigné <yoann.pigne@graphstream-project.org>
+ * @author Antoine Dutot <antoine.dutot@graphstream-project.org>
+ * @author Stefan Balev <stefan.balev@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.generator;
 
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
+import java.util.function.Function;
 
 import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.AdjacencyListGraph;
@@ -85,23 +89,13 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	 * List of attributes to put on nodes with a randomly chosen numerical
 	 * value.
 	 */
-	protected ArrayList<String> nodeAttributes = new ArrayList<String>();
+	protected Map<String, Function<Random, ?>> nodeAttributes = new HashMap<>();
 
 	/**
 	 * List of attributes to put on edges with a randomly chosen numerical
 	 * value.
 	 */
-	protected ArrayList<String> edgeAttributes = new ArrayList<String>();
-
-	/**
-	 * If node attributes are added, in which range are the numbers chosen ?.
-	 */
-	protected double[] nodeAttributeRange = new double[2];
-
-	/**
-	 * If edge attributes are added, in which range are the numbers chosen ?.
-	 */
-	protected double[] edgeAttributeRange = new double[2];
+	protected Map<String, Function<Random, ?>> edgeAttributes = new HashMap<>();
 
 	/**
 	 * The random number generator.
@@ -159,11 +153,6 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	public BaseGenerator(boolean directed, boolean randomlyDirectedEdges) {
 		super(String.format("generator-%08x", generatorId++));
 		setDirectedEdges(directed, randomlyDirectedEdges);
-
-		nodeAttributeRange[0] = 0;
-		nodeAttributeRange[1] = 1;
-		edgeAttributeRange[0] = 0;
-		edgeAttributeRange[1] = 1;
 	}
 
 	/**
@@ -253,16 +242,48 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	}
 
 	/**
-	 * Add this attribute on all nodes generated. This attribute will have a
-	 * numerical value chosen in a range that is by default [0-1].
-	 * 
+	 * Add this attribute on all nodes generated. The second parameter is a function whose parameter
+	 * is a {@link Random} object and which will return a random attribute value.
+	 *
 	 * @param name
 	 *            The attribute name.
-	 * @see #setNodeAttributesRange(double, double)
+	 * @param factory
+	 *            A factory that will create the attribute value from the random object
+	 * @see #removeNodeAttribute(String)
+	 */
+	public void addNodeAttribute(String name, Function<Random, ?> factory) {
+		nodeAttributes.put(name, factory);
+	}
+
+	/**
+	 * Same as {@link #addNodeAttribute(String, Function)} with default factory function.
+	 * This attribute will have a numerical value chosen in a range that is by default [min-max].
+	 *
+	 * @param name
+	 *            The attribute name.
+	 * @param min
+	 *            The minimum value for this attribute.
+	 * @param max
+	 *            The maximum value for this attribute.
+	 * @see #addNodeAttribute(String, Function)
+	 * @see #removeNodeAttribute(String)
+	 */
+	public void addNodeAttribute(String name, double min, double max) {
+		addNodeAttribute(name, random -> min + (max - min) * random.nextDouble());
+	}
+
+	/**
+	 * Same as {@link #addNodeAttribute(String, Function)} with default factory function.
+	 * This attribute will have a numerical value chosen in a range that is by default [0-1].
+	 *
+	 * @param name
+	 *            The attribute name.
+	 * @see #addNodeAttribute(String, Function)
+	 * @see #addNodeAttribute(String, double, double)
 	 * @see #removeNodeAttribute(String)
 	 */
 	public void addNodeAttribute(String name) {
-		nodeAttributes.add(name);
+		addNodeAttribute(name, 0, 1);
 	}
 
 	/**
@@ -273,23 +294,52 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	 * @see #addNodeAttribute(String)
 	 */
 	public void removeNodeAttribute(String name) {
-		int pos = nodeAttributes.indexOf(name);
-
-		if (pos >= 0)
-			nodeAttributes.remove(pos);
+		nodeAttributes.remove(name);
 	}
 
 	/**
-	 * Add this attribute on all edges generated. This attribute will have a
-	 * numerical value chosen in a range that is by default [0-1].
-	 * 
+	 * Add this attribute on all edges generated. The second parameter is a function whose parameter
+	 * is a {@link Random} object and which will return a random attribute value.
+	 *
 	 * @param name
 	 *            The attribute name.
-	 * @see #setEdgeAttributesRange(double, double)
+	 * @param factory
+	 *            A factory that will create the attribute value from the random object
+	 * @see #removeEdgeAttribute(String)
+	 */
+	public void addEdgeAttribute(String name, Function<Random, ?> factory) {
+		edgeAttributes.put(name, factory);
+	}
+
+	/**
+	 * Same as {@link #addEdgeAttribute(String, Function)} with default factory function.
+	 * This attribute will have a numerical value chosen in a range that is by default [min-max].
+	 *
+	 * @param name
+	 *            The attribute name.
+	 * @param min
+	 *            The minimum value for this attribute.
+	 * @param max
+	 *            The maximum value for this attribute.
+	 * @see #addEdgeAttribute(String, Function)
+	 * @see #removeEdgeAttribute(String)
+	 */
+	public void addEdgeAttribute(String name, double min, double max) {
+		addEdgeAttribute(name, random -> min + (max - min) * random.nextDouble());
+	}
+
+	/**
+	 * Same as {@link #addEdgeAttribute(String, Function)} with default factory function.
+	 * This attribute will have a numerical value chosen in a range that is by default [0-1].
+	 *
+	 * @param name
+	 *            The attribute name.
+	 * @see #addEdgeAttribute(String, Function)
+	 * @see #addEdgeAttribute(String, double, double)
 	 * @see #removeEdgeAttribute(String)
 	 */
 	public void addEdgeAttribute(String name) {
-		edgeAttributes.add(name);
+		addEdgeAttribute(name, 0, 1);
 	}
 
 	/**
@@ -300,32 +350,7 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 	 * @see #addEdgeAttribute(String)
 	 */
 	public void removeEdgeAttribute(String name) {
-		int pos = edgeAttributes.indexOf(name);
-
-		if (pos >= 0)
-			edgeAttributes.remove(pos);
-	}
-
-	/**
-	 * If node attributes are added automatically, choose in which range the
-	 * values are choosed.
-	 * 
-	 * @see #addNodeAttribute(String)
-	 */
-	public void setNodeAttributesRange(double low, double hi) {
-		nodeAttributeRange[0] = low;
-		nodeAttributeRange[1] = hi;
-	}
-
-	/**
-	 * If edge attributes are added automatically, choose in which range the
-	 * values are choosed.
-	 * 
-	 * @see #addEdgeAttribute(String)
-	 */
-	public void setEdgeAttributesRange(double low, double hi) {
-		edgeAttributeRange[0] = low;
-		edgeAttributeRange[1] = hi;
+		edgeAttributes.remove(name);
 	}
 
 	/**
@@ -379,7 +404,7 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 				new Double(x), new Double(y) });
 
 		if (useInternalGraph)
-			internalGraph.getNode(id).addAttribute("xy",
+			internalGraph.getNode(id).setAttribute("xy",
 					(Object) (new Double[] { new Double(x), new Double(y) }));
 	}
 
@@ -398,16 +423,14 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 		if (useInternalGraph)
 			internalGraph.addNode(id);
 
-		double value;
+		nodeAttributes.forEach((attribute, factory) -> {
+			Object value = factory.apply(random);
 
-		for (String attr : nodeAttributes) {
-			value = (random.nextDouble() * (nodeAttributeRange[1] - nodeAttributeRange[0]))
-					+ nodeAttributeRange[0];
-			sendNodeAttributeAdded(sourceId, id, attr, value);
+			sendNodeAttributeAdded(sourceId, id, attribute, value);
 
 			if (useInternalGraph)
-				internalGraph.getNode(id).addAttribute(attr, value);
-		}
+				internalGraph.getNode(id).setAttribute(attribute, value);
+		});
 	}
 
 	/**
@@ -451,15 +474,16 @@ public abstract class BaseGenerator extends SourceBase implements Generator {
 
 		if (addEdgeLabels)
 			sendEdgeAttributeAdded(sourceId, id, "label", id);
+		
+		final String idFinal = id;
+		edgeAttributes.forEach((attribute, factory) -> {
+			Object value = factory.apply(random);
 
-		for (String attr : edgeAttributes) {
-			double value = (random.nextDouble() * (edgeAttributeRange[1] - edgeAttributeRange[0]))
-					+ edgeAttributeRange[0];
-			sendEdgeAttributeAdded(sourceId, id, attr, value);
+			sendEdgeAttributeAdded(sourceId, idFinal, attribute, value);
 
 			if (useInternalGraph)
-				internalGraph.getEdge(id).addAttribute(attr, value);
-		}
+				internalGraph.getEdge(idFinal).setAttribute(attribute, value);
+		});
 	}
 
 	/**

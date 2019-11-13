@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,16 +21,27 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2010-08-30
+ * 
+ * @author Antoine Dutot <antoine.dutot@graphstream-project.org>
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Thibaut Démare <fdhp_76@hotmail.com>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm;
 
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Set;
+import java.util.concurrent.atomic.DoubleAccumulator;
+import java.util.stream.Stream;
 
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Element;
 import org.graphstream.graph.Graph;
@@ -257,6 +261,7 @@ public class BetweennessCentrality implements Algorithm {
 	 * This automatically set the algorithm to perform on the graph as if it was
 	 * weighted.
 	 */
+	@Parameter
 	public void setWeightAttributeName(String weightAttributeName) {
 		unweighted = false;
 		this.weightAttributeName = weightAttributeName;
@@ -286,6 +291,7 @@ public class BetweennessCentrality implements Algorithm {
 	 * to the node access.
 	 * @param on If true, the edges centrality is also computed.
 	 */
+	@Parameter
 	public void computeEdgeCentrality(boolean on) {
 		doEdges = on;
 	}
@@ -294,6 +300,7 @@ public class BetweennessCentrality implements Algorithm {
 	 * Specify the name of the attribute used to store the computed centrality
 	 * values for each node.
 	 */
+	@Parameter
 	public void setCentralityAttributeName(String centralityAttributeName) {
 		this.centralityAttributeName = centralityAttributeName;
 	}
@@ -335,9 +342,9 @@ public class BetweennessCentrality implements Algorithm {
 		initAllEdges(graph);
 
 		float n = graph.getNodeCount();
-		float i = 0;
-
-		for (Node s : graph) {
+		DoubleAccumulator i = new DoubleAccumulator((x, y) -> x + y, 0);
+		
+		graph.nodes().forEach(s -> {
 			PriorityQueue<Node> S = null;
 
 			if (unweighted)
@@ -365,10 +372,10 @@ public class BetweennessCentrality implements Algorithm {
 			}
 
 			if (progress != null)
-				progress.progress(i / n);
+				progress.progress((float)i.get() / n);
 
-			i++;
-		}
+			i.accumulate(1);
+		});
 	}
 
 	/**
@@ -396,10 +403,8 @@ public class BetweennessCentrality implements Algorithm {
 			Node v = Q.removeFirst();
 
 			S.add(v);
-			Iterator<? extends Edge> ww = v.getLeavingEdgeIterator();
-
-			while (ww.hasNext()) {
-				Edge l = ww.next();
+			
+			v.leavingEdges().forEach(l -> {
 				Node w = l.getOpposite(v);//ww.next();
 
 				if (distance(w) == INFINITY) {
@@ -411,7 +416,7 @@ public class BetweennessCentrality implements Algorithm {
 					setSigma(w, sigma(w) + sigma(v));
 					addToPredecessorsOf(w, v);
 				}
-			}
+			});
 		}
 
 		return S;
@@ -447,13 +452,8 @@ public class BetweennessCentrality implements Algorithm {
 				throw new RuntimeException("negative distance ??");
 			} else {
 				S.add(u);
-
-//				Iterator<? extends Node> k = u.getNeighborNodeIterator();
-				Iterator<? extends Edge> k = u.getLeavingEdgeIterator();
-
-				while (k.hasNext()) {
-//					Node v = k.next();
-					Edge l = k.next();
+				
+				u.leavingEdges().forEach(l -> {
 					Node v = l.getOpposite(u);
 					
 					double alt = distance(u) + weight(u, v);
@@ -478,7 +478,7 @@ public class BetweennessCentrality implements Algorithm {
 						setSigma(v, sigma(v) + sigma(u));
 						addToPredecessorsOf(v, u);
 					}
-				}
+				});
 			}
 		}
 
@@ -519,11 +519,8 @@ public class BetweennessCentrality implements Algorithm {
 			S.add(v);
 
 			//Iterator<? extends Node> k = v.getNeighborNodeIterator();
-			Iterator<? extends Edge> k = v.getLeavingEdgeIterator();
-
-			while (k.hasNext()) {
-				//Node w = k.next();
-				Edge l = k.next();
+			
+			v.leavingEdges().forEach(l -> {
 				Node w = l.getOpposite(v);
 				
 				double alt = distance(v) + weight(v, w);
@@ -543,7 +540,7 @@ public class BetweennessCentrality implements Algorithm {
 					setSigma(w, sigma(w) + sigma(v));
 					addToPredecessorsOf(w, v);
 				}
-			}
+			});
 		}
 
 		return S;
@@ -757,9 +754,7 @@ public class BetweennessCentrality implements Algorithm {
 	 *            The graph to modify.
 	 */
 	protected void initAllNodes(Graph graph) {
-		for (Node node : graph) {
-			setCentrality(node, 0.0);
-		}
+		graph.nodes().forEach(node -> setCentrality(node, 0.0));
 	}
 	
 	/**
@@ -770,9 +765,7 @@ public class BetweennessCentrality implements Algorithm {
 	 */
 	protected void initAllEdges(Graph graph) {
 		if(doEdges) {
-			for(Edge edge : graph.getEachEdge()) {
-				setCentrality(edge, 0.0);
-			}
+			graph.edges().forEach(edge -> setCentrality(edge, 0.0));
 		}
 	}
 
@@ -795,30 +788,31 @@ public class BetweennessCentrality implements Algorithm {
 	 * Delete attributes used by this algorithm in nodes and edges of the graph
 	 */
 	public void cleanGraph(){
-		cleanElement(graph.getEachEdge());
-		cleanElement(graph.getEachNode());
+		cleanElement(graph.edges());
+		cleanElement(graph.nodes());
 	}
 
 	/**
 	 * Delete attributes used by this algorithm in nodes of the graph
 	 */
 	public void cleanNodes(){
-		cleanElement(graph.getEachNode());
+		cleanElement(graph.nodes());
 	}
 
 	/**
 	 * Delete attributes used by this algorithm in edges of the graph
 	 */
 	public void cleanEdges(){
-		cleanElement(graph.getEachEdge());
+		cleanElement(graph.edges());
 	}
 
 	/**
 	 * Delete attributes used by this algorithm in elements of a graph
-	 * @param it the list of elements
+	 * @param st the list of elements
 	 */
-	private void cleanElement(Iterable<? extends Element> it){
-		for(Element e : it){
+	private void cleanElement(Stream<? extends Element> st){
+		
+		st.forEach(e -> {
 			if(e.hasAttribute(predAttributeName))
 				e.removeAttribute(predAttributeName);
 			if(e.hasAttribute(sigmaAttributeName))
@@ -827,7 +821,7 @@ public class BetweennessCentrality implements Algorithm {
 				e.removeAttribute(distAttributeName);
 			if(e.hasAttribute(deltaAttributeName))
 				e.removeAttribute(deltaAttributeName);
-		}
+		});
 	}
 
 	/**
@@ -867,7 +861,11 @@ public class BetweennessCentrality implements Algorithm {
 			return 0;
 		}
 	}
-
+	
+	@Result
+	public String defaultMessage() {
+		return "Result stored in \""+centralityAttributeName+"\" attribute";
+	}
 	/**
 	 * Interface allowing to be notified of the algorithm progress.
 	 */

@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,12 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2012-02-10
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.measure.demo;
 
@@ -44,14 +43,13 @@ public class EigenvectorCentralityDemo {
 			+ "stroke-mode: plain;" + "}";
 
 	public static void main(String... args) {
-		System.setProperty("org.graphstream.ui.renderer",
-				"org.graphstream.ui.j2dviewer.J2DGraphRenderer");
+		System.setProperty("org.graphstream.ui", "org.graphstream.ui.swing.util.Display");
 
 		Graph g = new AdjacencyListGraph("g");
 
-		g.addAttribute("ui.quality");
-		g.addAttribute("ui.antialias");
-		g.addAttribute("ui.stylesheet", STYLE);
+		g.setAttribute("ui.quality");
+		g.setAttribute("ui.antialias");
+		g.setAttribute("ui.stylesheet", STYLE);
 
 		BarabasiAlbertGenerator gen = new BarabasiAlbertGenerator();
 		gen.addSink(g);
@@ -65,7 +63,7 @@ public class EigenvectorCentralityDemo {
 		dc.compute();
 
 		for (int i = 0; i < g.getNodeCount(); i++)
-			g.getNode(i).addAttribute("ui.size",
+			g.getNode(i).setAttribute("ui.size",
 					g.getNode(i).getNumber("ui.color") * 25 + 5);
 
 		g.display();

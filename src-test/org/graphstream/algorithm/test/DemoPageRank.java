@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,13 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2012-07-12
+ * 
+ * @author Stefan Balev <stefan.balev@graphstream-project.org>
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.test;
 
@@ -40,8 +40,8 @@ import org.graphstream.graph.implementations.SingleGraph;
 public class DemoPageRank {
 	public static void main(String[] args) throws InterruptedException {
 		Graph graph = new SingleGraph("test");
-		graph.addAttribute("ui.antialias", true);
-		graph.addAttribute("ui.stylesheet",
+		graph.setAttribute("ui.antialias", true);
+		graph.setAttribute("ui.stylesheet",
 				"node {fill-color: red; size-mode: dyn-size;} edge {fill-color:grey;}");
 		graph.display();
 
@@ -58,9 +58,9 @@ public class DemoPageRank {
 			generator.nextEvents();
 			for (Node node : graph) {
 				double rank = pageRank.getRank(node);
-				node.addAttribute("ui.size",
+				node.setAttribute("ui.size",
 						5 + Math.sqrt(graph.getNodeCount() * rank * 20));
-				node.addAttribute("ui.label",
+				node.setAttribute("ui.label",
 						String.format("%.2f%%", rank * 100));
 			}
 			Thread.sleep(1000);

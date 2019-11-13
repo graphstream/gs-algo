@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,13 +21,20 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2009-02-19
+ *
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Stefan Balev <stefan.balev@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm;
 
-import java.util.Iterator;
-
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
+
+import java.util.stream.Stream;
 
 /**
  * Base for spanning tree algorithms.
@@ -53,7 +53,7 @@ import org.graphstream.graph.Graph;
  * 
  * <p>
  * Spanning tree algorithms have to extend this class and to implements the
- * {@link #makeTree()} and {@link #getTreeEdgesIterator()} methods.
+ * {@link #makeTree()} and {@link #getTreeEdgesStream()} methods.
  * {@link #edgeOn(Edge)} and {@link #edgeOff(Edge)} methods have to be used to
  * properly tag edges.
  * </p>
@@ -238,7 +238,7 @@ public abstract class AbstractSpanningTree implements SpanningTree {
 	protected void edgeOn(Edge e) {
 		if (flagAttribute != null) {
 			if (flagOn != null)
-				e.changeAttribute(flagAttribute, flagOn);
+				e.setAttribute(flagAttribute, flagOn);
 			else
 				e.removeAttribute(flagAttribute);
 		}
@@ -253,7 +253,7 @@ public abstract class AbstractSpanningTree implements SpanningTree {
 	protected void edgeOff(Edge e) {
 		if (flagAttribute != null) {
 			if (flagOff != null)
-				e.changeAttribute(flagAttribute, flagOff);
+				e.setAttribute(flagAttribute, flagOff);
 			else
 				e.removeAttribute(flagAttribute);
 		}
@@ -264,8 +264,9 @@ public abstract class AbstractSpanningTree implements SpanningTree {
 	 * tree.
 	 */
 	protected void resetFlags() {
-		for (Edge edge : graph.getEachEdge())
-			edgeOff(edge);
+		graph.edges().forEach(edge -> edgeOff(edge));
+		/*for (Edge edge : graph.getEachEdge())
+			edgeOff(edge);*/
 	}
 
 	// Abstract methods to be implemented by subclasses
@@ -279,17 +280,13 @@ public abstract class AbstractSpanningTree implements SpanningTree {
 	/* (non-Javadoc)
 	 * @see org.graphstream.algorithm.SpanningTree#getTreeEdgesIterator()
 	 */
-	public abstract <T extends Edge> Iterator<T> getTreeEdgesIterator();
+	public abstract Stream<Edge> getTreeEdgesStream();
 
 	/* (non-Javadoc)
 	 * @see org.graphstream.algorithm.SpanningTree#getTreeEdges()
 	 */
-	public <T extends Edge> Iterable<T> getTreeEdges() {
-		return new Iterable<T>() {
-			public Iterator<T> iterator() {
-				return getTreeEdgesIterator();
-			}
-		};
+	public Iterable<Edge> getTreeEdges() {
+		return () -> getTreeEdgesStream().iterator();
 	}
 
 	/* (non-Javadoc)
@@ -297,8 +294,13 @@ public abstract class AbstractSpanningTree implements SpanningTree {
 	 */
 	public void clear() {
 		if (flagAttribute != null)
+			graph.edges().forEach(edge -> edge.removeAttribute(flagAttribute));
+			
+		/*
+		if (flagAttribute != null)
 			for (Edge edge : graph.getEachEdge())
 				edge.removeAttribute(flagAttribute);
+		*/
 	}
 
 	// Algorithm interface

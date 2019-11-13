@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,12 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2011-10-04
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.generator;
 
@@ -123,29 +122,29 @@ public class URLGenerator extends BaseGenerator {
 
 		if (printProgress)
 			progress();
-
-		for (String url : stepUrls) {
+		
+		stepUrls.forEach(url -> {
 			try {
 				addNodeURL(url);
 			} catch (URISyntaxException e) {
 				e.printStackTrace();
 			}
-		}
-
+		});
+		
 		urls.addAll(stepUrls);
 		newUrls.clear();
 
 		if (threads > 1)
 			nextEventsThreaded();
 		else {
-			for (String url : stepUrls) {
+			stepUrls.forEach(url -> {
 				try {
 					parseUrl(url);
 				} catch (IOException e) {
 					System.err.printf("Failed to parse \"%s\" : %s\n", url,
 							e.getMessage());
 				}
-			}
+			});
 		}
 
 		stepUrls.clear();
@@ -226,7 +225,7 @@ public class URLGenerator extends BaseGenerator {
 	/**
 	 * Set the maximum steps before stop. If 0 or less, limit is disabled.
 	 * 
-	 * @param depthLimit
+	 * @param depthLimit maximum steps before stop
 	 */
 	public void setDepthLimit(int depthLimit) {
 		this.depthLimit = depthLimit;
@@ -239,7 +238,7 @@ public class URLGenerator extends BaseGenerator {
 	/**
 	 * Can be used to filter url. Url not matching this regex will be discarded.
 	 * 
-	 * @param regex
+	 * @param regex regex used to filter url
 	 */
 	public void acceptOnlyMatchingURL(final String regex) {
 		URLFilter f = new URLFilter() {
@@ -257,7 +256,7 @@ public class URLGenerator extends BaseGenerator {
 	/**
 	 * Can be used to filter url. Url matching this regex will be discarded.
 	 * 
-	 * @param regex
+	 * @param regex regex used to filter url
 	 */
 	public void declineMatchingURL(final String regex) {
 		URLFilter f = new URLFilter() {
@@ -341,9 +340,8 @@ public class URLGenerator extends BaseGenerator {
 	 * 
 	 * @param url
 	 *            the url to parse
-	 * @param newUrls
-	 *            the set where extracted links will be added
 	 * @throws IOException
+	 * 			  exception if url is wrong
 	 */
 	protected void parseUrl(String url) throws IOException {
 		URI uri;

@@ -1,11 +1,4 @@
 /*
- * Copyright 2006 - 2016
- *     Stefan Balev     <stefan.balev@graphstream-project.org>
- *     Julien Baudry    <julien.baudry@graphstream-project.org>
- *     Antoine Dutot    <antoine.dutot@graphstream-project.org>
- *     Yoann Pigné      <yoann.pigne@graphstream-project.org>
- *     Guilhelm Savin   <guilhelm.savin@graphstream-project.org>
- * 
  * This file is part of GraphStream <http://graphstream-project.org>.
  * 
  * GraphStream is a library whose purpose is to handle static or dynamic
@@ -28,6 +21,12 @@
  * 
  * The fact that you are presently reading this means that you have had
  * knowledge of the CeCILL-C and LGPL licenses and that you accept their terms.
+ *
+ *
+ * @since 2013-03-12
+ * 
+ * @author Guilhelm Savin <guilhelm.savin@graphstream-project.org>
+ * @author Hicham Brahimi <hicham.brahimi@graphstream-project.org>
  */
 package org.graphstream.algorithm.measure;
 
@@ -35,6 +34,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.graphstream.algorithm.Algorithm;
+import org.graphstream.algorithm.util.Parameter;
+import org.graphstream.algorithm.util.Result;
 import org.graphstream.graph.Edge;
 import org.graphstream.graph.Graph;
 
@@ -104,8 +105,8 @@ public class SurpriseMeasure implements Algorithm {
 	 * Same as {@link #SurpriseMeasure(String)} but allowing to set the graph
 	 * attribute that will contain the result of the computation.
 	 * 
-	 * @param communityAttributeKey
-	 * @param surpriseAttributeKey
+	 * @param communityAttributeKey community attribute key
+	 * @param surpriseAttributeKey surprise attribute key
 	 */
 	public SurpriseMeasure(String communityAttributeKey,
 			String surpriseAttributeKey) {
@@ -178,7 +179,17 @@ public class SurpriseMeasure implements Algorithm {
 
 		graph.setAttribute(surpriseAttributeKey, S);
 	}
-
+	
+	@Result
+	public String defaultResult() {
+		return "Surprise = "+getSurprise();
+	}
+	
+	@Parameter
+	public void setCommunityAttributeKey(String communityAttributeKey) {
+		this.communityAttributeKey = communityAttributeKey;
+	}
+	
 	/**
 	 * Get the last computed surprise value contained in the graph.
 	 * 
@@ -199,9 +210,9 @@ public class SurpriseMeasure implements Algorithm {
 	/**
 	 * Helper to compute the binomial coefficient.
 	 * 
-	 * @param n
-	 * @param r
-	 * @return
+	 * @param n number of elements in set
+	 * @param r  number of elements
+	 * @return the binomial coefficient
 	 */
 	public static double binomialCoefficient(double n, double r) {
 		if (r > n)
@@ -226,11 +237,11 @@ public class SurpriseMeasure implements Algorithm {
 	 * "http://stattrek.com/probability-distributions/hypergeometric.aspx">this
 	 * page</a> for more information about this function.
 	 * 
-	 * @param x
-	 * @param N
-	 * @param n
-	 * @param k
-	 * @return
+	 * @param x x
+	 * @param N N
+	 * @param n n
+	 * @param k k
+	 * @return hypergeometric Distribution
 	 */
 	public static double hypergeometricDistribution(double x, double N,
 			double n, double k) {
@@ -244,12 +255,12 @@ public class SurpriseMeasure implements Algorithm {
 	 * "http://stattrek.com/probability-distributions/hypergeometric.aspx">this
 	 * page</a> for more information about this function.
 	 * 
-	 * @param xStart
-	 * @param xEnd
-	 * @param N
-	 * @param n
-	 * @param k
-	 * @return
+	 * @param xStart xStart
+	 * @param xEnd xEnd
+	 * @param N N
+	 * @param n n
+	 * @param k k
+	 * @return Cumulative Hypergeometric Distribution
 	 */
 	public static double cumulativeHypergeometricDistribution(double xStart,
 			double xEnd, double N, double n, double k) {
