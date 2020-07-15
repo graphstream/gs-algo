@@ -1,0 +1,11 @@
+org.graphstream.algorithm
+org.graphstream.algorithm.coloring
+org.graphstream.algorithm.community
+org.graphstream.algorithm.flow
+org.graphstream.algorithm.generator
+org.graphstream.algorithm.generator.lcf
+org.graphstream.algorithm.measure
+org.graphstream.algorithm.networksimplex
+org.graphstream.algorithm.randomWalk
+org.graphstream.algorithm.util
+org.graphstream.ui.layout
