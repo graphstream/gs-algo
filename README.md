@@ -36,12 +36,12 @@ then, add the `gs-core` and `gs-algo` to your dependencies:
 <dependency>
     <groupId>com.github.graphstream</groupId>
     <artifactId>gs-core</artifactId>
-    <version>dev-SNAPSHOT</version>
+    <version>2.0</version>
 </dependency>
 <dependency>
     <groupId>com.github.graphstream</groupId>
     <artifactId>gs-algo</artifactId>
-    <version>dev-SNAPSHOT</version>
+    <version>2.0</version>
 </dependency>
 ```
 
