@@ -83,7 +83,7 @@ public class Spectrum implements Algorithm {
 				a.setEntry(idx1, idx2, e != null ? 1 : 0);
 			}
 
-		decomposition = new EigenDecomposition(a, 0);
+		decomposition = new EigenDecomposition(a);
 	}
 
 	public int getEigenvaluesCount() {

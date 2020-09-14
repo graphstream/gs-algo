@@ -31,7 +31,7 @@
  */
 package org.graphstream.algorithm.measure;
 
-import org.apache.commons.math.stat.descriptive.moment.*;
+import org.apache.commons.math3.stat.descriptive.moment.*;
 
 /**
  * Provides some statistical information on the size of current community

@@ -29,7 +29,7 @@
  */
 package org.graphstream.algorithm.measure;
 
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics;
 
 /**
  * A measure to add 1D entries (y). x is auto-incremented by one at each new
