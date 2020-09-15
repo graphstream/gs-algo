@@ -27,6 +27,7 @@
 	<groupId>org.graphstream</groupId>
 	<artifactId>gs-algo</artifactId>
 	<version>2.0</version>
+  	<packaging>jar</packaging>
 
 	<name>gs-algo</name>
 	<description>
@@ -53,6 +54,57 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
+	<!-- The GraphStream Team.  -->
+	<developers>
+		<developer>
+			<id>hbrahimi</id>
+			<name>Hicham Brahimi</name>
+			<email>hicham.brahimi@graphstream-project.org</email>
+			<organization>LITIS</organization>
+			<organizationUrl>http://www.litislab.eu</organizationUrl>
+		</developer>
+
+		<developer>
+			<id>sbalev</id>
+			<name>Stefan Balev</name>
+			<email>stefan.balev@graphstream-project.org</email>
+			<organization>LITIS</organization>
+			<organizationUrl>http://www.litislab.eu</organizationUrl>
+		</developer>
+
+		<developer>
+			<id>jbaudry</id>
+			<name>Julien Baudry</name>
+			<email>julien.baudry@graphstream-project.org</email>
+			<organization>LITIS</organization>
+			<organizationUrl>http://www.litislab.eu</organizationUrl>
+		</developer>
+
+		<developer>
+			<id>adutot</id>
+			<name>Antoine Dutot</name>
+			<email>antoine.dutot@graphstream-project.org</email>
+			<organization>LITIS</organization>
+			<organizationUrl>http://www.litislab.eu</organizationUrl>
+		</developer>
+
+		<developer>
+			<id>ypigne</id>
+			<name>Yoann Pigné</name>
+			<email>yoann.pigne@graphstream-project.org</email>
+			<organization>LITIS</organization>
+			<organizationUrl>http://www.litislab.eu</organizationUrl>
+		</developer>
+
+		<developer>
+			<id>gsavin</id>
+			<name>Guilhelm Savin</name>
+			<email>guilhelm.savin@graphstream-project.org</email>
+			<organization>LITIS</organization>
+			<organizationUrl>http://www.litislab.eu</organizationUrl>
+		</developer>
+	</developers>
+
 	<licenses>
 		<license>
 			<name>LGPL3</name>
@@ -73,6 +125,12 @@
 				enable the sign phase.
 			-->
 			<id>release</id>
+			<distributionManagement>
+				<repository>
+					<id>ossrh</id>
+					<url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+				</repository>
+			</distributionManagement>
 			<build>
 				<plugins>
 					<plugin>
@@ -86,7 +144,7 @@
 						<executions>
 							<execution>
 								<id>sign-artifacts</id>
-								<phase>package</phase>
+								<phase>verify</phase>
 								<goals>
 									<goal>sign</goal>
 								</goals>
@@ -201,38 +259,9 @@
 				</configuration>
 				<version>2.18.1</version>
 			</plugin>
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>org.graphstream.util.GraphDiff</mainClass>
-						</manifest>
-					</archive>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-				</configuration>
-				<executions>
-					<execution>
-						<id>make-assembly</id>						<!-- this is used for inheritance merges -->
-						<phase>prepare-package</phase>						<!-- bind to the prepare-packaging phase so that it can be signed -->
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+			
 		</plugins>
 	</build>
-
-	<repositories>
-		<repository>
-			<id>jitpack.io</id>
-			<url>https://jitpack.io</url>
-		</repository>
-	</repositories>
-
 
 	<dependencies>
 		<dependency>
@@ -261,7 +290,7 @@
 			<optional>false</optional>
 		</dependency>
 		<dependency>
-			<groupId>com.github.graphstream</groupId>
+			<groupId>org.graphstream</groupId>
 			<artifactId>gs-core</artifactId>
 			<version>2.0</version>
 			<scope>provided</scope>
