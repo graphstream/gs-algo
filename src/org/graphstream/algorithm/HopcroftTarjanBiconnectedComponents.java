@@ -52,6 +52,10 @@ import java.util.stream.Stream;
  * "https://en.wikipedia.org/wiki/Biconnected_component"
  * >Wikipedia</a></h2>
  *
+ * The algorithm first calculates via a depth first search approach so called articulation points or cut vertices that, when removed, split the graph into separate pieces.
+ * Once the articulation points are known, from each articulation points' neighbor that has a higher lowpoint than the articulation points depth, a biconnected is formed from the articulation point, the neighbor and the subtree from that neighbor.
+ * For the root node this computation is also done, but if it is not an articulation point a biconnected component simply is the tree from the root node until other biconnected components are reached.
+ *
  * <p>
  * This algorithm computes the biconnected components for a given graph. Biconnected
  * components are the set of its maximal biconnected subgraphs,
@@ -92,7 +96,7 @@ import java.util.stream.Stream;
  * <h3>Giant component</h3>
  * <p>
  * The {@link #getGiantComponent()} method gives you a list of nodes belonging
- * to the biggest connected component of the graph.
+ * to the biggest biconnected component of the graph.
  * </p>
  *
  * <p>
@@ -219,6 +223,8 @@ public class HopcroftTarjanBiconnectedComponents implements Algorithm {
         started = true;
 
         if (graph.getNodeCount() != 0) {
+
+
             if (root == null) {
                 root = graph.getNode(0);
             }
@@ -269,7 +275,7 @@ public class HopcroftTarjanBiconnectedComponents implements Algorithm {
      * We use here the {@link BiconnectedComponent#registerNode(Node)} method
      * which will update the {@link #componentsMap} and the size of the
      * biconnected component
-     * @param root
+     * @param root The root node of the DFS that computed the articulation points
      */
     protected void calculateBiconnectedComponents(Node root) {
         HashMap<Integer, Boolean> visitedNormalNodes = new HashMap<Integer, Boolean>(); // All special children are nodes adjacent to an articulation point that have a smaller lowpoint than the articulation points depth
@@ -284,27 +290,7 @@ public class HopcroftTarjanBiconnectedComponents implements Algorithm {
             while (lowpointNeighbors.hasNext()) {
                 Node neighbor = lowpointNeighbors.next();
 
-                BiconnectedComponent bcc = new BiconnectedComponent();
-                bcc.registerNode(currentNode);
-
-                LinkedList<Node> open = new LinkedList<Node>();
-                open.add(neighbor);
-                while (!open.isEmpty()) {
-                    Node n = open.poll();
-                    if (nodeArticulationPoints.get(n.getIndex()) == null) { // If we dont have an articulation point here we can add further neighbors
-                        visitedNormalNodes.put(n.getIndex(), true);
-                        open.addAll(Arrays.asList(n.neighborNodes().filter(child -> (child != currentNode
-                                        && visitedNormalNodes.get(child.getIndex()) == null
-                                        && visitedArticulationPoints.get(n.getIndex()) == null)).toArray(Node[]::new))
-                        ); // Add all still unvisited neighbors and articulation points that are unvisited for this current articulation point
-                    }
-                    if (visitedArticulationPoints.get(n.getIndex()) == null) {
-                        bcc.registerNode(n);
-                        if (nodeArticulationPoints.get(n.getIndex()) != null) {
-                            visitedArticulationPoints.put(n.getIndex(), true);
-                        }
-                    }
-                }
+                BiconnectedComponent bcc = createBiconnectedComponent(visitedNormalNodes, visitedArticulationPoints, currentNode, neighbor);
 
                 if (bcc.size != 0) { // Only add component if component didn't contain only previously visited articulation points
                     components.add(bcc);
@@ -312,50 +298,71 @@ public class HopcroftTarjanBiconnectedComponents implements Algorithm {
             }
         }
 
-        //Do last iteration for root node //TODO: Check
+        //Do last iteration for root node
         if (nodeArticulationPoints.get(root.getIndex()) == null) {
-            BiconnectedComponent bcc = new BiconnectedComponent();
+            HashMap<Integer, Boolean> visitedArticulationPoints = new HashMap<Integer, Boolean>();
+
+            BiconnectedComponent bcc = createBiconnectedComponent(visitedNormalNodes, visitedArticulationPoints, root, root);
+
             components.add(bcc);
-
-            LinkedList<Node> open = new LinkedList<Node>();
-
-            open.add(root);
-            while (!open.isEmpty()) {
-                Node n = open.poll();
-                if (nodeArticulationPoints.get(n.getIndex()) == null) { // If we dont have an articulation point here
-                    visitedNormalNodes.put(n.getIndex(), true);
-                    open.addAll(
-                            Arrays.asList(
-                                    n.neighborNodes().filter(child -> (visitedNormalNodes.get(child.getIndex()) == null)).toArray(Node[]::new)
-                            )
-                    ); //TODO: Currently multiple traversals of articulation points are possible here, not so nice
-                }
-                bcc.registerNode(n);
-            }
         }
     }
 
     /**
-     * Get the connected component that contains the biggest number of nodes.
+     * Creates a biconnected component by first adding one initial node and from a node starting point adding all other nodes in the tree, each branch ending when either articulation points or already visited nodes are hit.
+     * @param visitedNormalNodes A Hashmap of non-articulation point nodes Indexes (Integer) and Booleans whether they are visited or not (To save memory non visited wont even have an entry)
+     * @param visitedArticulationPoints A Hashmap of articulation point nodes Indexes (Integer) and Booleans whether they are visited or not (To save memory non visited wont even have an entry)
+     * @param first The first node of the biconnected component
+     * @param startingSearchFrom The node to start the visiting other nodes from. Can be the same as first
+     * @return the completed biconnected Component.
+     */
+    protected BiconnectedComponent createBiconnectedComponent(HashMap<Integer, Boolean> visitedNormalNodes, HashMap<Integer, Boolean> visitedArticulationPoints, Node first, Node startingSearchFrom) {
+        BiconnectedComponent bcc = new BiconnectedComponent();
+        bcc.registerNode(first);
+
+        LinkedList<Node> open = new LinkedList<Node>();
+        open.add(startingSearchFrom);
+        while (!open.isEmpty()) {
+            Node n = open.poll();
+            if (nodeArticulationPoints.get(n.getIndex()) == null) { // If we dont have an articulation point here we can add further neighbors
+                visitedNormalNodes.put(n.getIndex(), true);
+                open.addAll(Arrays.asList(n.neighborNodes().filter(child -> (child != first
+                        && visitedNormalNodes.get(child.getIndex()) == null
+                        && visitedArticulationPoints.get(child.getIndex()) == null)).toArray(Node[]::new))
+                ); // Add all still unvisited neighbors and articulation points that are unvisited for the "first" node
+            }
+            if (visitedArticulationPoints.get(n.getIndex()) == null) {
+                bcc.registerNode(n);
+                if (nodeArticulationPoints.get(n.getIndex()) != null) {
+                    visitedArticulationPoints.put(n.getIndex(), true);
+                }
+            }
+        }
+
+        return bcc;
+    }
+
+    /**
+     * Get the biconnected component that contains the biggest number of nodes.
      *
-     * @return the biggest CC.
+     * @return the biggest BCC.
      */
     public BiconnectedComponent getGiantComponent() {
         checkStarted();
 
-        BiconnectedComponent maxCC = null;
+        BiconnectedComponent maxBCC = null;
 
-        maxCC = components.stream()
+        maxBCC = components.stream()
                 .max((bcc1, bcc2) -> Integer.compare(bcc1.size, bcc2.size))
                 .get();
 
-        return maxCC;
+        return maxBCC;
     }
 
     /**
      * Ask the algorithm for the number of biconnected components.
      *
-     * @return the number of connected components in this graph.
+     * @return the number of biconnected components in this graph.
      */
     public int getBiconnectedComponentsCount() {
         checkStarted();
@@ -369,11 +376,11 @@ public class HopcroftTarjanBiconnectedComponents implements Algorithm {
     }
 
     /**
-     * Ask the algorithm for the number of connected components whose size is
+     * Ask the algorithm for the number of biconnected components whose size is
      * equal to or greater than the specified threshold.
      *
-     * @param sizeThreshold Minimum size for the connected component to be considered
-     * @return the number of connected components, bigger than the given size
+     * @param sizeThreshold Minimum size for the biconnected component to be considered
+     * @return the number of biconnected components, bigger than the given size
      * threshold, in this graph.
      */
     public int getBiconnectedComponentsCount(int sizeThreshold) {
@@ -381,14 +388,14 @@ public class HopcroftTarjanBiconnectedComponents implements Algorithm {
     }
 
     /**
-     * Ask the algorithm for the number of connected components whose size is
+     * Ask the algorithm for the number of biconnected components whose size is
      * equal to or greater than the specified threshold and lesser than the
      * specified ceiling.
      *
-     * @param sizeThreshold Minimum size for the connected component to be considered
-     * @param sizeCeiling   Maximum size for the connected component to be considered (use
+     * @param sizeThreshold Minimum size for the biconnected component to be considered
+     * @param sizeCeiling   Maximum size for the biconnected component to be considered (use
      *                      0 or lower values to ignore the ceiling)
-     * @return the number of connected components, bigger than the given size
+     * @return the number of biconnected components, bigger than the given size
      * threshold, and smaller than the given size ceiling, in this
      * graph.
      */
@@ -413,12 +420,12 @@ public class HopcroftTarjanBiconnectedComponents implements Algorithm {
     }
 
     /**
-     * Return the connected component where a node belonged. The validity of the
+     * Return the biconnected component where a node belonged. The validity of the
      * result ends if any new computation is done. So you will have to call this
      * method again to be sure you are manipulating the good component.
      *
      * @param n a node
-     * @return the connected component containing `n`
+     * @return the biconnected component containing `n`
      */
     public ArrayList<BiconnectedComponent> getBiconnectedComponentsOf(Node n) {
         return n == null ? null : componentsMap.get(n);
@@ -428,7 +435,7 @@ public class HopcroftTarjanBiconnectedComponents implements Algorithm {
      * Same as {@link #getBiconnectedComponentsOf(Node)} but using the node id.
      *
      * @param nodeId a node id
-     * @return the connected component containing the node `nodeId`
+     * @return the biconnected component containing the node `nodeId`
      */
     public ArrayList<BiconnectedComponent> getBiconnectedComponentsOf(String nodeId) {
         return getBiconnectedComponentsOf(graph.getNode(nodeId));
@@ -438,7 +445,7 @@ public class HopcroftTarjanBiconnectedComponents implements Algorithm {
      * Same as {@link #getBiconnectedComponentsOf(Node)} but using the node index.
      *
      * @param nodeIndex a node index
-     * @return the connected component containing the node `nodeIndex`
+     * @return the biconnected component containing the node `nodeIndex`
      */
     public ArrayList<BiconnectedComponent> getBiconnectedComponentOf(int nodeIndex) {
         return getBiconnectedComponentsOf(graph.getNode(nodeIndex));
