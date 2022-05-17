@@ -106,9 +106,7 @@ import java.util.stream.Stream;
  *
  * @author Max Kißgen
  * @complexity For the articulation points, let n be the number of nodes, then
- * the time complexity is 0(n). For the re-optimization steps, let k be
- * the number of nodes concerned by the changes (k <= n), the
- * complexity is O(k).
+ * the time complexity is 0(n).
  * @since May 05 2022
  */
 public class HopcroftTarjanBiconnectedComponents implements Algorithm {
