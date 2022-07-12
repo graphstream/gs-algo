@@ -358,6 +358,17 @@ public class HopcroftTarjanBiconnectedComponents implements Algorithm {
     }
 
     /**
+     * Get the found biconnected components
+     *
+     * @return the number of biconnected components in this graph.
+     */
+    public ArrayList<BiconnectedComponent> getBiconnectedComponents() {
+        checkStarted();
+
+        return new ArrayList<BiconnectedComponent>(this.components);
+    }
+
+    /**
      * Ask the algorithm for the number of biconnected components.
      *
      * @return the number of biconnected components in this graph.
